@@ -29,6 +29,7 @@ package com.degrafa.skins
 	import com.degrafa.paint.BitmapFill;
 	import com.degrafa.paint.BlendFill;
 	import com.degrafa.paint.ComplexFill;
+	import com.degrafa.paint.SolidFill;
 	
 	import flash.geom.Rectangle;
 	
@@ -548,7 +549,7 @@ package com.degrafa.skins
 			var styles:Array = StyleUtil.expandProperty(style, [0, -1, -2, -2]);
 			for(var i:int = 0; i < 4; i++) {
 				var fill:IFill = StyleUtil.resolveFill(styles[i]);
-				(fill as SolidColor).alpha = getStyle(BORDER_ALPHA);
+				(fill as SolidFill).alpha = getStyle(BORDER_ALPHA);
 				switch(i) {
 					case 0:
 						borderLeftFill = fill;

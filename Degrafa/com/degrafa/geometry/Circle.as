@@ -23,8 +23,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Circle.png")]
 	
 	[Bindable]	
 	/**
@@ -46,12 +53,13 @@ package com.degrafa.geometry{
 	 	* @param centerY A number indicating the center y-axis coordinate.
 	 	* @param radius A number indicating the radius of the circle. 
 	 	*/		
-		public function Circle(centerX:Number=0,centerY:Number=0,radius:Number=0){			
+		public function Circle(centerX:Number=NaN,centerY:Number=NaN,radius:Number=NaN){			
 			super();
 			
 			this.centerX=centerX;
 			this.centerY=centerY;
 			this.radius=radius;
+			
 		}
 		
 		/**
@@ -82,12 +90,13 @@ package com.degrafa.geometry{
 		} 
 		
 		 
-		private var _centerX:Number=0;
+		private var _centerX:Number;
 		/**
 		* The x-axis coordinate of the center of the circle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get centerX():Number{
+			if(!_centerX){return 0;}
 			return _centerX;
 		}
 		public function set centerX(value:Number):void{
@@ -97,12 +106,13 @@ package com.degrafa.geometry{
 			}
 		}
 				
-		private var _centerY:Number=0;
+		private var _centerY:Number;
 		/**
 		* The y-axis coordinate of the center of the circle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get centerY():Number{
+			if(!_centerY){return 0;}
 			return _centerY;
 		}
 		public function set centerY(value:Number):void{
@@ -114,12 +124,13 @@ package com.degrafa.geometry{
 		}
 		
 						
-		private var _radius:Number=0;
+		private var _radius:Number;
 		/**
 		* The radius of the circle. If not specified a default value of 0 
 		* is used.
 		**/
 		public function get radius():Number{
+			if(!_radius){return 0;}
 			return _radius;
 		}
 		public function set radius(value:Number):void{
@@ -129,13 +140,27 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		
+		private var _accuracy:Number;
+		/**
+		* The accuracy of the circle. If not specified a default value of 8 
+		* is used.
+		**/
+		public function get accuracy():Number{
+			if(!_accuracy){return 8;}
+			return _accuracy;
+		}
+		public function set accuracy(value:Number):void{
+			if(_accuracy != value){
+				_accuracy = value;
+				invalidated = true;
+			}
+		}
 			
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -154,13 +179,29 @@ package com.degrafa.geometry{
 			if(invalidated){
 			
 				commandStack = [];
-				
-				commandStack.push({type:"circle", centerX:centerX,
-					centerY:centerY,
-					radius:radius
-					});	
-				
-			
+								
+			    var span:Number = Math.PI/accuracy;
+			    var controlRadius:Number = radius/Math.cos(span);
+			    var anchorAngle:Number=0
+			    var controlAngle:Number=0;
+			    
+			   	//add the move to the command stack		    
+			    commandStack.push({type:"m", x:centerX+Math.cos(anchorAngle)*radius,
+			    y:centerY+Math.sin(anchorAngle)*radius});
+					
+			    var i:int=0;
+			    
+			    //loop through and add the curve commands
+			    for (i; i<accuracy; ++i) {
+			        controlAngle = anchorAngle+span;
+			        anchorAngle = controlAngle+span;
+			        					
+					commandStack.push({type:"c",cx:centerX + Math.cos(controlAngle)*controlRadius,
+					cy:centerY + Math.sin(controlAngle)*controlRadius,
+					x1:centerX + Math.cos(anchorAngle)*radius,
+					y1:centerY + Math.sin(anchorAngle)*radius});
+				};
+
 				calcBounds();
 				invalidated = false;
 			}
@@ -191,19 +232,37 @@ package com.degrafa.geometry{
 			else{
 				super.draw(graphics,rc);
 			}
-			
-			var item:Object;
 						
-			//draw each item in the array
+			var item:Object;
 			for each (item in commandStack){
+        		switch(item.type){
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
         		
-        		graphics.drawCircle(item.centerX,item.centerY,
-        		item.radius);
-        		
-        	}
-				 	 		 	 	
+        			case "c":
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				break;
+        		}
+        	}	
+        					 	 		 	 	
 	 	 	super.endDraw(graphics);
-					
+								
+		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:Circle):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke;}
+			if (!_centerX){_centerX = value.centerX;}
+			if (!_centerY){_centerY = value.centerY;}
+			if (!_radius){_radius = value.radius;}
+			if (!_accuracy){_accuracy = value.accuracy;}
+		
 		}
 				
 	}

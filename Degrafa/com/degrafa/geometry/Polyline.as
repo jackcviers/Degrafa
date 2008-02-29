@@ -30,6 +30,14 @@ package com.degrafa.geometry{
 	import flash.geom.Rectangle;
 	
 	import mx.events.PropertyChangeEvent;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Polyline.png")]
+	
+	[DefaultProperty("points")]	
 		
 	[Bindable]	
 	/**
@@ -49,7 +57,9 @@ package com.degrafa.geometry{
 	 	*/
 		public function Polyline(points:Array=null){
 			super();
-			this.points=points;
+			if(points){
+				this.points=points;
+			}
 		}
 		
 		/**
@@ -101,18 +111,13 @@ package com.degrafa.geometry{
 		* A array of points that describe this polyline.
 		**/
 		public function get points():Array{
-			if(!_points){_points = new GraphicPointCollection();}
+			initPointsCollection();
 			return _points.items;
 		}
 		public function set points(value:Array):void{			
-			if(!_points){_points = new GraphicPointCollection();}
+			initPointsCollection();
 			_points.items = value;
 						
-			//add a listener to the collection
-			if(_points && enableEvents){
-				_points.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 			invalidated = true;
 		
 		}
@@ -121,8 +126,22 @@ package com.degrafa.geometry{
 		* Access to the Degrafa point collection object for this polyline.
 		**/
 		public function get pointCollection():GraphicPointCollection{
-			if(!_points){_points = new GraphicPointCollection();}
+			initPointsCollection();
 			return _points;
+		}
+		
+		/**
+		* Initialize the point collection by creating it and adding the event listener.
+		**/
+		private function initPointsCollection():void{
+			if(!_points){
+				_points = new GraphicPointCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_points.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 		/**
@@ -134,12 +153,13 @@ package com.degrafa.geometry{
 			dispatchEvent(event);
 		}
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -150,12 +170,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -171,6 +192,7 @@ package com.degrafa.geometry{
 		* Specifies if this polyline is to be automatically closed. 
 		* If true a line is drawn to the first point.
 		**/
+		[Inspectable(category="General", enumeration="true,false")]
 		public function get autoClose():Boolean{
 			return _autoClose;
 		}
@@ -186,7 +208,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -202,11 +224,11 @@ package com.degrafa.geometry{
 						
 			for (var i:int = 0;i< _points.items.length; i++) 
 			{
-				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x);
-				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y);
+				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x+x);
+				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y+y);
 				
-				boundsMinX= Math.min(boundsMinX, _points.items[i].x);
-				boundsMinY= Math.min(boundsMinY, _points.items[i].y);
+				boundsMinX= Math.min(boundsMinX, _points.items[i].x+x);
+				boundsMinY= Math.min(boundsMinY, _points.items[i].y+y);
 				
 			}
 
@@ -232,7 +254,7 @@ package com.degrafa.geometry{
 			
 				//close if required
 				if(_autoClose){
-					commandStack.push({type:"l",x:_points.items[0].x,y:_points.items[0].y});
+					commandStack.push({type:"l",x:_points.items[0].x+x,y:_points.items[0].y+y});
 				}
 			
 				calcBounds();
@@ -282,6 +304,20 @@ package com.degrafa.geometry{
 	 	 			    
 		}
 		
-		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:Polyline):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke}
+			if (!_x){_x = value.x};
+			if (!_y){_y = value.y};
+						
+			if (!_points && value.points.length!=0){points = value.points};
+			
+			
+		}
 	}
 }

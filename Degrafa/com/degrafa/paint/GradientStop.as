@@ -23,8 +23,14 @@
 package com.degrafa.paint{
 	
 	import com.degrafa.core.DegrafaObject;
-	import com.degrafa.core.utils.ColorUtil;
 	import com.degrafa.core.Measure;
+	import com.degrafa.core.utils.ColorUtil;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("GradientStop.png")]
 	
 	[Bindable(event="propertyChange")]  
 	/**
@@ -33,7 +39,7 @@ package com.degrafa.paint{
 	* 
 	* @see mx.graphics.GradientEntry  
 	**/
-	public class GradientStop extends DegrafaObject{
+	public class GradientStop extends DegrafaObject {
 		
 		/**
 	 	* Constructor.
@@ -46,8 +52,8 @@ package com.degrafa.paint{
 	 	* @param ratio A number indicating where in the graphical element, as a percentage from 0.0 to 1.0, Flex starts the transition to the associated color.
 	 	* @param ratioUnit A string indicating the unit of the ratio for the stop.  
 	 	*/	
-		public function GradientStop(color:uint=0x000000,alpha:Number=1,ratio:Number=-1,ratioUnit:String="ratio"){
-			_color = color;
+		public function GradientStop(color:Object=0x000000,alpha:Number=1,ratio:Number=-1,ratioUnit:String="ratio"){
+			this.color = color;
 			_alpha = alpha;
 			_ratio.value = ratio;
 			_ratio.unit = ratioUnit;
@@ -76,97 +82,24 @@ package com.degrafa.paint{
 		}
 				
 		private var _color:uint=0x000000;
-		[Inspectable(category="General", format="color")]
+		[Inspectable(category="General", format="Color",defaultValue="0x000000")]
 		/**
 		* The color value for a gradient stop.
 		*
 		* @see mx.graphics.GradientEntry
 		**/
-		public function get color():uint{
+		public function get color():Object{
 			return _color;
 		}
-		public function set color(value:uint):void{	
+		public function set color(value:Object):void{	
+			value = ColorUtil.resolveColor(value);
 			if(_color != value){
-				var oldValue:Number=_color;
-											
-				//short notation assumption 
-				if (value.toString(16).length==3){
-					_color = ColorUtil.parseColorNotation(value);		
-				}
-				else{
-					_color=value;
-				}
-				
+				var oldValue:Number=_color;						
+				_color= value as uint;
 				//call local helper to dispatch event	
 				initChange("color",oldValue,_color,this);
 			}
 		}
-		
-		
-		private var _colorKey:String;
-		[Inspectable(category="General", format="string")]
-		/**
-		* Allows a constant string value for example azure. 
-		* See ColorKeys for list of available values.
-		*
-		* @see com.degrafa.core.utils.ColorKeys  
-		**/
-		public function get colorKey():String{
-			return _colorKey;
-		}
-		public function set colorKey(value:String):void{		
-			_colorKey=value;
-			
-			//translate the keyword to a color value and apply 
-			//the result to the color property
-			color=ColorUtil.colorKeyToDec(value);
-			
-		}
-		
-		
-		private var _rgbColor:String;
-		[Inspectable(category="General", format="string")]
-		/**
-		* Allows an comma-separated list of three numerical or 
-		* percent values that are then converted to a hex value. 
-		**/
-		public function get rgbColor():String{
-			return _rgbColor;
-		}
-		public function set rgbColor(value:String):void{		
-			_rgbColor=value;
-			
-			//check and see if it is a percent list or a numeric list
-			if (value.search("%")!=-1)
-			{
-				color=ColorUtil.rgbPercentToDec(value);	
-			}
-			else
-			{
-				color=ColorUtil.rgbToDec(value);	
-			}
-			
-		}
-		
-		
-		private var _cmykColor:String;
-		[Inspectable(category="General", format="string")]
-		/**
-		* Allows an comma-separated list of 4 numerical
-		* values that represent cmyk and are then converted to 
-		* a decimal color value.
-		**/
-		public function get cmykColor():String{
-			return _cmykColor;
-		}
-		public function set cmykColor(value:String):void
-		{		
-			_cmykColor=value;
-			
-			color=ColorUtil.cmykToDec(value);	
-			
-		}
-		
 				    
 		private var _ratio:Measure = new Measure(-1, Measure.RATIO);
 		[Inspectable(category="General")]

@@ -30,6 +30,12 @@ package com.degrafa.geometry.repeaters{
 	import flash.geom.Rectangle;
 	import mx.events.PropertyChangeEvent;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("PolylineRepeater.png")]
+	
 	[Bindable]
 	/**
  	*  The PolylineRpeater element draws a polyline using the specified points. 
@@ -111,31 +117,40 @@ package com.degrafa.geometry.repeaters{
 		[Inspectable(category="General", arrayType="com.degrafa.IGraphicPoint")]
 		[ArrayElementType("com.degrafa.IGraphicPoint")]
 		/**
-		* A array of points that describe the first polygon.
+		* A array of points that describe this polygon.
 		**/
 		public function get points():Array{
-			if(!_points){_points = new GraphicPointCollection();}
+			initPointsCollection();
 			return _points.items;
 		}
-		public function set points(value:Array):void{
-			if(!_points){_points = new GraphicPointCollection();}
+		public function set points(value:Array):void{			
+			initPointsCollection();
 			_points.items = value;
-			
-			//add a listener to the collection
-			if(_points && enableEvents){
-				_points.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
+						
+			invalidated = true;
 		
-			invalidated=true;
-			
 		}
 		
 		/**
-		* Access to the Degrafa point collection object for the first polyline.
+		* Access to the Degrafa point collection object for this polyline.
 		**/
 		public function get pointCollection():GraphicPointCollection{
-			if(!_points){_points = new GraphicPointCollection();}
+			initPointsCollection();
 			return _points;
+		}
+		
+		/**
+		* Initialize the point collection by creating it and adding the event listener.
+		**/
+		private function initPointsCollection():void{
+			if(!_points){
+				_points = new GraphicPointCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_points.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 		/**
@@ -196,7 +211,7 @@ package com.degrafa.geometry.repeaters{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		

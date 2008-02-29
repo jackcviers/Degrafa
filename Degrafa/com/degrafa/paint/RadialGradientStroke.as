@@ -23,8 +23,13 @@
 package com.degrafa.paint{
 	
 	import flash.display.Graphics;
-	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RadialGradientStroke.png")]
 	
 	[Bindable(event="propertyChange")]
 	
@@ -35,13 +40,81 @@ package com.degrafa.paint{
 	* @see mx.graphics.RadialGradient 
 	* @see http://samples.degrafa.com/RadialGradientStroke/RadialGradientStroke.html
 	**/
-	public class RadialGradientStroke extends GradientStroke{
+	public class RadialGradientStroke extends GradientStrokeBase {
 		
 		public function RadialGradientStroke():void{
 			super();
 			super.gradientType = "radial";
 		}
 		
+		private var _cx:Number;
+		/**
+		* The x-axis coordinate of the center of the gradient rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get cx():Number{
+			if(!_cx){return 0;}
+			return _cx;
+		}
+		public function set cx(value:Number):void{
+			if(_cx != value){
+				
+				var oldValue:Number=_cx;
+				
+				_cx = value;
+				
+				//call local helper to dispatch event	
+				initChange("cx",oldValue,_cx,this);
+				
+			}
+		}
+		
+		
+		private var _cy:Number;
+		/**
+		* The y-axis coordinate of the center of the gradient rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get cy():Number{
+			if(!_cy){return 0;}
+			return _cy;
+		}
+		public function set cy(value:Number):void{
+			if(_cy != value){
+				
+				var oldValue:Number=_cy;
+				
+				_cy = value;
+				
+				//call local helper to dispatch event	
+				initChange("cy",oldValue,_cy,this);
+				
+			}
+		}
+		
+		
+		private var _radius:Number;
+		/**
+		* The radius of the gradient fill. If not specified a default value of 0 
+		* is used.
+		**/
+		public function get radius():Number{
+			if(!_radius){return 0;}
+			return _radius;
+		}
+		public function set radius(value:Number):void{
+			if(_radius != value){
+				
+				var oldValue:Number=_radius;
+				
+				_radius = value;
+				
+				//call local helper to dispatch event	
+				initChange("radius",oldValue,_radius,this);
+				
+			}
+		}
+				
 		/**
  		* Applies the properties to the specified Graphics object.
  		* 
@@ -52,11 +125,42 @@ package com.degrafa.paint{
  		**/
 		override public function apply(graphics:Graphics,rc:Rectangle):void{
 			
-			//set the base line style properties
-			super.apply(graphics,rc);
-					
+			if(_cx && _cy && _radius){
+				super.apply(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2));
+			}
+			else if (_radius){
+				super.apply(graphics,new Rectangle(0,0,radius*2,radius*2));
+			}
+			else{
+				super.apply(graphics,rc);
+			}
+			
 		}
 	
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:RadialGradientStroke):void{
+			
+			if (!_cx){_cx = value.cx;}
+			if (!_cy){_cy = value.cy;}
+			if (!_radius){_radius = value.radius;}
+			if (!_caps){_caps = value.caps;}
+			if (!_joints){_joints = value.joints;}
+			if (!_miterLimit){_miterLimit = value.miterLimit;}
+			if (!_pixelHinting){_pixelHinting = value.pixelHinting;}
+			if (!_scaleMode){_scaleMode = value.scaleMode;}
+			if (!_weight) {_weight = value.weight;}
+			
+			if (!_angle){_angle = value.angle;}
+			if (!_interpolationMethod){_interpolationMethod = value.interpolationMethod;}
+			if (!_focalPointRatio){_focalPointRatio = value.focalPointRatio}
+		
+			if (!_gradientStops && value.gradientStops.length!=0){gradientStops = value.gradientStops};
+		
+		}
+		
 		
 	}
 }

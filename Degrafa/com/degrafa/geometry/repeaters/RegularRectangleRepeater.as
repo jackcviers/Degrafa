@@ -27,6 +27,12 @@ package com.degrafa.geometry.repeaters{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RegularRectangleRepeater.png")]
+	
 	[Bindable]
 	/**
  	*  The RegularRectangleRepeater element draws a regular rectangle using the specified x,y,
@@ -194,7 +200,7 @@ package com.degrafa.geometry.repeaters{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		

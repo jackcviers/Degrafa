@@ -22,9 +22,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.GradientStopsCollection;
-	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
@@ -33,8 +32,6 @@ package com.degrafa.paint{
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("gradientStops")]
-	[Exclude(name="color", kind="property")]
-	[Exclude(name="alpha", kind="property")]
 	
 	[Bindable(event="propertyChange")]
 	/**
@@ -43,66 +40,52 @@ package com.degrafa.paint{
 	* 
 	* @see http://degrafa.com/samples/LinearGradientFill.html	  
 	**/
-	public class GradientFill extends SolidFill implements IGraphicsFill{
+	public class GradientFillBase extends DegrafaObject{
+				
+		//these are setup in processEntries
+		protected var _colors:Array = [];
+		protected var _ratios:Array = [];
+		protected var _alphas:Array = [];
 		
-		public function GradientFill(){
-			super();
-		}
+		//**************************************
+		// Public Properties
+		//**************************************
 		
-		private var _colors:Array = [];
-		private var _ratios:Array = [];
-		private var _alphas:Array = [];
-		
-		
-		private var _gradientStops:GradientStopsCollection;
+		protected var _gradientStops:GradientStopsCollection;
 	    [Inspectable(category="General", arrayType="com.degrafa.paint.GradientStop")]
 	    [ArrayElementType("com.degrafa.paint.GradientStop")]
 	    /**
 		* A array of gradient stops that describe this gradient.
 		**/
 		public function get gradientStops():Array{
-			if(!_gradientStops){_gradientStops = new GradientStopsCollection();}
+			initGradientStopsCollection();
 			return _gradientStops.items;
 		}
 		public function set gradientStops(value:Array):void{
-			if(!_gradientStops){_gradientStops = new GradientStopsCollection();}
+			initGradientStopsCollection();
 			_gradientStops.items = value;
-			
-						
-			//update
-			for each(var gradientStop:GradientStop in _gradientStops.items){	
-				
-				_colors.push(gradientStop.color);
-				_alphas.push(gradientStop.alpha);
-				_ratios.push(gradientStop.ratio*255);
-			}
-			
-			//add a listener to the collection
-			if(_gradientStops && enableEvents){
-				_gradientStops.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 		}
 		
 		/**
 		* Access to the Degrafa gradient stop collection object for this gradient.
 		**/
 		public function get gradientStopsCollection():GradientStopsCollection{
-			if(!_gradientStops){_gradientStops = new GradientStopsCollection();}
+			initGradientStopsCollection();
 			return _gradientStops;
 		}
 		
 		/**
-		* Updates the internal array of stops for the index in the items array 
-		* that has been changed.
+		* Initialize the gradient stop collection by creating it and adding an event listener.
 		**/
-		private function updateFillProperties(value:GradientStop):void{
-			
-			var changedIndex:int = _gradientStops.indexOf(value);
-			_colors[changedIndex]= value.color;
-			_alphas[changedIndex]= value.alpha;
-			_ratios[changedIndex]= value.ratio*255;
-			
+		private function initGradientStopsCollection():void{
+			if(!_gradientStops){
+				_gradientStops = new GradientStopsCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_gradientStops.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 		/**
@@ -110,11 +93,10 @@ package com.degrafa.paint{
 		* gradient stop or it's child objects.
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			updateFillProperties(GradientStop(event.source));
 			dispatchEvent(event);
 		}
 		
-		private var _angle:Number = 0;
+		protected var _angle:Number;
 		[Inspectable(category="General")]
 		/**
 		* The angle that defines a transition across the context.
@@ -122,27 +104,80 @@ package com.degrafa.paint{
 		* @see mx.graphics.LinearGradient 
 		**/
 		public function get angle():Number{
+			if(!_angle){return 0;}
 			return _angle;
 		}
 		public function set angle(value:Number):void{
 			if(_angle != value){
 				var oldValue:Number=_angle;
-			
 				_angle = value;
-			
 				//call local helper to dispatch event	
 				initChange("angle",oldValue,_angle,this);
 			}
 			
 		}
-			
 		
-		private var _gradientType:String = "linear";
+		protected var _interpolationMethod:String;
+		[Inspectable(category="General", enumeration="rgb,linearRGB", defaultValue="rgb")]
+		/**
+		* A value from the InterpolationMethod class that specifies which interpolation method to use.
+		* 
+		* @see mx.graphics.LinearGradient 
+		**/
+		public function get interpolationMethod():String{
+			if(!_interpolationMethod){return "rgb";}
+			return _interpolationMethod;
+		}
+		public function set interpolationMethod(value:String):void{			
+			if(_interpolationMethod != value){
+				var oldValue:String=_interpolationMethod;
+				_interpolationMethod = value;
+				//call local helper to dispatch event	
+				initChange("interpolationMethod",oldValue,_interpolationMethod,this);
+			}
+		}
+		
+		protected var _spreadMethod:String;
+		[Inspectable(category="General", enumeration="pad,reflect,repeat", defaultValue="pad")]
+		/**
+		* A value from the SpreadMethod class that specifies which spread method to use.
+		* 
+		* @see mx.graphics.LinearGradient 
+		**/
+		public function get spreadMethod():String {
+			if(!_spreadMethod){return "pad";}
+			return _spreadMethod;
+		}
+		public function set spreadMethod(value:String):void{			
+			if(_spreadMethod != value){
+				var oldValue:String=_spreadMethod;
+				_spreadMethod = value;
+				//call local helper to dispatch event	
+				initChange("spreadMethod",oldValue,_spreadMethod,this);
+			}
+		}
+		
+		//**************************************
+		// IBlend Implementation
+		//**************************************
+		protected var _blendMode:String;
+		public function get blendMode():String { 
+			if(!_blendMode){return null;}
+			return _blendMode; 
+		}
+		public function set blendMode(value:String):void {
+			if(_blendMode != value) {
+				initChange("blendMode", _blendMode, _blendMode = value, this);
+			}
+		}
+				
+		protected var _gradientType:String;		
 		[Inspectable(category="General", enumeration="linear,radial", defaultValue="linear")]
 		/**
 		* Sets the type of gradient to be applied.
 		**/
 		public function get gradientType():String{
+			if(!_gradientType){return "linear";}
 			return _gradientType;
 		}
 		public function set gradientType(value:String):void{
@@ -156,52 +191,8 @@ package com.degrafa.paint{
 			}
 			
 		}
-			
-		private var _spreadMethod:String = "pad";
-		[Inspectable(category="General", enumeration="pad,reflect,repeat", defaultValue="pad")]
-		/**
-		* A value from the SpreadMethod class that specifies which spread method to use.
-		* 
-		* @see mx.graphics.LinearGradient 
-		**/
-		public function get spreadMethod():String{
-			return _spreadMethod;
-		}
-		public function set spreadMethod(value:String):void{			
-			if(_spreadMethod != value){
-				var oldValue:String=_spreadMethod;
-			
-				_spreadMethod = value;
-			
-				//call local helper to dispatch event	
-				initChange("spreadMethod",oldValue,_spreadMethod,this);
-			}
-			
-		}
-				
-		private var _interpolationMethod:String = "rgb";
-		[Inspectable(category="General", enumeration="rgb,linearRGB", defaultValue="rgb")]
-		/**
-		* A value from the InterpolationMethod class that specifies which interpolation method to use.
-		* 
-		* @see mx.graphics.LinearGradient 
-		**/
-		public function get interpolationMethod():String{
-			return _interpolationMethod;
-		}
-		public function set interpolationMethod(value:String):void{			
-			if(_interpolationMethod != value){
-				var oldValue:String=_interpolationMethod;
-			
-				_interpolationMethod = value;
-			
-				//call local helper to dispatch event	
-				initChange("interpolationMethod",oldValue,_interpolationMethod,this);
-			}
-			
-		}
 		
-		private var _focalPointRatio:Number = 0;
+		protected var _focalPointRatio:Number;
 		[Inspectable(category="General")]
 		/**
 		* Sets the location of the start of a radial fill.
@@ -209,6 +200,7 @@ package com.degrafa.paint{
 		* @see mx.graphics.RadialGradient 
 		**/
 		public function get focalPointRatio():Number{
+			if(!_focalPointRatio){return 0;}
 			return _focalPointRatio;
 		}
 		public function set focalPointRatio(value:Number):void{			
@@ -223,69 +215,52 @@ package com.degrafa.paint{
 			
 		}
 		
-		private var _gradientUnits:String = "objectBoundingBox";
-		[Inspectable(category="General", enumeration="userSpaceOnUse,objectBoundingBox", defaultValue="objectBoundingBox")]
-		/**
-		* Gradient coordinate system for attributes.
-		**/
-		public function get gradientUnits():String{
-			return _gradientUnits;
-		}
-		public function set gradientUnits(value:String):void{			
-			if(_gradientUnits != value){
-				var oldValue:String=_gradientUnits;
-			
-				_gradientUnits = value;
-			
-				//call local helper to dispatch event	
-				initChange("gradientUnits",oldValue,_gradientUnits,this);
-			}
-			
-		}	
-		
-		/**
-		* Ends the fill for the graphics context.
-		* 
-		* @param graphics The current context being drawn to.
-		**/
-		override public function end(graphics:Graphics):void{
-			graphics.endFill();
-		}
-		
 		/**
 		* Begins the fill for the graphics context.
 		* 
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle):void{
+		public function begin(graphics:Graphics, rc:Rectangle):void{
 			var matrix:Matrix;
 			
+			//ensure that all defaults are in fact set these are temp until fully tested
+			if(!_angle){_angle=0;}
+			if(!_focalPointRatio){_focalPointRatio=0;}
+			if(!_spreadMethod){_spreadMethod="pad";}
+			if(!_interpolationMethod){_interpolationMethod="rgb";}
+						
 			if (rc)
-			{
+			{				
 				matrix=new Matrix();
 				matrix.createGradientBox(rc.width, rc.height,
 				(_angle/180)*Math.PI, rc.x, rc.y);
-				var xp:Number = (_angle % 90)/90;
+				var xp:Number = (angle % 90)/90;
 				var yp:Number = 1 - xp;
-				//var temp:Matrix = new Matrix();
-				//temp.rotate((_angle/180)*Math.PI);
-				//var point:Point = temp.transformPoint(new Point(rectangle.width, 0));
 				processEntries(rc.width*xp + rc.height*yp);
 			}
 			else
 			{
 				matrix = null;
 			}			
-			
-			graphics.beginGradientFill(_gradientType,_colors,_alphas,_ratios,matrix,_spreadMethod,_interpolationMethod);
+									
+			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
+		}
+		
+		/**
+		* Ends the fill for the graphics context.
+		* 
+		* @param graphics The current context being drawn to.
+		**/
+		public function end(graphics:Graphics):void{
+			graphics.endFill();
 		}
 		
 		/**
 		* Process the gradient stops 
 		**/
-		private function processEntries(length:Number):void{
+		protected function processEntries(length:Number):void{
 			_colors = [];
 			_ratios = [];
 			_alphas = [];

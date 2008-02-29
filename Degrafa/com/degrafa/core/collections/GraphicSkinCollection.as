@@ -104,7 +104,7 @@ package com.degrafa.core.collections{
 		* @return The IGraphicSkin object that was removed.   
 		**/
 		public function removeItemAt(index:Number):IGraphicSkin{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		/**
 		* Change the index of the IGraphicSkin object within this collection.  

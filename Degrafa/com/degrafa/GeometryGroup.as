@@ -29,7 +29,15 @@ package com.degrafa{
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("geometry")]		
-	[Bindable(event="propertyChange")]	
+	[Bindable(event="propertyChange")]
+	
+		
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("GeometryGroup.png")]
+		
 	/**
 	* GeometryGroup is where composition is achieved for 
 	* all Degrafa objects that render to a graphics context. Nested GeometryGroups
@@ -50,25 +58,21 @@ package com.degrafa{
 		* and GeometryGroup are added to the target display list.	
 		**/
 		public function get geometry():Array{
-			if(!_geometry){_geometry = new GeometryCollection();}
+			initGeometryCollection();
 			return _geometry.items;
 		}
 		public function set geometry(value:Array):void
 		{
-			if(!_geometry){_geometry = new GeometryCollection();}
-			_geometry.items = value;
 			
+			initGeometryCollection();
+			
+			_geometry.items = value;
 			
 			//add the children is required
 			for each (var item:IGeometry in _geometry.items){
 				if(item is IGraphic){
 					addChild(DisplayObject(item));
 				}
-			}
-						
-			//add a listener to the collection
-			if(_geometry && enableEvents){
-				_geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 			}
 			
 		}
@@ -77,10 +81,23 @@ package com.degrafa{
 		* Access to the Degrafa geometry collection object for this graphic object.
 		**/
 		public function get geometryCollection():GeometryCollection{
-			if(!_geometry){_geometry = new GeometryCollection();}
+			initGeometryCollection();
 			return _geometry;
 		}
 		
+		/**
+		* Initialize the geometry collection by creating it and adding an event listener.
+		**/
+		private function initGeometryCollection():void{
+			if(!_geometry){
+				_geometry = new GeometryCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
 
 		/**
 		* Principle event handler for any property changes to a 

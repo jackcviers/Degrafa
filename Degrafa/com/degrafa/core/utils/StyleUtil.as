@@ -28,6 +28,7 @@ package com.degrafa.core.utils{
 	import com.degrafa.paint.ComplexFill;
 	import com.degrafa.paint.GradientStop;
 	import com.degrafa.paint.LinearGradientFill;
+	import com.degrafa.paint.SolidFill;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -179,18 +180,11 @@ package com.degrafa.core.utils{
 		// this whole thing needs refactoring
 		private static function resolveFillFromString(value:String):IFill {
 			if(value == null) { return null; }
-			var color:uint = 0;
 			if(value.indexOf(" ") > 0) { // gradient definitions must have at least one space
 				return resolveGradientFromString(value);
+			} else {
+				return new SolidFill(ColorUtil.resolveColor(value));
 			}
-			if(String(value).charAt(0)=="#" || String(value).substr(0,2)=="0x") {
-				color = parseInt(String(value).replace("#", ""), 16);
-			} else { color = parseInt(String(value), 10); }
-			if(isNaN(color) || color==0) {
-				var token:String = String(value).toUpperCase();
-				color = ColorKeys[token];
-			}
-			return new SolidColor(color);
 		}
 		
 		private static function resolveGradientFromString(value:String):IFill {
@@ -220,7 +214,8 @@ package com.degrafa.core.utils{
 						entry.alpha = Number(alpha);
 					}
 					
-					var color:IFill = resolveFillFromString(split[i]);
+					// this should be optimized better
+					var color:IFill = new SolidColor(ColorUtil.resolveColor(split[i]));
 					if(color != null && color is SolidColor) {
 						entry.color = (color as SolidColor).color;
 						i++;

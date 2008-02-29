@@ -8,7 +8,17 @@
 	<component id="GraphicPoint" class="com.degrafa.GraphicPoint"/>
 	<component id="GraphicPointEX" class="com.degrafa.GraphicPointEX"/>
 	<component id="GraphicText" class="com.degrafa.GraphicText"/>
+	
+	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 		
+	<!--Transforms-->
+	<component id="MatrixTransform" class="com.degrafa.transform.MatrixTransform"/>
+	<component id="RotateTransform" class="com.degrafa.transform.RotateTransform"/>
+	<component id="ScaleTransform" class="com.degrafa.transform.ScaleTransform"/>
+	<component id="SkewTransform" class="com.degrafa.transform.SkewTransform"/>
+	<component id="TransformGroup" class="com.degrafa.transform.TransformGroup"/>
+	<component id="TranslateTransform" class="com.degrafa.transform.TranslateTransform"/>
+
 	<!--core-->
 	<component id="DegrafaSkinManipulator" class="com.degrafa.core.manipulators.DegrafaSkinManipulator"/>
 	
@@ -16,9 +26,7 @@
 	<component id="BitmapFill" class="com.degrafa.paint.BitmapFill"/>
 	<component id="BlendFill" class="com.degrafa.paint.BlendFill"/>
 	<component id="ComplexFill" class="com.degrafa.paint.ComplexFill"/>
-	<component id="GradientFill" class="com.degrafa.paint.GradientFill"/>
 	<component id="GradientStop" class="com.degrafa.paint.GradientStop"/>
-	<component id="GradientStroke" class="com.degrafa.paint.GradientStroke"/>
 	<component id="LinearGradientFill" class="com.degrafa.paint.LinearGradientFill"/>
 	<component id="LinearGradientStroke" class="com.degrafa.paint.LinearGradientStroke"/>
 	<component id="RadialGradientFill" class="com.degrafa.paint.RadialGradientFill"/>

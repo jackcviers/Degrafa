@@ -31,6 +31,13 @@ package com.degrafa{
 	import flash.net.URLRequest;
 	
 	[Bindable(event="propertyChange")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("GraphicImage.png")]
+	
 	/**
 	* GraphicImage Enables support for images to be added to compositions. 
 	**/

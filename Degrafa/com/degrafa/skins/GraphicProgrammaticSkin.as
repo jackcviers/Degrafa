@@ -22,13 +22,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.skins
 {
+	import com.degrafa.GeometryComposition;
+	import com.degrafa.core.IGraphicSkin;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
-	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.core.collections.FillCollection;
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.core.collections.StrokeCollection;
-	import com.degrafa.core.IGraphicSkin;
+	import com.degrafa.geometry.Geometry;
+	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.events.Event;
@@ -88,26 +90,34 @@ package com.degrafa.skins
 		* A array of IGraphicsFill objects.
 		**/
 		public function get fills():Array{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills.items;
 		}
-		public function set fills(value:Array):void{
-			if(!_fills){_fills = new FillCollection();}
+		public function set fills(value:Array):void{			
+			initFillsCollection();
 			_fills.items = value;
-			
-			//add a listener to the collection
-			if(_fills && enableEvents){
-				_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 		}
 		
 		/**
 		* Access to the Degrafa fill collection object for this graphic object.
 		**/
 		public function get fillCollection():FillCollection{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills;
+		}
+		
+		/**
+		* Initialize the collection by creating it and adding an event listener.
+		**/
+		private function initFillsCollection():void{
+			if(!_fills){
+				_fills = new FillCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 		private var _strokes:StrokeCollection;
@@ -117,17 +127,12 @@ package com.degrafa.skins
 		* A array of IStroke objects.
 		**/
 		public function get strokes():Array{
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			return _strokes.items;
 		}
-		public function set strokes(value:Array):void{			
-			if(!_strokes){_strokes = new StrokeCollection();}
+		public function set strokes(value:Array):void{	
+			initSrokesCollection();
 			_strokes.items = value;
-			
-			//add a listener to the collection
-			if(_strokes && enableEvents){
-				_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
 			
 		}
 		
@@ -135,45 +140,60 @@ package com.degrafa.skins
 		* Access to the Degrafa stroke collection object for this graphic object.
 		**/
 		public function get strokeCollection():StrokeCollection{
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			return _strokes;
 		}
-			
+		
 		/**
-		* An array of subsequent IGeometry items added as children
-		* to this shape.
+		* Initialize the collection by creating it and adding an event listener.
 		**/
-		private var _geometry:GeometryCollection;
-		[Inspectable(category="General", arrayType="com.degrafa.IGeometry")]
-		[ArrayElementType("com.degrafa.IGeometry")]
-		/**
-		* A array of IGeometry objects. This will not accept IGraphic objects.
-		**/
-		public function get geometry():Array{
-			if(!_geometry){_geometry = new GeometryCollection();}
-			return _geometry.items;;
-		}
-		public function set geometry(value:Array):void{
-			
-			if(!_geometry){_geometry = new GeometryCollection();}
-			_geometry.items = value;
-			
-			for each (var geometryItem:IDegrafaObject in _geometry.items){
-				//add listener if events are enabled
-				if(geometryItem.enableEvents){
-					geometryItem.addEventListener(
-					PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+		private function initSrokesCollection():void{
+			if(!_strokes){
+				_strokes = new StrokeCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 				}
 			}
 		}
-		
+			
+		private var _geometry:GeometryCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.IGeometryComposition")]
+		[ArrayElementType("com.degrafa.IGeometryComposition")]
+		/**
+		* A array of IGeometryComposition objects. 	
+		**/
+		public function get geometry():Array{
+			initGeometryCollection();
+			return _geometry.items;
+		}
+		public function set geometry(value:Array):void{
+			
+			initGeometryCollection();
+			_geometry.items = value;
+		}
 		
 		/**
-		* Access to the Degrafa geometry collection object for this graphic object.
+		* Access to the Degrafa geometry collection object for this geometry object.
 		**/
 		public function get geometryCollection():GeometryCollection{
-			if(!_geometry){_geometry = new GeometryCollection();}
+			initGeometryCollection();
 			return _geometry;
+		}
+		
+		/**
+		* Initialize the geometry collection by creating it and adding an event listener.
+		**/
+		private function initGeometryCollection():void{
+			if(!_geometry){
+				_geometry = new GeometryCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 
@@ -237,16 +257,19 @@ package com.degrafa.skins
 			
 			this.graphics.clear();
 									
-			var i:int;
-			
 			if (geometry){
-				for (i =0;i<geometry.length;i++)
-				{
-					geometry[i].draw(this.graphics,null);
+				for each (var geometryItem:Geometry in _geometry.items){
+					if(geometryItem.state =="" || geometryItem.state ==null){
+						geometryItem.draw(this.graphics,null);
+					} 
+					else if(geometryItem.state == name){
+						geometryItem.draw(this.graphics,null);	
+					}
 				}			
 			}
 					
 	    }
+	    	    
 	    
 	    /**
 		* Draws the object and/or sizes and positions its children.
@@ -261,6 +284,7 @@ package com.degrafa.skins
 		/**
  		* Enable events for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableEvents():Boolean{
 			return _enableEvents;
 		}

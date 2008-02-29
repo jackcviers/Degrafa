@@ -22,6 +22,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	import com.degrafa.core.collections.TransformCollection;
+	
+	import mx.events.PropertyChangeEvent;
+	
 		
 	[DefaultProperty("transforms")]	
 	/**
@@ -34,19 +38,50 @@ package com.degrafa.transform{
 			super();
 		}
 		
-	
+		private var _transforms:TransformCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.transform.ITransform")]
+		[ArrayElementType("com.degrafa.transform.ITransform")]
 		/**
-		* An array for a composite transform
+		* A array of ITransform objects. 	
 		**/
-		private var _transforms:Array = [];
-		[Inspectable(category="General", arrayType="com.degrafa.Transform.ITransform")]
-		[ArrayElementType("com.degrafa.Transform.ITransform")]
 		public function get transforms():Array{
-			return _transforms;
+			initTransformsCollection();
+			return _transforms.items;
 		}
 		public function set transforms(value:Array):void{
-			_transforms = value;
 			
+			initTransformsCollection();
+			_transforms.items = value;
+		}
+		
+		/**
+		* Access to the Degrafa transforms collection object for this geometry object.
+		**/
+		public function get transformCollection():TransformCollection{
+			initTransformsCollection();
+			return _transforms;
+		}
+		
+		/**
+		* Initialize the transforms collection by creating it and adding an event listener.
+		**/
+		private function initTransformsCollection():void{
+			if(!_transforms){
+				_transforms = new TransformCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_transforms.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
+		/**
+		* Principle event handler for any property changes to a 
+		* transforms object or it's child objects.
+		**/
+		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+			dispatchEvent(event)
 		}
 		
 		

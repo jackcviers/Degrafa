@@ -103,7 +103,7 @@ package com.degrafa.core.collections{
 		* @return The GradientStop object that was removed.   
 		**/
 		public function removeItemAt(index:Number):GradientStop{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

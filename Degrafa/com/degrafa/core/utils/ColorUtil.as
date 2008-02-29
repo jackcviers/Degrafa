@@ -27,28 +27,69 @@ package com.degrafa.core.utils{
 	* A helper utility class for color conversion.
 	**/
 	public class ColorUtil{
-				
+		public static function resolveColor(value:Object, none:uint = 0):uint {
+			if(value is uint){
+				if (value.toString(16).length==3){
+					return parseColorNotation(value as uint);		
+				}
+				else{
+					return value as uint;
+				}
+			} 
+			else if(value is String){
+				return resolveColorFromString(value as String, none);
+			} 
+			else{
+				//always return black if not valide or no color found
+				return 0x000000;
+			}
+		}
+		
+		private static function resolveColorFromString(value:String, none:uint = 0):uint {
+			// todo: evaluate for functions?
+			if(value.search(",")==3) { // rgb assumption
+				//check and see if it is a percent list or a numeric list
+				if (value.search("%")!=-1) {
+					return resolveColorFromRGBPercent(value as String);	
+				} else {
+					return resolveColorFromRGB(value as String);	
+				}
+			} else if(value.search(",")==4) { // cmyk assumption
+				return resolveColorFromCMYK(value as String);	
+			}
+			var color:uint = 0;
+			if(String(value).charAt(0)=="#" || String(value).substr(0,2)=="0x") {
+				// todo: shorthand
+				color = parseInt(String(value).replace("#", ""), 16);
+			} else { color = parseInt(String(value), 10); }
+			if(isNaN(color) || color==0) {
+				color = resolveColorFromKey(value as String, none);
+			}
+			return color;
+		}
+		
 		/**
 		* Converts Color Keys to color values. If the specified color key is not 
 		* supported then black is used.
 		**/
-		public static function colorKeyToDec(value:String):uint{
-			
+		public static function resolveColorFromKey(value:String, none:uint = 0):uint {
 			var colorKey:String = value.toUpperCase();
-			
-			if(ColorKeys[colorKey]){
+			if(ColorKeys[colorKey] != null){
 				return uint(ColorKeys[colorKey]);
+			} else {
+				return none;
 			}
-			else{
-				return 0x000000;	
-			}	
 		}
 		
-		
+		/**
+		* Allows an comma-separated list of 4 numerical
+		* values that represent cmyk and are then converted to 
+		* a decimal color value.
+		**/
 		/**
 		* Conversion from CMYK to RGB values.
 		**/   
-		public static function cmykToDec(value:String):uint{   
+		public static function resolveColorFromCMYK(value:String):uint {   
 			var tempColors:Array = value.split(",");
 			
 			var cyan:int = (0xFF * tempColors[0])/100;         
@@ -60,17 +101,20 @@ package com.degrafa.core.utils{
 			var green:int = int(decColorToHex(Math.round((0xFF-magenta)*(0xFF-key)/0xFF)));         
 			var blue:int = int(decColorToHex(Math.round((0xFF-yellow)*(0xFF-key)/0xFF)));          
 		
-			return uint(rgbToDec(red +","+ green +","+blue));
+			return resolveColorFromRGB(red +","+ green +","+blue);
 					
 		}
 		
 		
-		
+		/**
+		* Allows an comma-separated list of three numerical or 
+		* percent values that are then converted to a hex value. 
+		**/
 		/**
 		* Converts an RGB percentage comma separated list 
 		* to a decimal color value. Expected order is R,G,B.
 		**/
-		public static function rgbPercentToDec(value:String):uint{
+		public static function resolveColorFromRGBPercent(value:String):uint {
 			
 			//Note: Should be verified for rounding differences
 			//depending on the industry norms
@@ -86,7 +130,7 @@ package com.degrafa.core.utils{
 		* Converts an RGB numeric comma separated list
 		* to a decimal color value. Expected order R,G,B.
 		**/
-		public static function rgbToDec(value:String):Number{
+		public static function resolveColorFromRGB(value:String):Number{
 			
 			var tempColors:Array = value.split(",");
 			return uint((int(tempColors[0])<<16) | (int(tempColors[1])<< 8) | int(tempColors[2]));
@@ -126,7 +170,7 @@ package com.degrafa.core.utils{
 		* Repeats each value once so that #FB0 expands to #FFBB00 
 		**/
 		public static function parseColorNotation(color:uint):uint{
-
+			
 			//break this into an array to work with 
 			var repeatArray:Array = color.toString(16).split("");
 			

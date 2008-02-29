@@ -28,13 +28,19 @@ package com.degrafa.geometry.segment{
 	import flash.geom.Rectangle;
 	
 	[DefaultProperty("data")]
-	[Bindable(event="propertyChange")]	
+	[Bindable(event="propertyChange")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Segment.png")]	
 	
 	/**
 	* Base class for segment elements that make up path geometry.
 	**/ 
 	public class Segment extends DegrafaObject implements IDegrafaObject{
-		
+				
 		/**
 		* Specifies whether this object is to be re calculated 
 		* on the next cycle.

@@ -21,15 +21,32 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core{
-	import com.degrafa.core.IDegrafaObject;
-	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
 	/**
  	* Base interface for all Degrafa stroke objects.
  	**/ 	
-	public interface IGraphicsStroke extends IDegrafaObject{ 
+	public interface IGraphicsStroke extends IDegrafaObject{
+		
+		function get weight():Number;
+		function set weight(value:Number):void;
+		
+		function get scaleMode():String;
+		function set scaleMode(value:String):void;
+		
+		function get pixelHinting():Boolean;
+		function set pixelHinting(value:Boolean):void;
+		
+		function get miterLimit():Number;
+		function set miterLimit(value:Number):void;
+		
+		function get joints():String;
+		function set joints(value:String):void;
+		
+		function get caps():String;
+		function set caps(value:String):void;
+		
 		function apply(graphics:Graphics,rc:Rectangle):void 
 	}
 }

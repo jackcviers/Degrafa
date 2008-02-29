@@ -23,8 +23,13 @@
 package com.degrafa.paint{
 	
 	import flash.display.Graphics;
-	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("LinearGradientStroke.png")]
 	
 	[Exclude(name="focalPointRatio", kind="property")]
 	[Bindable(event="propertyChange")]
@@ -35,12 +40,103 @@ package com.degrafa.paint{
 	* @see mx.graphics.LinearGradientStroke 
 	* @see http://samples.degrafa.com/LinearGradientStroke/LinearGradientStroke.html
 	**/
-	public class LinearGradientStroke extends GradientStroke{
+	public class LinearGradientStroke extends GradientStrokeBase {
 		
 		public function LinearGradientStroke():void{
 			super();
 			super.gradientType = "linear";
 		}
+		
+		/**
+		* The focalPointRatio property is not valide for a LinearGradientStroke 
+		* and will be ignored.
+		**/
+		override public function get focalPointRatio():Number{return 0;}
+		override public function set focalPointRatio(value:Number):void{}
+		
+		private var _x:Number;
+		/**
+		* The x-axis coordinate of the upper left point of the grtadient rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get x():Number{
+			if(!_x){return 0;}
+			return _x;
+		}
+		public function set x(value:Number):void{
+			if(_x != value){
+				
+				var oldValue:Number=_x;
+				
+				_x = value;
+				
+				//call local helper to dispatch event	
+				initChange("x",oldValue,_x,this);
+				
+			}
+		}
+		
+		
+		private var _y:Number;
+		/**
+		* The y-axis coordinate of the upper left point of the grtadient rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get y():Number{
+			if(!_y){return 0;}
+			return _y;
+		}
+		public function set y(value:Number):void{
+			if(_y != value){
+				var oldValue:Number=_y;
+								
+				_y = value;
+				
+				//call local helper to dispatch event	
+				initChange("y",oldValue,_y,this);
+			}
+		}
+		
+						
+		private var _width:Number;
+		/**
+		* The width to be used for the grtadient rectangle.
+		**/
+		public function get width():Number{
+			if(!_width){return 0;}
+			return _width;
+		}
+		public function set width(value:Number):void{
+			if(_width != value){
+				var oldValue:Number=_width;
+				
+				_width = value;
+				
+				//call local helper to dispatch event	
+				initChange("width",oldValue,_width,this);
+			}
+		}
+		
+		
+		private var _height:Number;
+		/**
+		* The height to be used for the grtadient rectangle.
+		**/
+		public function get height():Number{
+			if(!_height){return 0;}
+			return _height;
+		}
+		public function set height(value:Number):void{
+			if(_height != value){
+				var oldValue:Number=_height;
+				
+				_height = value;
+				
+				//call local helper to dispatch event	
+				initChange("height",oldValue,_height,this);
+			}
+		}
+		
 		
 		/**
  		* Applies the properties to the specified Graphics object.
@@ -51,8 +147,39 @@ package com.degrafa.paint{
 		* @param rc A Rectangle object used for stroke bounds. 
  		**/
 		override public function apply(graphics:Graphics,rc:Rectangle):void{
-			//set the base line style properties
-			super.apply(graphics,rc);			
+			
+			if(x && y && width && height){
+				super.apply(graphics,new Rectangle(x,y,width,height));
+			}
+			else if (width && height){
+				super.apply(graphics,new Rectangle(0,0,width, height));
+			}
+			else{
+				super.apply(graphics,rc);
+			}
+			
+		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:LinearGradientStroke):void{
+			
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_caps){_caps = value.caps;}
+			if (!_joints){_joints = value.joints;}
+			if (!_miterLimit){_miterLimit = value.miterLimit;}
+			if (!_pixelHinting){_pixelHinting = value.pixelHinting;}
+			if (!_scaleMode){_scaleMode = value.scaleMode;}
+			if (!_weight) {_weight = value.weight;}
+			if (!_angle){_angle = value.angle;}
+			if (!_interpolationMethod){_interpolationMethod = value.interpolationMethod;}
+			if (!_gradientStops && value.gradientStops.length!=0){gradientStops = value.gradientStops};
+		
 		}
 		
 	}

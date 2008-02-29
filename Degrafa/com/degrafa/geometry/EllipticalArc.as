@@ -28,6 +28,11 @@ package com.degrafa.geometry{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("EllipticalArc.png")]
 	
 	[Bindable]	
 	/**
@@ -53,8 +58,8 @@ package com.degrafa.geometry{
 	 	* @param arc A number indicating the the angular extent of the arc, relative to the start angle.
 	 	* @param closureType A string indicating the method used to close the arc. 
 	 	*/	
-		public function EllipticalArc(x:Number=0,y:Number=0,width:Number=0,
-		height:Number=0,startAngle:Number=0,arc:Number=0,closureType:String="open"){
+		public function EllipticalArc(x:Number=NaN,y:Number=NaN,width:Number=NaN,
+		height:Number=NaN,startAngle:Number=NaN,arc:Number=NaN,closureType:String=null){
 			
 			super();
 			this.x=x;
@@ -97,12 +102,13 @@ package com.degrafa.geometry{
 			
 		} 
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-axis coordinate of the upper left point of the arcs enclosure. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -113,12 +119,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-axis coordinate of the upper left point of the arcs enclosure. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -129,12 +136,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _startAngle:Number=0;
+		private var _startAngle:Number;
 		/**
 		* The beginning angle of the arc. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get startAngle():Number{
+			if(!_startAngle){return 0;}
 			return _startAngle;
 		}
 		public function set startAngle(value:Number):void{
@@ -145,12 +153,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _arc:Number=0;
+		private var _arc:Number;
 		/**
 		* The angular extent of the arc. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get arc():Number{
+			if(!_arc){return 0;}
 			return _arc;
 		}
 		public function set arc(value:Number):void{
@@ -161,11 +170,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
 		* The width of the arc.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
@@ -176,11 +186,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
 		* The height of the arc.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{
@@ -191,7 +202,7 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _closureType:String="open";
+		private var _closureType:String;
 		[Inspectable(category="General", enumeration="open,chord,pie", defaultValue="open")]
 		/**
 		* The method in which to close the arc.
@@ -202,6 +213,7 @@ package com.degrafa.geometry{
 		* </p> 
 		**/
 		public function get closureType():String{
+			if(!_closureType){return "open";}
 			return _closureType;
 		}
 		public function set closureType(value:String):void{
@@ -215,7 +227,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -296,8 +308,8 @@ package com.degrafa.geometry{
 											
 				//Calculate the center point. We only needed is we have a pie type 
 				//closeur. May want to store this local sometime
-				var ax:Number=newX-Math.cos(-(startAngle/180)*Math.PI)*_width/2;
-				var ay:Number=newY-Math.sin(-(startAngle/180)*Math.PI)*_height/2;
+				var ax:Number=newX-Math.cos(-(startAngle/180)*Math.PI)*width/2;
+				var ay:Number=newY-Math.sin(-(startAngle/180)*Math.PI)*height/2;
 				
 				//draw the start line in the case of a pie type
 				if (closureType =="pie"){
@@ -311,7 +323,7 @@ package com.degrafa.geometry{
 				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				ArcUtils.drawEllipticalArc(newX,newY,_startAngle,_arc,_width/2,_height/2,commandStack);
+				ArcUtils.drawEllipticalArc(newX,newY,startAngle,arc,width/2,height/2,commandStack);
 				
 				//close the arc if required
 				if(Math.abs(arc)<360){
@@ -371,6 +383,25 @@ package com.degrafa.geometry{
 			
 			super.endDraw(graphics);
 	  		
+		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:EllipticalArc):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_startAngle){_startAngle = value.startAngle;}
+			if (!_arc){_arc = value.arc;}
+			if (!_closureType){_closureType = value.closureType;}
+			
+			
 		}
 		
 	}

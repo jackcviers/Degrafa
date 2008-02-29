@@ -23,9 +23,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
-	import flash.geom.Rectangle;
+	
 	import flash.display.Graphics;
-	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RegularRectangle.png")]
 	
 	[Bindable]		
 	/**
@@ -48,7 +54,7 @@ package com.degrafa.geometry{
 	 	* @param width A number indicating the width.
 	 	* @param height A number indicating the height. 
 	 	*/		
-		public function RegularRectangle(x:Number=0,y:Number=0,width:Number=0,height:Number=0){
+		public function RegularRectangle(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN){
 			super();
 			
 			this.x=x;
@@ -87,12 +93,13 @@ package com.degrafa.geometry{
 			}
 		} 
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-axis coordinate of the upper left point of the regular rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -103,12 +110,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-axis coordinate of the upper left point of the regular rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -118,11 +126,12 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
 		* The width of the regular rectangle.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
@@ -133,11 +142,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
 		* The height of the regular rectangle.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{
@@ -153,7 +163,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -172,11 +182,13 @@ package com.degrafa.geometry{
 			if(invalidated){
 			
 				commandStack = [];
-				
-				commandStack.push({type:"rectangle", x:x,
-					y:y,width:width,height:height});	
-				
-			
+								
+				commandStack.push({type:"m", x:x,y:y});	
+				commandStack.push({type:"l", x:x+width,y:y});	
+				commandStack.push({type:"l", x:x+width,y:y+height});	
+				commandStack.push({type:"l", x:x,y:y+height});	
+				commandStack.push({type:"l", x:x,y:y});	
+								
 				calcBounds();
 				invalidated = false;
 			}
@@ -195,8 +207,7 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
-		override public function draw(graphics:Graphics,rc:Rectangle):void
-		{	
+		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
 		 							
@@ -209,18 +220,36 @@ package com.degrafa.geometry{
 			}
 			
 			var item:Object;
-						
-			//draw each item in the array
 			for each (item in commandStack){
+        		switch(item.type){
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
         		
-        		graphics.drawRect(item.x,item.y,
-        		item.width,item.height);
-        		
-        	}
+        			case "l":
+        				graphics.lineTo(item.x,item.y);
+        				break;
+        		}
+        	}	
 				 	 		 	 	
 	 	 	super.endDraw(graphics);	
 	 	 	
 	  		
 		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:RegularRectangle):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke;}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+		}
+		
 	}
 }

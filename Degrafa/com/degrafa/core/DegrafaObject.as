@@ -48,13 +48,14 @@ package com.degrafa.core{
 		/**
  		* Enable events for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableEvents():Boolean{
 			return _enableEvents;
 		}
 		public function set enableEvents(value:Boolean):void{
 			_enableEvents=value;
 		}
-		
+				
 		//if true all event processing will stop being dispatched
 		//used when you need to update many properties when set back 
 		//to true the event that gets dispatched will cause the display
@@ -63,6 +64,7 @@ package com.degrafa.core{
 		/**
  		* Temporarily suppress event processing for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get suppressEventProcessing():Boolean{
 			return _suppressEventProcessing;
 		}

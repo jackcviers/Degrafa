@@ -22,12 +22,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.utils.ColorUtil;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("SolidStroke.png")]
 		
 	[Bindable(event="propertyChange")]
 	
@@ -39,7 +45,7 @@ package com.degrafa.paint{
  	* @see mx.graphics.Stroke
  	* @see http://samples.degrafa.com/SolidStroke/SolidStroke.html  
  	**/ 
-	public class SolidStroke extends DegrafaObject implements IGraphicsStroke{
+	public class SolidStroke extends DegrafaObject implements IGraphicsStroke {
 		
 		/**
 	 	* Constructor.
@@ -51,15 +57,57 @@ package com.degrafa.paint{
 	 	* @param alpha A number indicating the alpha to be used for the stoke.
 	 	* @param weight A number indicating the weight of the line for the stroke. 
 	 	*/		
-		public function SolidStroke(color:uint=0x000000, alpha:Number=1,weight:Number=1):void{
-						
-			this.color=color;
-			this.alpha=alpha;
-			this.weight=weight;
-			
+		public function SolidStroke(color:Object=null, alpha:Number=NaN,weight:Number=NaN):void{
+			this.color = color;
+			this.alpha = alpha;
+			this.weight = weight;
 		}
-						
-		private var _weight:Number=1;
+		
+		protected var _alpha:Number;
+		[Inspectable(category="General")]
+		/**
+ 		* The transparency of a fill.
+ 		* 
+ 		* @see mx.graphics.Stroke
+ 		**/
+		public function get alpha():Number{
+			if(!_alpha){return 1;}
+			return _alpha;
+		}
+		public function set alpha(value:Number):void{
+			if(_alpha != value){
+				var oldValue:Number=_alpha;
+			
+				_alpha = value;
+			
+				//call local helper to dispatch event	
+				initChange("alpha",oldValue,_alpha,this);
+			}
+		}
+				
+		protected var _color:Object;
+		[Inspectable(category="General", format="Color",defaultValue="0x000000")]
+		/**
+ 		 * The fill color.
+ 		 * This property accepts uint, hexadecimal (including shorthand), 
+ 		 * and color keys as well as comma seperated rgb or cmyk values.
+ 		 * 
+ 		**/
+		public function get color():Object {
+			if(!_color){return 0x000000;}
+			return _color; 
+		}
+		public function set color(value:Object):void{
+			value = ColorUtil.resolveColor(value);
+			if(_color != value){ // value gets resolved first
+				var oldValue:uint=_color as uint;
+				_color= value as uint;
+				//call local helper to dispatch event	
+				initChange("color",oldValue,_color,this);
+			}
+		}
+				
+		private var _weight:Number;
 		[Inspectable(category="General", defaultValue=1)]
 		/**
  		* The line weight, in pixels.
@@ -67,6 +115,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/ 
 		public function get weight():Number{
+			if(!_weight){return 1;}
 			return _weight;
 		}
 		public function set weight(value:Number):void{
@@ -81,7 +130,7 @@ package com.degrafa.paint{
 			
 		}
 				
-		private var _scaleMode:String = "normal";
+		private var _scaleMode:String;
 		[Inspectable(category="General", enumeration="normal,vertical,horizontal,none", defaultValue="normal")]
 		/**
  		* Specifies how to scale a stroke.
@@ -89,6 +138,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/
 		public function get scaleMode():String{
+			if(!_scaleMode){return "normal";}
 			return _scaleMode;
 		}
 		public function set scaleMode(value:String):void{			
@@ -103,7 +153,7 @@ package com.degrafa.paint{
 		}
 			
 		private var _pixelHinting:Boolean = false;
-		[Inspectable(category="General")]
+		[Inspectable(category="General", enumeration="true,false")]
 		/**
  		* Specifies whether to hint strokes to full pixels.
  		* 
@@ -123,7 +173,7 @@ package com.degrafa.paint{
 			}			
 		}
 						
-		private var _miterLimit:Number = 3;
+		private var _miterLimit:Number;
 		[Inspectable(category="General")]
 		/**
  		* Indicates the limit at which a miter is cut off.
@@ -131,6 +181,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/
 		public function get miterLimit():Number{
+			if(!_miterLimit){return 3;}
 			return _miterLimit;
 		}
 		public function set miterLimit(value:Number):void{			
@@ -145,7 +196,7 @@ package com.degrafa.paint{
 			
 		}
 				
-		private var _joints:String = "round";
+		private var _joints:String;
 		[Inspectable(category="General", enumeration="round,bevel,miter", defaultValue="round")]
 		/**
  		* Specifies the type of joint appearance used at angles.
@@ -153,6 +204,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/
 		public function get joints():String{
+			if(!_joints){return "round";}
 			return _joints;
 		}
 		public function set joints(value:String):void{
@@ -167,98 +219,8 @@ package com.degrafa.paint{
 			}
 			
 		}
-				
-		private var _color:uint = 0x000000;
-		[Inspectable(category="General", format="Color",defaultValue="0x000000")]
-		/**
- 		* The line color.
- 		* 
- 		* @see mx.graphics.Stroke
- 		**/
-		public function get color():uint{
-			return _color;
-		}
-		public function set color(value:uint):void{
-			
-			if(_color != value){
-				var oldColor:uint=_color;
-				
-				//short notation assumption 
-				if (value.toString(16).length==3){
-					_color = ColorUtil.parseColorNotation(value);		
-				}
-				else{
-					_color=value;
-				}
-							
-				//call local helper to dispatch event	
-				initChange("color",oldColor,_color,this);
-			}
-			
-			
-		}
-				
 		
-		private var _colorKey:String;
-		[Inspectable(category="General", format="string")]
-		/**
-		* Allows a constant string value for example azure. 
-		* See ColorKeys for list of available values.
-		* 
-		* @see com.degrafa.core.utils.ColorKeys 
-		**/
-		public function get colorKey():String{
-			return _colorKey;
-		}
-		public function set colorKey(value:String):void{		
-			_colorKey=value;
-			
-			//translate the keyword to a color value and apply 
-			//the result to the color property
-			color=ColorUtil.colorKeyToDec(value);
-			
-		}
-		
-		private var _rgbColor:String;
-		[Inspectable(category="General", format="string")]
-		/**
-		* Allows an comma-separated list of three numerical or 
-		* percent values that are then converted to a hex value. 
-		**/
-		public function get rgbColor():String{
-			return _rgbColor;
-		}
-		public function set rgbColor(value:String):void{		
-			_rgbColor=value;
-			
-			//check and see if it is a percent list or a numeric list
-			if (value.search("%")!=-1){
-				color=ColorUtil.rgbPercentToDec(value);	
-			}
-			else{
-				color=ColorUtil.rgbToDec(value);	
-			}
-			
-		}
-		
-		private var _cmykColor:String;
-		[Inspectable(category="General", format="string")]
-		/**
- 		* Allows an comma-separated list of 4 numerical
-		* values that represent cmyk and are then converted to 
-		* a decimal color value. 
-		**/
-		public function get cmykColor():String{
-			return _cmykColor;
-		}
-		public function set cmykColor(value:String):void{		
-			_cmykColor=value;
-			
-			color=ColorUtil.cmykToDec(value);	
-			
-		}	
-				
-		private var _caps:String = "round";
+		private var _caps:String;
 		[Inspectable(category="General", enumeration="round,square,none", defaultValue="round")]
 		/**
  		* Specifies the type of caps at the end of lines.
@@ -266,6 +228,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/
 		public function get caps():String{
+			if(!_caps){return "round";}
 			return _caps;
 		}
 		public function set caps(value:String):void{
@@ -279,28 +242,6 @@ package com.degrafa.paint{
 			}
 			
 		}
-				
-		private var _alpha:Number=1;
-		[Inspectable(category="General")]
-		/**
- 		* The transparency of a line.
- 		* 
- 		* @see mx.graphics.Stroke
- 		**/
-		public function get alpha():Number{
-			return _alpha;
-		}
-		public function set alpha(value:Number):void{			
-			if(_alpha != value){
-				var oldValue:Number=_alpha;
-			
-				_alpha = value;
-			
-				//call local helper to dispatch event	
-				initChange("alpha",oldValue,_alpha,this);
-			}
-		}
-		
 		
 		/**
  		* Applies the properties to the specified Graphics object.
@@ -312,10 +253,37 @@ package com.degrafa.paint{
  		**/
 		public function apply(graphics:Graphics,rc:Rectangle):void{
 			
-			graphics.lineStyle(_weight, _color, _alpha, _pixelHinting,
-					_scaleMode, _caps, _joints, _miterLimit);
+			//ensure that all defaults are in fact set these are temp until fully tested
+			if(!_alpha){_alpha=0;}
+			if(!_color){_color=0x000000;}
+			if(!_caps){_caps="round";}
+			if(!_joints){_joints="round";}
+			if(!_miterLimit){_miterLimit=3;}
+			if(!_scaleMode){_scaleMode="normal";}
+			if(!_weight){_weight=1;}
+			
+			graphics.lineStyle(weight,color as uint,alpha,pixelHinting,
+					scaleMode, caps, joints,miterLimit);
 					
 		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:SolidStroke):void{
+						
+			if (!_alpha){_alpha = value.alpha}
+			if (!_caps){_caps = value.caps;}
+			if (!_color){_color = uint(value.color);}
+			if (!_joints){_joints = value.joints;}
+			if (!_miterLimit){_miterLimit = value.miterLimit;}
+			if (!_pixelHinting){_pixelHinting = value.pixelHinting}
+			if (!_scaleMode){_scaleMode = value.scaleMode}
+			if (!_weight){_weight = value.weight}
+			
+		}
+		
 		
 	}
 }

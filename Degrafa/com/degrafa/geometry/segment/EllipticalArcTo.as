@@ -27,6 +27,14 @@ package com.degrafa.geometry.segment{
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	[Exclude(name="isShortSequence", kind="property")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("EllipticalArcTo.png")]
+	
 	//(A or a) path data command
 	[Bindable]	
 	
@@ -40,17 +48,43 @@ package com.degrafa.geometry.segment{
 		/**
 	 	* Constructor.
 	 	*  
-	 	* <p>The EllipticalArcTo constructor accepts 2 optional arguments that define it's 
-	 	* data and a coordinate type.</p>
-	 	* 
+	 	* <p>The EllipticalArcTo constructor accepts 9 optional arguments that define it's 
+	 	* data, properties and a coordinate type.</p>
+	 	
+	 	* @param rx A number indicating the x-coordinate radius of the arc.
+	 	* @param ry A number indicating the y-coordinate radius of the arc..  
+	 	* @param xAxisRotation A number indicating the x axis rotation of the arc.
+	 	* @param largeArcFlag A number indicating if the arc is to use a large arc.
+	 	* @param sweepFlag A number indicating if the arc is to use a sweep.
+	 	* @param x A number indicating the x-coordinate of the end point of the arc. 
+	 	* @param y A number indicating the y-coordinate of the end point of the arc.
 	 	* @param data A string indicating the data to be used for this segment.
 	 	* @param coordinateType A string indicating the coordinate type to be used for this segment.
 	 	**/
-		public function EllipticalArcTo(data:String=null,coordinateType:String="absolute"):void{
+		public function EllipticalArcTo(rx:Number=0,ry:Number=0,xAxisRotation:Number=0,
+		largeArcFlag:Number=0,sweepFlag:Number=0,x:Number=0,y:Number=0,data:String=null,
+		coordinateType:String="absolute"){
+			
+			this.rx =rx;
+			this.ry =ry;
+			this.xAxisRotation =xAxisRotation;
+			this.largeArcFlag =largeArcFlag;
+			this.sweepFlag =sweepFlag;
+			this.x =x;
+			this.y =y;
+					
+			
 			this.data =data;
 			this.coordinateType=coordinateType;
 			this.isShortSequence = false;
 		}
+		
+		/**
+		* The isShortSequence property is ingnored on the EllipticalArcTo segment and 
+		* setting it will have no effect. 
+		**/
+		override public function get isShortSequence():Boolean{return false;}
+		override public function set isShortSequence(value:Boolean):void{}
 		
 		/**
 		* Return the segment type
@@ -58,8 +92,7 @@ package com.degrafa.geometry.segment{
 		override public function get segmentType():String{
 			return "EllipticalArcTo";
 		}
-		
-		
+				
 		/**
 		* EllipticalArcTo short hand data value.
 		* 
@@ -284,8 +317,7 @@ package com.degrafa.geometry.segment{
 		protected var commandStack:Array=[];
 		
 		/**
-		* Compute the segment using x and y as the start point adding it's commands to
-		* the drawing stack 
+		* Compute the segment adding instructions to the command stack. 
 		**/
 		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:Array):void{
 			

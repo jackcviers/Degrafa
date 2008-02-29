@@ -13,6 +13,13 @@ package com.degrafa.paint
 	
 	[DefaultProperty("fill")]
 	[Bindable(event="propertyChange")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("BlendFill.png")]
+	
 	/**
 	 * Used to wrap standard IFill objects for use in a ComplexFill.
 	 * The blendMode is only recognized in the context of a ComplexFill.

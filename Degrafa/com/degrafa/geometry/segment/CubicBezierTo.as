@@ -28,6 +28,12 @@ package com.degrafa.geometry.segment{
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("CubicBezierTo.png")]
+	
 	//(C,c,S,s) path data commands
 	[Bindable]	
 	/**
@@ -40,17 +46,34 @@ package com.degrafa.geometry.segment{
 		/**
 	 	* Constructor.
 	 	*  
-	 	* <p>The CubicBezierTo constructor accepts 3 optional arguments that define it's 
-	 	* data, coordinate type and a flag that specifies a short sequence.</p>
+	 	* <p>The CubicBezierTo constructor accepts 9 optional arguments that define it's 
+	 	* data, properties, coordinate type and a flag that specifies a short sequence.</p>
 	 	* 
-	 	* @param data A string indicating the data to be used for this segment.
-	 	* @param coordinateType A string indicating the coordinate type to be used for this segment.
+	 	* @param cx A number indicating the x-coordinate of the first control point of the curve. 
+	 	* @param cy A number indicating the y-coordinate of the first control point of the curve.
+	 	* @param cx1 A number indicating the x-coordinate of the second control point of the curve.
+	 	* @param cy1 A number indicating the y-coordinate of the second control point of the curve.   
+	 	* @param x A number indicating the x-coordinate of the end point of the curve.
+	 	* @param y A number indicating the y-coordinate of the end point of the curve.
+	  	* @param data A string indicating the data to be used for this segment.
+	 	* @param coordinateType A string indicating the coordinate type (absolute or relative) to be used for this segment.
 	 	* @param isShortSequence A boolean indicating the if this segment is a short segment definition. 
 	 	**/
-		public function CubicBezierTo(data:String=null,coordinateType:String="absolute",isShortSequence:Boolean=false):void{
+		public function CubicBezierTo(cx:Number=0,cy:Number=0,cx1:Number=0,cy1:Number=0,x:Number=0,y:Number=0,
+		data:String=null,coordinateType:String="absolute",isShortSequence:Boolean=false){
+			
+			this.cx =cx;
+			this.cy =cy;
+			this.cx1 =cx1;
+			this.cy1 =cy1;
+			this.x =x;
+			this.y =y;
+			
 			this.data =data;
 			this.coordinateType=coordinateType;
 			this.isShortSequence =isShortSequence
+			
+			
 		}
 		
 		/**
@@ -250,8 +273,7 @@ package com.degrafa.geometry.segment{
 		private var lastControlPoint:Point;
 		
 		/**
-		* Compute the segment using x and y as the start point adding it's commands to
-		* the drawing stack 
+		* Compute the segment adding instructions to the command stack. 
 		**/
 		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:Array):void{
 			

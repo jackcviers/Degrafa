@@ -22,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
 	
-	import com.degrafa.core.DegrafaObject; 
+	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	
 	import flash.utils.getQualifiedClassName;
@@ -73,6 +73,7 @@ package com.degrafa.core.collections{
 		/**
 		* Allows internal type checking to be turned off.
 		**/
+		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableTypeChecking():Boolean{
 			return _enableTypeChecking;
 		}
@@ -81,16 +82,15 @@ package com.degrafa.core.collections{
 		}
 		
 		
-		private var _items:Array=[];
 		/**
-		* An array of items being stored in this collection.
+		* Verifies each item in the passed array for a valid 
+		* type and throws a runtime error if an object with 
+		* out a valid type is found.
+		*
+		* @param value An array of objects to test on.
 		**/
-		public function get items():Array{
-			return _items;
-		}
-		public function set items(value:Array):void{
-			
-			//type check and throw excemption is invalide type found
+		private function checkValidTypes(value:Array):void{
+			//type check and throw exception if invalid type found
 			if(_enableTypeChecking){
 				for each (var item:Object in value){
 					if(!item is type){
@@ -102,9 +102,29 @@ package com.degrafa.core.collections{
 					}
 				}
 			}
+		}
+		
+		
+		private var _items:Array=[];
+		/**
+		* An array of items being stored in this collection.
+		**/
+		public function get items():Array{
+			return _items;
+		}
+		public function set items(value:Array):void{
+						
+			//type check items
+			checkValidTypes(value);
 			
 			//compare and update
 			if(value !=_items){
+				
+				//clear any event listeners
+				if(enableEvents && hasEventManager){
+					removeListeners();
+				}
+				
 				var oldValue:Array = _items;
 				_items=value;
 				
@@ -127,8 +147,8 @@ package com.degrafa.core.collections{
 		* @return The item added. 
 		**/
 		protected function _addItem(value:*):*{
-			
-			items=items.concat(value);
+			addListener(value);
+			concat(value);
 			return value;
 		}
 		
@@ -141,7 +161,7 @@ package com.degrafa.core.collections{
 		protected function _removeItem(value:*):*{
 			
 			//get the index
-			var index:int = items.indexOf(value,0);
+			var index:int = indexOf(value,0);
 			_removeItemAt(index);
 			
 			return null;
@@ -164,7 +184,7 @@ package com.degrafa.core.collections{
 		* @return The index location of the item. 
 		**/
 		protected function _getItemIndex(value:*):int{
-			return items.indexOf(value,0);
+			return indexOf(value,0);
 		}
 		
 		
@@ -176,7 +196,8 @@ package com.degrafa.core.collections{
 		* @return The item added.
 		**/
 		protected function _addItemAt(value:*,index:Number):*{
-			items.splice(index,0,value);
+			addListener(value);
+			splice(index,0,value);
 			return value;
 		}
 		
@@ -187,16 +208,9 @@ package com.degrafa.core.collections{
 		* @return The removed item.
 		**/
 		protected function _removeItemAt(index:Number):*{
-			
-				var oldValue:Array = _items;
-				var newItem:Object = items.splice(index,0)[0];
-				
-				if(oldValue != items){
-					//call local helper to dispatch event	
-					initChange("items",oldValue,_items,this);
-				}
-							
-			return newItem;
+			//clean up
+			removeListener(items[index]);
+			return splice(index,1)[1];
 		}
 		
 		/**
@@ -242,6 +256,30 @@ package com.degrafa.core.collections{
 		}
 		
 		/**
+		* Addes a property change event listener to the passed object.
+		**/
+		public function addListener(value:*):void{
+			if(value is IDegrafaObject){
+				if(enableEvents){
+					if(IDegrafaObject(value).enableEvents){
+						IDegrafaObject(value).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+			}
+		}
+		
+		/**
+		* Removes the property change event listener from the passed object.
+		**/
+		public function removeListener(value:*):void{
+			if(value is IDegrafaObject){
+				IDegrafaObject(value).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+			}
+			
+		}
+		
+		
+		/**
 		* Property change event handler for this collection.
 		**/
 		public function propertyChangeHandler(event:PropertyChangeEvent):void{
@@ -260,7 +298,23 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function concat(... args):Array{
-			return items.concat(args);
+			
+			var oldValue:Array = _items;
+			 	
+			//type check item(s)
+			checkValidTypes(args);
+			
+			for (var i:int = 0; i<args.length;i++){
+				addListener(args[i]);
+			}	
+			
+			_items = items.concat(args);
+			
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+			 
+			return _items;
+			
 		} 
 		
 		/**
@@ -332,7 +386,16 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function pop():*{
-			return items.pop();
+			removeListener(items[items.length-1]);
+			
+			var oldValue:Array = _items;
+			
+			var item:* =items.pop();
+			
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+			
+			return item;
 		}
 		
 		/**
@@ -341,7 +404,22 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function push(... args):uint{
-			return items.push(args);
+						
+			var oldValue:Array = _items;
+			 
+			 //type check item(s)
+			checkValidTypes(args);
+				
+			for (var i:int = 0; i<args.length;i++){
+				addListener(args[i]);
+				items.push(args[i]);
+			}	
+			 			
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+						 	
+			return items.length;
+			
 		}
 		
 		/**
@@ -359,7 +437,17 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function shift():*{
-			return items.shift();
+			
+			removeListener(items[0]);
+			
+			var oldValue:Array = _items;
+			
+			var item:* =items.shift();
+			
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+			
+			return item;
 		}
 		
 		/**
@@ -404,7 +492,28 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function splice(startIndex:int, deleteCount:uint, ... values):Array{
-			return items.splice(startIndex,deleteCount,values);
+				
+			//type check item(s)
+			checkValidTypes(values);
+				
+			for (var i:int= 0; i<values.length;i++){
+				addListener(values[i]);
+			}
+						 
+			var oldValue:Array = _items;
+			
+			var returnArray:Array=_items.splice(startIndex-1,deleteCount,values);
+			
+			if(returnArray){
+			 	for (i= 0; i<returnArray.length;i++){
+			 		removeListener(returnArray[i]);
+				}	
+			}
+				
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+			
+			return returnArray;
 		}
 		
 		/**
@@ -413,7 +522,22 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function unshift(... args):uint{
-			return items.unshift(args);
+			 
+			//type check item(s)
+			checkValidTypes(args);
+			
+			var oldValue:Array = _items;
+				
+			for (var i:int = 0; i<args.length;i++){
+				addListener(args[i]);
+				items.unshift(args[i]);
+			}	
+			
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+						 
+			return items.length;
+			
 		}
 		
 	}

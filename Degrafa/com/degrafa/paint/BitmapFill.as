@@ -1,6 +1,7 @@
 package com.degrafa.paint
 {
 	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
 	
@@ -18,10 +19,16 @@ package com.degrafa.paint
 	[DefaultProperty("source")]
 	[Bindable(event="propertyChange")]
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("BitmapFill.png")]
+	
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
-	public class BitmapFill extends DegrafaObject implements IGraphicsFill
+	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend
 	{
 		
 		// static constants
@@ -35,60 +42,106 @@ package com.degrafa.paint
 		private var target:DisplayObject;
 		private var bitmapData:BitmapData;
 		
-		// property backing variables
-		private var _originX:Number = 0;
-		private var _originY:Number = 0;
-		private var _offsetX:Measure = new Measure();
-		private var _offsetY:Measure = new Measure();
-		private var _repeatX:String = "repeat";
-		private var _repeatY:String = "repeat";
-		private var _rotation:Number = 0;
-		private var _scaleX:Number = 1;
-		private var _scaleY:Number = 1;
-		private var _smooth:Boolean = false;
-		
 		public function BitmapFill(source:Object = null):void {
 			this.source = source;
 		}
 		
+		private var _blendMode:String="normal";
+		[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
+		public function get blendMode():String { 
+			return _blendMode; 
+		}
+		
+		public function set blendMode(value:String):void {
+			if(_blendMode != value){
+				
+				var oldValue:String=_blendMode;
+				
+				_blendMode = value;
+				
+				//call local helper to dispatch event	
+				initChange("blendMode",oldValue,_blendMode,this);
+				
+			}
+			
+		}
+		
 		/**
-		 * The horizontal origin for the bitmap fill.
-		 * The bitmap fill is offset so that this point appears at the origin.
-		 * Scaling and rotation of the bitmap are performed around this point.
-		 * @default 0
-		 */
-		public function get originX():Number { return _originX; }
+		* The horizontal origin for the bitmap fill.
+		* The bitmap fill is offset so that this point appears at the origin.
+		* Scaling and rotation of the bitmap are performed around this point.
+		* @default 0
+		*/
+		private var _originX:Number = 0;
+		public function get originX():Number { 
+			return _originX; 
+		}
+		
 		public function set originX(value:Number):void {
-			if(_originX != value) {
-				initChange("originX", _originX, _originX = value, this);
+			
+			if(_originX != value){
+				
+				var oldValue:Number=_originX;
+				
+				_originX = value;
+				
+				//call local helper to dispatch event	
+				initChange("originX",oldValue,_originX,this);
+				
 			}
+			
 		}
 		
 		
 		/**
-		 * The vertical origin for the bitmap fill.
-		 * The bitmap fill is offset so that this point appears at the origin.
-		 * Scaling and rotation of the bitmap are performed around this point.
-		 * @default 0
-		 */
-		public function get originY():Number { return _originY; }
+		* The vertical origin for the bitmap fill.
+		* The bitmap fill is offset so that this point appears at the origin.
+		* Scaling and rotation of the bitmap are performed around this point.
+		* @default 0
+		*/
+		private var _originY:Number = 0;
+		public function get originY():Number { 
+			return _originY; 
+		}
 		public function set originY(value:Number):void {
-			if(_originY != value) {
-				initChange("originY", _originY, _originY = value, this);
+			
+			if(_originY != value){
+				
+				var oldValue:Number=_originY;
+				
+				_originY = value;
+				
+				//call local helper to dispatch event	
+				initChange("originY",oldValue,_originY,this);
+				
 			}
+			
 		}
 		
 		
 		/**
-		 * How far the bitmap is horizontally offset from the origin.
-		 * This adjustment is performed after rotation and scaling.
-		 * @default 0
-		 */
-		public function get offsetX():Number { return _offsetX.value; }
+		* How far the bitmap is horizontally offset from the origin.
+		* This adjustment is performed after rotation and scaling.
+		* @default 0
+		*/
+		private var _offsetX:Measure = new Measure();
+		public function get offsetX():Number { 
+			return _offsetX.value; 
+		}
+		
 		public function set offsetX(value:Number):void {
-			if(_offsetX.value != value) {
-				initChange("offsetX", _offsetX.value, _offsetX.value = value, this);
+			
+			if(_offsetX.value != value){
+				
+				var oldValue:Number=value;
+				
+				_offsetX.value = value;
+				
+				//call local helper to dispatch event	
+				initChange("offsetX",oldValue,_offsetX,this);
+				
 			}
+			
 		}
 		
 		/**
@@ -107,11 +160,24 @@ package com.degrafa.paint
 		 * This adjustment is performed after rotation and scaling.
 		 * @default 0
 		 */
-		public function get offsetY():Number { return _offsetY.value; }
+		private var _offsetY:Measure = new Measure();
+		public function get offsetY():Number { 
+			return _offsetY.value; 
+		}
+		
 		public function set offsetY(value:Number):void {
-			if(_offsetY.value != value) {
-				initChange("offsetY", _offsetY.value, _offsetY.value = value, this);
+			
+			if(_offsetY.value != value){
+				
+				var oldValue:Number=value;
+				
+				_offsetY.value = value;
+				
+				//call local helper to dispatch event	
+				initChange("offsetY",oldValue,_offsetY,this);
+				
 			}
+			
 		}
 		
 		/**
@@ -129,11 +195,25 @@ package com.degrafa.paint
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
-		public function get repeatX():String { return _repeatX; }
+		private var _repeatX:String = "repeat";
+		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
+		
+		public function get repeatX():String{ 
+			return _repeatX;
+		}
+		
 		public function set repeatX(value:String):void {
-			if(_repeatX != value) {
-				initChange("repeatX", _repeatX, _repeatX = value, this);
+			if(_repeatX != value){
+				
+				var oldValue:String=value;
+				
+				_repeatX = value;
+				
+				//call local helper to dispatch event	
+				initChange("repeatX",oldValue,_repeatX,this);
+				
 			}
+			
 		}
 		
 		
@@ -142,24 +222,51 @@ package com.degrafa.paint
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
-		public function get repeatY():String { return _repeatY; }
+		private var _repeatY:String = "repeat";
+		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
+		public function get repeatY():String{ 
+			return _repeatY; 
+		}
+		
 		public function set repeatY(value:String):void {
-			if(_repeatY != value) {
-				initChange("repeatY", _repeatY, _repeatY = value, this);
+			if(_repeatY != value){
+				
+				var oldValue:String=value;
+				
+				_repeatY = value;
+				
+				//call local helper to dispatch event	
+				initChange("repeatY",oldValue,_repeatY,this);
+				
 			}
+			
 		}
 		
 		
 		/**
-		 * The number of degrees to rotate the bitmap.
-		 * Valid values range from 0.0 to 360.0.
-		 * @default 0
-		 */
-		public function get rotation():Number { return _rotation; }
+		* The number of degrees to rotate the bitmap.
+		* Valid values range from 0.0 to 360.0.
+		* @default 0
+		*/
+		private var _rotation:Number = 0;
+		
+		public function get rotation():Number {
+			return _rotation;
+		}
+		
 		public function set rotation(value:Number):void {
-			if(_rotation != value) {
-				initChange("rotation", _rotation, _rotation = value, this);
+			
+			if(_rotation != value){
+				
+				var oldValue:Number=value;
+				
+				_rotation = value;
+				
+				//call local helper to dispatch event	
+				initChange("rotation",oldValue,_rotation,this);
+				
 			}
+			
 		}
 		
 		
@@ -168,11 +275,24 @@ package com.degrafa.paint
 		 * If 1.0, the bitmap is filled at its natural size.
 		 * @default 1.0
 		 */
-		public function get scaleX():Number { return _scaleX; }
+	 	private var _scaleX:Number = 1;
+		public function get scaleX():Number {
+			return _scaleX; 
+		}
+		
 		public function set scaleX(value:Number):void {
-			if(_scaleX != value ) {
-				initChange("scaleX", _scaleX, _scaleX = value, this);
+			
+			if(_scaleX != value){
+				
+				var oldValue:Number=value;
+				
+				_scaleX = value;
+				
+				//call local helper to dispatch event	
+				initChange("scaleX",oldValue,_scaleX,this);
+				
 			}
+			
 		}
 		
 		
@@ -181,11 +301,24 @@ package com.degrafa.paint
 		 * If 1.0, the bitmap is filled at its natural size.
 		 * @default 1.0
 		 */
-		public function get scaleY():Number { return _scaleY; }
+		private var _scaleY:Number = 1;
+		public function get scaleY():Number { 
+			return _scaleY; 
+		}
+		
 		public function set scaleY(value:Number):void {
-			if(_scaleY != value) {
-				initChange("scaleY", _scaleY, _scaleY = value, this);
+			
+			if(_scaleY != value){
+				
+				var oldValue:Number=value;
+				
+				_scaleY = value;
+				
+				//call local helper to dispatch event	
+				initChange("scaleY",oldValue,_scaleY,this);
+				
 			}
+		
 		}
 		
 		
@@ -193,11 +326,25 @@ package com.degrafa.paint
 		 * A flag indicating whether to smooth the bitmap data when filling with it.
 		 * @default false
 		 */
-		public function get smooth():Boolean { return _smooth; }
+		private var _smooth:Boolean = false; 
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get smooth():Boolean{
+			return _smooth; 
+		}
+		
 		public function set smooth(value:Boolean):void {
-			if(value != smooth) {
-				initChange("smooth", _smooth, _smooth = value, this);
+			
+			if(_smooth != value){
+				
+				var oldValue:Boolean=value;
+				
+				_smooth = value;
+				
+				//call local helper to dispatch event	
+				initChange("smooth",oldValue,_smooth,this);
+				
 			}
+			
 		}
 		
 		
@@ -275,7 +422,6 @@ package com.degrafa.paint
 			}
 			
 			// todo: optimize all this with cacheing
-			
 			var template:BitmapData = bitmapData;
 			
 			var repeat:Boolean = true;

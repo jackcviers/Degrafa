@@ -36,6 +36,13 @@ package com.degrafa{
 	[DefaultProperty("graphicsData")]
 	[Bindable(event="propertyChange")]
 	
+		
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Surface.png")]
+	
 	/**
 	* Surface is a simple UIComponent extension that allows Degrafa objects 
 	* to be added to it's display list. Fills and strokes set here have no 
@@ -56,15 +63,14 @@ package com.degrafa{
 		* and GeometryGroup are accepted and to this objects display list.	
 		**/
 		public function get graphicsData():Array{
-			if(!_graphicsData){_graphicsData = new GraphicsCollection();}
+			initGraphicsCollection();
 			return _graphicsData.items;
 		}
 		public function set graphicsData(value:Array):void{
 			
-			if(!_graphicsData){_graphicsData = new GraphicsCollection();}
+			initGraphicsCollection();
 			
 			_graphicsData.items = value;
-			
 			
 			for each(var item:IGraphic in _graphicsData.items){
 						
@@ -74,11 +80,6 @@ package com.degrafa{
 					item.target=this;
 				}
 			}
-						
-			if(_graphicsData && enableEvents){
-				_graphicsData.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 				
 		}
 				
@@ -86,8 +87,22 @@ package com.degrafa{
 		* Access to the Degrafa graphics collection object for this graphic object.
 		**/
 		public function get graphicsCollection():GraphicsCollection{
-			if(!_graphicsData){_graphicsData = new GraphicsCollection();}
+			initGraphicsCollection();
 			return _graphicsData;
+		}
+		
+		/**
+		* Initialize the strokes collection by creating it and adding an event listener.
+		**/
+		private function initGraphicsCollection():void{
+			if(!_graphicsData){
+				_graphicsData = new GraphicsCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_graphicsData.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 				
 		/**
@@ -105,29 +120,36 @@ package com.degrafa{
 		* A array of IGraphicsFill objects.
 		**/
 		public function get fills():Array{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills.items;
-			
 		}
-		public function set fills(value:Array):void{
-			if(!_fills){_fills = new FillCollection();}
+		public function set fills(value:Array):void{			
+			initFillsCollection();
 			_fills.items = value;
-			
-			//add a listener to the collection
-			if(_fills && enableEvents){
-				_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 		}
 		
 		/**
 		* Access to the Degrafa fill collection object for this graphic object.
 		**/
 		public function get fillCollection():FillCollection{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills;
 		}
+		
+		/**
+		* Initialize the fills collection by creating it and adding an event listener.
+		**/
+		private function initFillsCollection():void{
+			if(!_fills){
+				_fills = new FillCollection();
 				
+				//add a listener to the collection
+				if(enableEvents){
+					_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
 		private var _strokes:StrokeCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.core.IGraphicsStroke")]
 		[ArrayElementType("com.degrafa.core.IGraphicsStroke")]
@@ -135,27 +157,35 @@ package com.degrafa{
 		* A array of IStroke objects.
 		**/
 		public function get strokes():Array{
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			return _strokes.items;
-			
 		}
-		public function set strokes(value:Array):void{				
-			if(!_strokes){_strokes = new StrokeCollection();}
+		public function set strokes(value:Array):void{	
+			initSrokesCollection();
 			_strokes.items = value;
-											
-			//add a listener to the collection
-			if(_strokes && enableEvents){
-				_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}			
+			
 		}
 		
 		/**
 		* Access to the Degrafa stroke collection object for this graphic object.
 		**/
 		public function get strokeCollection():StrokeCollection{
-			if(!_strokes){_strokes = new StrokeCollection();}
-			
+			initSrokesCollection();
 			return _strokes;
+		}
+		
+		/**
+		* Initialize the strokes collection by creating it and adding an event listener.
+		**/
+		private function initSrokesCollection():void{
+			if(!_strokes){
+				_strokes = new StrokeCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 		
 		/**
@@ -172,6 +202,7 @@ package com.degrafa{
 		/**
  		* Enable events for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableEvents():Boolean{
 			return _enableEvents;
 		}
@@ -179,21 +210,22 @@ package com.degrafa{
 			_enableEvents=value;
 		}
 		
-		private var _surpressEventProcessing:Boolean=false;
+		private var _suppressEventProcessing:Boolean=false;
 		/**
  		* Temporarily suppress event processing for this object.
  		**/
-		public function get surpressEventProcessing():Boolean{
-			return _surpressEventProcessing;
+ 		[Inspectable(category="General", enumeration="true,false")]
+		public function get suppressEventProcessing():Boolean{
+			return _suppressEventProcessing;
 		}
-		public function set surpressEventProcessing(value:Boolean):void{
+		public function set suppressEventProcessing(value:Boolean):void{
 			
-			if(_surpressEventProcessing==true && value==false){
-				_surpressEventProcessing=value;
+			if(_suppressEventProcessing==true && value==false){
+				_suppressEventProcessing=value;
 				initChange("surpressEventProcessing",false,true,this);
 			}
 			else{
-				_surpressEventProcessing=value;	
+				_suppressEventProcessing=value;	
 			}
 		}
 		
@@ -203,7 +235,7 @@ package com.degrafa{
 		* @see EventDispatcher
 		**/ 
 		override public function dispatchEvent(event:Event):Boolean{
-			if(_surpressEventProcessing){return false;}
+			if(_suppressEventProcessing){return false;}
 			
 			return(super.dispatchEvent(event));
 			

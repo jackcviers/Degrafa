@@ -103,7 +103,7 @@ package com.degrafa.core.collections{
 		* @return The IGraphicsFill object that was removed.   
 		**/
 		public function removeItemAt(index:Number):IGraphicsFill{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

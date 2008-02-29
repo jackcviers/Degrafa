@@ -102,7 +102,7 @@ package com.degrafa.core.collections{
 		* @return The IGraphic object that was removed.   
 		**/
 		public function removeItemAt(index:Number):IGraphic{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

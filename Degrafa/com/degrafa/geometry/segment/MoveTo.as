@@ -25,6 +25,14 @@ package com.degrafa.geometry.segment{
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	[Exclude(name="isShortSequence", kind="property")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("MoveTo.png")]
+	
 	//(M or m) path data command
 	[Bindable]	
 	/**
@@ -38,18 +46,32 @@ package com.degrafa.geometry.segment{
 		/**
 	 	* Constructor.
 	 	*  
-	 	* <p>The MoveTo constructor accepts 2 optional arguments that define it's 
-	 	* data and a coordinate type.</p>
+	 	* <p>The MoveTo constructor accepts 4 optional arguments that define it's 
+	 	* data, properties and a coordinate type.</p>
 	 	* 
+	 	* @param x A number indicating the x-coordinate to move to.  
+	 	* @param y A number indicating the y-coordinate to move to.
 	 	* @param data A string indicating the data to be used for this segment.
 	 	* @param coordinateType A string indicating the coordinate type to be used for this segment.
 	 	**/
-		public function MoveTo(data:String=null,coordinateType:String="absolute"):void{
+		public function MoveTo(x:Number=0,y:Number=0,data:String=null,coordinateType:String="absolute"){
+			
+			this.x =x;
+			this.y =y;
+			
 			this.data =data;
 			this.coordinateType=coordinateType;
 			this.isShortSequence = false;
 		
 		}
+		
+		/**
+		* The isShortSequence property is ingnored on the MoveTo segment and 
+		* setting it will have no effect. 
+		**/
+		override public function get isShortSequence():Boolean{return false;}
+		override public function set isShortSequence(value:Boolean):void{}
+		
 		
 		/**
 		* Return the segment type
@@ -152,8 +174,7 @@ package com.degrafa.geometry.segment{
 		private var absRelOffset:Point;
 		
 		/**
-		* Compute the segment using x and y as the start point adding it's commands to
-		* the drawing stack 
+		* Compute the segment adding instructions to the command stack. 
 		**/
 		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:Array):void{
 			

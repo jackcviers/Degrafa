@@ -33,6 +33,12 @@ package com.degrafa.geometry
 	import mx.graphics.SolidColor;
 	import mx.graphics.Stroke;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("AdvancedRectangle.png")]
+	
 	/**
 	 * Used by the CSSSkin for graphics rendering.
 	 */

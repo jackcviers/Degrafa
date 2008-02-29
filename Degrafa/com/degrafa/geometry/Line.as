@@ -23,11 +23,18 @@
 package com.degrafa.geometry{
 		
 	import com.degrafa.IGeometry;
+	
+	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	import flash.display.Graphics;	
-	import flash.display.DisplayObject;
 	
 	[Exclude(name="fill", kind="property")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Line.png")]
+	
 	[Bindable]	
 	/**
  	*  The Line element draws a line using the specified x, y, 
@@ -50,7 +57,7 @@ package com.degrafa.geometry{
 	 	* @param y1 A number indicating the ending y-axis coordinate.
 	 	* 
 	 	*/	
-		public function Line(x:Number=0,y:Number=0,x1:Number=0,y1:Number=0){
+		public function Line(x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN){
 			super();
 			
 			this.x=x;
@@ -89,12 +96,13 @@ package com.degrafa.geometry{
 		}  
 		
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-coordinate of the start point of the line. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -105,12 +113,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-coordinate of the start point of the line. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -122,12 +131,13 @@ package com.degrafa.geometry{
 		
 		
 						
-		private var _x1:Number=0;
+		private var _x1:Number;
 		/**
 		* The x-coordinate of the end point of the line. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x1():Number{
+			if(!_x1){return 0;}
 			return _x1;
 		}
 		public function set x1(value:Number):void{
@@ -138,12 +148,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y1:Number=0;
+		private var _y1:Number;
 		/**
 		* The y-coordinate of the end point of the line. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
+			if(!_y1){return 0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{
@@ -159,7 +170,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -228,6 +239,19 @@ package com.degrafa.geometry{
 			
 		}
 		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:Line):void{
+			
+			if (!stroke){stroke = value.stroke;}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_x1){_x1 = value.x1;}
+			if (!_y1){_y1 = value.y1;}
+			
+		}
 		
 	}
 }

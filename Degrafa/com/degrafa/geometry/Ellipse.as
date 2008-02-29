@@ -23,9 +23,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
-	import flash.geom.Rectangle;
+	
 	import flash.display.Graphics;
-	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Ellipse.png")]
 	
 	[Bindable]	
 	/**
@@ -48,7 +54,7 @@ package com.degrafa.geometry{
 	 	* @param width A number indicating the width.
 	 	* @param height A number indicating the height. 
 	 	*/		
-		public function Ellipse(x:Number=0,y:Number=0,width:Number=0,height:Number=0){
+		public function Ellipse(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN){
 			super();
 			this.x=x;
 			this.y=y;
@@ -84,12 +90,13 @@ package com.degrafa.geometry{
 			}
 		} 
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-axis coordinate of the upper left point of the ellipse. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -100,12 +107,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-axis coordinate of the upper left point of the ellipse. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -116,11 +124,12 @@ package com.degrafa.geometry{
 		}
 		
 						
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
 		* The width of the ellipse.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
@@ -132,11 +141,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
 		* The height of the ellipse.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{			
@@ -146,13 +156,27 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		
+		private var _accuracy:Number;
+		/**
+		* The accuracy of the ellipse. If not specified a default value of 8 
+		* is used.
+		**/
+		public function get accuracy():Number{
+			if(!_accuracy){return 8;}
+			return _accuracy;
+		}
+		public function set accuracy(value:Number):void{
+			if(_accuracy != value){
+				_accuracy = value;
+				invalidated = true;
+			}
+		}
 		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -171,12 +195,32 @@ package com.degrafa.geometry{
 			
 				commandStack = [];
 				
-				commandStack.push({type:"ellipse", x:x,
-					y:y,width:width,height:height});	
+				var angleDelta:Number = Math.PI / (accuracy/2); 
 				
-			
+				var rx: Number = width/2;
+			   	var ry: Number = height/2;
+			   	var dx:Number = rx/Math.cos(angleDelta/2);
+			   	var dy:Number = ry/Math.cos(angleDelta/2);
+			   				   	
+			   	commandStack.push({type:"m", x:(x+rx) + rx,y:(y+ry)});	
+			   	
+			   	var i:Number = 0
+			   	var angle:Number=0;
+			   				   	
+			   	for (i= 0; i < accuracy; i++) {
+			   		angle += angleDelta;
+			   		
+      				commandStack.push({type:"c",
+      				cx:(x+rx) + Math.cos(angle-(angleDelta/2))*(dx),
+					cy:(y+ry) + Math.sin(angle-(angleDelta/2))*(dy),
+					x1:(x+rx) + Math.cos(angle)*rx,
+					y1:(y+ry) + Math.sin(angle)*ry});
+      				
+      			}
+								
 				calcBounds();
 				invalidated = false;
+				
 			}
 			
 		}
@@ -207,17 +251,36 @@ package com.degrafa.geometry{
 			}
 			
 			var item:Object;
-						
-			//draw each item in the array
 			for each (item in commandStack){
+        		switch(item.type){
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
         		
-        		graphics.drawEllipse(item.x,item.y,
-        		item.width,item.height);
-        		
-        	}
-				 	 		 	 	
-	 	 	super.endDraw(graphics);		
+        			case "c":
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				break;
+        		}
+        	}	
+		
+		 	super.endDraw(graphics);		
 			
+		}
+		
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:Ellipse):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke;}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_accuracy){_accuracy = value.accuracy;}
 		}
 		
 	}

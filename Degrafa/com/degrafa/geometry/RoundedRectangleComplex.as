@@ -23,9 +23,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
-	import flash.geom.Rectangle;
+	
 	import flash.display.Graphics;
-	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RoundedRectangleComplex.png")]
 	
 	[Bindable]	
 	/**
@@ -54,9 +60,9 @@ package com.degrafa.geometry{
 	 	* @param bottomLeftRadius A number indicating the bottom left corner radius.
 	 	* @param bottomRightRadius A number indicating the bottom right corner radius.
 	 	*/		
-		public function RoundedRectangleComplex(x:Number=0,y:Number=0,width:Number=0,
-		height:Number=0,topLeftRadius:Number=0,topRightRadius:Number=0,
-		bottomLeftRadius:Number=0,bottomRightRadius:Number=0){
+		public function RoundedRectangleComplex(x:Number=NaN,y:Number=NaN,width:Number=NaN,
+		height:Number=NaN,topLeftRadius:Number=NaN,topRightRadius:Number=NaN,
+		bottomLeftRadius:Number=NaN,bottomRightRadius:Number=NaN){
 			
 			super();
 			
@@ -104,12 +110,13 @@ package com.degrafa.geometry{
 			}
 		} 
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-axis coordinate of the upper left point of the complex rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -120,12 +127,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-axis coordinate of the upper left point of the complex rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -136,11 +144,12 @@ package com.degrafa.geometry{
 		}
 		
 						
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
 		* The width of the complex rounded rectangle.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
@@ -151,11 +160,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
 		* The height of the complex rounded rectangle.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{
@@ -166,11 +176,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _topLeftRadius:Number=0;
+		private var _topLeftRadius:Number;
 		/**
 		* The radius for the top left corner of the complex rounded rectangle.
 		**/
 		public function get topLeftRadius():Number{
+			if(!_topLeftRadius){return 0;}
 			return _topLeftRadius;
 		}
 		public function set topLeftRadius(value:Number):void{
@@ -182,11 +193,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _topRightRadius:Number=0;
+		private var _topRightRadius:Number;
 		/**
 		* The radius for the top right corner of the complex rounded rectangle.
 		**/
 		public function get topRightRadius():Number{
+			if(!_topRightRadius){return 0;}
 			return _topRightRadius;
 		}
 		public function set topRightRadius(value:Number):void{
@@ -198,11 +210,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _bottomLeftRadius:Number=0;
+		private var _bottomLeftRadius:Number;
 		/**
 		* The radius for the bottom left corner of the complex rounded rectangle.
 		**/
 		public function get bottomLeftRadius():Number{
+			if(!_bottomLeftRadius){return 0;}
 			return _bottomLeftRadius;
 		}
 		public function set bottomLeftRadius(value:Number):void	{
@@ -213,11 +226,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _bottomRightRadius:Number=0;
+		private var _bottomRightRadius:Number;
 		/**
 		* The radius for the bottom right corner of the complex rounded rectangle.
 		**/
 		public function get bottomRightRadius():Number{
+			if(!_bottomRightRadius){return 0;}
 			return _bottomRightRadius;
 		}
 		public function set bottomRightRadius(value:Number):void{
@@ -232,7 +246,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -251,10 +265,60 @@ package com.degrafa.geometry{
 			
 				commandStack = [];
 				
-				commandStack.push({type:"roundRectComplex", x:x,y:y,
-					width:width,height:height,topLeftRadius:topLeftRadius,
-					topRightRadius:topRightRadius,bottomLeftRadius:bottomLeftRadius,
-					bottomRightRadius:bottomRightRadius});	
+				if(topLeftRadius==0 && topRightRadius==0 && bottomLeftRadius==0 && bottomRightRadius==0){
+					commandStack.push({type:"m", x:x,y:y});	
+					commandStack.push({type:"l", x:width,y:y});	
+					commandStack.push({type:"l", x:width,y:height});	
+					commandStack.push({type:"l", x:x,y:height});	
+					commandStack.push({type:"l", x:x,y:y});	
+				}				
+				else{
+					
+					//Copied from the Flex framework but modified to fill our command stack needs
+					//see mx.utils.GraphicsUtil
+					var xw:Number = x + width;
+					var yh:Number = y + height;
+			
+					var minSize:Number = width < height ? width * 2 : height * 2;
+					
+					var topLeftRadius:Number = this.topLeftRadius < minSize ? this.topLeftRadius : minSize;;
+					var topRightRadius:Number = this.topRightRadius < minSize ? this.topRightRadius : minSize;
+					var bottomLeftRadius:Number = this.bottomLeftRadius < minSize ? this.bottomLeftRadius : minSize;
+					var bottomRightRadius:Number =  this.bottomRightRadius < minSize ? this.bottomRightRadius : minSize;
+																				
+					// bottom-right corner
+					var a:Number = bottomRightRadius * 0.292893218813453;		// radius - anchor pt;
+					var s:Number = bottomRightRadius * 0.585786437626905; 	// radius - control pt;
+					
+					commandStack.push({type:"m", x:xw,y:yh - bottomRightRadius});
+					commandStack.push({type:"c",cx:xw,cy:yh-s,x1:xw-a,y1:yh-a});
+					commandStack.push({type:"c",cx:xw - s,cy:yh,x1:xw - bottomRightRadius,y1:yh});
+							
+					// bottom-left corner
+					a = bottomLeftRadius * 0.292893218813453;
+					s = bottomLeftRadius * 0.585786437626905;
+					
+					commandStack.push({type:"l", x:x + bottomLeftRadius,y:yh});
+					commandStack.push({type:"c",cx:x + s,cy:yh,x1:x + a,y1:yh - a});
+					commandStack.push({type:"c",cx:x,cy:yh - s,x1:x,y1:yh - bottomLeftRadius});
+							
+					// top-left corner
+					a = topLeftRadius * 0.292893218813453;
+					s = topLeftRadius * 0.585786437626905;
+					
+					commandStack.push({type:"l", x:x,y:y + topLeftRadius});
+					commandStack.push({type:"c",cx:x,cy:y+s,x1:x + a,y1:y + a});
+					commandStack.push({type:"c",cx:x + s,cy:y,x1:x + topLeftRadius,y1:y});
+					
+					// top-right corner
+					a = topRightRadius * 0.292893218813453;
+					s = topRightRadius * 0.585786437626905;
+					
+					commandStack.push({type:"l",x:xw - topRightRadius,y:y});
+					commandStack.push({type:"c",cx:xw - s,cy:y,x1:xw - a,y1:y + a});
+					commandStack.push({type:"c",cx:xw,cy:y + s,x1:xw,y1:y + topRightRadius});
+					commandStack.push({type:"l",x:xw,y:yh - bottomRightRadius});
+				}
 				
 				calcBounds();
 				
@@ -289,19 +353,42 @@ package com.degrafa.geometry{
 			}
 			
 			var item:Object;
-						
-			//draw each item in the array
 			for each (item in commandStack){
-        		
-        		graphics.drawRoundRectComplex(item.x,item.y,item.width,item.height,
-        		item.topLeftRadius,item.topRightRadius,item.bottomLeftRadius,
-        		item.bottomRightRadius);
-        		
-        		
-        	}
+        		switch(item.type){
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
+        			case "l":
+        				graphics.lineTo(item.x,item.y);
+        				break;
+        			case "c":
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				break;
+        		}
+        	}	
 				 	 		 	 	
 	 	 	super.endDraw(graphics);
 	 	 	
 		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:RoundedRectangleComplex):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke;}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_bottomLeftRadius){_bottomLeftRadius = value.bottomLeftRadius;}
+			if (!_bottomRightRadius){_bottomRightRadius = value.bottomRightRadius;}
+			if (!_topLeftRadius){_topLeftRadius = value.topLeftRadius;}
+			if (!_topRightRadius){_topRightRadius = value.topRightRadius;}
+			
+		}
+		
 	}
 }

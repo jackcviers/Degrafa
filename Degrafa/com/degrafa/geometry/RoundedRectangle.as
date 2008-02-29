@@ -23,9 +23,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
-	import flash.geom.Rectangle;
+	
 	import flash.display.Graphics;
-	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RoundedRectangle.png")]
 	
 	[Bindable]		
 	/**
@@ -49,7 +55,7 @@ package com.degrafa.geometry{
 	 	* @param height A number indicating the height. 
 	 	* @param cornerRadius A number indicating the radius of each corner.
 	 	*/		
-		public function RoundedRectangle(x:Number=0,y:Number=0,width:Number=0,height:Number=0,cornerRadius:Number=0){
+		public function RoundedRectangle(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN,cornerRadius:Number=NaN){
 			
 			super();
 			
@@ -90,12 +96,13 @@ package com.degrafa.geometry{
 			}
 		} 
 		
-		private var _x:Number=0;
+		private var _x:Number;
 		/**
 		* The x-axis coordinate of the upper left point of the rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
@@ -106,12 +113,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
 		* The y-axis coordinate of the upper left point of the rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
@@ -122,11 +130,12 @@ package com.degrafa.geometry{
 		}
 		
 						
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
 		* The width of the rounded rectangle.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
@@ -137,11 +146,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
 		* The height of the rounded rectangle.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{
@@ -152,11 +162,12 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _cornerRadius:Number=0;
+		private var _cornerRadius:Number;
 		/**
 		* The radius to be used for each corner of the rounded rectangle.
 		**/
 		public function get cornerRadius():Number{
+			if(!_cornerRadius){return 0;}
 			return _cornerRadius;
 		}
 		public function set cornerRadius(value:Number):void{
@@ -170,7 +181,7 @@ package com.degrafa.geometry{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		
@@ -188,9 +199,131 @@ package com.degrafa.geometry{
 			if(invalidated){
 			
 				commandStack = [];
-				
-				commandStack.push({type:"roundRect", x:x,y:y,
-					width:width,height:height,cornerRadius:cornerRadius});	
+								
+				// by Ric Ewing (ric@formequalsfunction.com) 
+				if (cornerRadius>0) {
+					// init vars
+					var theta:Number;
+					var angle:Number;
+					var cx:Number;
+					var cy:Number;
+					var px:Number;
+					var py:Number;
+					
+					// make sure that width + h are larger than 2*cornerRadius
+					if (cornerRadius>Math.min(width, height)/2) {
+						cornerRadius = Math.min(width, height)/2;
+					}
+					
+					// theta = 45 degrees in radians
+					theta = Math.PI/4;
+					
+					// draw top line
+					commandStack.push({type:"m", x:x+cornerRadius,y:y});
+					commandStack.push({type:"l", x:x+width-cornerRadius,y:y});
+					
+					//angle is currently 90 degrees
+					angle = -Math.PI/2;
+					// draw tr corner in two parts
+					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					angle += theta;
+					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					// draw right line
+					commandStack.push({type:"l", x:x+width,y:y+height-cornerRadius});
+					// draw br corner
+					angle += theta;
+					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					
+					angle += theta;
+					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					// draw bottom line
+					commandStack.push({type:"l", x:x+cornerRadius,y:y+height});
+					
+					// draw bl corner
+					angle += theta;
+					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					angle += theta;
+					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					// draw left line
+					commandStack.push({type:"l", x:x,y:y+cornerRadius});
+					
+					// draw tl corner
+					angle += theta;
+					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+					angle += theta;
+					
+					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
+					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					commandStack.push({type:"c",cx:cx,
+					cy:cy,
+					x1:px,
+					y1:py});
+					
+				} else {
+					commandStack.push({type:"m", x:x,y:y});	
+					commandStack.push({type:"l", x:width,y:y});	
+					commandStack.push({type:"l", x:width,y:height});	
+					commandStack.push({type:"l", x:x,y:height});	
+					commandStack.push({type:"l", x:x,y:y});	
+				}
 				
 				calcBounds();
 				
@@ -225,19 +358,39 @@ package com.degrafa.geometry{
 			}
 			
 			var item:Object;
-						
-			//draw each item in the array
 			for each (item in commandStack){
-        		
-        		graphics.drawRoundRect(item.x,item.y,item.width,item.height,
-        		item.cornerRadius);
-        		
-        		
-        	}
-				 	 		 	 	
+        		switch(item.type){
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
+        			case "l":
+        				graphics.lineTo(item.x,item.y);
+        				break;
+        			case "c":
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				break;
+        		}
+        	}	
+							 	 		 	 	
 	 	 	super.endDraw(graphics);
 			
 	        
 	  	}
+	  	
+	  	/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:RoundedRectangle):void{
+			
+			if (!fill){fill=value.fill;}
+			if (!stroke){stroke = value.stroke;}
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_cornerRadius){_cornerRadius = value.cornerRadius;}
+		}
+		
 	}
 }

@@ -268,7 +268,7 @@ package com.degrafa.geometry.repeaters{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		private var _bounds:Rectangle;
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		

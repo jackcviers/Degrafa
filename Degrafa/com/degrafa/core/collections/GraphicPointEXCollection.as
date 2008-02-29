@@ -101,7 +101,7 @@ package com.degrafa.core.collections{
 		* @return The GraphicPointEX object that was removed.   
 		**/
 		public function removeItemAt(index:Number):GraphicPointEX{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

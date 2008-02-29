@@ -23,13 +23,18 @@
 package com.degrafa.paint{
 	
 	import com.degrafa.core.IGraphicsFill;
+	
 	import flash.display.Graphics;
-	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
 	[Exclude(name="focalPointRatio", kind="property")]
-	
 	[Bindable(event="propertyChange")]
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("LinearGradientFill.png")]
 	
 	/**
 	* The linear gradient fill class lets you specify a gradient fill.
@@ -37,75 +42,105 @@ package com.degrafa.paint{
 	* @see mx.graphics.LinearGradient 
 	* @see http://samples.degrafa.com/LinearGradientFill/LinearGradientFill.html	 
 	**/
-	public class LinearGradientFill extends GradientFill implements IGraphicsFill{
+	public class LinearGradientFill extends GradientFillBase implements IGraphicsFill {
 		
 		public function LinearGradientFill(){
 			super();
 			super.gradientType="linear";
 		}
 		
-		private var _x:Number=0;
 		/**
-		* The x-axis coordinate of the upper left point of the fill rectangle. If not specified 
+		* The focalPointRatio property is not valide for a LinearGradientFill and 
+		* will be ignored.
+		**/
+		override public function get focalPointRatio():Number{return 0;}
+		override public function set focalPointRatio(value:Number):void{}	
+		
+		private var _x:Number;
+		/**
+		* The x-axis coordinate of the upper left point of the gradient rectangle. If not specified 
 		* a default value of 0 is used.
-		* 
-		* Note: Not yet implemented. 
 		**/
 		public function get x():Number{
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void{
 			if(_x != value){
+				
+				var oldValue:Number=_x;
+				
 				_x = value;
+				
+				//call local helper to dispatch event	
+				initChange("x",oldValue,_x,this);
+				
 			}
 		}
 		
 		
-		private var _y:Number=0;
+		private var _y:Number;
 		/**
-		* The y-axis coordinate of the upper left point of the fill rectangle. If not specified 
+		* The y-axis coordinate of the upper left point of the gradient rectangle. If not specified 
 		* a default value of 0 is used.
-		* 
-		* Note: Not yet implemented. 
 		**/
 		public function get y():Number{
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void{
 			if(_y != value){
+				
+				var oldValue:Number=_y;
+								
 				_y = value;
+				
+				//call local helper to dispatch event	
+				initChange("y",oldValue,_y,this);
+				
 			}
 		}
 		
 						
-		private var _width:Number=0;
+		private var _width:Number;
 		/**
-		* The width of the fill rectangle.
-		* 
-		* Note: Not yet implemented. 
+		* The width to be used for the gradient rectangle.
 		**/
 		public function get width():Number{
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void{
 			if(_width != value){
+				
+				var oldValue:Number=_width;
+				
 				_width = value;
+				
+				//call local helper to dispatch event	
+				initChange("width",oldValue,_width,this);
 			}
 		}
 		
 		
-		private var _height:Number=0;
+		private var _height:Number;
 		/**
-		* The height of the fill rectangle.
-		*
-		* Note: Not yet implemented.
+		* The height to be used for the gradient rectangle.
 		**/
 		public function get height():Number{
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void{
 			if(_height != value){
+				
+				var oldValue:Number=_height;
+				
 				_height = value;
+				
+				//call local helper to dispatch event	
+				initChange("height",oldValue,_height,this);
+			
 			}
 		}
 		
@@ -127,11 +162,37 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle):void
-		{
-			super.begin(graphics,rc);
+		override public function begin(graphics:Graphics, rc:Rectangle):void{
+			if(_x && _y && _width && _height){
+				super.begin(graphics,new Rectangle(x,y,width,height));
+			}
+			else if (_width && _height){
+				super.begin(graphics,new Rectangle(0,0,width, height));
+			}
+			else{
+				super.begin(graphics,rc);
+			}
 		}
 		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:LinearGradientFill):void{
+			
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_height){_height = value.height;}
+			if (!_spreadMethod){_spreadMethod = value.spreadMethod;}
+			if (!_angle){_angle = value.angle;}
+			if (!_blendMode){_blendMode = value.blendMode;}
+			if (!_interpolationMethod){_interpolationMethod = value.interpolationMethod;}
+			if (!_spreadMethod){_spreadMethod = value.spreadMethod;}
+		
+			if (!_gradientStops && value.gradientStops.length!=0){gradientStops = value.gradientStops};
+		
+		}
 		
 	}
 }

@@ -102,7 +102,7 @@ package com.degrafa.core.collections{
 		* @return The ISegment object that was removed.   
 		**/
 		public function removeItemAt(index:Number):ISegment{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

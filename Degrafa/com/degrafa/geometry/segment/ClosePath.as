@@ -25,19 +25,27 @@ package com.degrafa.geometry.segment{
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("ClosePath.png")]
+	
 	//close path to the last used move
 	//(Z or z) path data command
 	[Exclude(name="data", kind="property")]
 	[Exclude(name="coordinateType", kind="property")]
 	[Exclude(name="isShortSequence", kind="property")]
 	/**
-	* The "closepath" (Z or z) ends the current subpath
+	* The "closepath" (Z or z) ends the current subpath 
+	* by drawing a straight line from the current point to 
+	* current subpath's initial point.
 	* 
 	* @see http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand 
 	* 
 	**/
 	public class ClosePath extends Segment implements ISegment{
-		public function ClosePath():void{}
+		public function ClosePath(){}
 		
 		/**
 		* Setting data on ClosePath has no effect
@@ -100,8 +108,7 @@ package com.degrafa.geometry.segment{
 		private var firstPoint:Point;
 		
 		/**
-		* Compute the segment using x and y as the start point adding it's commands to
-		* the drawing stack 
+		* Compute the segment adding instructions to the command stack. 
 		**/
 		public function computeSegment(lastPoint:Point,firstPoint:Point,commandStack:Array):void{
 			

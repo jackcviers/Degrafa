@@ -28,8 +28,8 @@ package com.degrafa.transform{
 	* Coming Soon.
 	**/ 
 	public interface ITransform{		
-		function get data():Object;
-		function set data(value:Object):void;
+		function get data():String;
+		function set data(value:String):void;
 		
 	}
 }

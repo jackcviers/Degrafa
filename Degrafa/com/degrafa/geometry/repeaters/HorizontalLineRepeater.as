@@ -27,6 +27,12 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("HorizontalLineRepeater.png")]
 	 
 	[Exclude(name="fill", kind="property")]
 	[Bindable]
@@ -181,7 +187,7 @@ package com.degrafa.geometry.repeaters{
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		public function get bounds():Rectangle{
+		override public function get bounds():Rectangle{
 			return _bounds;	
 		}
 		

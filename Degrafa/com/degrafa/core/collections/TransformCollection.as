@@ -104,7 +104,7 @@ package com.degrafa.core.collections{
 		* @return The ITransform object that was removed.   
 		**/
 		public function removeItemAt(index:Number):ITransform{
-			return super._removeItemAt(index);;
+			return super._removeItemAt(index);
 		}
 		
 		/**

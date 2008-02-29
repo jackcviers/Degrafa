@@ -205,7 +205,6 @@ package com.degrafa{
 		}
 		
 		
-		
 		private var _fills:FillCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.core.IGraphicsFill")]
 		[ArrayElementType("com.degrafa.core.IGraphicsFill")]
@@ -213,28 +212,35 @@ package com.degrafa{
 		* A array of IGraphicsFill objects.
 		**/
 		public function get fills():Array{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills.items;
 		}
 		public function set fills(value:Array):void{			
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			_fills.items = value;
-						
-			//add a listener to the collection
-			if(_fills && enableEvents){
-				_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
-			
 		}
 		
 		/**
 		* Access to the Degrafa fill collection object for this graphic object.
 		**/
 		public function get fillCollection():FillCollection{
-			if(!_fills){_fills = new FillCollection();}
+			initFillsCollection();
 			return _fills;
 		}
 		
+		/**
+		* Initialize the fills collection by creating it and adding an event listener.
+		**/
+		private function initFillsCollection():void{
+			if(!_fills){
+				_fills = new FillCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_fills.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
 		
 		private var _strokes:StrokeCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.core.IGraphicsStroke")]
@@ -243,27 +249,35 @@ package com.degrafa{
 		* A array of IStroke objects.
 		**/
 		public function get strokes():Array{
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			return _strokes.items;
 		}
 		public function set strokes(value:Array):void{	
-			
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			_strokes.items = value;
 			
-			
-			//add a listener to the collection
-			if(_strokes && enableEvents){
-				_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-			}
 		}
 		
 		/**
 		* Access to the Degrafa stroke collection object for this graphic object.
 		**/
 		public function get strokeCollection():StrokeCollection{
-			if(!_strokes){_strokes = new StrokeCollection();}
+			initSrokesCollection();
 			return _strokes;
+		}
+		
+		/**
+		* Initialize the strokes collection by creating it and adding an event listener.
+		**/
+		private function initSrokesCollection():void{
+			if(!_strokes){
+				_strokes = new StrokeCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_strokes.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
 		}
 				
 		/**
@@ -345,6 +359,7 @@ package com.degrafa{
 		/**
  		* Enable events for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableEvents():Boolean{
 			return _enableEvents;
 		}
@@ -352,21 +367,22 @@ package com.degrafa{
 			_enableEvents=value;
 		}
 		
-		private var _surpressEventProcessing:Boolean=false;
+		private var _suppressEventProcessing:Boolean=false;
 		/**
  		* Temporarily suppress event processing for this object.
  		**/
-		public function get surpressEventProcessing():Boolean{
-			return _surpressEventProcessing;
+ 		[Inspectable(category="General", enumeration="true,false")]
+		public function get suppressEventProcessing():Boolean{
+			return _suppressEventProcessing;
 		}
-		public function set surpressEventProcessing(value:Boolean):void{
+		public function set suppressEventProcessing(value:Boolean):void{
 			
-			if(_surpressEventProcessing==true && value==false){
-				_surpressEventProcessing=value;
-				initChange("surpressEventProcessing",false,true,this);
+			if(_suppressEventProcessing==true && value==false){
+				_suppressEventProcessing=value;
+				initChange("suppressEventProcessing",false,true,this);
 			}
 			else{
-				_surpressEventProcessing=value;	
+				_suppressEventProcessing=value;	
 			}
 		}
 		
@@ -376,7 +392,7 @@ package com.degrafa{
 		* @see EventDispatcher
 		**/ 
 		override public function dispatchEvent(event:Event):Boolean{
-			if(_surpressEventProcessing){return false;}
+			if(_suppressEventProcessing){return false;}
 			
 			return(super.dispatchEvent(event));
 			
@@ -464,7 +480,7 @@ package com.degrafa{
 	        
 	        _document=document;
 	        
-	        if(enableEvents && !surpressEventProcessing){
+	        if(enableEvents && !suppressEventProcessing){
 	        	dispatchEvent(new FlexEvent(FlexEvent.INITIALIZE));
 	        }
 	        

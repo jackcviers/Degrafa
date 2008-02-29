@@ -1,8 +1,8 @@
 package com.degrafa.paint
 {
 	import com.degrafa.core.DegrafaObject;
-	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IBlend;
+	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -15,11 +15,17 @@ package com.degrafa.paint
 	
 	[DefaultProperty("fills")]
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("ComplexFill.png")]
+	
 	/**
 	 * Used to render multiple, layered IFill objects as a single fill.
 	 * This allows complex background graphics to be rendered with a single drawing pass.
 	 */
-	public class ComplexFill extends DegrafaObject implements IGraphicsFill
+	public class ComplexFill extends DegrafaObject implements IGraphicsFill, IBlend
 	{
 		
 		//************************************
@@ -53,6 +59,7 @@ package com.degrafa.paint
 		private var shape:Shape;
 		private var bitmapData:BitmapData;
 		
+		private var _blendMode:String;
 		private var _fills:Array; // property backing var
 		private var fillsChanged:Boolean; // dirty flag
 		
@@ -60,6 +67,13 @@ package com.degrafa.paint
 		//**************************************
 		// Public Properties
 		//**************************************
+		
+		public function get blendMode():String { return _blendMode; }
+		public function set blendMode(value:String):void {
+			if(_blendMode != value) {
+				initChange("blendMode", _blendMode, _blendMode = value, this);
+			}
+		}
 		
 		/**
 		 * Array of IFill Objects to be rendered
