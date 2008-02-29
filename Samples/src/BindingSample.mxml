@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:degrafa="http://www.degrafa.com/2008" 
+	xmlns:flash.filters="flash.filters.*" 
+	backgroundGradientColors="[#333333, #222222]" 
+	layout="absolute" viewSourceURL="srcview/index.html">
+	<mx:Style>
+		
+		global {
+			color: #BBBBBB;
+			fontFamily: 'Myriad Pro', 'Myriad', 'Arial';
+			fontSize: 14;
+		}
+		
+		HBox {
+			verticalAlign: middle;    
+		}
+		
+	</mx:Style>
+	
+	<!-- Creating fills. -->
+	<degrafa:LinearGradientFill id="linearGradFill" angle="{fillAngleSlider.value}">
+		<degrafa:GradientStop alpha="{alphaSlider1.value}" color="{colorPicker1.selectedColor}"/>
+		<degrafa:GradientStop alpha="{alphaSlider2.value}" color="{colorPicker2.selectedColor}"/>
+	</degrafa:LinearGradientFill>
+	
+	<!-- Creating Strokes. -->
+	<degrafa:SolidStroke id="solidStroke" alpha="{alphaSlider3.value}" color="{colorPicker3.selectedColor}" weight="{weightSlider.value}"/>
+	
+	<!-- Creating the Surface. -->
+	<degrafa:Surface left="600" top="400">
+		
+		<!-- Creating Geometry Group. -->
+		<degrafa:GeometryGroup>
+			<degrafa:Circle radius="{radiusSlider.value}" fill="{linearGradFill}" stroke="{solidStroke}"/>
+		</degrafa:GeometryGroup>
+		
+	</degrafa:Surface>
+	
+	<!-- Creating Controls. -->
+	<mx:VBox x="10" y="10" backgroundColor="#666666" borderStyle="solid" borderColor="#111111" cornerRadius="8" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+		<mx:filters>
+			<flash.filters:GlowFilter id="glowFilter" blurX="10" blurY="10" alpha="1" color="#333333" inner="true"/>
+		</mx:filters>
+		
+		<mx:HBox>
+			<mx:Label text="Fill Angle" width="100" textAlign="right"/>
+			<mx:HSlider id="fillAngleSlider" minimum="0" maximum="360" value="60" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+		</mx:HBox>
+		<mx:HBox>
+		<mx:Label text="Fill Alpha 1" width="100" textAlign="right"/>
+			<mx:HSlider id="alphaSlider1" minimum="0" maximum="1" value="1" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+			<mx:HBox>
+				<mx:Label text="Fill Color 1" width="90" textAlign="right"/>
+				<mx:ColorPicker id="colorPicker1" selectedColor="#62ABCD"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Fill Alpha 2" width="100" textAlign="right"/>
+			<mx:HSlider id="alphaSlider2" minimum="0" maximum="1" value=".5" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+			<mx:HBox>
+				<mx:Label text="Fill Color 2" width="90" textAlign="right"/>
+				<mx:ColorPicker id="colorPicker2" selectedColor="#FFFFFF"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Stroke Alpha" width="100" textAlign="right"/>
+			<mx:HSlider id="alphaSlider3" minimum="0" maximum="1" value=".6" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+			<mx:HBox>
+				<mx:Label text="Stroke Color" width="90" textAlign="right"/>
+				<mx:ColorPicker id="colorPicker3" selectedColor="#000000"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Stroke Weight" width="100" textAlign="right"/>
+			<mx:HSlider id="weightSlider" minimum="1" maximum="50" value="10" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Circle Radius" width="100" textAlign="right"/>
+			<mx:HSlider id="radiusSlider" minimum="50" maximum="400" value="200" liveDragging="true" tickLength="0" tickOffset="0" tickThickness="0"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:Application>

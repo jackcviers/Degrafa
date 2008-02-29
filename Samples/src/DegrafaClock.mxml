@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns:degrafa="http://www.degrafa.com/2008"
+	xmlns:flash.filters='flash.filters.*'
+	creationComplete="initTime();">
+	
+	<mx:Style source="css/clock.css"/>
+	
+	<mx:Script>
+		<![CDATA[
+						
+			private var clocktick:Timer= new Timer(1000);
+			
+			public function initTime():void
+		    {	
+		    	setTime(new Date());
+		    	clocktick.addEventListener(TimerEvent.TIMER, initDraw);
+        		clocktick.start();
+
+        	    
+		    }
+			
+			private function initDraw(event:TimerEvent):void
+			{
+				setTime(new Date());	
+			}
+			
+
+			public function setTime(currtime:Date):void 
+		    {
+		        var currseconds:uint = currtime.getSeconds();
+		        var currminutes:uint = currtime.getMinutes();
+		        var currhours:uint = currtime.getHours();
+
+		        secondHand.rotation = 268 + (currseconds * 6);
+		        minuteHand.rotation = 268 + (currminutes * 6);
+		
+		        hourHand.rotation = 268 + (currhours * 30) + (currminutes * 0.5);
+		    }
+
+
+			
+		]]>
+	</mx:Script>
+	
+	<!-- Make the clock shake -->
+	<mx:Sequence id="clockShake" target="{clock}" duration="50" repeatCount="20">
+		<mx:Move xBy="20"/>
+		<mx:Move xBy="-20"/>
+	</mx:Sequence>
+	
+	<!-- This is the clock -->
+	<degrafa:Surface verticalCenter="0" horizontalCenter="0" id="clock">
+	
+		<degrafa:fills>
+			<degrafa:LinearGradientFill angle="90" id="greyFill">
+				<degrafa:GradientStop alpha="1" color="#999999"/>
+				<degrafa:GradientStop alpha="1" color="#444444"/>
+			</degrafa:LinearGradientFill>
+			<degrafa:LinearGradientFill angle="90" id="whiteFill">
+				<degrafa:GradientStop alpha="1" color="#CCCCCC"/>
+				<degrafa:GradientStop alpha="1" color="#FFFFFF"/>
+			</degrafa:LinearGradientFill>
+			<degrafa:LinearGradientFill angle="90" id="shineFill">
+				<degrafa:GradientStop alpha=".3" color="#FFFFFF"/>
+				<degrafa:GradientStop alpha="0" color="#FFFFFF"/>
+			</degrafa:LinearGradientFill>
+			<degrafa:RadialGradientFill id="redRadFill" angle="45" spreadMethod="pad">
+				<degrafa:GradientStop color="#FC5976"/>
+				<degrafa:GradientStop color="#922A21"/>
+			</degrafa:RadialGradientFill>
+			<degrafa:LinearGradientFill id="redLinFill" angle="90">
+				<degrafa:GradientStop color="#FC5976"/>
+				<degrafa:GradientStop color="#922A21"/>
+			</degrafa:LinearGradientFill>
+			<degrafa:LinearGradientFill angle="90" id="highlightFill">
+				<degrafa:GradientStop alpha="0" color="#FFFFFF"/>
+				<degrafa:GradientStop alpha=".3" color="#FFFFFF"/>
+			</degrafa:LinearGradientFill>
+			<degrafa:SolidFill color="#999999" id="lightGreyFill" alpha=".3"/>
+			<degrafa:ComplexFill id="metalFill">
+				<degrafa:BitmapFill source="@Embed('assets/metal.png')"/>
+				<degrafa:BlendFill blendMode="multiply">
+					<degrafa:LinearGradientFill angle="90">
+						<degrafa:GradientStop alpha=".3" color="#999999"/>
+						<degrafa:GradientStop alpha=".6" color="#444444"/>
+					</degrafa:LinearGradientFill>
+				</degrafa:BlendFill>
+			</degrafa:ComplexFill>
+		</degrafa:fills>
+		
+		<degrafa:strokes>
+			<degrafa:SolidStroke id="greyStroke" color="#444444" weight="2"/>
+			<degrafa:SolidStroke id="redStroke" color="#922A21" weight="2"/>
+			<degrafa:SolidStroke id="redStroke1" color="#922A21" weight="1"/>
+			<degrafa:LinearGradientStroke id="greyGradStroke" angle="45">
+				<degrafa:GradientStop alpha=".8" color="#999999"/>
+				<degrafa:GradientStop alpha=".2" color="#444444"/>
+			</degrafa:LinearGradientStroke>
+		</degrafa:strokes>
+	
+		<degrafa:GeometryGroup id="clockFrame">
+			<degrafa:Circle id="clockRim" radius="200" fill="{metalFill}" stroke="{greyStroke}"/>
+			<degrafa:Circle radius="180" fill="{highlightFill}"/>
+			<degrafa:filters>
+				<flash.filters:DropShadowFilter alpha=".3" color="#000000" distance="6" blurX="6" blurY="6" angle="120"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="clockFace">
+			<degrafa:Circle radius="176" fill="{whiteFill}" stroke="{greyStroke}"/>
+			<degrafa:filters>
+				<flash.filters:GlowFilter inner="true" alpha=".6" color="#666666" blurX="16" blurY="16"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="faceArt" fill="{lightGreyFill}">
+			<degrafa:Path>
+				<degrafa:data>M-83.982,82.53c22.185,22.189,51.686,34.411,83.066,34.411c31.38,0,60.881-12.222,83.069-34.411
+
+		c22.189-22.189,34.406-51.689,34.406-83.065c0-31.381-12.217-60.881-34.405-83.07c-22.189-22.19-51.69-34.406-83.07-34.406
+
+		c-31.379,0-60.878,12.218-83.066,34.406c-22.191,22.188-34.408,51.688-34.408,83.07C-118.39,30.841-106.174,60.341-83.982,82.53z
+
+		 M-79.77-79.392c21.064-21.064,49.066-32.663,78.854-32.663s57.793,11.601,78.853,32.663
+
+		c21.067,21.062,32.666,49.068,32.666,78.857c0,29.786-11.599,57.79-32.666,78.855c-21.06,21.061-49.063,32.663-78.853,32.663
+
+		S-58.706,99.381-79.77,78.32c-21.066-21.065-32.664-49.069-32.664-78.855C-112.434-30.324-100.835-58.33-79.77-79.392z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-0.145,124.778c7.389,12.2,16.422,17.33,30.167,20.747c13.741,3.416,24.124,3.113,36.366-4.204
+
+		C52.81,119.447,22.1,111.813-0.145,124.778z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M41.438,116.388c10.956,9.125,21.166,11.036,35.272,9.791c14.107-1.244,23.826-4.909,33.02-15.813
+
+		C89.771,94.103,58.247,96.883,41.438,116.388z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M78.019,94.91c13.332,5.066,23.61,3.548,36.542-2.221c12.935-5.77,20.932-12.4,26.07-25.704
+
+		C116.465,58.109,87.564,71,78.019,94.91z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M105.617,62.696c14.252,0.445,23.476-4.334,33.83-14c10.352-9.666,15.753-18.54,16.276-32.788
+
+		C129.987,15.382,106.854,36.979,105.617,62.696z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M121.224,23.251c13.621-4.218,20.789-11.739,27.43-24.248c6.639-12.51,8.854-22.66,4.719-36.306
+
+		C128.861-29.42,114.023-1.466,121.224,23.251z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-66.674,141.321c12.237,7.317,22.625,7.62,36.367,4.204c13.744-3.419,22.777-8.551,30.163-20.747
+
+		C-22.384,111.813-53.095,119.447-66.674,141.321</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-0.141,135.43c-12.246,3.789-19.784,17.619-16.333,29.965c6.803-2.021,10.41-5.728,13.784-11.919
+
+		c1.108-2.036,1.952-3.942,2.551-5.836c0.598,1.894,1.441,3.8,2.555,5.836c3.376,6.188,6.984,9.891,13.79,11.911
+
+		C19.652,153.042,12.103,139.215-0.141,135.43z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-110.016,110.365c9.193,10.906,18.909,14.573,33.015,15.813c14.11,1.245,24.32-0.666,35.278-9.791
+
+		C-58.532,96.883-90.055,94.103-110.016,110.365z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-78.305,94.91c-9.543-23.908-38.447-36.801-62.613-27.925c5.137,13.304,13.132,19.935,26.067,25.704
+
+		C-101.915,98.458-91.635,99.975-78.305,94.91z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-105.903,62.696c-1.239-25.717-24.372-47.314-50.112-46.787c0.53,14.249,5.929,23.123,16.283,32.789
+
+		C-129.379,58.366-120.162,63.144-105.903,62.696z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-121.51,23.251c7.199-24.719-7.638-52.671-32.148-60.554c-4.14,13.646-1.919,23.795,4.721,36.306
+
+		C-142.297,11.512-135.135,19.033-121.51,23.251z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-123.425-19.124c8.764-12.402,10.638-28.361,6.478-42.536l1.927,1.015c2.59-4.914,5.477-9.625,8.639-14.11
+
+		l-4.871-3.431c-2.647,3.756-5.102,7.669-7.368,11.713c-3.214-7.949-8.433-15.087-15.487-20.372
+
+		c-8.359,11.556-9.565,21.873-7.358,35.862C-139.257-36.991-134.935-27.549-123.425-19.124z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M42.485-128.271c-5.404-1.828-10.988-3.336-16.726-4.493l-1.176,5.841
+
+		c5.483,1.106,10.826,2.547,15.992,4.296L42.485-128.271z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M73.533-113.056c-4.785-3.17-9.803-6.053-15.027-8.613l-2.622,5.352c4.993,2.446,9.786,5.198,14.362,8.229
+
+		L73.533-113.056z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M95.221-86.447l4.447-3.969c-3.842-4.3-7.96-8.364-12.338-12.159l-3.9,4.503
+
+		C87.613-94.447,91.555-90.562,95.221-86.447z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-56.252-117l-2.567-5.379c-5.221,2.488-10.277,5.306-15.13,8.433l3.228,5.009
+
+		C-66.084-111.929-61.246-114.621-56.252-117z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-84.042-99.101l-3.841-4.553c-4.409,3.714-8.59,7.718-12.505,11.982l4.39,4.028
+
+		C-92.254-91.722-88.263-95.546-84.042-99.101z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M116.318-60.413c-3.695,13.857-1.686,29.25,6.821,41.289c11.508-8.425,15.832-17.867,18.036-31.858
+
+		c2.211-13.992,1-24.308-7.356-35.862c-7.558,5.66-12.999,13.454-16.135,22.084c-2.238-4.128-4.679-8.146-7.333-12.018l-4.913,3.369
+
+		c3.12,4.554,5.952,9.309,8.467,14.233L116.318-60.413z</degrafa:data> 
+			</degrafa:Path>
+			<degrafa:Path>
+				<degrafa:data>M-24.833-127.268l-1.107-5.855c-5.71,1.08-11.315,2.525-16.789,4.314l1.851,5.662
+
+		C-35.646-124.855-30.291-126.237-24.833-127.268z</degrafa:data> 
+			</degrafa:Path>
+			<!--<degrafa:Path>
+				<degrafa:data>M-0.916,103.343c57.279,0,103.881-46.598,103.881-103.877c0-57.281-46.602-103.883-103.881-103.883
+
+		c-57.281,0-103.88,46.6-103.88,103.883C-104.796,56.745-58.197,103.343-0.916,103.343z M-0.916-98.314
+
+		c53.912,0,97.777,43.861,97.777,97.78c0,53.912-43.865,97.777-97.777,97.777c-53.916,0-97.778-43.865-97.778-97.777
+
+		C-98.694-54.453-54.832-98.314-0.916-98.314z</degrafa:data> 
+			</degrafa:Path>-->
+			<degrafa:Polygon>
+				<degrafa:data>-12.528,-123.457 -0.916,-129.563 10.698,-123.457 8.48,-136.392 17.875,-145.55 4.89,-147.438 
+
+		-0.916,-159.204 -6.722,-147.438 -19.708,-145.55 -10.312,-136.392</degrafa:data>
+			</degrafa:Polygon>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="secondHand">
+			<degrafa:RoundedRectangle fill="{greyFill}" height="3" width="166" cornerRadius="4"/>
+			<degrafa:filters>
+				<flash.filters:DropShadowFilter alpha=".3" color="#000000" distance="6" blurX="6" blurY="6" angle="120"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="minuteHand">
+			<degrafa:RoundedRectangle cornerRadius="40" fill="{redLinFill}" stroke="{redStroke1}" height="6" width="166"/>
+			<degrafa:filters>
+				<flash.filters:DropShadowFilter alpha=".3" color="#000000" distance="3" blurX="6" blurY="6" angle="120"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="hourHand">
+			<degrafa:RoundedRectangle cornerRadius="80" fill="{redLinFill}" stroke="{redStroke1}" height="10" width="120"/>
+			<degrafa:filters>
+				<flash.filters:DropShadowFilter alpha=".3" color="#000000" distance="3" blurX="6" blurY="6" angle="120"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="clockCenter">
+			<degrafa:Circle radius="16" fill="{metalFill}" stroke="{greyGradStroke}"/>
+			<degrafa:filters>
+				<flash.filters:DropShadowFilter alpha=".3" color="#666666" distance="2" blurX="6" blurY="6" angle="120"/>
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+		<degrafa:GeometryGroup id="faceShine" y="-170" x="-110">
+			<degrafa:Ellipse width="220" height="140" fill="{shineFill}"/>
+		</degrafa:GeometryGroup>
+		
+	</degrafa:Surface>
+				
+	<mx:Button label="Shake It!" click="clockShake.play();" horizontalCenter="0" top="42"/>
+	
+</mx:Application>

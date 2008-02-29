@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:degrafa="http://www.degrafa.com/2008" 
+	backgroundGradientColors="[#333333, #222222]" 
+	layout="absolute" viewSourceURL="srcview/index.html">
+	<mx:Image mask="{theMask}" source="http://www.nmfs.noaa.gov/pr/images/turtles/green_seastars_carolinesrogers.jpg" 
+		autoLoad="true" x="20" y="20" maintainAspectRatio="true" scaleContent="false">
+	</mx:Image>
+	<degrafa:Surface>
+		
+		<!--the image mask-->
+		<degrafa:GeometryGroup id="theMask" x="20" y="20">
+			<degrafa:RoundedRectangleComplex x="0" y="0" width="500" height="323" bottomLeftRadius="20" topRightRadius="20">
+				<degrafa:fill>
+					<degrafa:SolidFill color="#FFF" alpha=".5" id="fill1"/>
+				</degrafa:fill>
+			</degrafa:RoundedRectangleComplex>
+		</degrafa:GeometryGroup>
+		
+		<!--the image frame-->
+		<degrafa:GeometryGroup id="theFrame" x="17" y="17">
+			<degrafa:RoundedRectangleComplex x="0" y="0" width="506" height="328" bottomLeftRadius="22" topRightRadius="22">
+				<degrafa:stroke>
+					<degrafa:LinearGradientStroke weight="5" angle="90" id="outlineStroke">
+						<degrafa:GradientStop color="#fff" ratio="0" />
+						<degrafa:GradientStop color="#000" ratio="1" />
+					</degrafa:LinearGradientStroke>
+				</degrafa:stroke>
+			</degrafa:RoundedRectangleComplex>
+			<degrafa:filters>
+				<mx:DropShadowFilter alpha=".5"/>
+				<mx:BevelFilter />
+			</degrafa:filters>
+		</degrafa:GeometryGroup>
+		
+	</degrafa:Surface>  
+</mx:Application>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	backgroundGradientColors="[#333333, #222222]" 
+	layout="absolute" viewSourceURL="srcview/index.html">
+	<mx:Button width="50" height="50" 
+		verticalCenter="0" horizontalCenter="0" 
+		upSkin="skins.SphereButtonUp" 
+		overSkin="skins.SphereButtonOver"/>
+</mx:Application>

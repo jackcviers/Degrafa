@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:degrafa="http://www.degrafa.com/2008" 
+	backgroundGradientColors="[#333333, #222222]" 
+	layout="absolute" viewSourceURL="srcview/index.html">
+	
+	<!-- Creating some fills. -->
+	<degrafa:SolidFill id="aqua" color="aqua"/>
+	<degrafa:SolidFill id="chartreuse" color="chartreuse"/>
+	<degrafa:SolidFill id="mintcream" color="mintcream"/>
+	<degrafa:SolidFill id="fuchsia" color="fuchsia"/>
+	<degrafa:SolidFill id="gold" color="gold"/>
+	<degrafa:SolidFill id="peru" color="peru"/>
+	
+	<degrafa:Surface verticalCenter="0" horizontalCenter="-125">
+		
+		<!-- Creating a Geometry Group. -->
+		<degrafa:GeometryGroup>
+			<!-- Creating Circles. -->
+			<degrafa:Circle fill="{aqua}" radius="20"/>
+			<degrafa:Circle fill="{chartreuse}" radius="20" centerX="50"/>
+			<degrafa:Circle fill="{mintcream}" radius="20" centerX="100"/>
+			<degrafa:Circle fill="{fuchsia}" radius="20" centerX="150"/>
+			<degrafa:Circle fill="{gold}" radius="20" centerX="200"/>
+			<degrafa:Circle fill="{peru}" radius="20" centerX="250"/>
+		</degrafa:GeometryGroup>
+	
+	</degrafa:Surface>
+	
+</mx:Application>

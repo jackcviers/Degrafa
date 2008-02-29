@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<degrafa:GraphicBorderSkin 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:degrafa="http://www.degrafa.com/2008">
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable] private var awidth:Number = 0;
+			[Bindable] private var aheight:Number = 0;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+			
+		]]>
+	</mx:Script>
+	<degrafa:geometry>
+		<degrafa:Circle centerX="{awidth/2}" centerY="{aheight/2}" radius="{Math.max(awidth/2,aheight/2)}">
+			<degrafa:stroke>
+				<degrafa:SolidStroke color="#EE9819" id="theStroke"/>
+			</degrafa:stroke>
+			<degrafa:fill>
+				<degrafa:LinearGradientFill id="MainFill" angle="90">
+					<degrafa:GradientStop ratio="0" alpha="1" color="#EE9819"/>
+					<degrafa:GradientStop ratio="1" alpha="1" color="#FAE38F"/>
+				</degrafa:LinearGradientFill>
+			</degrafa:fill>
+		</degrafa:Circle>
+		<degrafa:Ellipse x="3" y="3" width="{awidth-7}" height="{aheight/1.5}">
+			<degrafa:fill>
+				<degrafa:LinearGradientFill id="WashFill" angle="90">
+					<degrafa:GradientStop ratio="0" alpha=".75" color="#FFFFFF"/>
+					<degrafa:GradientStop ratio="1" alpha="0" color="#FFFFFF"/>
+				</degrafa:LinearGradientFill>
+			</degrafa:fill>
+		</degrafa:Ellipse>
+	</degrafa:geometry>
+</degrafa:GraphicBorderSkin>

@@ -1,0 +1,12 @@
+/* http://www.w3.org/TR/2005/WD-css3-background-20050216/ */
+/* http://dbaron.org/css/css-vg/ */
+
+Application
+{
+	border-skin: 			ClassReference("com.degrafa.skins.CSSSkin");
+	background-color: 		"90deg #16242F 270px #253C4E";
+	background-image: 		Embed("../assets/pattern_136.gif");
+	background-repeat: 		repeat;
+	background-position: 	"top center";
+	background-blend: 		multiply;
+}

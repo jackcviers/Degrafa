@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:degrafa="http://www.degrafa.com/2008" 
+	xmlns:flash.filters="flash.filters.*" 
+	backgroundGradientColors="[#333333, #222222]" 
+	layout="absolute" viewSourceURL="srcview/index.html">
+	<mx:Style>
+		global {
+			color: #BBBBBB;
+			fontFamily: 'Myriad Pro', 'Myriad', 'Arial';
+			fontSize: 14;
+		}
+		
+		HBox {
+			verticalAlign: middle;	
+		}
+		
+		HSlider {
+			tickOffset:		0;
+			tickLength:		0;
+			tickThickness:	0;	
+		}
+		
+	</mx:Style>
+	
+	<degrafa:SolidStroke id="whiteStroke" color="#FFF" weight="1" alpha=".2" />
+	<degrafa:Surface>
+		<degrafa:GeometryGroup>
+			<degrafa:VerticalLineRepeater count="{countSlider.value}" stroke="{whiteStroke}"
+				x="0" y="0" y1="{Application.application.height}" offsetX="0" offsetY="0"
+				moveOffsetX="{Application.application.width/countSlider.value}" moveOffsetY="0"/>
+			<degrafa:HorizontalLineRepeater	count="{countSlider.value}" stroke="{whiteStroke}"
+				x="0" y="0" x1="{Application.application.width}" offsetX="0" offsetY="0"
+				moveOffsetX="0" moveOffsetY="{Application.application.width/countSlider.value}"/>
+		</degrafa:GeometryGroup>
+	</degrafa:Surface>
+	
+	<mx:HBox top="10" backgroundColor="#666666" borderStyle="solid" borderColor="#111111" cornerRadius="8" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" left="10">
+		<mx:filters> 
+			<flash.filters:GlowFilter id="glowFilter" blurX="10" blurY="10" alpha="1" color="#333333" inner="true"/>
+		</mx:filters>
+		<mx:Label text="Grid Size"/>
+		<mx:HSlider id="countSlider" minimum="1" maximum="80" value="60" snapInterval="1" liveDragging="true"/>
+	</mx:HBox>
+	
+</mx:Application>
