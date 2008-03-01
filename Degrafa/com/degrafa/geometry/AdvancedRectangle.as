@@ -198,7 +198,7 @@ package com.degrafa.geometry
 				var trc:Rectangle = new Rectangle(rectangle.width - Math.max(rightWidth, topRightRadiusX), 0, Math.max(topRightRadiusX, rightWidth), Math.max(topRightRadiusY, topWidth));
 				topRightFill.begin(graphics, trc);
 				graphics.moveTo(rectangle.width - topRightRadiusX, 0);
-				graphics.curveTo(rectangle.width, 0, rectangle.width,  Math.max(topRightRadiusY, topWidth));
+				graphics.curveTo(rectangle.width, 0, rectangle.width, Math.max(topRightRadiusY, topWidth));
 				graphics.lineTo(rectangle.width - rightWidth, Math.max(topRightRadiusY, topWidth));
 				graphics.curveTo(rectangle.width - rightWidth, topWidth, rectangle.width - Math.max(topRightRadiusX, rightWidth), topWidth);
 				graphics.lineTo(rectangle.width - Math.max(topRightRadiusX, rightWidth), 0);
@@ -253,8 +253,8 @@ package com.degrafa.geometry
 			
 			// top right
 			graphics.lineTo(rc.width - Math.max(rightWidth, topRightRadiusX), topWidth); // top right
-			if(topRightRadiusX > 0 && topRightRadiusY < topWidth && topRightRadiusX < rightWidth){
-				//graphics.curveTo(rc.width, 0, rc.width - rightWidth, topRightRadiusY);
+			if(topRightRadiusX > 0 && topRightRadiusX > rightWidth && topRightRadiusY > topWidth){
+				graphics.curveTo(rc.width-rightWidth, topWidth, rc.width - rightWidth, topRightRadiusY);
 			} else {
 				graphics.lineTo(rc.width - rightWidth, Math.max(topWidth, topRightRadiusY));
 			}
