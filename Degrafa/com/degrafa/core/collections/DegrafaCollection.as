@@ -428,7 +428,14 @@ package com.degrafa.core.collections{
 		* @see Array
 		**/
 		public function reverse():Array{
-			return items.reverse();
+			var oldValue:Array = _items;
+			
+			items = items.reverse();
+						
+			//call local helper to dispatch event	
+			initChange("items",oldValue,_items,this);
+			
+			return items;
 		}
 		
 		/**
@@ -502,7 +509,14 @@ package com.degrafa.core.collections{
 						 
 			var oldValue:Array = _items;
 			
-			var returnArray:Array=_items.splice(startIndex-1,deleteCount,values);
+			var returnArray:Array
+			
+			if(values.length !=0){
+				returnArray=_items.splice(startIndex-1,deleteCount,values);
+			}
+			else{
+				returnArray=_items.splice(startIndex-1,deleteCount);
+			}
 			
 			if(returnArray){
 			 	for (i= 0; i<returnArray.length;i++){
