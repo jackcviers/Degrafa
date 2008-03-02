@@ -297,6 +297,7 @@ package com.degrafa.skins
 		/**
  		* Temporarily suppress event processing for this object.
  		**/
+ 		[Inspectable(category="General", enumeration="true,false")]
 		public function get surpressEventProcessing():Boolean{
 			return _surpressEventProcessing;
 		}
