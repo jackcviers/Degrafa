@@ -210,6 +210,9 @@ package com.degrafa.geometry{
 					var px:Number;
 					var py:Number;
 					
+					//exit if the minimum requirements to properly calculate are not met
+					if(!_width || !_height){return;}
+					
 					// make sure that width + h are larger than 2*cornerRadius
 					if (cornerRadius>Math.min(width, height)/2) {
 						cornerRadius = Math.min(width, height)/2;
