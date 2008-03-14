@@ -33,5 +33,7 @@ package com.degrafa.core{
 		function get hasEventManager():Boolean
 		function get suppressEventProcessing():Boolean
 		function set suppressEventProcessing(value:Boolean):void
+		function get parent():IDegrafaObject
+		function set parent(value:IDegrafaObject):void	    
 	}
 }

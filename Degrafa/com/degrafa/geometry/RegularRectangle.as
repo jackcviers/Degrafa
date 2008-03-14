@@ -181,7 +181,7 @@ package com.degrafa.geometry{
 		override public function preDraw():void{
 			if(invalidated){
 			
-				commandStack = [];
+				commandStack.length = 0;
 								
 				commandStack.push({type:"m", x:x,y:y});	
 				commandStack.push({type:"l", x:x+width,y:y});	
@@ -196,11 +196,6 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];				
-		
-		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
@@ -210,32 +205,8 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
-		 							
-			//apply the fill retangle for the draw
-			if(!rc){				
-				super.draw(graphics,_bounds);	
-			}
-			else{
-				super.draw(graphics,rc);
-			}
-			
-			var item:Object;
-			for each (item in commandStack){
-        		switch(item.type){
-        			case "m":
-        				graphics.moveTo(item.x,item.y);
-        				break;
-        		
-        			case "l":
-        				graphics.lineTo(item.x,item.y);
-        				break;
-        		}
-        	}	
-				 	 		 	 	
-	 	 	super.endDraw(graphics);	
-	 	 	
-	  		
-		}
+			super.draw(graphics,(rc)? rc:_bounds);
+	 	}
 		
 		/**
 		* An object to derive this objects properties from. When specified this 

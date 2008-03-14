@@ -354,7 +354,7 @@ package com.degrafa.geometry.utilities{
 		* @param k: tolerance (low number = most accurate result)
 		* @param qcurves (Array) will contain array of quadratic bezier curves, each element containing p1x, p1y, cx, cy, p2x, p2y (start point, control points, end point
 		*/
-	 	public static function cubicToQuadratic(p1:GraphicPoint, c1:GraphicPoint, c2:GraphicPoint, p2:GraphicPoint, k:Number, quadratics:Array):void{
+	 	public static function cubicToQuadratic(p1:GraphicPoint, c1:GraphicPoint, c2:GraphicPoint, p2:GraphicPoint, k:Number, quadratics:Array,isSegment:Boolean):void{
 	 			 		
 			// find intersection between bezier arms
 			var s:Object = lineIntersects(p1, c1, c2, p2);
@@ -369,12 +369,18 @@ package com.degrafa.geometry.utilities{
 				var b0:Object = halves.b0; 
 				var b1:Object = halves.b1;
 				// recursive call to subdivide curve
-				cubicToQuadratic (p1,b0.c1, b0.c2, b0.p2,k, quadratics);
-				cubicToQuadratic (b1.p1,b1.c1,b1.c2, p2,k, quadratics);
+				cubicToQuadratic (p1,b0.c1, b0.c2, b0.p2,k, quadratics,isSegment);
+				cubicToQuadratic (b1.p1,b1.c1,b1.c2, p2,k, quadratics,isSegment);
 			} 
 			else{
+				
+				//if it's a segment then we don't add the move to
+				//p1x:p1.x, p1y:p1.y
+				if(!isSegment){
+					quadratics.push({type:"m",x:p1.x, y:p1.y});
+				}
 				// end recursion by saving points
-				quadratics.push({p1x:p1.x, p1y:p1.y, cx:s.x, cy:s.y, p2x:p2.x, p2y:p2.y});
+				quadratics.push({type:"c",cx:s.x, cy:s.y, x1:p2.x, y1:p2.y});
 			}
 		}
 	

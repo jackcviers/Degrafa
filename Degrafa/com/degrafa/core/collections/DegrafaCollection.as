@@ -229,12 +229,15 @@ package com.degrafa.core.collections{
 		//to be overidden in subclasse if nessesary
 		
 		/**
-		* Addes a property change event listener to each item in the collection.
+		* Addes a property change event listener and a parent reference to each item in the collection.
 		**/
 		public function addListeners():void{
 			if(enableEvents){
 				for each (var item:Object in items){
 					if(item is IDegrafaObject){
+						//update parent reff
+						IDegrafaObject(item).parent = this.parent;
+						
 						if(IDegrafaObject(item).enableEvents){
 							IDegrafaObject(item).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 						}
@@ -245,21 +248,27 @@ package com.degrafa.core.collections{
 		}
 		
 		/**
-		* Removes the property change event listener from each item in the collection.
+		* Removes the property change event listener and parent reference from each item in the collection.
 		**/
 		public function removeListeners():void{
 			for each (var item:Object in items){
 				if(item is IDegrafaObject){
+					//update parent reff
+					IDegrafaObject(item).parent = null;
+					
 					IDegrafaObject(item).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 				}
 			}
 		}
 		
 		/**
-		* Addes a property change event listener to the passed object.
+		* Addes a property change event listener and a parent reference to the passed object.
 		**/
 		public function addListener(value:*):void{
 			if(value is IDegrafaObject){
+				//update parent reff
+				IDegrafaObject(value).parent = this.parent;
+				
 				if(enableEvents){
 					if(IDegrafaObject(value).enableEvents){
 						IDegrafaObject(value).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
@@ -269,10 +278,13 @@ package com.degrafa.core.collections{
 		}
 		
 		/**
-		* Removes the property change event listener from the passed object.
+		* Removes the property change event listener and parent reference from the passed object.
 		**/
 		public function removeListener(value:*):void{
 			if(value is IDegrafaObject){
+				//update parent reff
+				IDegrafaObject(value).parent = null;
+				
 				IDegrafaObject(value).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 			}
 			

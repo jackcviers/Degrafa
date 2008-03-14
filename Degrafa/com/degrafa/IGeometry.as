@@ -22,9 +22,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa{
 	
-	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.IGraphicsFill;
-	import flash.display.DisplayObject;
+	import com.degrafa.core.IGraphicsStroke;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	

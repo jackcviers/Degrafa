@@ -288,12 +288,7 @@ package com.degrafa.geometry{
 	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
 			
 		}
-		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];
-		
+				
 		/**
 		* @inheritDoc 
 		**/
@@ -309,11 +304,12 @@ package com.degrafa.geometry{
 					cy1Offset=0.000001;
 				}
 				
-				var tempCommandStack:Array=[]
+				commandStack.length=0;
+				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
 				GeometryUtils.cubicToQuadratic(new GraphicPoint(x,y),new GraphicPoint(cx,cy),new GraphicPoint(cx1,cy1+cy1Offset)
-				,new GraphicPoint(x1,y1),1,commandStack);	
+				,new GraphicPoint(x1,y1),1,commandStack,false);	
 								
 				calcBounds();
 				invalidated = false;
@@ -329,30 +325,9 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
-							
 			//re init if required
 		 	preDraw();
-						
-			//apply the fill retangle for the draw
-			if(!rc){				
-				super.draw(graphics,_bounds);	
-			}
-			else{
-				super.draw(graphics,rc);
-			}
-			
-			var item:Object;
-						
-			//draw each item in the array
-			for each (item in commandStack){
-				with(item){
-					graphics.moveTo(p1x,p1y);
-					graphics.curveTo(cx,cy,p2x,p2y);
-				}
-			}
-			
-			super.endDraw(graphics);
-
+			super.draw(graphics,(rc)? rc:_bounds);
 		}
 		
 		/**

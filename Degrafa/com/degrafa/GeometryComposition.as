@@ -133,23 +133,15 @@ package com.degrafa{
 		* graphic object or it's child objects.
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			dispatchEvent(event)
+			if (!parent){
+				dispatchEvent(event)
+				draw(null,null);
+			}
+			else{
+				dispatchEvent(event)
+			}
 		}
 		
-		/**
-		* Ends the draw phase for geometry objects.
-		* 
-		* @param graphics The current Graphics context being drawn to. 
-		**/		
-		override public function endDraw(graphics:Graphics):void{
-		    //draw children
-	        if (geometry){
-				for each (var geometryItem:IGeometry in geometry){
-					geometryItem.draw(graphics,null);
-				}
-			}
-	    }	
-	    
 	    public function clearGraphicsTargets():void{
     		if(graphicsTarget){
 				for each (var targetItem:Object in graphicsTarget){

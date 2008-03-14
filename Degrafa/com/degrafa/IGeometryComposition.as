@@ -32,7 +32,9 @@ package com.degrafa{
 		function draw(graphics:Graphics,rc:Rectangle):void
 		function endDraw(graphics:Graphics):void
 		function get bounds():Rectangle
-				
+		function preDraw():void
+		function get commandStack():Array		
+		function set commandStack(value:Array):void	
 		
 	}
 }

@@ -280,12 +280,7 @@ package com.degrafa.geometry{
 	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
 			
 		}	
-		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];
-		
+				
 		/**
 		* @inheritDoc 
 		**/
@@ -301,8 +296,8 @@ package com.degrafa.geometry{
 				var newY:Number = (height/2) - (height/2) * 
 				Math.sin(startAngle * (Math.PI / 180))+y;
 								
-				//reset the array
-				commandStack =[];
+				
+				commandStack.length=0;
 				
 				commandStack.push({type:"m",x:x,y:y});
 											
@@ -350,40 +345,10 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/		
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
-					
 			//re init if required
 		 	preDraw();
-									
-			//apply the fill retangle for the draw
-			if(!rc){				
-				super.draw(graphics,_bounds);	
-			}
-			else{
-				super.draw(graphics,rc);
-			}
-			
-			var item:Object;
-						
-			//draw each item in the array
-			for each (item in commandStack){
-				with(item){
-					switch(type){
-						case "m":
-							graphics.moveTo(x,y);
-							break;
-						case "l":
-							graphics.lineTo(x,y);
-							break;
-						case "c":
-							graphics.curveTo(cx,cy,x1,y1);
-							break;
-					}
-				}
-			}
-			
-			super.endDraw(graphics);
-	  		
-		}
+			super.draw(graphics,(rc)? rc:_bounds);
+	  	}
 		
 		/**
 		* An object to derive this objects properties from. When specified this 

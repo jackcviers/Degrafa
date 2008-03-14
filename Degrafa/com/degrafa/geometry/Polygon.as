@@ -235,7 +235,7 @@ package com.degrafa.geometry{
 				
 				if(!_points){return;}
 				
-				commandStack = [];
+				commandStack.length=0;
 				
 				commandStack.push({type:"m",x:_points.items[0].x+x,y:_points.items[0].y+y});
 								
@@ -255,11 +255,6 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];
-		
-		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
@@ -267,34 +262,10 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
-			
 			//re init if required
 		 	preDraw();
-		 							
-			//apply the fill retangle for the draw
-			if(!rc){				
-				super.draw(graphics,_bounds);	
-			}
-			else{
-				super.draw(graphics,rc);
-			}
-			
-			var item:Object;
-						
-			//draw each item in the array
-			for each (item in commandStack){
-        		if(item.type=="m"){
-        			graphics.moveTo(item.x,item.y);
-        		}
-        		else{
-        			graphics.lineTo(item.x,item.y);
-        		}
-        	}
-				 	 		 	 	
-	 	 	super.endDraw(graphics);
-	 	 	
-			
-		}
+			super.draw(graphics,(rc)? rc:_bounds);
+	 	}
 		
 		/**
 		* An object to derive this objects properties from. When specified this 

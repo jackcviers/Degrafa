@@ -221,15 +221,26 @@ package com.degrafa.core{
 		        	_id = NameUtil.createUniqueName(this);
 		        }
 	        }
-	        
 	        _document=document;
 	        	        
 	        if(enableEvents && ! _suppressEventProcessing){
 	        	dispatchEvent(new FlexEvent(FlexEvent.INITIALIZE));
 	        }
-	        	        
-	        	        
-        } 
+	    }
+	    
+	    private var _parent:IDegrafaObject;
+	    /**
+		* The current degrafa object parent. 
+		* At this time only used for geometry.
+		**/
+	    public function get parent():IDegrafaObject{
+	    	return _parent;
+	    }
+	    public function set parent(value:IDegrafaObject):void{
+	    	_parent=value;
+	    }
+	   
+	     
 		
 	}
 }

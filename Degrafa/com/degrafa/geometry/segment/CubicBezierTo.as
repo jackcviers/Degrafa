@@ -230,21 +230,17 @@ package com.degrafa.geometry.segment{
 			var boundsMinY:Number =Number.MAX_VALUE;
 			
 			for each(var item:Object in this.commandStack){
-				
-				with(item){	
-					boundsMinX = Math.min(boundsMinX,p1x);
-					boundsMinX = Math.min(boundsMinX,p2x);
-					boundsMinX = Math.min(boundsMinX,cx);
-					boundsMaxX = Math.max(boundsMaxX,p1x);
-					boundsMaxX = Math.max(boundsMaxX,p2x);
-					boundsMaxX = Math.max(boundsMaxX,cx);
-					  	
-					boundsMinY = Math.min(boundsMinY,p1y);
-					boundsMinY = Math.min(boundsMinY,p2y);
-					boundsMinY = Math.min(boundsMinY,cy);
-					boundsMaxY = Math.max(boundsMaxY,p1y);
-					boundsMaxY = Math.max(boundsMaxY,p2y);
-					boundsMaxY = Math.max(boundsMaxY,cy);
+				if(item.type=="c"){
+					with(item){	
+						boundsMinX = Math.min(boundsMinX,x1);
+						boundsMinX = Math.min(boundsMinX,cx);
+						boundsMaxX = Math.max(boundsMaxX,x1);
+						boundsMaxX = Math.max(boundsMaxX,cx);
+						boundsMinY = Math.min(boundsMinY,y1);
+						boundsMinY = Math.min(boundsMinY,cy);
+						boundsMaxY = Math.max(boundsMaxY,y1);
+						boundsMaxY = Math.max(boundsMaxY,cy);
+					}
 				}
 				
 	  		}
@@ -305,18 +301,17 @@ package com.degrafa.geometry.segment{
 			
 			//test if anything has changed and only recalculate if something has
 			if(!invalidated){
+				//add each item from the local array (for some reason concat is not working properly here.)
 				for each(item in this.commandStack){
-					commandStack.push({type:"c", cx:item.cx,
-					cy:item.cy,
-					x1:item.p2x,
-					y1:item.p2y});
+					commandStack.push(item);
 				}
+				
 				return;
 			}
 			
 			
 			//reset the array
-			this.commandStack=[];
+			this.commandStack.length=0;
 									
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
@@ -333,7 +328,7 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack);
+				1,this.commandStack,true);
 			}
 			else{
 				GeometryUtils.cubicToQuadratic(
@@ -341,15 +336,12 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack);
+				1,this.commandStack,true);
 			}
 			
-			//create a return command array adding each item from the local array
+			//add each item from the local array (for some reason concat is not working properly here.)
 			for each(item in this.commandStack){
-				commandStack.push({type:"c", cx:item.cx,
-					cy:item.cy,
-					x1:item.p2x,
-					y1:item.p2y});
+				commandStack.push(item);
 			}
 			
 			this.lastPoint =lastPoint;

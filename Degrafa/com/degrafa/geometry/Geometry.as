@@ -33,14 +33,13 @@ package com.degrafa.geometry{
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
-	import flash.events.Event;
 	import flash.geom.Rectangle;
 	
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("geometry")]
 	[Bindable(event="propertyChange")]
-	
+		
 	/**
  	*  A geometry object is a type of Degrafa object that enables 
  	*  rendering to a graphics context. Degrafa provides a number of 
@@ -55,19 +54,7 @@ package com.degrafa.geometry{
 		* on the next cycle.
 		**/
 		public var invalidated:Boolean;
-		
-		
-		/**
-		* Performs any pre calculation that is required to successfully render 
-		* this element. Including bounds calculations and lower level drawing 
-		* command storage. Each geometry object overrides this 
-		* and is responsible for it's own pre calculation cycle.
-		**/
-		public function preDraw():void{
-			//overridden
-		}
-		
-			
+				
 		private var _data:String;
 		/**
 		* Allows a short hand property setting that is 
@@ -200,6 +187,9 @@ package com.degrafa.geometry{
 			if(!_geometry){
 				_geometry = new GeometryCollection();
 				
+				//add the parent so it can be managed by the collection
+				_geometry.parent = this;
+				
 				//add a listener to the collection
 				if(enableEvents){
 					_geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
@@ -278,10 +268,14 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			dispatchEvent(event)
-			
-			//tests for and draws to each target on change if required
-			drawToTargets();
+			if (!parent){
+				dispatchEvent(event);
+				drawToTargets();	
+			}
+			else{
+				dispatchEvent(event)
+				//drawToTargets();
+			}
 		}
 		
 		
@@ -300,7 +294,7 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		
+			
 		public function get bounds():Rectangle{
 			//to be overriden
 			return null;	
@@ -318,11 +312,124 @@ package com.degrafa.geometry{
 	        
 	        //draw children
 	        if (geometry){
-				for each (var geometryItem:IGeometry in geometry){
+				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.draw(graphics,null);
 				}
 			}
 	    }		
+		
+		
+		private var _inheritStroke:Boolean=true;
+		/**
+		* If set to true and no stroke is defined and there is a parent object
+		* then this object will walk up through the parents to retrive a stroke 
+		* object. 
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get inheritStroke():Boolean{
+			return _inheritStroke;
+		} 
+		public function set inheritStroke(value:Boolean):void{
+			_inheritStroke=value;
+		}
+		
+		private var _inheritFill:Boolean=true;
+		/**
+		* If set to true and no fill is defined and there is a parent object
+		* then this object will walk up through the parents to retrive a fill 
+		* object. 
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get inheritFill():Boolean{
+			return _inheritFill;
+		} 
+		public function set inheritFill(value:Boolean):void{
+			_inheritFill=value;
+		}
+		
+		
+		
+		public function initStroke(graphics:Graphics,rc:Rectangle):void{
+			
+			//this will only be done one time unless no stroke is found
+			if(inheritStroke && !_stroke && parent){
+				var currparent:IGeometry = parent as IGeometry;  
+				while (!_stroke && currparent){
+					
+					if(currparent.stroke){
+						_stroke = currparent.stroke;
+					}
+					else{
+						if(parent.parent){
+							currparent = parent.parent as IGeometry;
+						}
+						else{
+							currparent = null;
+						}
+					}
+					
+				}
+			}
+			
+			//setup the stroke
+			if (_stroke){
+	        	_stroke.apply(graphics,(rc)? rc:null);
+	        }
+			else{
+				graphics.lineStyle(0, 0xFFFFFF, 0);
+			}
+			
+		}
+		
+		public function initFill(graphics:Graphics,rc:Rectangle):void{
+			
+			//this will only be done one time unless no fill is found
+			if(inheritFill && !_fill && parent){
+								
+				var currparent:IGeometry = parent as IGeometry;  
+				while (!_fill && currparent){
+					if(currparent.fill){
+						_fill = currparent.fill;
+					}
+					else{
+						if(parent.parent){
+							currparent = parent.parent as IGeometry;
+						}
+						else{
+							currparent = null;
+						}
+					}
+				}
+				
+			}
+				
+			//setup the fill
+	        if (_fill){   
+	        	_fill.begin(graphics, (rc) ? rc:null);	
+	        }
+	        
+		}
+		
+		/**
+		* Performs any pre calculation that is required to successfully render 
+		* this element. Including bounds calculations and lower level drawing 
+		* command storage. Each geometry object overrides this 
+		* and is responsible for it's own pre calculation cycle.
+		**/
+		public function preDraw():void{
+			//overridden
+		}
+		
+		/**
+		* An Array of flash rendering commands that make up this element. 
+		**/
+		private var _commandStack:Array=[];
+		public function get commandStack():Array{
+			return _commandStack;
+		}	
+		public function set commandStack(value:Array):void{
+			_commandStack=value;
+		}
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -333,29 +440,35 @@ package com.degrafa.geometry{
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{			
 			
+			//exit if no command stack
+			if(commandStack.length==0){return;}
+						
 			//setup the stroke
-			if (stroke){
-	        	if(rc){
-	        		stroke.apply(graphics,rc);
-	        	}
-	        	else{
-	        		stroke.apply(graphics,null);
-	        	}
-	        }
-			else{
-				graphics.lineStyle(0, 0xFFFFFF, 0);
-			}
+			initStroke(graphics,rc);
 			
 			//setup the fill
-	        if (fill){   
-	        	if(rc){
-	        		fill.begin(graphics, rc);	
-	        	}
-	        	else{
-	        		fill.begin(graphics, null);	
-	        	}
-	        }
-	       
+			initFill(graphics,rc);
+			
+			var item:Object;
+			for each (item in commandStack){
+				switch(item.type){
+        			
+        			case "l":
+        				graphics.lineTo(item.x,item.y);
+        				break;
+        		
+        			case "m":
+        				graphics.moveTo(item.x,item.y);
+        				break;
+        		
+        			case "c":
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				break;
+        		}
+			}
+			
+        	endDraw(graphics);
+        		       
 	  	
 		}
 		
