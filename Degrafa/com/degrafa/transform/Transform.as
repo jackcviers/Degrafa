@@ -38,7 +38,7 @@ package com.degrafa.transform{
 	* Coming Soon.
 	**/
 	[DefaultProperty("geometry")]	
-	public class Transform extends DegrafaObject implements ITransform, IGeometryComposition{
+	public class Transform extends DegrafaObject implements ITransform{
 			
 		private var _data:String;
 		public function get data():String{
