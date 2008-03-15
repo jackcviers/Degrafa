@@ -71,7 +71,7 @@ package com.degrafa.paint{
  		* @see mx.graphics.Stroke
  		**/
 		public function get alpha():Number{
-			if(!_alpha){return 1;}
+			if(isNaN(_alpha)){return 1;}
 			return _alpha;
 		}
 		public function set alpha(value:Number):void{
@@ -254,7 +254,7 @@ package com.degrafa.paint{
 		public function apply(graphics:Graphics,rc:Rectangle):void{
 			
 			//ensure that all defaults are in fact set these are temp until fully tested
-			if(!_alpha){_alpha=0;}
+			if(isNaN(_alpha)){_alpha=1;}
 			if(!_color){_color=0x000000;}
 			if(!_caps){_caps="round";}
 			if(!_joints){_joints="round";}
@@ -273,7 +273,7 @@ package com.degrafa.paint{
 		**/
 		public function set derive(value:SolidStroke):void{
 						
-			if (!_alpha){_alpha = value.alpha}
+			if (isNaN(_alpha)){_alpha = value.alpha}
 			if (!_caps){_caps = value.caps;}
 			if (!_color){_color = uint(value.color);}
 			if (!_joints){_joints = value.joints;}
