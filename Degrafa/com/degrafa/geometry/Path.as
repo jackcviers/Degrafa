@@ -332,6 +332,8 @@ package com.degrafa.geometry{
 			if(!_segments){
 				_segments = new SegmentsCollection();
 				
+				_segments.parent = this;
+				
 				//add a listener to the collection
 				if(enableEvents){
 					_segments.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
