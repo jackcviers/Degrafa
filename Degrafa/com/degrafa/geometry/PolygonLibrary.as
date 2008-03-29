@@ -2,6 +2,8 @@ package com.degrafa.geometry{
 	
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
+	import flash.display.Graphics;
+	import flash.geom.Rectangle;
 		
 	[Exclude(name="data", kind="property")] 
 	
@@ -9,45 +11,11 @@ package com.degrafa.geometry{
 	
 	public class PolygonLibrary extends Polygon{
 		
-		//constructor
 		public function PolygonLibrary(){
 			super();
 		} 
 				 
 		override public function set derive(value:Polygon):void{}
-				
-		//base point array that gets modified and set 
-		private var basePoints:Array=[];
-				
-		protected function constToPointStruc(value:String):void{
-			
-			if(!value){return;}
-			
-			//parse the string on the space
-			var pointsArray:Array = value.split(" ");
-			
-			//create a temporary point array
-			var pointArray:Array=[];
-			var pointItem:Array;
-			 
-			//and then create a point structure for each resulting pair
-			//eventually throw exception is not matching properly
-			for (var i:int = 0; i< pointsArray.length;i++){
-				pointItem = String(pointsArray[i]).split(",");
-				
-				//skip past blank items as there may have been bad 
-				//formatting in the value string, so make sure it is 
-				//a length of 2 min	
-				if(pointItem.length==2){
-					pointArray.push(new GraphicPoint(pointItem[0],pointItem[1]));
-				}
-				
-			}
-			
-			//set the points to the base
-			basePoints=pointArray;
-						
-		}
 		
 		protected var _shapeList:Array = [];
 		/**
@@ -66,16 +34,11 @@ package com.degrafa.geometry{
 		}
 		public function set type(value:String):void{
 			if(_type != value){
-			
 				_type = value;
-			
 				invalidated = true;
 			}
 		}
-				
-		//data is this case is a const type defined in this class
-		//override public function set data(value:String):void{}
-		
+						
 		private var _width:Number=0;
 		/**
 		* The width of the object. If not specified 
@@ -106,17 +69,30 @@ package com.degrafa.geometry{
 			}
 		}
 				
-		private function calculateRatios():void{
+		/**
+		* Proportionally sizes each point in the collection to the given width and height
+		* taking into account any additional x or y offset that the data may have. 
+		* This ensures that rendering is always started at point(0,0) and that the maximum
+		* allotted spaced is used for both width and height.  
+		**/
+    	private function calculateRatios():void{
 			
 			var maxPointX:Number=0;
 			var maxPointY:Number=0;
 			
+			var minPointX:Number=Number.POSITIVE_INFINITY;
+			var minPointY:Number=Number.POSITIVE_INFINITY;
+			
 			var i:int = 0;
 			
 			//get the max x or y and compute a ratio of the width and height
-			for (i=0;i < basePoints.length; i++){
-				maxPointX =Math.max(maxPointX,basePoints[i].x);
-				maxPointY =Math.max(maxPointY,basePoints[i].y);
+			for (i=0;i < points.length; i++){
+				maxPointX =Math.max(maxPointX,points[i].x);
+				maxPointY =Math.max(maxPointY,points[i].y);
+				
+				minPointX =Math.min(minPointX,points[i].x);
+				minPointY =Math.min(minPointY,points[i].y);
+				
 			}
 			
 			//get the percentage of the max points to width and height
@@ -124,28 +100,31 @@ package com.degrafa.geometry{
 			var yMultiplier:Number=_height/maxPointY;
 			
 			//multiply the axis by the difference
-			for (i=0;i< basePoints.length;i++){
-				if(basePoints[i].x!=0){
-					basePoints[i].x = basePoints[i].x * xMultiplier;
+			for (i=0;i< points.length;i++){
+				if(points[i].x!=0){
+					points[i].x = (points[i].x-minPointX) * xMultiplier;
 				}
 				
-				if(basePoints[i].y!=0){
-					basePoints[i].y = basePoints[i].y * yMultiplier;
+				if(points[i].y!=0){
+					points[i].y = (points[i].y-minPointY) * yMultiplier;
 				}
 				
 			}
 			
 		}
 		
+				
 		override public function preDraw():void{
+			
+			if(!data){return}
+			
 			if(invalidated){
 				//calc ratio
 				calculateRatios();
-				
-				//reset set the points			
-				pointCollection.items=basePoints;
 			}
+			
 			super.preDraw();
+			
 		}
 		
 	}
