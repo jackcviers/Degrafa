@@ -37,17 +37,17 @@ package PolyShapeLibs{
 			_shapeList.push({id:4, label:"HEXAGON"});
 			_shapeList.push({id:5, label:"OCTAGON"});
 			_shapeList.push({id:6, label:"PARALLELOGRAM_HORIZONTAL"});
-			_shapeList.push({id:6, label:"PARALLELOGRAM_VERTICAL"});
-			_shapeList.push({id:6, label:"PENTAGON"});
-			_shapeList.push({id:6, label:"STAR_4"});
-			_shapeList.push({id:6, label:"STAR_5"});
-			_shapeList.push({id:6, label:"STAR_6"});
-			_shapeList.push({id:6, label:"STAR_7"});
-			_shapeList.push({id:6, label:"STAR_8"});
-			_shapeList.push({id:6, label:"STAR_8_SHARP"});
-			_shapeList.push({id:6, label:"TRAPEZOID"});
-			_shapeList.push({id:6, label:"TRIANGLE_ISOCELES"});
-			_shapeList.push({id:6, label:"TRIANGLE_RIGHTANGLE"});
+			_shapeList.push({id:7, label:"PARALLELOGRAM_VERTICAL"});
+			_shapeList.push({id:8, label:"PENTAGON"});
+			_shapeList.push({id:9, label:"STAR_4"});
+			_shapeList.push({id:10, label:"STAR_5"});
+			_shapeList.push({id:11, label:"STAR_6"});
+			_shapeList.push({id:12, label:"STAR_7"});
+			_shapeList.push({id:13, label:"STAR_8"});
+			_shapeList.push({id:14, label:"STAR_8_SHARP"});
+			_shapeList.push({id:15, label:"TRAPEZOID"});
+			_shapeList.push({id:16, label:"TRIANGLE_ISOCELES"});
+			_shapeList.push({id:17, label:"TRIANGLE_RIGHTANGLE"});
 			
 		}
 		
