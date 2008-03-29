@@ -312,11 +312,6 @@ package com.degrafa.geometry.segment{
 		private var absRelOffset:Point;
 		
 		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];
-		
-		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
 		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:Array):void{

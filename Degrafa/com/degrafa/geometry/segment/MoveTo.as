@@ -165,11 +165,6 @@ package com.degrafa.geometry.segment{
 			
 		} 
 		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		protected var commandStack:Array=[];
-		
 		private var lastPoint:Point;
 		private var absRelOffset:Point;
 		
