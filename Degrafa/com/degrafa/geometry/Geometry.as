@@ -53,7 +53,12 @@ package com.degrafa.geometry{
 		* Specifies whether this object is to be re calculated 
 		* on the next cycle.
 		**/
-		public var invalidated:Boolean;
+		protected var invalidated:Boolean;
+		public function get isInvalidated():Boolean{
+			
+			return invalidated;
+			
+		} 
 				
 		private var _data:String;
 		/**
