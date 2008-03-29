@@ -222,11 +222,22 @@ package com.degrafa.core{
 		        }
 	        }
 	        _document=document;
-	        	        
+	        
+	        
+	        _isInitialized = true;
+	         	        
 	        if(enableEvents && ! _suppressEventProcessing){
 	        	dispatchEvent(new FlexEvent(FlexEvent.INITIALIZE));
 	        }
 	    }
+	    
+	    /**
+		* A boolean value indicating that this object has been initialized
+		**/
+		private var _isInitialized:Boolean;
+	    public function get isInitialized():Boolean{
+	    	return _isInitialized;
+	    }	    
 	    
 	    private var _parent:IDegrafaObject;
 	    /**
@@ -239,8 +250,9 @@ package com.degrafa.core{
 	    public function set parent(value:IDegrafaObject):void{
 	    	_parent=value;
 	    }
-	   
-	     
+	    	    
+	    //an array of current bindings for this object
+	    public var objectBindings:Array; 
 		
 	}
 }
