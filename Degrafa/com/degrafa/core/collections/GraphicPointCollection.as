@@ -22,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
 	import com.degrafa.core.IDegrafaObject;
-	import com.degrafa.GraphicPointEX;
+	
 	import com.degrafa.IGraphicPoint;
 	
 	/**

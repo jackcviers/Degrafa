@@ -21,7 +21,6 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.skins{
-	import com.degrafa.GeometryComposition;
 	import com.degrafa.core.IGraphicSkin;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
