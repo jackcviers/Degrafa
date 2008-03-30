@@ -211,6 +211,7 @@ package com.degrafa.core.collections{
 			//clean up
 			removeListener(items[index]);
 			return splice(index,1)[1];
+			//return splice(index,1);
 		}
 		
 		/**
@@ -524,10 +525,10 @@ package com.degrafa.core.collections{
 			var returnArray:Array
 			
 			if(values.length !=0){
-				returnArray=_items.splice(startIndex-1,deleteCount,values);
+				returnArray=_items.splice(startIndex,deleteCount,values);
 			}
 			else{
-				returnArray=_items.splice(startIndex-1,deleteCount);
+				returnArray=_items.splice(startIndex,deleteCount);
 			}
 			
 			if(returnArray){
