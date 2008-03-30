@@ -26,7 +26,7 @@ package com.degrafa{
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.FillCollection;
-	import com.degrafa.core.collections.GraphicsCollection;
+	//import com.degrafa.core.collections.GraphicsCollection;
 	import com.degrafa.core.collections.StrokeCollection;
 	
 	import flash.display.DisplayObject;
