@@ -336,13 +336,15 @@ package com.degrafa.geometry.segment{
 	        computedArc.arc,computedArc.radius,computedArc.yRadius,
 	        computedArc.xAxisRotation,this.commandStack);
 			
-			//add the move to at the start of the stack
-			this.commandStack.unshift({type:"m", x:computedArc.x,y:computedArc.y});
+			
 						
 			//create a return command array adding each item from the local array
 			for each(item in this.commandStack){
 				commandStack.push(item);
 			}
+			
+			//add the move to at the start of the stack
+			this.commandStack.unshift( { type:"m", x:computedArc.x, y:computedArc.y } );
 			
 			this.lastPoint = lastPoint;
 			this.absRelOffset = absRelOffset;
