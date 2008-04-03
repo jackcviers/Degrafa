@@ -319,7 +319,7 @@ package com.degrafa.geometry{
 	        
 	        //draw children
 	        if (geometry){
-				for each (var geometryItem:IGeometry in geometry){
+				for each (var geometryItem:IGeometryComposition  in geometry){
 					geometryItem.draw(graphics,null);
 				}
 			}
