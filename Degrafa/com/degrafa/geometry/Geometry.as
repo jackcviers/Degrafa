@@ -310,17 +310,20 @@ package com.degrafa.geometry{
 		* 
 		* @param graphics The current Graphics context being drawn to. 
 		**/		
-		public function endDraw(graphics:Graphics):void{
-			if (fill){     
+		public function endDraw(graphics:Graphics):void {
+			if (fill) {  
+				//force a null stroke before closing the fill - prevents a 'closepath' stroke for unclosed paths
+				graphics.lineStyle.apply(graphics, null);  
 	        	fill.end(graphics);  
 	        }
 	        
 	        //draw children
 	        if (geometry){
-				for each (var geometryItem:IGeometryComposition in geometry){
+				for each (var geometryItem:IGeometry in geometry){
 					geometryItem.draw(graphics,null);
 				}
 			}
+
 	    }		
 		
 		
@@ -380,8 +383,9 @@ package com.degrafa.geometry{
 			if (_stroke){
 	        	_stroke.apply(graphics,(rc)? rc:null);
 	        }
-			else{
-				graphics.lineStyle(0, 0xFFFFFF, 0);
+			else {
+				//force a null stroke
+				graphics.lineStyle.apply(graphics,null); 
 			}
 			
 		}
