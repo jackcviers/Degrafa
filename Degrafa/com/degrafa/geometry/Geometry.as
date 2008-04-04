@@ -311,15 +311,35 @@ package com.degrafa.geometry{
 		* @param graphics The current Graphics context being drawn to. 
 		**/		
 		public function endDraw(graphics:Graphics):void {
+			
 			if (fill) {  
 				//force a null stroke before closing the fill - prevents a 'closepath' stroke for unclosed paths
 				graphics.lineStyle.apply(graphics, null);  
 	        	fill.end(graphics);  
-	        }
-	        
+	        } 
+			
+			    //Fix for issue 33 in the queue
+				//potential fixes for a rendering issue for fills from stroked, unfilled, unclosed paths, where the subsequent path has a fill- this fix needs more attention/consideration
+				//Either Option (a) or (b) seem to work, but are a little obscure in terms of how/why they work (and why they are needed - perhaps its possible to address in the relevant subclasses only):
+			/*	
+			//Option (a)
+			if (stroke ) {		
+					//force a null stroke and null fill -
+					//both of these are required for the 'fix', neither alone is sufficent
+						graphics.lineStyle.apply(graphics, null);
+						graphics.beginFill.call(graphics, null, null);
+					//it seems the above combination cannot be wrapped in an if (stroke && !fill) test, doing so fixes the fill error but appears to cause a closepath stroke in an unclosed path
+			}  */		
+			
+			//Option (b) (preferred)
+			//append a null moveTo following a stroke && !fill test
+			//forces a break in continuity with moveTo before the next path - if we have the last point coords we could use them instead of null, null or perhaps any value
+			if (stroke && !fill) graphics.moveTo.call(graphics, null, null); //<- need to use either function.apply or function.call to avoid compiler argument type checking
+			//Option (c) ? deal with it in Path or Shapes or other subclasses, i.e. check for stroke,!fill and unclosed path and then append the moveTo at a more granular level, only when the conditions are met that cause the error?
+			
 	        //draw children
 	        if (geometry){
-				for each (var geometryItem:IGeometryComposition  in geometry){
+				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.draw(graphics,null);
 				}
 			}
@@ -380,7 +400,7 @@ package com.degrafa.geometry{
 			}
 			
 			//setup the stroke
-			if (_stroke){
+			if (_stroke) {
 	        	_stroke.apply(graphics,(rc)? rc:null);
 	        }
 			else {
@@ -413,7 +433,7 @@ package com.degrafa.geometry{
 			}
 				
 			//setup the fill
-	        if (_fill){   
+	        if (_fill) {   
 	        	_fill.begin(graphics, (rc) ? rc:null);	
 	        }
 	        
