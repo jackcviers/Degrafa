@@ -567,5 +567,16 @@ package com.degrafa.core.collections{
 			
 		}
 		
+		/**
+		 * Gets a cursor for the items Array 
+		 */		
+		protected var _cursor:DegrafaCursor;
+		public function get cursor():DegrafaCursor
+		{
+			if(!_cursor)
+				_cursor = new DegrafaCursor(items);
+				
+			return _cursor;
+		}
 	}
 }
