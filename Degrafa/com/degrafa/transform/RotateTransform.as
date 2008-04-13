@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
+// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,60 +23,61 @@
 
 package com.degrafa.transform{
 	
+	import com.degrafa.IGeometryComposition;
+	
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	
 	[Bindable]
 	/**
 	* RotateTransform rotates an object in the two-dimensional plane by specifying an angle 
-	* (property angle) and a center point expressed in the coordinate space of 
-	* the element being transformed (properties centerX and centerY).
-	* 
-	* Coming Soon. 
+	* and a registration point defined in registration point or centerX and centerY respectivly.
 	**/
 	public class RotateTransform extends Transform{
+		
+		//store the previous matrix for inversion
+		private var previousMatrix:Matrix;
+		
 		public function RotateTransform(){
 			super();
 		}
-		
-		private var _centerX:Number=0;
-		/**
-		* The center point of the transform along the x-axis.
-		**/
-		public function get centerX():Number{
-			return _centerX;
-		}
-		public function set centerX(value:Number):void{
-			_centerX = value;
-		}
-		
-		private var _centerY:Number=0;
-		/**
-		* The center point of the transform along the y-axis.
-		**/
-		public function get centerY():Number{
-			return _centerY;
-		}
-		public function set centerY(value:Number):void{
-			_centerY = value;
-		}
-		
+						
 		private var _angle:Number=0;
 		/**
-		* The rotation angle of the transform.
+		* The rotation angle of the transform in degrees. A value between 0 and 360.
 		**/
 		public function get angle():Number{
 			return _angle;
 		}
 		public function set angle(value:Number):void{
-			_angle = value;
+			if(_angle != value){
+				
+				var oldAngle:Number = (isNaN(_angle))? 0:_angle;
+				
+				_angle = value;
+				
+				var radians:Number = (((isNaN(_angle))? 0:_angle-oldAngle)/180)* Math.PI;
+			
+				//store the old matrix before changes 
+				previousMatrix =transformMatrix.clone();
+				
+				transformMatrix.translate(-centerX,-centerY);
+				transformMatrix.rotate(radians);
+				transformMatrix.translate(centerX,centerY);
+				
+				invalidated = true;
+			}
 		}
+				
+		override public function apply(value:IGeometryComposition):void{
 		
-		public function apply(matrix:Matrix):void{
-			matrix.tx -= _centerX;
-			matrix.ty -= _centerY;
-			matrix.rotate(angle*(Math.PI/180));
-			matrix.tx += _centerX;
-			matrix.ty += _centerY;
+			//invert the previous matrix and concat the results before application
+			if(previousMatrix){
+				previousMatrix.invert();
+				transformMatrix.concat(previousMatrix);
+			}
+		
+			super.apply(value);
 		}
 		
 		

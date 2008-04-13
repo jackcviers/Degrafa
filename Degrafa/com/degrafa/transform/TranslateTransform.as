@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
+// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +21,64 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.degrafa.transform
-{
+package com.degrafa.transform{
+	import com.degrafa.IGeometryComposition;
+	
+	import flash.geom.Matrix;
+	import flash.geom.Point;
+	
+	[Bindable] 
 	/**
 	* TranslateTransform translates an object in the two-dimensional space. The amount in 
-	* pixels for translating the object is specified through the X and 
-	* Y properties.
-	* 
-	* Coming Soon.
+	* pixels for translating the object is specified through the x and 
+	* y properties. Translation is performed relative to the registration point 
+	* defined via registration point or centerX and centerY respectivly.
 	**/
 	public class TranslateTransform extends Transform{
+		
 		public function TranslateTransform(){
 			super();
 		}
+	
+		private var _x:Number;
+		/**
+		* The value to transform along the x axis.
+		**/
+		public function get x():Number{
+			return _x;
+		}
+		public function set x(value:Number):void{
+			if(_x != value){
+				var oldX:Number = (isNaN(_x))? 0:_x;
+				_x = value;
+				
+				transformMatrix.tx = (isNaN(x)? 0:_x-oldX);
+				transformMatrix.ty=0;
+				invalidated = true;
+			}
+			
+		}
+		
+		private var _y:Number;
+		/**
+		* The value to transform along the y axis.
+		**/
+		public function get y():Number{
+			return _y;
+		}
+		public function set y(value:Number):void{
+			if(_y != value){
+				
+				var oldY:Number = (isNaN(_y))? 0:_y;
+				_y = value;
+				
+				transformMatrix.tx=0;
+				transformMatrix.ty = (isNaN(y)? 0:_y-oldY);
+				
+				invalidated = true;
+			}
+		}
+	
 	}
+	
 }

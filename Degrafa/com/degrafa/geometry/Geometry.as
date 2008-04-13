@@ -30,6 +30,7 @@ package com.degrafa.geometry{
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.DisplayObjectCollection;
 	import com.degrafa.core.collections.GeometryCollection;
+	import com.degrafa.transform.ITransform;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -460,6 +461,39 @@ package com.degrafa.geometry{
 			_commandStack=value;
 		}
 		
+		private var _transform:ITransform;
+		/**
+		* Defines the fill object that will be used for 
+		* rendering this geometry object.
+		**/
+		public function get transform():ITransform{
+			return _transform;
+		}
+		public function set transform(value:ITransform):void{
+			
+			if(_transform != value){
+			
+				var oldValue:Object=_transform;
+			
+				if(_transform){
+					if(_transform.hasEventManager){
+						_transform.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+								
+				_transform = value;
+				
+				if(enableEvents){	
+					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				}
+												
+				//call local helper to dispatch event
+				initChange("transform",oldValue,_transform,this);
+			}
+			
+		}
+		
+		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -471,6 +505,11 @@ package com.degrafa.geometry{
 			
 			//exit if no command stack
 			if(commandStack.length==0){return;}
+			
+			if(transform){
+				transform.apply(this);
+			}
+			
 						
 			//setup the stroke
 			initStroke(graphics,rc);

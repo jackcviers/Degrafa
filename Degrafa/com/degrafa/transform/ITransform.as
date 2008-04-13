@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
+// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	import com.degrafa.IGeometryComposition;
+	import com.degrafa.core.IDegrafaObject;
+	
 	/**
-	* ITransform is the base interface for transform classes.
-	* 
-	* Coming Soon.
+	* ITransform is the base interface for transform.
 	**/ 
-	public interface ITransform{		
+	public interface ITransform extends IDegrafaObject{		
 		function get data():String;
 		function set data(value:String):void;
-		
+		function apply(value:IGeometryComposition):void;
+		function get commandStack():Array		
+		function set commandStack(value:Array):void	
 	}
 }
