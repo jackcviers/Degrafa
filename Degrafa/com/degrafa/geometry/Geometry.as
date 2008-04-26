@@ -78,7 +78,7 @@ package com.degrafa.geometry{
 		/**
 		* Controls the visibility of this geometry object. If true, the geometry is visible.
 		*
-		* When set to false this geometry object will not be computed or drawn.
+		* When set to false this geometry object will be pre computed but not drawn.
 		**/	
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get visible():Boolean{
