@@ -83,6 +83,16 @@ package com.degrafa.geometry.utilities{
 		} 
 		
 		/**
+		* Returns a point on a quadratic bezier curve.
+		**/
+		public static function pointOnQuadraticCurve(t:Number, x:Number,y:Number,cx:Number,cy:Number,x1:Number,y1:Number):Object{
+			var v:Number = t / 100;
+			
+			return {x:x + v*(2*(1-v)*(cx-x) + v*(x1 - x)),y:y + v*(2*(1-v)*(cy-y) + v*(y1 - y))};
+		}
+
+
+		/**
 		* Return the tight bounding rectangle for a bezier curve.
 		* 
 		* @param x A number indicating the starting x-axis coordinate.

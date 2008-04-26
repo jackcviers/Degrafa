@@ -22,7 +22,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.IGeometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
@@ -75,6 +74,30 @@ package com.degrafa.geometry{
 			_data=value;
 		}
 		
+		private var _visible:Boolean=true;
+		/**
+		* Controls the visibility of this geometry object. If true, the geometry is visible.
+		*
+		* When set to false this geometry object will not be computed or drawn.
+		**/	
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get visible():Boolean{
+			return _visible;
+		}
+		public function set visible(value:Boolean):void{
+			if(_visible != value){
+				
+				var oldValue:Boolean=_visible;
+				_visible=value;
+				
+				invalidated = true;
+				
+				//call local helper to dispatch event
+				initChange("visible",oldValue,_visible,this);
+			}
+			
+		}
+		
 		private var _autoClearGraphicsTarget:Boolean=true;
 		/**
 		* When using a graphicsTarget and if this property is set to true 
@@ -114,9 +137,8 @@ package com.degrafa.geometry{
 			initGraphicsTargetCollection();
 			_graphicsTarget.items = value;
 			
-			
-			
 		}
+		
 		/**
 		* Access to the Degrafa target collection object for this geometry object.
 		**/
@@ -314,29 +336,18 @@ package com.degrafa.geometry{
 		public function endDraw(graphics:Graphics):void {
 			
 			if (fill) {  
-				//force a null stroke before closing the fill - prevents a 'closepath' stroke for unclosed paths
+				//force a null stroke before closing the fill - 
+				//prevents a 'closepath' stroke for unclosed paths
 				graphics.lineStyle.apply(graphics, null);  
 	        	fill.end(graphics);  
 	        } 
 			
-			    //Fix for issue 33 in the queue
-				//potential fixes for a rendering issue for fills from stroked, unfilled, unclosed paths, where the subsequent path has a fill- this fix needs more attention/consideration
-				//Either Option (a) or (b) seem to work, but are a little obscure in terms of how/why they work (and why they are needed - perhaps its possible to address in the relevant subclasses only):
-			/*	
-			//Option (a)
-			if (stroke ) {		
-					//force a null stroke and null fill -
-					//both of these are required for the 'fix', neither alone is sufficent
-						graphics.lineStyle.apply(graphics, null);
-						graphics.beginFill.call(graphics, null, null);
-					//it seems the above combination cannot be wrapped in an if (stroke && !fill) test, doing so fixes the fill error but appears to cause a closepath stroke in an unclosed path
-			}  */		
+			//append a null moveTo following a stroke without a  fill 
+			//forces a break in continuity with moveTo before the next 
+			//path - if we have the last point coords we could use them 
+			//instead of null, null or perhaps any value
+			if (stroke && !fill) graphics.moveTo.call(graphics, null, null); 
 			
-			//Option (b) (preferred)
-			//append a null moveTo following a stroke && !fill test
-			//forces a break in continuity with moveTo before the next path - if we have the last point coords we could use them instead of null, null or perhaps any value
-			if (stroke && !fill) graphics.moveTo.call(graphics, null, null); //<- need to use either function.apply or function.call to avoid compiler argument type checking
-			//Option (c) ? deal with it in Path or Shapes or other subclasses, i.e. check for stroke,!fill and unclosed path and then append the moveTo at a more granular level, only when the conditions are met that cause the error?
 			
 	        //draw children
 	        if (geometry){
@@ -377,26 +388,18 @@ package com.degrafa.geometry{
 		}
 		
 		
-		
+		/**
+		* Initialise the stroke for this geometry object. Typically only called by draw 
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds.  
+		**/
 		public function initStroke(graphics:Graphics,rc:Rectangle):void{
 			
 			//this will only be done one time unless no stroke is found
-			if(inheritStroke && !_stroke && parent){
-				var currparent:IGeometry = parent as IGeometry;  
-				while (!_stroke && currparent){
-					
-					if(currparent.stroke){
-						_stroke = currparent.stroke;
-					}
-					else{
-						if(parent.parent){
-							currparent = parent.parent as IGeometry;
-						}
-						else{
-							currparent = null;
-						}
-					}
-					
+			if(parent){
+				if(inheritStroke && !_stroke && parent is Geometry){
+					_stroke = Geometry(parent).stroke;
 				}
 			}
 			
@@ -411,26 +414,19 @@ package com.degrafa.geometry{
 			
 		}
 		
+		/**
+		* Initialise the fill for this geometry object. Typically only called by draw 
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds.  
+		**/
 		public function initFill(graphics:Graphics,rc:Rectangle):void{
 			
 			//this will only be done one time unless no fill is found
-			if(inheritFill && !_fill && parent){
-								
-				var currparent:IGeometry = parent as IGeometry;  
-				while (!_fill && currparent){
-					if(currparent.fill){
-						_fill = currparent.fill;
-					}
-					else{
-						if(parent.parent){
-							currparent = parent.parent as IGeometry;
-						}
-						else{
-							currparent = null;
-						}
-					}
+			if(parent){
+				if(inheritFill && !_fill && parent is Geometry){
+					_fill = Geometry(parent).fill;
 				}
-				
 			}
 				
 			//setup the fill
@@ -503,14 +499,15 @@ package com.degrafa.geometry{
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{			
 			
+			if(!visible){return;}
+						
 			//exit if no command stack
 			if(commandStack.length==0){return;}
 			
 			if(transform){
 				transform.apply(this);
 			}
-			
-						
+									
 			//setup the stroke
 			initStroke(graphics,rc);
 			
@@ -537,7 +534,6 @@ package com.degrafa.geometry{
 			
         	endDraw(graphics);
         		       
-	  	
 		}
 		
 	}
