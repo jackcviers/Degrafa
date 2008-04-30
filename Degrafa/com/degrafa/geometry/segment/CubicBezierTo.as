@@ -315,25 +315,7 @@ package com.degrafa.geometry.segment{
 				cy1Offset =0.000001;
 		
 			}
-//TEMP CODE
-//TODO track down root cause
-//bugfix testing. Encountered data error where some end anchor y values were being sent as NaN		
-	//and some first Control point x values being received as NaN
-	if (isNaN(lastPoint.x) || isNaN(lastPoint.y)) trace('last point error');
 	
-				if (isNaN(y)  ) {
-					trace('y ERROR');
-				trace(lastPoint + ":" + cx + "," + cy + ":" + cx1 + cy1 + ":" + x + "," + y);	
-					y =  _cy1-0.000001;
-				}
-				if (isNaN(cx)) {
-					trace(cx+":cx")
-				//	cx = lastPoint.x
-				//	if (isNaN(lastPoint.x)) trace("Oh shit");
-				}
-				if (isNaN(absRelOffset.y)) trace('yabsRelOffset ERROR');
-				if (isNaN(absRelOffset.x)) trace('xabsRelOffset ERROR');
-//-----------------------------				
 
 			if(isShortSequence){
 				
