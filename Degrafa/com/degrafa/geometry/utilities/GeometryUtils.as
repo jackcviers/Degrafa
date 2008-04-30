@@ -368,7 +368,7 @@ package com.degrafa.geometry.utilities{
 	 			 		
 			// find intersection between bezier arms
 			var s:Object = lineIntersects(p1, c1, c2, p2);
-			
+
 			// find distance between the midpoints
 			var dx:Number = (p1.x + p2.x + s.x * 4 - (c1.x + c2.x) * 3) * .125;
 			var dy:Number = (p1.y + p2.y + s.y * 4 - (c1.y + c2.y) * 3) * .125;

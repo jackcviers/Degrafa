@@ -25,6 +25,7 @@ package com.degrafa{
 	import com.degrafa.core.collections.FillCollection;
 	import com.degrafa.core.collections.GraphicsCollection;
 	import com.degrafa.core.collections.StrokeCollection;
+	import com.degrafa.core.collections.ExternalBitmapCollection;
 	
 	import flash.display.DisplayObject;
 	import flash.events.Event;
@@ -112,6 +113,47 @@ package com.degrafa{
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
 			dispatchEvent(event);
 		}
+		
+		
+		private var _externalBitmaps:ExternalBitmapCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.utilities.IGraphicsExternalBitmap")]
+		[ArrayElementType("com.degrafa.utilities.IGraphicsExternalBitmap")]
+		/**
+		* A array of IGraphicsExternalBitmap objects.
+		**/
+		public function get externalBitmaps():Array{
+			initExternalBitmapsCollection();
+			return _externalBitmaps.items;
+		}
+		public function set externalBitmaps(value:Array):void{			
+			initExternalBitmapsCollection();
+			_externalBitmaps.items = value;
+		}
+		
+		/**
+		* Access to the Degrafa externalBitmap collection object for this graphic object.
+		**/
+		public function get externalBitmapCollection():ExternalBitmapCollection{
+			initExternalBitmapsCollection();
+			return _externalBitmaps;
+		}
+		
+		/**
+		* Initialize the externalBitmap collection by creating it and adding an event listener.
+		**/
+		private function initExternalBitmapsCollection():void{
+			if(!_externalBitmaps){
+				_externalBitmaps = new ExternalBitmapCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_externalBitmaps.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
+		
+		
 		
 		private var _fills:FillCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.core.IGraphicsFill")]

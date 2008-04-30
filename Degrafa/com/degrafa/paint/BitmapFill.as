@@ -4,6 +4,8 @@ package com.degrafa.paint
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
+	import com.degrafa.utilities.ExternalBitmap;
+	import flash.events.Event;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -347,7 +349,17 @@ package com.degrafa.paint
 			
 		}
 		
-		
+		/**
+		 * handles the ready state for an ExternalBitmap as the source of a BitmapFill
+		 * @param	evt an ExternalBitmap.STATUS_READY event
+		 */
+		private function externalBitmapHandler(evt:Event):void {
+			evt.target.removeEventListener(ExternalBitmap.STATUS_READY, externalBitmapHandler);
+			var oldValue:Object = bitmapData;
+			bitmapData = evt.target.content;
+			initChange("source", oldValue, bitmapData, this);
+			
+		}
 		/**
 		 * The source used for the bitmap fill.
 		 * The fill can render from various graphical sources, including the following: 
@@ -355,6 +367,7 @@ package com.degrafa.paint
 		 * A class representing a subclass of DisplayObject. The BitmapFill instantiates the class and creates a bitmap rendering of it. 
 		 * An instance of a DisplayObject. The BitmapFill copies it into a Bitmap for filling. 
 		 * The name of a subclass of DisplayObject. The BitmapFill loads the class, instantiates it, and creates a bitmap rendering of it.
+		 * An instance of an ExternalBitmap to be loaded at runtime.
 		 **/
 		public function get source():Object { return bitmapData; }
 		public function set source(value:Object):void {
@@ -367,7 +380,15 @@ package com.degrafa.paint
 			if (!value) {
 				return;
 			}
-			
+			if (value is ExternalBitmap) {
+				if (value.content) {	
+					value = value.content;
+				} else {
+					value.addEventListener(ExternalBitmap.STATUS_READY,externalBitmapHandler)
+				trace('external bitmap not ready')
+				return;
+				}
+			}
 			if (value is BitmapData)
 			{
 				bitmapData = value as BitmapData;
