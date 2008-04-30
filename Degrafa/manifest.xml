@@ -85,4 +85,7 @@
 	<component id="GraphicProgrammaticSkin" class="com.degrafa.skins.GraphicProgrammaticSkin"/>
 	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
 	
+	<!--utilities-->
+	<component id="ExternalBitmap" class="com.degrafa.utilities.ExternalBitmap"/>
+	
 </componentPackage>    
