@@ -21,7 +21,10 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
+	
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.command.CommandStackItem;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
@@ -175,17 +178,20 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void{
 			if(invalidated){
+			
+				//commandStack = new CommandStack();
 				
-				commandStack.length = 0;
-											
+				commandStack.source = [];
+								
 			    var span:Number = Math.PI/accuracy;
 			    var controlRadius:Number = radius/Math.cos(span);
 			    var anchorAngle:Number=0
 			    var controlAngle:Number=0;
 			    
-			   	//add the move to the command stack		    
-			    commandStack.push({type:"m", x:centerX+Math.cos(anchorAngle)*radius,
-			    y:centerY+Math.sin(anchorAngle)*radius});
+			   	//add the move to the command stack
+			    commandStack.addMoveTo(
+			    centerX+Math.cos(anchorAngle)*radius,
+			    centerY+Math.sin(anchorAngle)*radius);
 					
 			    var i:int=0;
 			    
@@ -193,12 +199,12 @@ package com.degrafa.geometry{
 			    for (i; i<accuracy; ++i) {
 			        controlAngle = anchorAngle+span;
 			        anchorAngle = controlAngle+span;
-			        					
-					commandStack.push({type:"c",cx:centerX + Math.cos(controlAngle)*controlRadius,
-					cy:centerY + Math.sin(controlAngle)*controlRadius,
-					x1:centerX + Math.cos(anchorAngle)*radius,
-					y1:centerY + Math.sin(anchorAngle)*radius});
-										
+			        
+			        commandStack.addCurveTo(
+			        centerX + Math.cos(controlAngle)*controlRadius,
+			        centerY + Math.sin(controlAngle)*controlRadius,
+			        centerX + Math.cos(anchorAngle)*radius,
+			        centerY + Math.sin(anchorAngle)*radius)
 				};
 
 				calcBounds();
@@ -206,7 +212,6 @@ package com.degrafa.geometry{
 			}
 			
 		}
-				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -217,6 +222,8 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
+		 							
+			//apply the fill retangle for the draw
 			super.draw(graphics,(rc)? rc:_bounds);
 		}
 		
@@ -233,7 +240,6 @@ package com.degrafa.geometry{
 			if (!_radius){_radius = value.radius;}
 			if (!_accuracy){_accuracy = value.accuracy;}
 		
-		}
-				
+		}		
 	}
 }

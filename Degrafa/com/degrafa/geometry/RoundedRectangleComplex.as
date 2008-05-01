@@ -266,11 +266,11 @@ package com.degrafa.geometry{
 				commandStack.length=0;
 				
 				if(topLeftRadius==0 && topRightRadius==0 && bottomLeftRadius==0 && bottomRightRadius==0){
-					commandStack.push({type:"m", x:x,y:y});	
-					commandStack.push({type:"l", x:width,y:y});	
-					commandStack.push({type:"l", x:width,y:height});	
-					commandStack.push({type:"l", x:x,y:height});	
-					commandStack.push({type:"l", x:x,y:y});	
+					commandStack.addMoveTo(x,y);
+					commandStack.addLineTo(x+width,y);
+					commandStack.addLineTo(x+width,y+height)
+					commandStack.addLineTo(x,y+height);
+					commandStack.addLineTo(x,y);
 				}				
 				else{
 					
@@ -290,34 +290,34 @@ package com.degrafa.geometry{
 					var a:Number = bottomRightRadius * 0.292893218813453;		// radius - anchor pt;
 					var s:Number = bottomRightRadius * 0.585786437626905; 	// radius - control pt;
 					
-					commandStack.push({type:"m", x:xw,y:yh - bottomRightRadius});
-					commandStack.push({type:"c",cx:xw,cy:yh-s,x1:xw-a,y1:yh-a});
-					commandStack.push({type:"c",cx:xw - s,cy:yh,x1:xw - bottomRightRadius,y1:yh});
+					commandStack.addMoveTo(xw,yh - bottomRightRadius);
+					commandStack.addCurveTo(x + s,yh,x + a,yh - a);
+					commandStack.addCurveTo(x,yh - s,x,yh - bottomLeftRadius);
 							
 					// bottom-left corner
 					a = bottomLeftRadius * 0.292893218813453;
 					s = bottomLeftRadius * 0.585786437626905;
 					
-					commandStack.push({type:"l", x:x + bottomLeftRadius,y:yh});
-					commandStack.push({type:"c",cx:x + s,cy:yh,x1:x + a,y1:yh - a});
-					commandStack.push({type:"c",cx:x,cy:yh - s,x1:x,y1:yh - bottomLeftRadius});
+					commandStack.addLineTo(x + bottomLeftRadius,yh);
+					commandStack.addCurveTo(x + a,yh-a,x + s,yh - a);
+					commandStack.addCurveTo(x,yh - bottomLeftRadius,x,yh - s);
 							
 					// top-left corner
 					a = topLeftRadius * 0.292893218813453;
 					s = topLeftRadius * 0.585786437626905;
 					
-					commandStack.push({type:"l", x:x,y:y + topLeftRadius});
-					commandStack.push({type:"c",cx:x,cy:y+s,x1:x + a,y1:y + a});
-					commandStack.push({type:"c",cx:x + s,cy:y,x1:x + topLeftRadius,y1:y});
+					commandStack.addLineTo(x,y + topLeftRadius);
+					commandStack.addCurveTo(x,y+s,x + a,y + a);
+					commandStack.addCurveTo(x + s,y,x + topLeftRadius,y);
 					
 					// top-right corner
 					a = topRightRadius * 0.292893218813453;
 					s = topRightRadius * 0.585786437626905;
 					
-					commandStack.push({type:"l",x:xw - topRightRadius,y:y});
-					commandStack.push({type:"c",cx:xw - s,cy:y,x1:xw - a,y1:y + a});
-					commandStack.push({type:"c",cx:xw,cy:y + s,x1:xw,y1:y + topRightRadius});
-					commandStack.push({type:"l",x:xw,y:yh - bottomRightRadius});
+					commandStack.addLineTo(xw - topRightRadius, y);
+					commandStack.addCurveTo(xw - s,y,xw - a,y + a);
+					commandStack.addCurveTo(xw,y + s,xw,y + topRightRadius);
+					commandStack.addLineTo(xw,yh - bottomRightRadius);
 				}
 				
 				calcBounds();

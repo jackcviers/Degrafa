@@ -237,15 +237,15 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				
-				commandStack.push({type:"m",x:_points.items[0].x+x,y:_points.items[0].y+y});
-								
+				commandStack.addMoveTo(_points.items[0].x+x,_points.items[0].y+y);	
+				
 				for (var i:int = 0;i < _points.items.length; i++){
-					commandStack.push({type:"l",x:_points.items[i].x+x,y:_points.items[i].y+y});
+					commandStack.addLineTo(_points.items[i].x+x,_points.items[i].y+y);
 				}	
 			
 				//close if not done already
 				if (_points.items[_points.items.length-1].x+x !=_points.items[0].x+x || _points.items[_points.items.length-1].y+y !=_points.items[0].y+y){
-					commandStack.push({type:"l",x:_points.items[0].x+x,y:_points.items[0].y+y});
+					commandStack.addLineTo(_points.items[0].x+x,_points.items[0].y+y);
 				}
 			
 				calcBounds();

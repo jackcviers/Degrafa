@@ -23,6 +23,7 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.ArcUtils;
 	
 	import flash.display.Graphics;
@@ -245,18 +246,18 @@ package com.degrafa.geometry{
 			
 			//draw each item in the array
 			var item:Object;
-			for each (item in commandStack){
+			for each (item in commandStack.source){
 				with(item){
 					switch(type){
-						case "m":
+						case CommandStackItem.MOVE_TO:
 							break;
-						case "l":
+						case CommandStackItem.LINE_TO:
 							boundsMinX = Math.min(boundsMinX,x);
 							boundsMaxX = Math.max(boundsMaxX,x);
 							boundsMinY = Math.min(boundsMinY,y);
 							boundsMaxY = Math.max(boundsMaxY,y);
 							break;
-						case "c":
+						case CommandStackItem.CURVE_TO:
 					
 							boundsMinX = Math.min(boundsMinX,x);
 							boundsMinX = Math.min(boundsMinX,x1);
@@ -299,8 +300,7 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				
-				commandStack.push({type:"m",x:x,y:y});
-											
+				commandStack.addMoveTo(x,y);				
 				//Calculate the center point. We only needed is we have a pie type 
 				//closeur. May want to store this local sometime
 				var ax:Number=newX-Math.cos(-(startAngle/180)*Math.PI)*width/2;
@@ -309,24 +309,24 @@ package com.degrafa.geometry{
 				//draw the start line in the case of a pie type
 				if (closureType =="pie"){
 					if(Math.abs(arc)<360){
-						commandStack.push({type:"m",x:ax,y:ay});
-						commandStack.push({type:"l",x:newX,y:newY});
+						commandStack.addMoveTo(ax,ay);
+						commandStack.addLineTo(newX,newY);
 					}
 				}
 				
-				commandStack.push({type:"m",x:newX,y:newY});
+				commandStack.addMoveTo(newX,newY);
 				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				ArcUtils.drawEllipticalArc(newX,newY,startAngle,arc,width/2,height/2,commandStack);
+				ArcUtils.drawEllipticalArc(newX,newY,startAngle,arc,width/2,height/2,commandStack.source);
 				
 				//close the arc if required
 				if(Math.abs(arc)<360){
 					if (closureType == "pie"){
-						commandStack.push({type:"l",x:ax,y:ay});
+						commandStack.addLineTo(ax,ay);
 					}
 					if(closureType == "chord"){
-						commandStack.push({type:"l",x:newX,y:newY});
+						commandStack.addLineTo(newX,newY);
 					}
 				}
 				

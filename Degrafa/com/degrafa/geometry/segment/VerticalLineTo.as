@@ -22,6 +22,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
+	import com.degrafa.geometry.command.CommandStackItem;
+	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -143,7 +145,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandArray:Array):void{
 			
 			if(!invalidated && lastPoint){
 				if(this.lastPoint && !invalidated){
@@ -164,19 +166,19 @@ package com.degrafa.geometry.segment{
 			var item:Object;
 			
 			if(!invalidated){
-				for each(item in this.commandStack){
-					commandStack.push(item);		
+				for each(item in this.commandArray){
+					commandArray.push(item);		
 				}
 			}
 			
 			//reset the array
-			this.commandStack=[];
+			this.commandArray=[];
 			
-			this.commandStack.push({type:"l", x:lastPoint.x,y:absRelOffset.y+y});
+			this.commandArray.push(new CommandStackItem(CommandStackItem.LINE_TO,lastPoint.x,absRelOffset.y+y));
         	
         	//create a return command array adding each item from the local array
-			for each(item in this.commandStack){
-				commandStack.push(item);
+			for each(item in this.commandArray){
+				commandArray.push(item);
 			}
         	
 			this.lastPoint =lastPoint;

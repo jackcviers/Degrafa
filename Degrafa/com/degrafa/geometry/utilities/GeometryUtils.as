@@ -23,6 +23,7 @@
 package com.degrafa.geometry.utilities{
 	
 	import com.degrafa.GraphicPoint;
+	import com.degrafa.geometry.command.CommandStackItem;
 	
 	import flash.geom.Rectangle;
 	
@@ -387,10 +388,10 @@ package com.degrafa.geometry.utilities{
 				//if it's a segment then we don't add the move to
 				//p1x:p1.x, p1y:p1.y
 				if(!isSegment){
-					quadratics.push({type:"m",x:p1.x, y:p1.y});
+					quadratics.push(new CommandStackItem(CommandStackItem.MOVE_TO,p1.x,p1.y));
 				}
 				// end recursion by saving points
-				quadratics.push({type:"c",cx:s.x, cy:s.y, x1:p2.x, y1:p2.y});
+				quadratics.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,p2.x,p2.y,s.x,s.y));
 			}
 		}
 	

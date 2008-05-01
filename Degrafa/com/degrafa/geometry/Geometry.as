@@ -29,6 +29,8 @@ package com.degrafa.geometry{
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.DisplayObjectCollection;
 	import com.degrafa.core.collections.GeometryCollection;
+	import com.degrafa.decorators.IGlobalDecorator;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
 	
 	import flash.display.DisplayObject;
@@ -347,15 +349,13 @@ package com.degrafa.geometry{
 			//path - if we have the last point coords we could use them 
 			//instead of null, null or perhaps any value
 			if (stroke && !fill) graphics.moveTo.call(graphics, null, null); 
-			
-			
+
 	        //draw children
 	        if (geometry){
 				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.draw(graphics,null);
 				}
 			}
-
 	    }		
 		
 		
@@ -404,12 +404,11 @@ package com.degrafa.geometry{
 			}
 			
 			//setup the stroke
-			if (_stroke) {
+			if (_stroke){
 	        	_stroke.apply(graphics,(rc)? rc:null);
 	        }
-			else {
-				//force a null stroke
-				graphics.lineStyle.apply(graphics,null); 
+			else{
+				graphics.lineStyle(0, 0xFFFFFF, 0);
 			}
 			
 		}
@@ -430,7 +429,7 @@ package com.degrafa.geometry{
 			}
 				
 			//setup the fill
-	        if (_fill) {   
+	        if (_fill){   
 	        	_fill.begin(graphics, (rc) ? rc:null);	
 	        }
 	        
@@ -449,12 +448,71 @@ package com.degrafa.geometry{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandStack:Array=[];
-		public function get commandStack():Array{
+		private var _commandStack:CommandStack;
+		public function get commandStack():CommandStack{
+			
+			if(!_commandStack)
+				_commandStack = new CommandStack(this);
+			
 			return _commandStack;
 		}	
-		public function set commandStack(value:Array):void{
+		public function set commandStack(value:CommandStack):void{
 			_commandStack=value;
+		}
+		
+		private var _decorators:Array;
+		/**
+		* An Array of decorators that modify this Geometry.  IGlobalDecorator
+		* are executed and cleaned up here. 
+		**/
+		public function get decorators():Array{
+			
+			if(!_decorators)
+				_decorators = new Array(this);
+			
+			return _decorators;
+		}	
+		public function set decorators(value:Array):void{
+			
+			if(_decorators != value)
+			{
+				var oldValue:Object = _decorators;
+				
+				if(_decorators){
+					if(_decorators.hasEventManager){
+						_decorators.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+				
+				if(_decorators)
+				{
+					for each(var decorator:Object in _decorators)
+					{
+						if(decorator is IGlobalDecorator && _decorators.indexOf(decorator) != -1)
+						{
+							IGlobalDecorator(decorator).cleanup();
+						}
+					}			
+				}
+				
+				_decorators=value;
+				
+				/* if(enableEvents){	
+					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				} */
+				
+				initChange("decorators",oldValue,_decorators,this);
+				
+				for each(decorator in _decorators)
+				{
+					if(decorator is IGlobalDecorator)
+					{
+						decorator.execute(this);
+					}
+				}
+				
+				invalidated = true;
+			}
 		}
 		
 		private var _transform:ITransform;
@@ -489,7 +547,6 @@ package com.degrafa.geometry{
 			
 		}
 		
-		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -498,43 +555,9 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{			
-			
-			if(!visible){return;}
-						
-			//exit if no command stack
-			if(commandStack.length==0){return;}
-			
-			if(transform){
-				transform.apply(this);
-			}
-									
-			//setup the stroke
-			initStroke(graphics,rc);
-			
-			//setup the fill
-			initFill(graphics,rc);
-			
-			var item:Object;
-			for each (item in commandStack){
-				switch(item.type){
-        			
-        			case "l":
-        				graphics.lineTo(item.x,item.y);
-        				break;
-        		
-        			case "m":
-        				graphics.moveTo(item.x,item.y);
-        				break;
-        		
-        			case "c":
-        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
-        				break;
-        		}
-			}
-			
-        	endDraw(graphics);
-        		       
-		}
-		
-	}
+			commandStack.draw(graphics,rc);
+        					 	 		 	 	
+	 	 	endDraw(graphics);
+  		}		
+  	}
 }

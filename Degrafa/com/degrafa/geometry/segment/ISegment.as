@@ -43,8 +43,8 @@ package com.degrafa.geometry.segment{
 		function get coordinateType():String;		
 		function set coordinateType(value:String):void;
 		
-		function get commandStack():Array		
-		function set commandStack(value:Array):void	
+		function get commandArray():Array		
+		function set commandArray(value:Array):void	
 		
 	}
 }

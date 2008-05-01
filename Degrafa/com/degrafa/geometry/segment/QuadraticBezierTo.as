@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
+	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.geom.Point;
@@ -208,7 +209,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandArray:Array):void{
 			
 			if(!invalidated && lastPoint){
 				if(this.lastPoint && !invalidated){
@@ -237,30 +238,32 @@ package com.degrafa.geometry.segment{
 			var item:Object;
 			
 			if(!invalidated){
-				for each(item in this.commandStack){
-					commandStack.push(item);		
+				for each(item in this.commandArray){
+					commandArray.push(item);		
 				}
 			}
 			
 			//reset the array
-			this.commandStack=[];
+			this.commandArray=[];
 									
 			if(isShortSequence){
-				this.commandStack.push({type:"c", cx:lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				cy:lastPoint.y+(lastPoint.y-lastControlPoint.y),
-				x1:absRelOffset.x+x,
-				y1:absRelOffset.y+y});
+				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,
+				lastPoint.x+(lastPoint.x-lastControlPoint.x),
+				lastPoint.y+(lastPoint.y-lastControlPoint.y),
+				absRelOffset.x+x,
+				absRelOffset.y+y));
 			}
 			else{
-   				this.commandStack.push({type:"c", cx:absRelOffset.x+cx,
-				cy:absRelOffset.y+cy,
-				x1:absRelOffset.x+x,
-				y1:absRelOffset.y+y});
+   				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,
+   				absRelOffset.x+cx,
+				absRelOffset.y+cy,
+				absRelOffset.x+x,
+				absRelOffset.y+y));
 			}
 			
 			//create a return command array adding each item from the local array
-			for each(item in this.commandStack){
-				commandStack.push(item);
+			for each(item in this.commandArray){
+				commandArray.push(item);
 			}
         	
 			this.lastPoint =lastPoint;

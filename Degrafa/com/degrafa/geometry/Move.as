@@ -137,7 +137,7 @@ package com.degrafa.geometry{
 			
 				commandStack.length=0;
 				
-				commandStack.push({type:"m",x:x,y:y});	
+				commandStack.addMoveTo(x,y);	
 				
 				calcBounds();
 				invalidated = false;

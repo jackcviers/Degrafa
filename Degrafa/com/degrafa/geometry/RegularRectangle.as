@@ -182,12 +182,12 @@ package com.degrafa.geometry{
 			if(invalidated){
 			
 				commandStack.length = 0;
-								
-				commandStack.push({type:"m", x:x,y:y});	
-				commandStack.push({type:"l", x:x+width,y:y});	
-				commandStack.push({type:"l", x:x+width,y:y+height});	
-				commandStack.push({type:"l", x:x,y:y+height});	
-				commandStack.push({type:"l", x:x,y:y});	
+				
+				commandStack.addMoveTo(x,y);
+				commandStack.addLineTo(x+width,y);
+				commandStack.addLineTo(x+width,y+height)
+				commandStack.addLineTo(x,y+height);
+				commandStack.addLineTo(x,y);
 								
 				calcBounds();
 				invalidated = false;

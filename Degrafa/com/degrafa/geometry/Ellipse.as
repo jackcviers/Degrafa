@@ -201,8 +201,8 @@ package com.degrafa.geometry{
 			   	var ry: Number = height/2;
 			   	var dx:Number = rx/Math.cos(angleDelta/2);
 			   	var dy:Number = ry/Math.cos(angleDelta/2);
-			   				   	
-			   	commandStack.push({type:"m", x:(x+rx) + rx,y:(y+ry)});	
+			   	
+			   	commandStack.addMoveTo((x+rx) + rx,(y+ry));
 			   	
 			   	var i:Number = 0
 			   	var angle:Number=0;
@@ -210,12 +210,11 @@ package com.degrafa.geometry{
 			   	for (i= 0; i < accuracy; i++) {
 			   		angle += angleDelta;
 			   		
-      				commandStack.push({type:"c",
-      				cx:(x+rx) + Math.cos(angle-(angleDelta/2))*(dx),
-					cy:(y+ry) + Math.sin(angle-(angleDelta/2))*(dy),
-					x1:(x+rx) + Math.cos(angle)*rx,
-					y1:(y+ry) + Math.sin(angle)*ry});
-      				
+      				commandStack.addCurveTo(
+      				(x+rx) + Math.cos(angle-(angleDelta/2))*(dx),
+      				(y+ry) + Math.sin(angle-(angleDelta/2))*(dy),
+      				(x+rx) + Math.cos(angle)*rx,
+      				(y+ry) + Math.sin(angle)*ry);
       			}
 								
 				calcBounds();

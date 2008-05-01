@@ -223,8 +223,8 @@ package com.degrafa.geometry{
 			
 				commandStack.length=0;
 				
-				commandStack.push({type:"m",x:x,y:y});	
-				commandStack.push({type:"c",cx:cx,cy:cy,x1:x1,y1:y1});
+				commandStack.addMoveTo(x,y);
+				commandStack.addCurveTo(cx,cy,x1,y1);
 			
 				calcBounds();
 				invalidated = false;

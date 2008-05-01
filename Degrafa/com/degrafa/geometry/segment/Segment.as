@@ -114,12 +114,12 @@ package com.degrafa.geometry.segment{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandStack:Array=[];
-		public function get commandStack():Array{
-			return _commandStack;
+		private var _commandArray:Array=[];
+		public function get commandArray():Array{
+			return _commandArray;
 		}	
-		public function set commandStack(value:Array):void{
-			_commandStack=value;
+		public function set commandArray(value:Array):void{
+			_commandArray=value;
 		}
 				
 	}

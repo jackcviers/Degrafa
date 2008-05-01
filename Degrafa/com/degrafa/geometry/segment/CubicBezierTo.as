@@ -222,14 +222,14 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():Rectangle{
 			
-			if(commandStack.length==0){return null;}
+			if(commandArray.length==0){return null;}
 			
 			var boundsMaxX:Number =0;
 			var boundsMaxY:Number =0;
 			var boundsMinX:Number =Number.MAX_VALUE;
 			var boundsMinY:Number =Number.MAX_VALUE;
 			
-			for each(var item:Object in this.commandStack){
+			for each(var item:Object in this.commandArray){
 				if(item.type=="c"){
 					with(item){	
 						boundsMinX = Math.min(boundsMinX,x1);
@@ -265,7 +265,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandArray:Array):void{
 			
 			if(!invalidated && lastPoint){
 				if(this.lastPoint && !invalidated){
@@ -296,15 +296,15 @@ package com.degrafa.geometry.segment{
 			//test if anything has changed and only recalculate if something has
 			if(!invalidated){
 				//add each item from the local array (for some reason concat is not working properly here.)
-				for each(item in this.commandStack){
-					commandStack.push(item);
+				for each(item in this.commandArray){
+					commandArray.push(item);
 				}
 				return;
 			}
 			
 			
 			//reset the array
-			this.commandStack.length=0;
+			this.commandArray.length=0;
 									
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
@@ -324,7 +324,7 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack,true);
+				1,this.commandArray,true);
 			}
 			else{
 				GeometryUtils.cubicToQuadratic(
@@ -332,12 +332,12 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack,true);
+				1,this.commandArray,true);
 			}
 			
 			//add each item from the local array (for some reason concat is not working properly here.)
-			for each(item in this.commandStack){
-				commandStack.push(item);
+			for each(item in this.commandArray){
+				commandArray.push(item);
 			}
 			
 			this.lastPoint =lastPoint;

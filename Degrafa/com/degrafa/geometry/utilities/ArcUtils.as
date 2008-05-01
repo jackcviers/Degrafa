@@ -23,7 +23,7 @@
 package com.degrafa.geometry.utilities{
 	
 	import com.degrafa.GraphicPoint;
-	import flash.display.Graphics;
+	import com.degrafa.geometry.command.CommandStackItem;
 
 	/**
 	* A helper utility class for drawing arcs.
@@ -129,7 +129,7 @@ package com.degrafa.geometry.utilities{
 		/**
 		* Draws an arc of type "open" only. Accepts an optional x axis rotation value
 		**/
-		public static function drawArc(x:Number,y:Number,startAngle:Number, arc:Number, radius:Number,yRadius:Number,xAxisRotation:Number,commandStack:Array):void
+		public static function drawArc(x:Number,y:Number,startAngle:Number, arc:Number, radius:Number,yRadius:Number,xAxisRotation:Number,commandArray:Array):void
 		{
 						
 			// Circumvent drawing more than is needed
@@ -185,8 +185,8 @@ package com.degrafa.geometry.utilities{
 					}
 				
 					// save 
-					commandStack.push({type:"c",cx:controlPoint.x, cy:controlPoint.y, x1:anchorPoint.x, y1:anchorPoint.y});
-				
+					
+					commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,anchorPoint.x,anchorPoint.y,controlPoint.x,controlPoint.y));
 				}
 			}
 		}
@@ -194,7 +194,7 @@ package com.degrafa.geometry.utilities{
 		/**
 		* Draws an arc of type (default, chord, pie).  
 		**/
-		public static function drawEllipticalArc(x:Number, y:Number, startAngle:Number, arc:Number, radius:Number,yRadius:Number,commandStack:Array):void
+		public static function drawEllipticalArc(x:Number, y:Number, startAngle:Number, arc:Number, radius:Number,yRadius:Number,commandArray:Array):void
 		{
 			
 			var ax:Number;
@@ -254,13 +254,11 @@ package com.degrafa.geometry.utilities{
 									
 					
 					// save 
-					commandStack.push({type:"c",x:oldX, y:oldY, cx:cx, cy:cy, x1:x1, y1:y1});
-				
-					oldX = x1;
-					oldY = y1;
-										
-				}
+					commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,x1,y1,cx,cy));
 					
+					oldX = x1;
+					oldY = y1;		
+				}
 			}
 		}
 	}

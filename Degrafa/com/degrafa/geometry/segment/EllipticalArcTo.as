@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
+	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.ArcUtils;
 	
 	import flash.geom.Point;
@@ -256,14 +257,14 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
-			if(commandStack.length==0){return;}
+			if(commandArray.length==0){return;}
 			
 			var boundsMaxX:int =0;
 			var boundsMaxY:int =0;
 			var boundsMinX:int =int.MAX_VALUE;
 			var boundsMinY:int =int.MAX_VALUE;
 			
-			for each(var item:Object in this.commandStack){
+			for each(var item:Object in this.commandArray){
 				with(item){
 					if(type=="m"){
 						boundsMinX = Math.min(boundsMinX,x);
@@ -314,37 +315,37 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandArray:Array):void{
 			
 			var item:Object
 			
 			//test if anything has changed and only recalculate if something has
 			if(!invalidated){
-				for each(item in this.commandStack){
-					commandStack.push(item);
+				for each(item in this.commandArray){
+					commandArray.push(item);
 				}
 				return;
 			}
 			
 			//reset the array
-			this.commandStack=[];
+			this.commandArray=[];
 			
 			var computedArc:Object = ArcUtils.computeSvgArc(rx,ry,xAxisRotation,Boolean(largeArcFlag),
 			Boolean(sweepFlag),x+absRelOffset.x,y+absRelOffset.y,lastPoint.x,lastPoint.y);
 	        
 	        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
 	        computedArc.arc,computedArc.radius,computedArc.yRadius,
-	        computedArc.xAxisRotation,this.commandStack);
+	        computedArc.xAxisRotation,this.commandArray);
 			
 			
 						
 			//create a return command array adding each item from the local array
-			for each(item in this.commandStack){
-				commandStack.push(item);
+			for each(item in this.commandArray){
+				commandArray.push(item);
 			}
 			
 			//add the move to at the start of the stack
-			this.commandStack.unshift( { type:"m", x:computedArc.x, y:computedArc.y } );
+			this.commandArray.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
 			
 			this.lastPoint = lastPoint;
 			this.absRelOffset = absRelOffset;

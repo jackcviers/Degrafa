@@ -266,7 +266,7 @@ package com.degrafa.geometry{
 			
 			var item:Object;
 			
-			for each (item in commandStack){
+			for each (item in commandStack.source){
 				with(item){	
 					boundsMinX = Math.min(boundsMinX,p1x);
 					boundsMinX = Math.min(boundsMinX,p2x);
@@ -309,7 +309,7 @@ package com.degrafa.geometry{
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
 				GeometryUtils.cubicToQuadratic(new GraphicPoint(x,y),new GraphicPoint(cx,cy),new GraphicPoint(cx1,cy1+cy1Offset)
-				,new GraphicPoint(x1,y1),1,commandStack,false);	
+				,new GraphicPoint(x1,y1),1,commandStack.source,false);	
 								
 				calcBounds();
 				invalidated = false;

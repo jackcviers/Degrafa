@@ -75,6 +75,9 @@ package com.degrafa.geometry.repeaters{
 			
 		}
 		
+		public var offsetAccuracy:int = 10;
+		
+		
 		/**
 		* Circle Repeater short hand data value.
 		* 
@@ -213,7 +216,8 @@ package com.degrafa.geometry.repeaters{
 	        		newCircle.radius = radius + (i*offsetRadius);
 	        		newCircle.centerX = centerX + (i*offsetX);
 	        		newCircle.centerY = centerY + (i*offsetY);
-					
+	        		newCircle.decorators = this.decorators;
+					newCircle.accuracy = 8;//i*offsetAccuracy;
 					
 					//add to the bounds
 					newCircle.preDraw();
