@@ -101,6 +101,23 @@ package com.degrafa.paint{
 			}
 		}
 		
+		protected var _colorFunction:Function;
+		[Inspectable(category="General")]
+		/**
+		 * Function that sets the color of the fill. It is executed on
+		 * every draw.
+		 **/		
+		public function get colorFunction():Function{
+			return _colorFunction;
+		}
+		public function set colorFunction(value:Function):void{
+			if(_colorFunction != value){ // value gets resolved first
+				var oldValue:Function =_colorFunction as Function;
+				_colorFunction= value as Function;
+				//call local helper to dispatch event	
+				initChange("colorFunction",oldValue,_colorFunction,this);
+			}
+		}
 		
 		/**
 		* Begins the fill for the graphics context.
@@ -109,13 +126,19 @@ package com.degrafa.paint{
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void{
-			
+			var tempColor:uint;
+			// if no color function, use normal color var
+			if(colorFunction!=null){
+				tempColor = ColorUtil.resolveColor(colorFunction());
+			}
+			else{
+				if(!_color){_color=0x000000;}
+				tempColor = _color as uint;
+			}
 			//ensure that all defaults are in fact set these are temp until fully tested
 			if(isNaN(_alpha)){_alpha=1;}
 			
-			if(!_color){_color=0x000000;}
-						
-			graphics.beginFill(color as uint,alpha);						
+			graphics.beginFill(tempColor,alpha);						
 		}
 		
 		/**
@@ -135,9 +158,6 @@ package com.degrafa.paint{
 			
 			if (!_color){_color = uint(value.color);}
 			if (isNaN(_alpha)){_alpha = value.alpha;}
-			
-		
 		}
-		
 	}
 }
