@@ -22,6 +22,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa{
 	
+	import com.degrafa.geometry.command.CommandStack;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	/**
@@ -33,8 +35,7 @@ package com.degrafa{
 		function endDraw(graphics:Graphics):void
 		function get bounds():Rectangle
 		function preDraw():void
-		function get commandStack():Array		
-		function set commandStack(value:Array):void	
-		
+		function get commandStack():CommandStack;
+		function set commandStack(value:CommandStack):void;
 	}
 }
