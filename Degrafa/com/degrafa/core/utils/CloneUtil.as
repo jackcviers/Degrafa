@@ -22,19 +22,27 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.core.utils{
+	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 
 	/**
 	* A helper utility class for cloning objects.
 	**/
 	public class CloneUtil{
 		
-		public static function clone(source:Object):*{
+		public static function clone(source:Object):*
+		{
+			var classPath:String = getQualifiedClassName(source).replace( "::", "." );
+            var ClassRef:Class = getDefinitionByName(classPath) as Class;
+			
+			registerClassAlias( getQualifiedClassName(source), ClassRef );
+			
 		    var objectByteArray:ByteArray = new ByteArray();
 		    objectByteArray.writeObject(source);
 		    objectByteArray.position = 0;
 		    return(objectByteArray.readObject());
 		}
-		
 	}
 }
