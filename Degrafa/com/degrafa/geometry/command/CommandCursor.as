@@ -9,7 +9,7 @@ package com.degrafa.geometry.command
 			super(source);
 		}
 		
-		public function nextCommand(type:int):CommandStackItem
+		public function nextCommand(type:String):CommandStackItem
 		{
 			var tempIndex:int = currentIndex;
 			var found:Object;
@@ -27,7 +27,7 @@ package com.degrafa.geometry.command
 			return CommandStackItem(found);
 		}
 		
-		public function previousCommand(type:int):CommandStackItem
+		public function previousCommand(type:String):CommandStackItem
 		{
 			var tempIndex:int = currentIndex;
 			var found:Object;
@@ -45,7 +45,7 @@ package com.degrafa.geometry.command
 			return CommandStackItem(found);
 		}
 		
-		public function moveNextCommand(type:int):Boolean
+		public function moveNextCommand(type:String):Boolean
 		{
 			while(moveNext())
 			{
@@ -55,7 +55,7 @@ package com.degrafa.geometry.command
 			return false;
 		}
 		
-		public function movePreviousCommand(type:int):Boolean
+		public function movePreviousCommand(type:String):Boolean
 		{
 			while(movePrevious())
 			{

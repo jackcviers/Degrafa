@@ -2,6 +2,8 @@ package com.degrafa.geometry.command
 {
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.DegrafaCursor;
+	import com.degrafa.core.utils.CloneUtil;
+	import com.degrafa.decorators.IDrawDecorator;
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.Graphics;
@@ -13,6 +15,7 @@ package com.degrafa.geometry.command
 		public var source:Array = [];
 		public var cmdSource:Array = [];
 		public var pointer:Point = new Point(0,0);
+		public var graphics:Graphics;
 		
 		public var owner:Geometry;
 		
@@ -25,8 +28,16 @@ package com.degrafa.geometry.command
 		
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
+			this.graphics = graphics;
+			
+			//if(!owner.visible){return;}
+			
 			//exit if no command stack
 			if(source.length==0){return;}
+			
+			if(owner.transform){
+				owner.transform.apply(owner);
+			}
 						
 			//setup the stroke
 			owner.initStroke(graphics,rc);
@@ -35,49 +46,51 @@ package com.degrafa.geometry.command
 			owner.initFill(graphics,rc);
 			
 			var item:CommandStackItem;
-			cmdSource = source.reverse(); // Copy
-			cmdSource = cmdSource.reverse();
-			var cmdCursor:DegrafaCursor = new DegrafaCursor(cmdSource);
 			
-			/* for each(var decorator:Object in owner.decorators)
+			cloneSource()
+
+			_cursor = new DegrafaCursor(cmdSource);
+			
+			for each(var decorator:Object in owner.decorators)
 			{
-				if(decorator is IDecorator)
+				if(decorator is IDrawDecorator)
 				{
 					decorator.execute(this);
 				}
-			} */
+			}
 			
-			while(cmdCursor.moveNext())
+			while(_cursor.moveNext())
 	   		{
-	   			item = CommandStackItem(cmdCursor.current);
+	   			item = CommandStackItem(_cursor.current);
 					
 				switch(item.type)
 				{
         			case CommandStackItem.MOVE_TO:
-        				graphics.moveTo(item.px,item.py);
+        				graphics.moveTo(item.x,item.y);
         				break;
         			
         			case CommandStackItem.LINE_TO:
-        				graphics.lineTo(item.px,item.py);
+        				graphics.lineTo(item.x1,item.y1);
         				break;
         			
         			case CommandStackItem.CURVE_TO:
-        				graphics.curveTo(item.cx,item.cy,item.px,item.py);
+        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
         				break;
         				
         			case CommandStackItem.DELEGATE_TO:
-        				item.delegate(this, graphics);
+        				item.delegate(this);
         				break;
         		}
         		
         		updatePointer(item);
         	}
-        	cmdCursor.moveFirst();
+        	
+        	cmdSource = [];
         	
         	endDraw(graphics);
 		}
 		
-		public function endDraw(graphics:Graphics):void{
+		protected function endDraw(graphics:Graphics):void{
 			if (owner.fill){ 
 	        	owner.fill.end(graphics);  
 	        }
@@ -90,23 +103,23 @@ package com.degrafa.geometry.command
 			}
 	    }
 		
-		public function addMoveTo(px:Number,py:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.MOVE_TO,this,
-			px,py));
+		public function addMoveTo(x:Number,y:Number):void{
+			source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
+			x,y));
 		}
 		
-		public function addLineTo(px:Number,py:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.LINE_TO,this,
-			px,py));
+		public function addLineTo(x1:Number,y1:Number):void{
+			source.push(new CommandStackItem(CommandStackItem.LINE_TO,
+			NaN,NaN,x1,y1));
 		}
 		
-		public function addCurveTo(px:Number,py:Number,cx:Number,cy:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.CURVE_TO,this,
-			px,py,cx,cy));
+		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
+			source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
+			NaN,NaN,x1,y1,cx,cy));
 		}
 		
 		public function addDelegate(delegate:Function):void{
-			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO,this));
+			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO));
 		}
 		
 		protected function updatePointer(item:CommandStackItem):void
@@ -114,10 +127,22 @@ package com.degrafa.geometry.command
 			item.ox = pointer.x;
 			item.oy = pointer.y;
 			
-			if(item.px)
-				pointer.x = item.px;
-    		if(item.py)
-    			pointer.y = item.py;
+			if(item.x)
+				pointer.x = item.x;
+    		if(item.y)
+    			pointer.y = item.y;
+    		if(item.x1)
+				pointer.x = item.x1;
+    		if(item.y1)
+    			pointer.y = item.y1;
+		}
+		
+		protected function cloneSource():void
+		{
+			for each(var cmd:Object in source)
+			{
+				cmdSource.push(CloneUtil.clone(cmd));
+			}
 		}
 		
 		protected var _cursor:DegrafaCursor;
@@ -129,19 +154,12 @@ package com.degrafa.geometry.command
 			return _cursor;
 		}
 		
-		public function push(value:Object):void
-		{
-			source.push(value);
+		public function get length():int {
+			return source.length;
 		}
 		
-		public function get length():int
-	    {
-	    	return source.length;
-	    }
-	    
-	    public function set length(value:int):void
-	    {
-	    	source.length = value;
-	    }
+		public function set length(v:int):void {
+			source.length = v;
+		}
 	}
 }
