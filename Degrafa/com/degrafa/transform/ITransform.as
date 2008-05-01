@@ -24,6 +24,7 @@
 package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.geometry.command.CommandStack;
 	
 	/**
 	* ITransform is the base interface for transform.
@@ -32,7 +33,7 @@ package com.degrafa.transform{
 		function get data():String;
 		function set data(value:String):void;
 		function apply(value:IGeometryComposition):void;
-		function get commandStack():Array		
-		function set commandStack(value:Array):void	
+		function get commandStack():CommandStack		
+		function set commandStack(value:CommandStack):void	
 	}
 }

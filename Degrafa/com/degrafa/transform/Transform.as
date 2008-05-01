@@ -24,6 +24,8 @@
 package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.command.CommandStackItem;
 	
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -96,26 +98,26 @@ package com.degrafa.transform{
 			invalidated = false;
 			
 			//make sure we have a valid command stack
-			if(value.commandStack.length==0){return;}
+			//if(value.commandStack.length==0){return;}
 						
 			var currentPoint:Point=new Point();
 			
-			var item:Object;
-			for each (item in value.commandStack){
+			var item:CommandStackItem;
+			for each (item in value.commandStack.source){
 				switch(item.type){
 					
-        			case "m":
-        			case "l":
-        				currentPoint.x=item.x;
-        				currentPoint.y=item.y;
+        			case CommandStackItem.MOVE_TO:
+        			case CommandStackItem.LINE_TO:
+        				currentPoint.x=item.x1;
+        				currentPoint.y=item.y1;
         				
         				//transform point
         				currentPoint = transformMatrix.transformPoint(currentPoint);
         			
-        				item.x=currentPoint.x;
-        				item.y=currentPoint.y;
+        				item.x1=currentPoint.x;
+        				item.y1=currentPoint.y;
         				break;
-        			case "c":
+        			case CommandStackItem.CURVE_TO:
         			
         				currentPoint.x=item.cx;
         				currentPoint.y=item.cy;
@@ -144,11 +146,11 @@ package com.degrafa.transform{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandStack:Array=[];
-		public function get commandStack():Array{
+		private var _commandStack:CommandStack=new CommandStack();
+		public function get commandStack():CommandStack{
 			return _commandStack;
 		}	
-		public function set commandStack(value:Array):void{
+		public function set commandStack(value:CommandStack):void{
 			_commandStack=value;
 		}
 		
