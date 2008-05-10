@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,11 @@
 package com.degrafa.paint {
 	
 	import com.degrafa.core.IGraphicsStroke;
-	import com.degrafa.core.utils.ColorUtil;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 		
 	[DefaultProperty("gradientStops")]
 	[Exclude(name="color", kind="property")]
@@ -44,8 +44,9 @@ package com.degrafa.paint {
 	**/
 	public class GradientStrokeBase extends GradientFillBase implements IGraphicsStroke {
 		
-		public function GradientStrokeBase():void{
+		public function GradientStrokeBase(){
 			super();
+			registerClassAlias("com.degrafa.paint.GradientStrokeBase", GradientStrokeBase);
 		}
 		
 		

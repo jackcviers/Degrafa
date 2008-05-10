@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ package com.degrafa.paint{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	[Bindable(event="propertyChange")]
 	
@@ -52,9 +53,12 @@ package com.degrafa.paint{
 	 	* @param color A unit or String value indicating the stroke color.
 	 	* @param alpha A number indicating the alpha to be used for the fill.
 	 	*/
-		public function SolidFill(color:Object=null, alpha:Number=NaN):void{
+		public function SolidFill(color:Object=null, alpha:Number=NaN){
 			this.alpha = alpha;
 			this.color = color;
+			
+			registerClassAlias("com.degrafa.paint.SolidFill", SolidFill);
+			
 		}
 		
 		protected var _alpha:Number;

@@ -1,11 +1,32 @@
-package com.degrafa.paint
-{
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
+package com.degrafa.paint{
+	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
 	import com.degrafa.utilities.ExternalBitmap;
-	import flash.events.Event;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -13,9 +34,11 @@ package com.degrafa.paint
 	import flash.display.Graphics;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	import flash.utils.getDefinitionByName;
 	
 	[DefaultProperty("source")]
@@ -30,8 +53,7 @@ package com.degrafa.paint
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
-	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend
-	{
+	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend{
 		
 		// static constants
 		public static const NONE:String = "none";
@@ -44,8 +66,11 @@ package com.degrafa.paint
 		private var target:DisplayObject;
 		private var bitmapData:BitmapData;
 		
-		public function BitmapFill(source:Object = null):void {
+		public function BitmapFill(source:Object = null){
 			this.source = source;
+			
+			registerClassAlias("com.degrafa.paint.BitmapFill", BitmapFill);
+			
 		}
 		
 		private var _blendMode:String="normal";

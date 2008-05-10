@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.Measure;
 	import com.degrafa.core.utils.ColorUtil;
+	
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -57,6 +59,8 @@ package com.degrafa.paint{
 			_alpha = alpha;
 			_ratio.value = ratio;
 			_ratio.unit = ratioUnit;
+			
+			registerClassAlias("com.degrafa.paint.GradientStop", GradientStop);
 		}
 	    
 	    private var _alpha:Number = 1;

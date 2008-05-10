@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ package com.degrafa.paint{
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	import mx.events.PropertyChangeEvent;
 	
@@ -41,7 +42,12 @@ package com.degrafa.paint{
 	* @see http://degrafa.com/samples/LinearGradientFill.html	  
 	**/
 	public class GradientFillBase extends DegrafaObject{
-				
+		
+		public function GradientFillBase(){
+			super();
+			registerClassAlias("com.degrafa.paint.GradientFillBase", GradientFillBase);
+		}	
+			
 		//these are setup in processEntries
 		protected var _colors:Array = [];
 		protected var _ratios:Array = [];

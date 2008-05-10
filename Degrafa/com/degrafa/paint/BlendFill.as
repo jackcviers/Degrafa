@@ -1,12 +1,34 @@
-package com.degrafa.paint
-{
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
+package com.degrafa.paint{
+	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	
-	import flash.display.BlendMode;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.graphics.IFill;
@@ -24,8 +46,18 @@ package com.degrafa.paint
 	 * Used to wrap standard IFill objects for use in a ComplexFill.
 	 * The blendMode is only recognized in the context of a ComplexFill.
 	 */
-	public class BlendFill extends DegrafaObject implements IGraphicsFill, IBlend
-	{
+	public class BlendFill extends DegrafaObject implements IGraphicsFill, IBlend{
+		
+		//*****************************************
+		// Constructor
+		//*****************************************
+		
+		public function BlendFill(fill:IFill = null, blendMode:String = "normal"){
+			this.fill = fill;
+			this.blendMode = blendMode;
+			
+			registerClassAlias("com.degrafa.paint.BlendFill", BlendFill);
+		}
 		
 		// property backing vars
 		private var _blendMode:String;
@@ -64,14 +96,7 @@ package com.degrafa.paint
 		}
 		
 		
-		//*****************************************
-		// Constructor
-		//*****************************************
 		
-		public function BlendFill(fill:IFill = null, blendMode:String = "normal"):void {
-			this.fill = fill;
-			this.blendMode = blendMode;
-		}
 		
 		
 		//*****************************************
