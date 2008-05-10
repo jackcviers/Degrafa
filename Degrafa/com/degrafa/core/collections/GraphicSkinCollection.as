@@ -23,8 +23,9 @@ package com.degrafa.core.collections{
 	
 	//these subclasses are to make api access easier and to ensure 
 	//the the correct types are returned.
-	
 	import com.degrafa.core.IGraphicSkin;
+	
+	import flash.net.registerClassAlias;
 	
 	/**
  	*  The GraphicSkinCollection stores a collection of IGraphicSkin objects
@@ -42,6 +43,8 @@ package com.degrafa.core.collections{
 	 	*/
 		public function GraphicSkinCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicSkin,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.GraphicSkinCollection", GraphicSkinCollection);
 		}
 		
 		/**

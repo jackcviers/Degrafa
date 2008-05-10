@@ -22,6 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.core.IGraphicsStroke;
 	
+	import flash.net.registerClassAlias;
 	/**
  	*  The StrokeCollection stores a collection of IGraphicsStroke objects
  	**/
@@ -39,6 +40,9 @@ package com.degrafa.core.collections{
 	 	*/	
 		public function StrokeCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicsStroke,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.StrokeCollection", StrokeCollection);
+			
 		}
 		
 		/**

@@ -22,6 +22,7 @@
 package com.degrafa.core.collections{
 	
 	import com.degrafa.core.IGraphicsFill;
+	import flash.net.registerClassAlias;
 	
 	/**
  	*  The FillCollection stores a collection of IGraphicsFill objects
@@ -40,6 +41,8 @@ package com.degrafa.core.collections{
 	 	*/		
 		public function FillCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicsFill,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.FillCollection", FillCollection);
 		}
 		
 		/**

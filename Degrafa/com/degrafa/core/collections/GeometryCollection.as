@@ -20,8 +20,10 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
+	
 	import com.degrafa.IGeometry;
 	
+	import flash.net.registerClassAlias;
 	/**
  	*  The GeometryCollection stores a collection of IGeometry objects
  	**/
@@ -39,6 +41,8 @@ package com.degrafa.core.collections{
 	 	*/	
 		public function GeometryCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGeometry,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.GeometryCollection", GeometryCollection);
 		}
 		
 		/**

@@ -25,6 +25,7 @@ package com.degrafa.geometry.segment{
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	[Exclude(name="isShortSequence", kind="property")]
 	
@@ -63,6 +64,8 @@ package com.degrafa.geometry.segment{
 			this.data =data;
 			this.coordinateType=coordinateType;
 			this.isShortSequence = false;
+			
+			registerClassAlias("com.degrafa.geometry.segment.MoveTo", MoveTo);	
 		
 		}
 		

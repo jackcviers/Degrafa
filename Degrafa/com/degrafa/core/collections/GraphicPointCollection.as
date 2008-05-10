@@ -20,9 +20,9 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
-	import com.degrafa.core.IDegrafaObject;
-	
 	import com.degrafa.IGraphicPoint;
+	
+	import flash.net.registerClassAlias;
 	
 	/**
  	*  The GraphicPointCollection stores a collection of IGraphicPoint objects
@@ -40,6 +40,8 @@ package com.degrafa.core.collections{
 	 	*/	
 		public function GraphicPointCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicPoint,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.GraphicPointCollection", GraphicPointCollection);
 		}
 		
 		/**

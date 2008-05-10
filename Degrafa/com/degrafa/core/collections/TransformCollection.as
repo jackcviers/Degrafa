@@ -22,6 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.transform.ITransform;
 	
+	import flash.net.registerClassAlias;
 	/**
  	*  The TransformCollection stores a collection of ITransform objects
  	**/
@@ -39,6 +40,9 @@ package com.degrafa.core.collections{
 	 	*/
 		public function TransformCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(ITransform,array,suppressEvents);
+			
+			registerClassAlias(" com.degrafa.core.collections.TransformCollection", TransformCollection);
+			
 		}
 		
 		/**

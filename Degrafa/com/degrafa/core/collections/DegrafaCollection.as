@@ -24,6 +24,7 @@ package com.degrafa.core.collections{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	
+	import flash.net.registerClassAlias;
 	import flash.utils.getQualifiedClassName;
 	
 	import mx.events.PropertyChangeEvent;
@@ -66,6 +67,7 @@ package com.degrafa.core.collections{
 	       		items =array;
 	       	}
 	       	
+	       	registerClassAlias("com.degrafa.core.collections.DegrafaCollection", DegrafaCollection);
 	    }
 				
 		private var _enableTypeChecking:Boolean=true;

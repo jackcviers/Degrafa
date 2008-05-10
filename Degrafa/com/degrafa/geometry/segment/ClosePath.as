@@ -25,7 +25,7 @@ package com.degrafa.geometry.segment{
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
+	import flash.net.registerClassAlias;
 	//--------------------------------------
 	//  Other metadata
 	//--------------------------------------
@@ -46,7 +46,12 @@ package com.degrafa.geometry.segment{
 	* 
 	**/
 	public class ClosePath extends Segment implements ISegment{
-		public function ClosePath(){}
+		public function ClosePath(){
+			
+			super();
+			registerClassAlias("com.degrafa.geometry.segment.ClosePath", ClosePath);	
+		
+		}
 		
 		/**
 		* Setting data on ClosePath has no effect

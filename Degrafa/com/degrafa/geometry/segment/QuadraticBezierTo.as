@@ -26,6 +26,7 @@ package com.degrafa.geometry.segment{
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -68,6 +69,9 @@ package com.degrafa.geometry.segment{
 			this.data =data;
 			this.coordinateType=coordinateType;
 			this.isShortSequence =isShortSequence
+			
+			registerClassAlias("com.degrafa.geometry.segment.QuadraticBezierTo", QuadraticBezierTo);	
+			
 		}
 		
 		/**

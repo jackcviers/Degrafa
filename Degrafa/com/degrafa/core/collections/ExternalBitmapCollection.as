@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
 	
-	
-	
 	import com.degrafa.utilities.ExternalBitmap;
+	
+	import flash.net.registerClassAlias;
 	
 	/**
  	* The ExternalBitmapCollection stores a collection of com.degrafa.paint.ExternalBitmap 
@@ -43,6 +43,8 @@ package com.degrafa.core.collections{
 	 	*/		
 		public function ExternalBitmapCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(ExternalBitmap,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.ExternalBitmapCollection", ExternalBitmapCollection);
 		}
 		
 		

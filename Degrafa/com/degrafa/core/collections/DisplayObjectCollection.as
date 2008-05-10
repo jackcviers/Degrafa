@@ -21,8 +21,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
 	
-	
 	import flash.display.DisplayObject;
+	import flash.net.registerClassAlias;
 	
 	/**
  	* The DisplayObjectCollection stores a collection of flash.display.DisplayObject 
@@ -42,6 +42,8 @@ package com.degrafa.core.collections{
 	 	*/		
 		public function DisplayObjectCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(DisplayObject,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.DisplayObjectCollection", DisplayObjectCollection);
 		}
 		
 		

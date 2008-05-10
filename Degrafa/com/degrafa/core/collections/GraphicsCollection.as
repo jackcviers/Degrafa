@@ -22,6 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.IGraphic;
 	
+	import flash.net.registerClassAlias;
 	/**
  	*  The GraphicsCollection stores a collection of IGraphic objects
  	**/	
@@ -39,6 +40,8 @@ package com.degrafa.core.collections{
 	 	*/
 		public function GraphicsCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphic,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.GraphicsCollection", GraphicsCollection);
 		}
 		
 		/**

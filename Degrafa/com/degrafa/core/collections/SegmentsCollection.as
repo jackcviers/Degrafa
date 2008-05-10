@@ -22,6 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.geometry.segment.ISegment;
 	
+	import flash.net.registerClassAlias;
 	/**
  	*  The SegmentsCollection stores a collection of ISegment objects
  	**/
@@ -39,6 +40,8 @@ package com.degrafa.core.collections{
 	 	*/
 		public function SegmentsCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(ISegment,array,suppressEvents);
+			
+			registerClassAlias("com.degrafa.core.collections.SegmentsCollection", SegmentsCollection);
 		}
 		
 		/**
