@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
-	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 			
 	[Exclude(name="fill", kind="property")]
 	
@@ -62,6 +62,9 @@ package com.degrafa.geometry{
 			this.x=x;
 			this.y=y;
 			this.x1=x1;
+			
+			registerClassAlias("com.degrafa.geometry.HorizontalLine", HorizontalLine);
+			
 		}
 		
 		/**

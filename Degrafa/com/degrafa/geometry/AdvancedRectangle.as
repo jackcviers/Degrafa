@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.geometry
-{
+package com.degrafa.geometry{
+	
 	import com.degrafa.IGeometry;
 	
-	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	import mx.graphics.IFill;
 	import mx.graphics.IStroke;
@@ -42,8 +42,7 @@ package com.degrafa.geometry
 	/**
 	 * Used by the CSSSkin for graphics rendering.
 	 */
-	public class AdvancedRectangle extends Geometry implements IGeometry
-	{
+	public class AdvancedRectangle extends Geometry implements IGeometry{
 		
 		public var backgroundFill:IFill;
 		
@@ -71,7 +70,10 @@ package com.degrafa.geometry
 		public var bottomLeftFill:IFill;
 		public var bottomRightFill:IFill;
 		
-		
+		public function AdvancedRectangle(){
+			super();
+			registerClassAlias("com.degrafa.geometry.AdvancedRectangle", AdvancedRectangle);
+		}
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
 			

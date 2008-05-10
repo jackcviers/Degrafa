@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Pavan Podila , Sean Chatman, Greg Dove, Thomas Gonzalez and Maikel Sibbald.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ package com.degrafa.geometry{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -71,6 +72,7 @@ package com.degrafa.geometry{
 			this.arc=arc;
 			this.closureType=closureType;
 			
+			registerClassAlias("com.degrafa.geometry.EllipticalArc", EllipticalArc);
 		}
 		
 		/**
