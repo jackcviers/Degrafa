@@ -28,6 +28,7 @@ package com.degrafa{
 	import flash.events.Event;
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
+	import flash.net.registerClassAlias;
 	
 	[Bindable(event="propertyChange")]
 	
@@ -44,6 +45,7 @@ package com.degrafa{
 		
 		public function GraphicImage(){
 			super();
+			registerClassAlias("com.degrafa.GraphicImage", GraphicImage);
 		}
 		
 		/**

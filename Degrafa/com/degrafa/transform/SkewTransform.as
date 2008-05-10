@@ -24,7 +24,7 @@ package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	
 	import flash.geom.Matrix;
-	import flash.geom.Point;
+	import flash.net.registerClassAlias;
 	
 	[Bindable]
 	/**
@@ -40,6 +40,7 @@ package com.degrafa.transform{
 				
 		public function SkewTransform(){
 			super();
+			registerClassAlias("com.degrafa.transform.SkewTransform", SkewTransform);
 		}
 		
 		private var _skewAngleX:Number=0;

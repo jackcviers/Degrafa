@@ -25,6 +25,8 @@ package com.degrafa{
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
+	
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("geometry")]		
@@ -47,6 +49,7 @@ package com.degrafa{
 	
 		public function GeometryGroup(){
 			super();
+			registerClassAlias("com.degrafa.GeometryGroup", GeometryGroup);
 		} 						
 		
 		private var _geometry:GeometryCollection;

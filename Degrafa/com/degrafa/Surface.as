@@ -21,13 +21,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa{
 	
+	import com.degrafa.core.collections.ExternalBitmapCollection;
 	import com.degrafa.core.collections.FillCollection;
 	import com.degrafa.core.collections.GraphicsCollection;
 	import com.degrafa.core.collections.StrokeCollection;
-	import com.degrafa.core.collections.ExternalBitmapCollection;
 	
 	import flash.display.DisplayObject;
 	import flash.events.Event;
+	import flash.net.registerClassAlias;
 	
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
@@ -52,6 +53,7 @@ package com.degrafa{
 		
 		public function Surface(){
 			super();
+			registerClassAlias("com.degrafa.Surface", Surface);
 		}
 				
 		

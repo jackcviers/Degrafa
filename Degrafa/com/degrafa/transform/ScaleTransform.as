@@ -26,6 +26,7 @@ package com.degrafa.transform{
 	
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.net.registerClassAlias;
 	
 	[Bindable]
 	/**
@@ -40,6 +41,7 @@ package com.degrafa.transform{
 		
 		public function ScaleTransform(){
 			super();
+			registerClassAlias("com.degrafa.transform.ScaleTransform", ScaleTransform);
 		}
 		
 		private var _scaleX:Number=1;

@@ -20,17 +20,15 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.utilities{
-	import com.degrafa.utilities.IGraphicsExternalBitmap;
+	import com.degrafa.core.DegrafaObject;
+	
 	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
-	import com.degrafa.core.DegrafaObject;
-	
+	import flash.net.registerClassAlias;
 
 	
 	/**
@@ -113,6 +111,8 @@ package com.degrafa.utilities{
 				_bytesTotalExternal = Math.floor(totalBytes);
 				_externalSize = true;
 			}
+			
+			registerClassAlias("com.degrafa.utilities.ExternalBitmap", ExternalBitmap);
 		}
 		
 		/**

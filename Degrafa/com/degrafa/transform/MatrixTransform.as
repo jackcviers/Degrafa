@@ -21,6 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	
+	import flash.net.registerClassAlias;
+	
 	/**
 	* Matrix Transform creates an affine matrix transformation to manipulate the object in the 
 	* two dimensional space using custom transformations not provided by the 
@@ -33,6 +36,8 @@ package com.degrafa.transform{
 		public function MatrixTransform(){
 			super();
 		}
+		
+		registerClassAlias("com.degrafa.transform.MatrixTransform", MatrixTransform);
 		
 	}
 }

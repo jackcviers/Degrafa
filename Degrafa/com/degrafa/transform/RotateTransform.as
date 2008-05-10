@@ -26,6 +26,7 @@ package com.degrafa.transform{
 	
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.net.registerClassAlias;
 	
 	[Bindable]
 	/**
@@ -38,6 +39,7 @@ package com.degrafa.transform{
 		
 		public function RotateTransform(){
 			super();
+			registerClassAlias("com.degrafa.transform.RotateTransform", RotateTransform);
 		}
 		
 		private var _angle:Number=0;

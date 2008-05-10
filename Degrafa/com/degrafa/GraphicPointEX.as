@@ -28,10 +28,10 @@ package com.degrafa{
 	* never evenr be used on a complex graphic. It is intended to be wrapped for 
 	* a current object if manipulation is required.
 	**/ 
-	
 	import com.degrafa.core.DegrafaObject;
+	
 	import flash.geom.Point;
-	import mx.events.PropertyChangeEvent;
+	import flash.net.registerClassAlias;
 	
 	
 	[Bindable(event="propertyChange")]
@@ -57,6 +57,7 @@ package com.degrafa{
 			this.y=y
 			this.point.x=x
 			this.point.y=y
+			registerClassAlias("com.degrafa.GraphicPointEX", GraphicPointEX);
 		}
 		
 		private var _data:String;

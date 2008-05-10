@@ -32,13 +32,15 @@ package com.degrafa
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
-	import mx.events.FlexEvent;
-	import mx.utils.NameUtil;
+	
 	import mx.core.IMXMLObject;
+	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
+	import mx.utils.NameUtil;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -73,6 +75,7 @@ package com.degrafa
 		{
 			super();
 			defaultTextFormat = _textFormat;
+			registerClassAlias("com.degrafa.GraphicText", GraphicText);
 		}
 		
 		/**

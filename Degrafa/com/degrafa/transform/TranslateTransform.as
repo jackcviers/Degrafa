@@ -24,6 +24,8 @@ package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	
 	import flash.geom.Matrix;
+	import flash.net.registerClassAlias;
+
 	
 	[Exclude(name="centerX", kind="property")]
 	[Exclude(name="centerY", kind="property")]
@@ -44,6 +46,7 @@ package com.degrafa.transform{
 		
 		public function TranslateTransform(){
 			super();
+			registerClassAlias("com.degrafa.transform.TranslateTransform", TranslateTransform);
 		}
 		
 		//setting these has no effect on TranslateTransform
