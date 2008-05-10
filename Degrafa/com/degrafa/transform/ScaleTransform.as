@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
-// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +35,8 @@ package com.degrafa.transform{
 	**/
 	public class ScaleTransform extends Transform{
 		
-		//store the previous matrix for inversion
-		private var previousMatrix:Matrix;
+		private var currentScaleXRatio:Number;
+		private var currentScaleYRatio:Number;
 		
 		public function ScaleTransform(){
 			super();
@@ -49,53 +48,69 @@ package com.degrafa.transform{
 		}
 		
 		public function set scaleX(value:Number):void{
-			
-			//less than 0 is not allowed i think that .001 is finite enough
-			if(value<0){value=.001};
-			
-			var oldScaleX:Number = _scaleX;
-			_scaleX = value;
-			var ratio:Number = value /oldScaleX;
-						
-			//store the old matrix before changes 
-			previousMatrix =transformMatrix.clone();
-			 
-			transformMatrix.a *= ratio;
-			
-			invalidated = true;
-			
+			if(_scaleX != value){
+				currentScaleXRatio = value/_scaleX;
+				_scaleX = value;
+				invalidated = true;
+			}
+			else{
+				currentScaleXRatio = NaN;
+			}
 		}
-			
+		
 		private var _scaleY:Number=1;
 		public function get scaleY():Number{
 			return _scaleY;
 		}
+		
 		public function set scaleY(value:Number):void{
-		
-			//less than 0 is not allowed i think that .001 is finite enough
-			if(value<0){value=.001};
-		
-			var oldScaleY:Number = _scaleY;
-			_scaleY = value;
-						
-			var ratio:Number = value /oldScaleY;
-			
-			//store the old matrix before changes 
-			previousMatrix =transformMatrix.clone();
-						
-			transformMatrix.d *= ratio;
-			
-			invalidated = true;
-			
+			if(_scaleY != value){
+				currentScaleYRatio = value/_scaleY;
+				_scaleY = value;
+				invalidated = true;
+			}
+			else{
+				currentScaleYRatio = NaN;
+			}
 		}
 		
-		override public function apply(value:IGeometryComposition):void{
+		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
+			
+			if(!invalidated && !currentScaleXRatio && !currentScaleYRatio){return transformMatrix;}
+			
+			//store the previous matrix for inversion
+			var previousMatrix:Matrix=transformMatrix.clone();
+			
+			var trans:Point;
+			if(registrationPoint){
+				trans = getRegistrationPoint(value)
+			}
+			else{
+				trans = new Point(centerX,centerY);
+			}
+				
+			if(currentScaleXRatio){
+				transformMatrix.a *= currentScaleXRatio;
+				currentScaleXRatio = NaN;
+			}
+			
+			if(currentScaleYRatio){
+				transformMatrix.d *= currentScaleYRatio;
+				currentScaleYRatio = NaN;
+			}
 			
 			//invert the previous matrix and concat the results before application
 			if(previousMatrix){
 				previousMatrix.invert();
 				transformMatrix.concat(previousMatrix);
 			}
+			
+			return transformMatrix;
+		}
+		
+		override public function apply(value:IGeometryComposition):void{
+			
+			preCalculateMatrix(value);
 		
 			super.apply(value);
 			

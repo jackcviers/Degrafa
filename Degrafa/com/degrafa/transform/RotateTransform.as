@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
-// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,13 +34,12 @@ package com.degrafa.transform{
 	**/
 	public class RotateTransform extends Transform{
 		
-		//store the previous matrix for inversion
-		private var previousMatrix:Matrix;
+		private var radians:Number;
 		
 		public function RotateTransform(){
 			super();
 		}
-						
+		
 		private var _angle:Number=0;
 		/**
 		* The rotation angle of the transform in degrees. A value between 0 and 360.
@@ -50,32 +48,53 @@ package com.degrafa.transform{
 			return _angle;
 		}
 		public function set angle(value:Number):void{
-			if(_angle != value){
-				
-				var oldAngle:Number = (isNaN(_angle))? 0:_angle;
-				
-				_angle = value;
-				
-				var radians:Number = (((isNaN(_angle))? 0:_angle-oldAngle)/180)* Math.PI;
 			
-				//store the old matrix before changes 
-				previousMatrix =transformMatrix.clone();
-				
-				transformMatrix.translate(-centerX,-centerY);
-				transformMatrix.rotate(radians);
-				transformMatrix.translate(centerX,centerY);
-				
+			if(_angle != value){
+				radians = ((_angle-value)/180)* Math.PI;
+				_angle = value;
 				invalidated = true;
 			}
+			else{
+				radians = NaN;
+			}
 		}
-				
-		override public function apply(value:IGeometryComposition):void{
 		
+		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
+			
+			if(!invalidated && !radians){return transformMatrix;}
+			
+			//store the previous matrix for inversion
+			var previousMatrix:Matrix=transformMatrix.clone();
+		
+			if(radians){
+			
+				var trans:Point;
+				if(registrationPoint){
+					trans = getRegistrationPoint(value)
+				}
+				else{
+					trans = new Point(centerX,centerY);
+				}
+				
+				transformMatrix.translate(-trans.x,-trans.y);
+				transformMatrix.rotate(radians);
+				transformMatrix.translate(trans.x,trans.y);
+				
+				radians = NaN;
+			}
+					
 			//invert the previous matrix and concat the results before application
 			if(previousMatrix){
 				previousMatrix.invert();
 				transformMatrix.concat(previousMatrix);
 			}
+			
+			return transformMatrix;	
+		}	
+			
+		override public function apply(value:IGeometryComposition):void{
+						
+			preCalculateMatrix(value);
 		
 			super.apply(value);
 		}

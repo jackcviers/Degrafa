@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
-// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +23,8 @@
 package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.IDegrafaObject;
-	import com.degrafa.geometry.command.CommandStack;
+	
+	import flash.geom.Matrix;
 	
 	/**
 	* ITransform is the base interface for transform.
@@ -33,7 +33,7 @@ package com.degrafa.transform{
 		function get data():String;
 		function set data(value:String):void;
 		function apply(value:IGeometryComposition):void;
-		function get commandStack():CommandStack		
-		function set commandStack(value:CommandStack):void	
+		function preCalculateMatrix(value:IGeometryComposition):Matrix;
+		
 	}
 }

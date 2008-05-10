@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
-// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,40 +34,74 @@ package com.degrafa.transform{
 	* registration point defined in registration point or centerX and centerY respectivly.
 	**/
 	public class SkewTransform extends Transform{
+		
+		private var currentSkewAngleX:Number;
+		private var currentSkewAngleY:Number;
 				
 		public function SkewTransform(){
 			super();
 		}
 		
-		private var _skewX:Number=0;
-		public function get skewX():Number{
-			return _skewX;
+		private var _skewAngleX:Number=0;
+		public function get skewAngleX():Number{
+			return _skewAngleX;
 		}
 		
-		public function set skewX(value:Number):void{
-						
-			var oldSkewX:Number = _skewX;
-			_skewX = value;
-															
-			transformMatrix.c = Math.tan(_skewX-oldSkewX);
-			transformMatrix.b =0;
-			
-			invalidated = true;
+		public function set skewAngleX(value:Number):void{
+			if(_skewAngleX != value){
+				currentSkewAngleX = ((value-_skewAngleX)/180)* Math.PI;
+				_skewAngleX = value;
+				invalidated = true;
+			}
+			else{
+				currentSkewAngleX = NaN;
+			}
 		}
 			
-		private var _skewY:Number=0;
-		public function get skewY():Number{
-			return _skewY;
+		private var _skewAngleY:Number=0;
+		public function get skewAngleY():Number{
+			return _skewAngleY;
 		}
 		
-		public function set skewY(value:Number):void{
-			var oldSkewY:Number = _skewY;
-			_skewY = value;
-												
-			transformMatrix.b =Math.tan(_skewY-oldSkewY);
-			transformMatrix.c = 0;
+		public function set skewAngleY(value:Number):void{
+			if(_skewAngleY != value){
+				currentSkewAngleY = ((value-_skewAngleY)/180)* Math.PI;
+				_skewAngleY = value;
+				invalidated = true;
+			}
+			else{
+				currentSkewAngleY = NaN;
+			}
+		}
+		
+		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
 			
-			invalidated = true;
+			if(!invalidated && !currentSkewAngleX && !currentSkewAngleY){return transformMatrix;}
+			
+			if(currentSkewAngleX){
+				transformMatrix.c = currentSkewAngleX;
+				currentSkewAngleX = NaN;
+			}
+			else{
+				transformMatrix.c =0;
+			}
+		
+			if(currentSkewAngleY){
+				transformMatrix.b = currentSkewAngleY;
+				currentSkewAngleY = NaN;
+			}
+			else{
+				transformMatrix.b =0;
+			}
+			
+			return 	transformMatrix;
+		}
+		
+		override public function apply(value:IGeometryComposition):void{
+			
+			preCalculateMatrix(value);
+									
+			super.apply(value);
 		}
 		
 	}

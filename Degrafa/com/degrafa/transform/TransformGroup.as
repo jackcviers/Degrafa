@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +21,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.TransformCollection;
 	
-	import mx.events.PropertyChangeEvent;
+	import flash.geom.Matrix;
 	
-		
+	import mx.events.PropertyChangeEvent;
+			
 	[DefaultProperty("transforms")]	
 	/**
 	* TransformGroup is a transformation class to store composit transformations.
@@ -84,6 +85,39 @@ package com.degrafa.transform{
 			dispatchEvent(event)
 		}
 		
+		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
+			//concat the matrix's in the group	
+			transformMatrix = new Matrix;
+			
+			for each(var matrix:Transform in transforms){
+				
+				if(matrix is TranslateTransform){
+				}
+				else{
+					if(registrationPoint){
+						Transform(matrix).registrationPoint = registrationPoint;
+					}
+					else{
+						Transform(matrix).centerX = centerX;
+						Transform(matrix).centerY = centerX;
+					}
+				}
+				
+				//concat it in
+				transformMatrix.concat(matrix.preCalculateMatrix(value));
+				
+			}	
+			
+			return transformMatrix;
+		}
+		
+		override public function apply(value:IGeometryComposition):void{
+			
+			invalidated = true;
+			preCalculateMatrix(value);
+			super.apply(value);
+			
+		}
 		
 	}
 }

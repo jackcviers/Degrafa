@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki, 
-// Pavan Podila, Sean Chatman, Greg Dove and Thomas Gonzalez.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +24,11 @@ package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	
 	import flash.geom.Matrix;
-	import flash.geom.Point;
+	
+	[Exclude(name="centerX", kind="property")]
+	[Exclude(name="centerY", kind="property")]
+	[Exclude(name="registrationPoint", kind="property")]
+	
 	
 	[Bindable] 
 	/**
@@ -36,11 +39,23 @@ package com.degrafa.transform{
 	**/
 	public class TranslateTransform extends Transform{
 		
+		private var currentTranslateX:Number;
+		private var currentTranslateY:Number;
+		
 		public function TranslateTransform(){
 			super();
 		}
-	
-		private var _x:Number;
+		
+		//setting these has no effect on TranslateTransform
+		override public function get centerX():Number{return NaN;}
+		override public function set centerX(value:Number):void{}
+		override public function get centerY():Number{return NaN;}
+		override public function set centerY(value:Number):void{}
+		override public function get registrationPoint():String{return "topLeft";}
+		override public function set registrationPoint(value:String):void{}
+		
+		
+		private var _x:Number=0;
 		/**
 		* The value to transform along the x axis.
 		**/
@@ -49,17 +64,16 @@ package com.degrafa.transform{
 		}
 		public function set x(value:Number):void{
 			if(_x != value){
-				var oldX:Number = (isNaN(_x))? 0:_x;
+				currentTranslateX = value-_x;
 				_x = value;
-				
-				transformMatrix.tx = (isNaN(x)? 0:_x-oldX);
-				transformMatrix.ty=0;
 				invalidated = true;
 			}
-			
+			else{
+				currentTranslateX = NaN;
+			}
 		}
 		
-		private var _y:Number;
+		private var _y:Number=0;
 		/**
 		* The value to transform along the y axis.
 		**/
@@ -68,15 +82,45 @@ package com.degrafa.transform{
 		}
 		public function set y(value:Number):void{
 			if(_y != value){
-				
-				var oldY:Number = (isNaN(_y))? 0:_y;
+				currentTranslateY = value-_y;
 				_y = value;
-				
-				transformMatrix.tx=0;
-				transformMatrix.ty = (isNaN(y)? 0:_y-oldY);
-				
 				invalidated = true;
 			}
+			else{
+				currentTranslateY = NaN;
+			}
+		}
+		
+		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
+			
+			if(!invalidated && !currentTranslateX && !currentTranslateY){return transformMatrix;}
+			
+			if(currentTranslateX){
+				transformMatrix.tx = currentTranslateX;
+				currentTranslateX = NaN;
+			}
+			else{
+				transformMatrix.tx =0;
+			}
+			
+			if(currentTranslateY){
+				transformMatrix.ty = currentTranslateY;
+				currentTranslateY = NaN;
+			}
+			else{
+				transformMatrix.ty =0;
+			}
+			
+			return transformMatrix;
+			
+		}
+		
+		override public function apply(value:IGeometryComposition):void{
+			
+			preCalculateMatrix(value);
+						
+			super.apply(value);
+			
 		}
 	
 	}
