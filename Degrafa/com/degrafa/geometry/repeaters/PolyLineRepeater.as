@@ -23,10 +23,13 @@ package com.degrafa.geometry.repeaters{
 	
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.core.collections.GraphicPointCollection;
-	import com.degrafa.geometry.Polyline;
 	import com.degrafa.core.utils.CloneUtil;
+	import com.degrafa.geometry.Polyline;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
+	
 	import mx.events.PropertyChangeEvent;
 	
 	//--------------------------------------
@@ -68,6 +71,9 @@ package com.degrafa.geometry.repeaters{
 			super.count=count;
 			super.offsetX=offsetX;
 			super.offsetY=offsetY;
+			
+			registerClassAlias("com.degrafa.geometry.repeaters.PolyLineRepeater", PolyLineRepeater);
+			
 		}
 		
 		/**

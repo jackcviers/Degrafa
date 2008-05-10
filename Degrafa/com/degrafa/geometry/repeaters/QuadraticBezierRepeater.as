@@ -25,6 +25,7 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 
 	[Bindable]
 	/**
@@ -79,6 +80,7 @@ package com.degrafa.geometry.repeaters{
 			this.offsetCx=offsetCx;
 			this.offsetCy=offsetCy;
 			
+			registerClassAlias("com.degrafa.geometry.repeaters.QuadraticBezierRepeater", QuadraticBezierRepeater);
 		}
 		
 		/**

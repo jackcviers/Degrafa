@@ -21,11 +21,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.repeaters{
 	
-	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.geometry.Line;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -78,6 +78,8 @@ package com.degrafa.geometry.repeaters{
 						
 			this.moveOffsetX=moveOffsetX;
 			this.moveOffsetY=moveOffsetY;
+		
+			registerClassAlias("com.degrafa.geometry.repeaters.LineRepeater", LineRepeater);
 			
 		}
 		

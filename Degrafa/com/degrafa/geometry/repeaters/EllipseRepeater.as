@@ -25,6 +25,7 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -74,6 +75,7 @@ package com.degrafa.geometry.repeaters{
 			super.offsetX=offsetX;
 			super.offsetY=offsetY;
 			
+			registerClassAlias("com.degrafa.geometry.repeaters.EllipseRepeater", EllipseRepeater);
 		}
 		
 		/**

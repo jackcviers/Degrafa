@@ -23,10 +23,13 @@ package com.degrafa.geometry.repeaters{
 	
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.core.collections.GraphicPointCollection;
-	import com.degrafa.geometry.Polygon;
 	import com.degrafa.core.utils.CloneUtil;
+	import com.degrafa.geometry.Polygon;
+	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
+	
 	import mx.events.PropertyChangeEvent;
 	
 	//--------------------------------------
@@ -69,6 +72,7 @@ package com.degrafa.geometry.repeaters{
 			super.offsetX=offsetX;
 			super.offsetY=offsetY;
 			
+			registerClassAlias("com.degrafa.geometry.repeaters.PolygonRepeater", PolygonRepeater);
 		}
 		
 		/**

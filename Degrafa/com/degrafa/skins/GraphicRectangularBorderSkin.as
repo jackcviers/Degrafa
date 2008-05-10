@@ -33,6 +33,7 @@ package com.degrafa.skins{
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
@@ -52,6 +53,7 @@ package com.degrafa.skins{
 	public class GraphicRectangularBorderSkin extends RectangularBorder implements IGraphicSkin{		
 		public function GraphicRectangularBorderSkin(){
 			super();
+			registerClassAlias("com.degrafa.skins.GraphicRectangularBorderSkin", GraphicRectangularBorderSkin);
 		}
 				
 		private var _stroke:IGraphicsStroke;

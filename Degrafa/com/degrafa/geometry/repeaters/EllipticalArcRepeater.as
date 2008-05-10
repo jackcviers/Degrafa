@@ -25,6 +25,7 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	[Bindable]
 	/**
@@ -81,6 +82,7 @@ package com.degrafa.geometry.repeaters{
 			this.offsetStartAngle=offsetStartAngle;
 			this.offsetArc=offsetArc;
 			
+			registerClassAlias("com.degrafa.geometry.repeaters.EllipticalArcRepeater", EllipticalArcRepeater);
 		}
 		
 		

@@ -32,6 +32,7 @@ package com.degrafa.skins
 	import com.degrafa.paint.SolidFill;
 	
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	import mx.core.EdgeMetrics;
 	import mx.graphics.GradientEntry;
@@ -253,11 +254,13 @@ package com.degrafa.skins
 		// Constructor
 		//*********************************************************
 		
-		public function CSSSkin():void {
+		public function CSSSkin(){
 			super();
 			_borderMetrics = EdgeMetrics.EMPTY;
 			background = new ComplexFill();
 			refreshStyles();
+			
+			registerClassAlias("com.degrafa.skins.CSSSkin", CSSSkin);
 		}
 		
 		

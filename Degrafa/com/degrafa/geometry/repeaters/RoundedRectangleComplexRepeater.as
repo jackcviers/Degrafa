@@ -25,6 +25,7 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.net.registerClassAlias;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -95,6 +96,8 @@ package com.degrafa.geometry.repeaters{
 			this.offsetBottomRightRadius=offsetBottomRightRadius;
 			this.offsetWidth=offsetWidth;
 			this.offsetHeight=offsetHeight;
+			
+			registerClassAlias("com.degrafa.geometry.repeaters.RoundedRectangleComplexRepeater", RoundedRectangleComplexRepeater);
 				
 		}
 		
