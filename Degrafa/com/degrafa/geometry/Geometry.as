@@ -553,10 +553,14 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
-		public function draw(graphics:Graphics,rc:Rectangle):void{			
+		public function draw(graphics:Graphics,rc:Rectangle):void{
+						
+			//don't draw unless visible
+			if(!visible){return;}
+			
 			commandStack.draw(graphics,rc);
-        					 	 		 	 	
-	 	 	endDraw(graphics);
+         	endDraw(graphics);
+         	
   		}		
   	}
 }

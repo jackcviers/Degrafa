@@ -49,9 +49,7 @@ package com.degrafa.geometry.command{
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			this.graphics = graphics;
-			
-			//if(!owner.visible){return;}
-			
+						
 			//exit if no command stack
 			if(source.length==0){return;}
 			
