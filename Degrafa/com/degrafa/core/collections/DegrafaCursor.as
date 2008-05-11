@@ -23,7 +23,6 @@ package com.degrafa.core.collections
 {
 	import mx.collections.CursorBookmark;
 	
-	[Bindable]
 	/**
 	 *	The DegrafaCursor is a class that aids enumeration and modification of the enclosed Array. 
 	 */	
