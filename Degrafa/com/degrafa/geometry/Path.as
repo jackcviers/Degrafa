@@ -21,13 +21,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.SegmentsCollection;
 	import com.degrafa.geometry.segment.*;
 	import com.degrafa.geometry.utilities.*;
 	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	
@@ -361,29 +361,24 @@ package com.degrafa.geometry{
 						
 			//each object hase a type l,m or c
 			//keep track of the last point used during drawing
-			var lastPoint:GraphicPoint = new GraphicPoint(0,0);
+			var lastPoint:Point = new Point(0,0);
 			
 			//keep track of the first point of current 
 			//path for the close command
-			var firstPoint:GraphicPoint = new GraphicPoint(0,0);
+			var firstPoint:Point = lastPoint.clone();
 						
 			//store he last control point in case ShortSequence =true in 
 			//which case we need to mirror the last used control point (s,S,t,T)
-			var lastControlPoint:GraphicPoint=new GraphicPoint(0,0);
+			var lastControlPoint:Point=lastPoint.clone();
 			
 			//absolute or relative offset
-			var absRelOffset:GraphicPoint = new GraphicPoint(0,0);
-			
-			absRelOffset.x = 0;	
-   			absRelOffset.y = 0;	
+			var absRelOffset:Point =lastPoint.clone();
 			
 			var i:int = 0;
 			var length:int = _segments.items.length;
 				
-			for (;i< length;i++)
-        	{
+			for (;i< length;i++){
         		
-        		var obj:Object = _segments.items[i];
         		if(ISegment(_segments.items[i]).coordinateType=="relative")
         		{
         			absRelOffset.x =lastPoint.x;
