@@ -43,11 +43,7 @@ package com.degrafa.core.collections
 		public function DegrafaCursor(source:Array)
 		{
 			this.source = source;
-			
-			if(type){
-				this.type = type;
-			}
-			
+						
 			currentIndex = BEFORE_FIRST_INDEX;
 		}
 		

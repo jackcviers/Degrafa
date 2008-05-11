@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.geometry.command
-{
+package com.degrafa.geometry.command{
+	
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.core.utils.CloneUtil;
@@ -31,17 +31,16 @@ package com.degrafa.geometry.command
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
-	public class CommandStack
-	{
+	public class CommandStack{
+		
 		public var source:Array = [];
-		public var cmdSource:Array = [];
+		public var cmdSource:Array;
 		public var pointer:Point = new Point(0,0);
 		public var graphics:Graphics;
 		
 		public var owner:Geometry;
 		
-		public function CommandStack(geometry:Geometry = null)
-		{
+		public function CommandStack(geometry:Geometry = null){
 			super();
 			
 			this.owner = geometry;
@@ -68,24 +67,25 @@ package com.degrafa.geometry.command
 			
 			var item:CommandStackItem;
 			
-			cloneSource()
+			cmdSource = CloneUtil.clone(source)
 
 			_cursor = new DegrafaCursor(cmdSource);
 			
-			for each(var decorator:Object in owner.decorators)
-			{
-				if(decorator is IDrawDecorator)
-				{
+			//Dev Note :: need to make sure we are only decorating if the decorator 
+			//or geom is invalid in this case we don't need to clone the 
+			//source each time perhaps
+			for each(var decorator:Object in owner.decorators){
+				if(decorator is IDrawDecorator){
 					decorator.execute(this);
 				}
 			}
 			
-			while(_cursor.moveNext())
-	   		{
-	   			item = CommandStackItem(_cursor.current);
+			while(_cursor.moveNext()){	   			
+	   			
+	   			item = _cursor.current;
 					
-				switch(item.type)
-				{
+				switch(item.type){
+					
         			case CommandStackItem.MOVE_TO:
         				graphics.moveTo(item.x,item.y);
         				break;
@@ -99,6 +99,8 @@ package com.degrafa.geometry.command
         				break;
         				
         			case CommandStackItem.DELEGATE_TO:
+        				////Dev Note ::?? can we *optionally* pass the source and or graphics/rc here .. ?
+        				//to avoid storing it locally
         				item.delegate(this);
         				break;
         		}
@@ -106,7 +108,7 @@ package com.degrafa.geometry.command
         		updatePointer(item);
         	}
         	
-        	cmdSource = [];
+        	cmdSource.length = 0;
         	
         	endDraw(graphics);
 		}
@@ -143,8 +145,7 @@ package com.degrafa.geometry.command
 			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO));
 		}
 		
-		protected function updatePointer(item:CommandStackItem):void
-		{
+		protected function updatePointer(item:CommandStackItem):void{
 			item.ox = pointer.x;
 			item.oy = pointer.y;
 			
@@ -157,18 +158,9 @@ package com.degrafa.geometry.command
     		if(item.y1)
     			pointer.y = item.y1;
 		}
-		
-		protected function cloneSource():void
-		{
-			for each(var cmd:Object in source)
-			{
-				cmdSource.push(CloneUtil.clone(cmd));
-			}
-		}
-		
+				
 		protected var _cursor:DegrafaCursor;
-		public function get cursor():DegrafaCursor
-		{
+		public function get cursor():DegrafaCursor{
 			if(!_cursor)
 				_cursor = new DegrafaCursor(source);
 				
