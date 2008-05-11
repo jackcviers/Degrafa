@@ -89,7 +89,7 @@ package com.degrafa.geometry.command{
         				break;
         			
         			case CommandStackItem.LINE_TO:
-        				graphics.lineTo(item.x1,item.y1);
+        				graphics.lineTo(item.x,item.y);
         				break;
         			
         			case CommandStackItem.CURVE_TO:
@@ -129,9 +129,9 @@ package com.degrafa.geometry.command{
 			x,y));
 		}
 		
-		public function addLineTo(x1:Number,y1:Number):void{
+		public function addLineTo(x:Number,y:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.LINE_TO,
-			NaN,NaN,x1,y1));
+			x,y));
 		}
 		
 		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{

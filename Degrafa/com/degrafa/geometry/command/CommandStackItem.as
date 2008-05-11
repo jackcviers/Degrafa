@@ -50,12 +50,13 @@ package com.degrafa.geometry.command{
 		public var id:String;
 		public var reference:String;
 		
+		//Line or move to
 		public var x:Number;
 		public var y:Number;
 		
+		//curve only
 		public var x1:Number;
 		public var y1:Number;
-		
 		public var cx:Number;
 		public var cy:Number;
 		
