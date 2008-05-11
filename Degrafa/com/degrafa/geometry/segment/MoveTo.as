@@ -202,7 +202,7 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//reset the array
-			this.commandArray=[];
+			this.commandArray.length=0;
 			
 			this.commandArray.push(new CommandStackItem(CommandStackItem.MOVE_TO,absRelOffset.x+x,absRelOffset.y+y));
         	

@@ -247,7 +247,7 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//reset the array
-			this.commandArray=[];
+			this.commandArray.length=0;
 									
 			if(isShortSequence){
 				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,

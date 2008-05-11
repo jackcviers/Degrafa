@@ -331,7 +331,7 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//reset the array
-			this.commandArray=[];
+			this.commandArray.length=0;
 			
 			var computedArc:Object = ArcUtils.computeSvgArc(rx,ry,xAxisRotation,Boolean(largeArcFlag),
 			Boolean(sweepFlag),x+absRelOffset.x,y+absRelOffset.y,lastPoint.x,lastPoint.y);
