@@ -19,17 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.geometry.command
-{
-	public class CommandStackItem
-	{
+package com.degrafa.geometry.command{
+	
+	import flash.net.registerClassAlias;
+	
+	public class CommandStackItem{
+		
 		public static const MOVE_TO:String="m";
 		public static const LINE_TO:String="l";
 		public static const CURVE_TO:String="c";
 		public static const DELEGATE_TO:String="d";
 		
-		public function CommandStackItem(type:String="",x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,ox:Number=NaN,oy:Number=NaN)
-		{
+		public function CommandStackItem(type:String="",x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,ox:Number=NaN,oy:Number=NaN){
 			this.type = type;
 			
 			this.x=x;
@@ -40,6 +41,9 @@ package com.degrafa.geometry.command
 			this.cy=cy;
 			this.ox=ox;
 			this.oy=oy;
+			
+			registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
+			
 		}
 				
 		public var type:String;
