@@ -161,9 +161,9 @@ package com.degrafa.geometry.utilities{
 			// Draw as 45 degree segments
 			if (segs>0) 
 			{
-				
+				var i:int = 0
 				// Loop for drawing arc segments
-				for (var i:int = 0; i<segs; i++) 
+				for (; i<segs; i++) 
 				{
 					// increment our angle
 					angle += theta;

@@ -212,7 +212,6 @@ package com.degrafa.core.collections{
 			//clean up
 			removeListener(items[index]);
 			return splice(index,1)[1];
-			//return splice(index,1);
 		}
 		
 		/**
@@ -223,9 +222,7 @@ package com.degrafa.core.collections{
 		* @return Returns true is the item was repositioned. 
 		**/
 		protected function _setItemIndex(value:*,newIndex:Number):Boolean{
-			
 			return true;
-		
 		}
 		
 		//to be overidden in subclasse if nessesary
@@ -318,7 +315,10 @@ package com.degrafa.core.collections{
 			//type check item(s)
 			checkValidTypes(args);
 			
-			for (var i:int = 0; i<args.length;i++){
+			var i:int = 0
+			var length:int = args.length
+			
+			for (; i<length;i++){
 				addListener(args[i]);
 			}	
 			

@@ -86,7 +86,9 @@ package com.degrafa.geometry{
 				 
 				//and then create a point struct for each resulting pair
 				//eventually throw excemption is not matching properly
-				for (var i:int = 0; i< pointsArray.length;i++){
+				var i:int = 0;
+				var length:int = pointsArray.length;
+				for (; i< length;i++){
 					pointItem = String(pointsArray[i]).split(",");
 					
 					//skip past blank items as there may have been bad 
@@ -223,8 +225,10 @@ package com.degrafa.geometry{
 			var boundsMaxY:Number =0;
 			var boundsMinX:Number =Number.MAX_VALUE;
 			var boundsMinY:Number =Number.MAX_VALUE;
-						
-			for (var i:int = 0;i< _points.items.length; i++) 
+			
+			var i:int = 0;
+			var length:int = _points.items.length;			
+			for (;i< length; i++) 
 			{
 				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x+x);
 				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y+y);
@@ -249,8 +253,10 @@ package com.degrafa.geometry{
 				commandStack.length=0;
 				
 				commandStack.addMoveTo(_points.items[0].x+x,_points.items[0].y+y);
-								
-				for (var i:int = 0;i < _points.items.length; i++){
+				
+				var i:int = 0;
+				var length:int = _points.items.length;					
+				for (;i < length; i++){
 					commandStack.addMoveTo(_points.items[i].x+x,_points.items[i].y+y);
 				}	
 			
