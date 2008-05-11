@@ -33,7 +33,7 @@ package com.degrafa.core.collections
 		 *	The value representing the current location of the cursor. 
 		 */		
 		public var currentIndex:int;
-		
+				
 		protected static const BEFORE_FIRST_INDEX:int = -1;
 		protected static const AFTER_LAST_INDEX:int = -2;
 		
@@ -43,7 +43,11 @@ package com.degrafa.core.collections
 		public function DegrafaCursor(source:Array)
 		{
 			this.source = source;
-
+			
+			if(type){
+				this.type = type;
+			}
+			
 			currentIndex = BEFORE_FIRST_INDEX;
 		}
 		
@@ -53,7 +57,7 @@ package com.degrafa.core.collections
 		 * 
 		 * @return Object or null.
 		 */		
-		public function get current():Object
+		public function get current():*
 		{
 			if(currentIndex > BEFORE_FIRST_INDEX)
 				return source[currentIndex];
@@ -126,7 +130,7 @@ package com.degrafa.core.collections
 	     * @param value The Object to be inserted into the array.
 	     * 
 	     */	    
-	    public function insert(value:Object):void
+	    public function insert(value:*):void
 		{
 			var insertIndex:int;
 	        if (afterLast || beforeFirst)
@@ -144,7 +148,7 @@ package com.degrafa.core.collections
 		 * 
 		 * @return The Object removed from the array.
 		 */		
-		public function remove():Object
+		public function remove():*
 		{
 			var value:Object = source[currentIndex];
 			
@@ -212,7 +216,7 @@ package com.degrafa.core.collections
 	    /**
 	     * Gets the Object before the currentIndex
 	     */	    
-	    public function get previousObject():Object
+	    public function get previousObject():*
 	    {
 	    	if (beforeFirst)
 	        	return null;
@@ -227,7 +231,7 @@ package com.degrafa.core.collections
 	    /**
 	     * Gets the Object after the currentIndex
 	     */
-	    public function get nextObject():Object
+	    public function get nextObject():*
 	    {
 	    	if(afterLast)
 	        	return null;
