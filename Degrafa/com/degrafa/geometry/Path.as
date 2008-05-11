@@ -110,7 +110,9 @@ package com.degrafa.geometry{
 				//store the array as we add items and set the segments after 
 				var segmentStack:Array=[];
 				
-				for (var i:int=0;i<pathDataArray.length;i++)
+				var length:int = pathDataArray.length;
+				var i:int=0;
+				for (;i<length;i++)
 				{
 					switch(pathDataArray[i])
 					{
@@ -374,8 +376,11 @@ package com.degrafa.geometry{
 			
 			absRelOffset.x = 0;	
    			absRelOffset.y = 0;	
-									
-			for (var i:int = 0;i< _segments.items.length;i++)
+			
+			var i:int = 0;
+			var length:int = _segments.items.length;
+				
+			for (;i< length;i++)
         	{
         		
         		var obj:Object = _segments.items[i];
@@ -520,8 +525,11 @@ package com.degrafa.geometry{
 			
 			var boundsRect:Rectangle = new Rectangle();
 			
+			var i:int = 0;
+			var length:int = _segments.items.length;
+			
 			//union all segment bounds	
-			for (var i:int = 0;i< _segments.items.length;i++){
+			for (;i< length;i++){
         		
         		//note:: though we do calculate the moveTo segments 
         		//bounds (for other uses) we do not include them in the 
@@ -552,7 +560,9 @@ package com.degrafa.geometry{
 			//know otherwise
 			if(!invalidated){
 				//verify
-				for (var i:int=0;i<segments.length;i++){
+				var i:int = 0;
+				var length:int = segments.length;
+				for (;i<length;i++){
 					if(segments[i].invalidated){
 						invalidated = true;
 						break;
