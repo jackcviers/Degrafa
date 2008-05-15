@@ -51,6 +51,8 @@ package com.degrafa.decorators
 			if(cursor.moveNextCommand(CommandStackItem.CURVE_TO))
    			{
    				cursor.current.type = CommandStackItem.LINE_TO;
+   				cursor.current.x = cursor.current.x1;
+   				cursor.current.y = cursor.current.y1;
    			}
 		}
 	}
