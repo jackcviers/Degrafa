@@ -29,7 +29,6 @@ package com.degrafa.core.collections
 	public class DegrafaCursor
 	{
 		public var source:Array;
-		private var souceLength:int;
 		/**
 		 *	The value representing the current location of the cursor. 
 		 */		
@@ -44,7 +43,6 @@ package com.degrafa.core.collections
 		public function DegrafaCursor(source:Array)
 		{
 			this.source = source;
-			souceLength = source.length;
 			currentIndex = BEFORE_FIRST_INDEX;
 		}
 		
@@ -77,7 +75,7 @@ package com.degrafa.core.collections
 	        }
 	        // we can't set the index until we know that we can move there first.
 	        var tempIndex:int = beforeFirst ? 0 : currentIndex + 1;
-	        if (tempIndex >= souceLength)
+	        if (tempIndex >= source.length)
 	        {
 	            tempIndex = AFTER_LAST_INDEX;
 	        }
@@ -99,7 +97,7 @@ package com.degrafa.core.collections
 	            return false;
 	        }
 	        // we can't set the index until we know that we can move there first
-	        var tempIndex:int = afterLast ? souceLength - 1 : currentIndex - 1;
+	        var tempIndex:int = afterLast ? source.length - 1 : currentIndex - 1;
 	        
 	        currentIndex = tempIndex;
 	        return !beforeFirst;
@@ -118,7 +116,7 @@ package com.degrafa.core.collections
 	     */	  
 	    public function moveLast():void
 	    {
-	    	currentIndex = souceLength;
+	    	currentIndex = source.length;
 	    }
 	    
 	    /**
@@ -175,12 +173,12 @@ package com.degrafa.core.collections
 	        }
 	        else if (bookmark == CursorBookmark.LAST)
 	        {
-	            newIndex = souceLength - 1;
+	            newIndex = source.length - 1;
 	        }
 	
 	        newIndex += offset;
 	
-	        if (newIndex >= souceLength)
+	        if (newIndex >= source.length)
 	        {
 	            currentIndex = AFTER_LAST_INDEX;
 	        }
@@ -199,7 +197,7 @@ package com.degrafa.core.collections
 	     */	    
 	    public function get beforeFirst():Boolean
 	    {
-	        return currentIndex == BEFORE_FIRST_INDEX || souceLength == 0;
+	        return currentIndex == BEFORE_FIRST_INDEX || source.length == 0;
 	    }
 	    
 	    /**
@@ -207,7 +205,7 @@ package com.degrafa.core.collections
 	     */	 
         public function get afterLast():Boolean
 	    {
-	        return currentIndex == AFTER_LAST_INDEX || souceLength == 0;
+	        return currentIndex == AFTER_LAST_INDEX || source.length == 0;
 	    }
 	    
 	    /**
@@ -218,7 +216,7 @@ package com.degrafa.core.collections
 	    	if (beforeFirst)
 	        	return null;
 	        
-			var tempIndex:int = afterLast ? souceLength - 1 : currentIndex - 1;
+			var tempIndex:int = afterLast ? source.length - 1 : currentIndex - 1;
 	        
 	        if (tempIndex == BEFORE_FIRST_INDEX)
 	        	return null;
@@ -235,7 +233,7 @@ package com.degrafa.core.collections
 	        
 	        var tempIndex:int = beforeFirst ? 0 : currentIndex + 1;
 	        
-	        if (tempIndex >= souceLength)
+	        if (tempIndex >= source.length)
 	        	return null;
 	        
 	        return source[tempIndex];
