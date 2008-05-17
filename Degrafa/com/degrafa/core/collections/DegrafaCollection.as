@@ -117,7 +117,6 @@ package com.degrafa.core.collections{
 						
 			//type check items
 			checkValidTypes(value);
-			
 			//compare and update
 			if(value !=_items){
 				

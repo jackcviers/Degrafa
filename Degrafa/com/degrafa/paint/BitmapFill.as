@@ -409,7 +409,7 @@ package com.degrafa.paint{
 					value = value.content;
 				} else {
 					value.addEventListener(ExternalBitmap.STATUS_READY,externalBitmapHandler)
-				trace('external bitmap not ready')
+			
 				return;
 				}
 			}

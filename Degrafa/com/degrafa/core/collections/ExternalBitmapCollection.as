@@ -22,11 +22,11 @@
 package com.degrafa.core.collections{
 	
 	import com.degrafa.utilities.ExternalBitmap;
-	
 	import flash.net.registerClassAlias;
-	
+	import mx.core.Application;
+
 	/**
- 	* The ExternalBitmapCollection stores a collection of com.degrafa.paint.ExternalBitmap 
+ 	* The ExternalBitmapCollection stores a collection of com.degrafa.utilities.ExternalBitmap 
  	* objects.
  	**/
 	public class ExternalBitmapCollection extends DegrafaCollection{
@@ -41,20 +41,22 @@ package com.degrafa.core.collections{
 	 	* @param suppressEvents A boolean value indicating if events should not be 
 	 	* dispatched for this collection.
 	 	*/		
-		public function ExternalBitmapCollection(array:Array=null,suppressEvents:Boolean=false){
-			super(ExternalBitmap,array,suppressEvents);
+		public function ExternalBitmapCollection(array:Array = null, suppressEvents:Boolean = false)
+		{	
+				super(ExternalBitmap,array,suppressEvents);
 			
 			registerClassAlias("com.degrafa.core.collections.ExternalBitmapCollection", ExternalBitmapCollection);
 		}
 		
 		
 		/**
-		* Adds a DisplayObject item to the collection.  
+		* Adds an ExternalBitmap item to the collection.  
 		* 
 		* @param value The ExternalBitmap object to be added.
 		* @return The ExternalBitmap object that was added.   
 		**/		
-		public function addItem(value:ExternalBitmap):ExternalBitmap{
+		public function addItem(value:ExternalBitmap):ExternalBitmap
+		{
 			return super._addItem(ExternalBitmap);
 		}
 		
@@ -64,7 +66,8 @@ package com.degrafa.core.collections{
 		* @param value The ExternalBitmap object to be removed.
 		* @return The ExternalBitmap object that was removed.   
 		**/	
-		public function removeItem(value:ExternalBitmap):ExternalBitmap{
+		public function removeItem(value:ExternalBitmap):ExternalBitmap
+		{
 			return super._removeItem(value);
 		}
 		
