@@ -23,8 +23,7 @@ package com.degrafa.core.collections{
 	
 	import com.degrafa.utilities.ExternalBitmap;
 	import flash.net.registerClassAlias;
-	import mx.core.Application;
-
+	
 	/**
  	* The ExternalBitmapCollection stores a collection of com.degrafa.utilities.ExternalBitmap 
  	* objects.
