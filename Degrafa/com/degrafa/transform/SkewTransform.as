@@ -50,7 +50,7 @@ package com.degrafa.transform{
 		
 		public function set skewAngleX(value:Number):void{
 			if(_skewAngleX != value){
-				currentSkewAngleX = ((value-_skewAngleX)/180)* Math.PI;
+				currentSkewAngleX = (value-_skewAngleX)/100;
 				_skewAngleX = value;
 				invalidated = true;
 			}
@@ -66,7 +66,7 @@ package com.degrafa.transform{
 		
 		public function set skewAngleY(value:Number):void{
 			if(_skewAngleY != value){
-				currentSkewAngleY = ((value-_skewAngleY)/180)* Math.PI;
+				currentSkewAngleY = (value-_skewAngleY)/100;
 				_skewAngleY = value;
 				invalidated = true;
 			}
