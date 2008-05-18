@@ -250,18 +250,18 @@ package com.degrafa.geometry.segment{
 			this.commandArray.length=0;
 									
 			if(isShortSequence){
-				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,
-				lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				lastPoint.y+(lastPoint.y-lastControlPoint.y),
+				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
 				absRelOffset.x+x,
-				absRelOffset.y+y));
+				absRelOffset.y+y,
+				lastPoint.x+(lastPoint.x-lastControlPoint.x),
+				lastPoint.y+(lastPoint.y-lastControlPoint.y)));
 			}
 			else{
-   				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,
-   				absRelOffset.x+cx,
-				absRelOffset.y+cy,
-				absRelOffset.x+x,
-				absRelOffset.y+y));
+   				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
+   				absRelOffset.x+x,
+				absRelOffset.y+y,
+				absRelOffset.x+cx,
+				absRelOffset.y+cy));
 			}
 			
 			//create a return command array adding each item from the local array
