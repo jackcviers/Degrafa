@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007">
+	
+	<mx:Script>
+		<![CDATA[
+			[Embed(source="paths_data_01_t.svg")]
+			[Bindable]
+    	    public static var pathsdata01t:Class;
+		
+			[Embed(source="paths-data_02_t.svg")]
+			[Bindable]
+    	    public static var pathsdata02t:Class;
+		
+			[Embed(source="paths-data_03_f.svg")]
+			[Bindable]
+    	    public static var pathsdata03f:Class;
+		
+		
+		]]>
+	</mx:Script>
+	
+	
+	<mx:Label text="Cubic bezier curves drawn with commands -- $Revision: 1.6 $"  x="10" y="9"/>
+	
+	<mx:Canvas scaleX="1" scaleY="1" id="target1" right="10" bottom="10" left="20" top="35">
+		<!--PATH TEST CUBIC SVG <mx:Image id="img" mouseDown="img.startDrag();" mouseUp="img.stopDrag();"
+			 y="0" x="0" source="{pathsdata01t}" scaleX="1.35" scaleY="1.35" maintainAspectRatio="true"
+	 	autoLoad="true" width="692.35" height="267"/>-->
+	 	
+	 	<!--PATH TEST QUADRATIC SVG
+	 	<mx:Image id="img" mouseDown="img.startDrag();" mouseUp="img.stopDrag();"
+			 y="0" x="0" source="{pathsdata02t}" scaleX="1.35" scaleY="1.35" maintainAspectRatio="true"
+	 	autoLoad="true" width="692.35" height="267"/>-->
+	 	
+	 	<!--PATH TEST ARC SVG-->
+	 	<mx:Image id="img" mouseDown="img.startDrag();" mouseUp="img.stopDrag();"
+			 y="0" x="0" source="{pathsdata03f}" scaleX="1.35" scaleY="1.35" maintainAspectRatio="true"
+	 	autoLoad="true" width="692.35" height="267"/>
+	 	
+	</mx:Canvas>
+	
+	<!--Arc tests-->
+	<GeometryComposition graphicsTarget="{[target1]}">
+		<!--M, A, Z-->
+		<Path data="M 25 70 A40 40 0 1 0 25 69Z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--m, a, z-->
+		<Path data="m 150 100 a50 40 0 1 0 25 -70z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, a-->
+		<Path data="M 350 245 a40 40 0 1 0 80 60">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, A, a, a, z-->
+		<Path data="M270 30 A50 50 0 1 0 345 30 a50 50 0 1 0 50 0 a50 50 0 1 0 25 0z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, a, Z, m, A, Z, m, a, z-->
+		<Path data="M30 150 a40 40 0 0 1 65 50Z m30 30 A20 20 0 0 0 125 230Z m40 24 a20 20 0 0 1 65 50z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, A, A, A, A-->
+		<Path data="M215 190 A40 200 10 0 0 265 190 A40 200 20 0 1 315 190 A40 200 30 0 0 365 190 A40 200 40 0 1 415 190 A40 200 50 0 0 465 190">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+	</GeometryComposition>
+	
+	<!--Quadratic Bezier tests-->
+	<GeometryComposition visible="false">
+		<!--M, Q, M, q, z-->
+		<Path data="M15 20 Q 30 120 130 30 M 180 80 q-75 -100 -163 -60z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--m, q, z, m, q, z-->
+		<Path data="M372 130Q272 50 422 10zm70 0q50-150-80-90z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, Q, Z-->
+		<Path data="M224 103Q234 -12 304 33Z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, Q, T, Q, z-->
+		<Path data="M208 168Q258 268 308 168T258 118Q128 88 208 168z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, Q, Q, z-->
+		<Path data="M60 100 Q-40 150 60 200 Q160 150 60 100 z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, q, t, t, t, t, z-->
+		<Path data="M240 296q25-100 47 0t47 0t47 0t47 0t47 0z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+		
+		<!--M, q, Q, q, Q, z-->
+		<Path data="M172 193q-100 50 0 50Q72 243 172 293q100 -50 0 -50Q272 243 172 193z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>	
+		</Path>
+				
+	</GeometryComposition>
+	
+	<!--Cubic Bezier tests-->
+	<GeometryComposition visible="false">
+		<!--M, C, S, m, c, s-->
+		<Path 
+			 data="M210 130C 145 130 110 80 110 80 S75 25 10 25 m0 105 c65 0 100 -50 100 -50 s35 -55 100 -55">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--M, c, c, c, C, z-->
+		<Path 
+			 data="M240 90 c0 30 7 50 50 0 c43 -50 50 -30 50 0 c0 83 -68 -34 -90 -30 C 240 60 240 90 240 90z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--M, C, Z-->
+		<Path 
+			 data="M80 170 C100 170 160 170 180 170Z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--M, C, c, Z-->
+		<Path 
+			 data="M5 260 C40 260 60 175  55 160 c-5 15 15 100 50 100Z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--m, c, s-->
+		<Path 
+			 data="m 200 260 c50 -40 50 -100 25 -100 s -25 60 25 100">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--M, C-->
+		<Path 
+			 data="M 360 100 C 420 90 460 140 450 190">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--M, c, s, s, s, z-->
+		<Path 
+			 data="M360 210 c 0 20 -16 36 -36 36 s-36 -16 -36 -36 s16 -36 36 -36 s 36 16 36 36 z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+		<!--m, c, z-->
+		<Path 
+			 data="m360 325 c-40 -60 95 -100 80 0 z">
+			<stroke>
+				<SolidStroke color="#FFF"/>
+			</stroke>
+		</Path>
+		
+	</GeometryComposition>
+	
+	
+	
+</mx:Application>
