@@ -208,8 +208,8 @@ package com.degrafa.geometry{
 					var angle:Number;
 					var cx:Number;
 					var cy:Number;
-					var px:Number;
-					var py:Number;
+					var x1:Number;
+					var y1:Number;
 					
 					//exit if the minimum requirements to properly calculate are not met
 					if(!_width || !_height){return;}
@@ -231,18 +231,18 @@ package com.degrafa.geometry{
 					// draw tr corner in two parts
 					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 
 					angle += theta;
 					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw right line 
 					commandStack.addLineTo(x+width,y+height-cornerRadius);
@@ -250,19 +250,19 @@ package com.degrafa.geometry{
 					angle += theta;
 					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					
 					angle += theta;
 					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw bottom line
 					commandStack.addLineTo(x+cornerRadius,y+height);
@@ -271,18 +271,18 @@ package com.degrafa.geometry{
 					angle += theta;
 					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					angle += theta;
 					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw left line
 					commandStack.addLineTo(x,y+cornerRadius);
@@ -291,19 +291,19 @@ package com.degrafa.geometry{
 					angle += theta;
 					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					angle += theta;
 					
 					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
 					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					px = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					py = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
+					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
 					
-					commandStack.addCurveTo(cx,cy,px,py);
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 				} else {
 					commandStack.addMoveTo(x,y);

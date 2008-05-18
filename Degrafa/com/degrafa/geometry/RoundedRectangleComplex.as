@@ -292,16 +292,16 @@ package com.degrafa.geometry{
 					var s:Number = bottomRightRadius * 0.585786437626905; 	// radius - control pt;
 					
 					commandStack.addMoveTo(xw,yh - bottomRightRadius);
-					commandStack.addCurveTo(x + s,yh,x + a,yh - a);
-					commandStack.addCurveTo(x,yh - s,x,yh - bottomLeftRadius);
+					commandStack.addCurveTo(xw,yh-s,xw-a,yh-a);
+					commandStack.addCurveTo(xw - s,yh,xw - bottomRightRadius,yh);
 							
 					// bottom-left corner
 					a = bottomLeftRadius * 0.292893218813453;
 					s = bottomLeftRadius * 0.585786437626905;
 					
 					commandStack.addLineTo(x + bottomLeftRadius,yh);
-					commandStack.addCurveTo(x + a,yh-a,x + s,yh - a);
-					commandStack.addCurveTo(x,yh - bottomLeftRadius,x,yh - s);
+					commandStack.addCurveTo(x + s,yh,x + a,yh - a);
+					commandStack.addCurveTo(x,yh - s,x,yh - bottomLeftRadius);
 							
 					// top-left corner
 					a = topLeftRadius * 0.292893218813453;
@@ -310,6 +310,8 @@ package com.degrafa.geometry{
 					commandStack.addLineTo(x,y + topLeftRadius);
 					commandStack.addCurveTo(x,y+s,x + a,y + a);
 					commandStack.addCurveTo(x + s,y,x + topLeftRadius,y);
+					
+					
 					
 					// top-right corner
 					a = topRightRadius * 0.292893218813453;
@@ -322,7 +324,7 @@ package com.degrafa.geometry{
 				}
 				
 				calcBounds();
-				
+								
 				invalidated = false;
 			}
 			
