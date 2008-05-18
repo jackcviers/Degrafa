@@ -141,14 +141,14 @@ package com.degrafa.transform{
         				break;
         				
         			case CommandStackItem.LINE_TO:
-        				currentPoint.x=item.x1;
-        				currentPoint.y=item.y1;
+        				currentPoint.x=item.x;
+        				currentPoint.y=item.y;
         				
         				//transform point
         				currentPoint = transformMatrix.transformPoint(currentPoint);
         			
-        				item.x1=currentPoint.x;
-        				item.y1=currentPoint.y;
+        				item.x=currentPoint.x;
+        				item.y=currentPoint.y;
         				break;
         			case CommandStackItem.CURVE_TO:
         			
