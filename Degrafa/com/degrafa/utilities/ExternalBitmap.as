@@ -187,17 +187,38 @@ package com.degrafa.utilities{
 		 */
 		private function onLoadComplete(evt:Event):void {
 			checkContentType();
-			_status = ExternalBitmap.STATUS_READY;
 		//	trace(ExternalBitmap.STATUS_READY + ":" + _url);
 			var tempBitmapdata:BitmapData = _bitmapData;
-			_bitmapData = new BitmapData(_loader.content.width, _loader.content.height, true, 0x00000000);
-			_bitmapData.draw(_loader.content);
-			//release the displayobject
-			_loader.unload();
-			//release the old bitmapdata (if it existed)
-			if (tempBitmapdata) tempBitmapdata.dispose(); 
-			dispatchEvent(new Event(ExternalBitmap.STATUS_READY));
-			removeListeners();
+			var err:Boolean = false;
+			try {
+				_bitmapData = new BitmapData(_loader.content.width, _loader.content.height, true, 0x00000000);
+				_bitmapData.draw(_loader.content);
+			} catch (e:Error)
+			{
+				//the image has loaded but a crossdomain permission was not granted
+				//so the bitmapData cannot be accessed. 
+				//Only recourse is to check for another location if we're using a LoadingGroup
+				//consider dispatching a specific permission failure event here.
+				err = true;
+			}
+				//release the loaded DisplayObject
+				_loader.unload();
+
+			if (!err) 
+			{
+				_status = ExternalBitmap.STATUS_READY;
+				//release the old bitmapdata (if it existed)
+				if (tempBitmapdata) tempBitmapdata.dispose(); 
+				dispatchEvent(new Event(ExternalBitmap.STATUS_READY));
+				removeListeners();
+			} else {
+				//use the onLoadError method to set error status/event 
+				//and check for another location
+				//(meanwhile we have not disposed of any previous bitmapData, if it existed.)
+				//this is an initial approach only. It may make more sense to dispatch load error events and permission error events as separate events
+				onLoadError(new IOErrorEvent(IOErrorEvent.IO_ERROR, false, false, "CrossDomain Permission error, BitmapData access not granted"));
+			}
+
 		}
 		
 		/**
