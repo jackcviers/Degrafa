@@ -25,8 +25,6 @@ package com.degrafa.paint{
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
-	import com.degrafa.utilities.ExternalBitmap;
-	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -39,6 +37,10 @@ package com.degrafa.paint{
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	import flash.utils.getDefinitionByName;
+	
+	import com.degrafa.utilities.ExternalBitmap;
+	import com.degrafa.utilities.LoadingLocation;
+	import flash.utils.setTimeout;
 	
 	[DefaultProperty("source")]
 	[Bindable(event="propertyChange")]
@@ -64,10 +66,13 @@ package com.degrafa.paint{
 		private var sprite:Sprite;
 		private var target:DisplayObject;
 		private var bitmapData:BitmapData;
+		private var _externalBitmap:ExternalBitmap;
+		private var _loadingLocation:LoadingLocation;
 		
-		public function BitmapFill(source:Object = null){
+		
+		public function BitmapFill(source:Object = null,loc:LoadingLocation=null){
+			this._loadingLocation = loc;
 			this.source = source;
-			
 			registerClassAlias("com.degrafa.paint.BitmapFill", BitmapFill);
 			
 		}
@@ -373,17 +378,41 @@ package com.degrafa.paint{
 			
 		}
 		
+		//EXTERNAL BITMAP SUPPORT
+	
 		/**
 		 * handles the ready state for an ExternalBitmap as the source of a BitmapFill
 		 * @param	evt an ExternalBitmap.STATUS_READY event
 		 */
 		private function externalBitmapHandler(evt:Event):void {
-			evt.target.removeEventListener(ExternalBitmap.STATUS_READY, externalBitmapHandler);
-			var oldValue:Object = bitmapData;
-			bitmapData = evt.target.content;
-			initChange("source", oldValue, bitmapData, this);
-			
+	//TODO: consider passing all ExternalBitmap events through here and redispatching from BitmapFill		
+			switch(evt.type)
+			{
+			case ExternalBitmap.STATUS_READY:
+				var oldValue:Object = bitmapData;
+				bitmapData = evt.target.content;
+				initChange("source", oldValue, bitmapData, this);
+			break;
+			}
 		}
+		/**
+		 * Optional loadingLocation reference. Only relevant when a subsequent source assignment is made as 
+		 * a url string. Using a LoadingLocation simplifies management of loading from external domains
+		 * and is required if a crossdomain policy file is not in the default location (web root) and with the default name (crossdomain.xml)
+		 * In actionscript, a loadingLocation assignment MUST precede a change in the url assigned to the source property
+		 * If a LoadingLocation is being used, the url assigned to the source property MUST be relative to the base path
+		 * defined in the LoadingLocation, otherwise loading will fail.
+		 * If a LoadingLocation is NOT used and the source property assignment is an external domain url, then the crossdomain permissions
+		 * must exist in the default location and with the default name crossdomain.xml, otherwise loading will fail.
+		*/
+		public function get loadingLocation():LoadingLocation { return _loadingLocation; }
+		
+		public function set loadingLocation(value:LoadingLocation):void 
+		{
+			if (value) 	_loadingLocation = value;
+		} 
+		
+		
 		/**
 		 * The source used for the bitmap fill.
 		 * The fill can render from various graphical sources, including the following: 
@@ -392,10 +421,12 @@ package com.degrafa.paint{
 		 * An instance of a DisplayObject. The BitmapFill copies it into a Bitmap for filling. 
 		 * The name of a subclass of DisplayObject. The BitmapFill loads the class, instantiates it, and creates a bitmap rendering of it.
 		 * An instance of an ExternalBitmap to be loaded at runtime.
+		 * A url string to either as a relative url (local domain or with a LoadingLocation) or absolute with no LoadingLocation (see loadingLocation property)
 		 **/
 		public function get source():Object { return bitmapData; }
 		public function set source(value:Object):void {
 			//_source = value;
+					
 			var oldValue:Object = bitmapData;
 			
 			target = null;
@@ -404,15 +435,20 @@ package com.degrafa.paint{
 			if (!value) {
 				return;
 			}
+			if (_externalBitmap) {
+				_externalBitmap.removeEventListener(ExternalBitmap.STATUS_READY, externalBitmapHandler);
+				_externalBitmap = null;
+			}
 			if (value is ExternalBitmap) {
-				if (value.content) {	
+				_externalBitmap = value as ExternalBitmap;
+				if (value.content) {		
 					value = value.content;
 				} else {
 					value.addEventListener(ExternalBitmap.STATUS_READY,externalBitmapHandler)
-			
 				return;
 				}
 			}
+			
 			if (value is BitmapData)
 			{
 				bitmapData = value as BitmapData;
@@ -441,7 +477,22 @@ package com.degrafa.paint{
 			}
 			else if (value is String)
 			{
-				var cls:Class = Class(getDefinitionByName(value as String));
+				//is it a class name or an external url?
+				try {
+					var cls:Class = Class(getDefinitionByName(value as String));	
+				} catch (e:Error)
+				{
+					//if its not a class name, assume url string for an ExternalBitmap
+					//and wait for isInitialized to check/access loadingLocation mxml assignment
+					if (!isInitialized) {
+						setTimeout(
+							function():void
+							{source = value },1);
+					} else {
+						source = ExternalBitmap.getUniqueInstance(value as String, _loadingLocation);
+					}
+					return;
+				}
 				target = new cls();
 			}
 			else
@@ -556,6 +607,7 @@ package com.degrafa.paint{
 		public function end(graphics:Graphics):void {
 			graphics.endFill();
 		}
+		
 		
 	}
 }
