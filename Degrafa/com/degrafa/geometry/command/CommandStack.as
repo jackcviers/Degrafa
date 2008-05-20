@@ -38,6 +38,13 @@ package com.degrafa.geometry.command{
 		public var pointer:Point = new Point(0,0);
 		public var graphics:Graphics;
 		
+		//used to store the origin at creation time as items are added
+		//and used to set the origin in the items as they are created
+		private var currentPointX:Number=0;
+		private var currentPointY:Number=0;
+		
+		private var lengthIsValid:Boolean;
+		
 		public var owner:Geometry;
 		
 		public function CommandStack(geometry:Geometry = null){
@@ -126,17 +133,30 @@ package com.degrafa.geometry.command{
 		
 		public function addMoveTo(x:Number,y:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
-			x,y));
+			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
+			
+			currentPointX =x;
+			currentPointY =y;
 		}
 		
 		public function addLineTo(x:Number,y:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.LINE_TO,
-			x,y));
+			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
+			
+			currentPointX =x;
+			currentPointY =y;
+			
+			lengthIsValid = false
 		}
 		
 		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
-			NaN,NaN,x1,y1,cx,cy));
+			NaN,NaN,x1,y1,cx,cy,currentPointX,currentPointY));
+			
+			currentPointX =x1;
+			currentPointY =y1;
+		
+			lengthIsValid = false
 		}
 		
 		public function addDelegate(delegate:Function):void{
@@ -172,5 +192,102 @@ package com.degrafa.geometry.command{
 		public function set length(v:int):void {
 			source.length = v;
 		}
+		
+		private var _pathLength:Number=0;
+		/**
+		* Returns the length of the combined path elements.
+		**/
+		public function pathLength():Number{
+			if(!lengthIsValid){
+				lengthIsValid = true;
+				for each (var item:CommandStackItem in source){
+					_pathLength += item.segmentLength();
+				}
+			}
+			return _pathLength;
+		}
+		
+		/**
+		* Returns the point at t(0-1) on the path.
+		**/
+		public function pathPointAt(t:Number):Point {
+			t = cleant(t);
+			if (t == 0){
+				return CommandStackItem(source[0]).segmentPointAt(t);
+				
+			}else if (t == 1){
+				var last:Number = source.length - 1;
+				return source[last].segmentPointAt(t);
+			}
+			
+			var tLength:Number = t*pathLength();
+			var curLength:Number = 0;
+			var lastLength:Number = 0;
+			var seg:CommandStackItem;
+			var n:Number = source.length;
+			var i:Number;
+			
+			for (i=0; i<n; i++){
+				seg = source[i];
+				if (seg.type != "m"){
+					curLength += seg.segmentLength();
+				}
+				else{
+					continue;
+				}
+				if (tLength <= curLength){
+					return seg.segmentPointAt((tLength - lastLength)/seg.segmentLength());
+				}
+				lastLength = curLength;
+			}
+			
+			return new Point(0, 0);
+
+		}
+		
+		/**
+		* Returns the angle of a point t(0-1) on the path.
+		**/
+		public function pathAngleAt(t:Number):Number {
+			t = cleant(t);
+			
+			var tLength:Number = t*pathLength();
+			var curLength:Number = 0;
+			var lastLength:Number = 0;
+			var seg:CommandStackItem;
+			var n:Number = source.length;
+			var i:Number;
+			
+			for (i=0; i<n; i++){
+				seg = source[i];
+				
+				if (seg.type != "m"){
+					curLength += seg.segmentLength;
+				}
+				else{
+					continue;
+				}
+				
+				if (tLength <= curLength){
+					return seg.segmentAngleAt((tLength - lastLength)/seg.segmentLength());
+				}
+				lastLength = curLength;
+			}
+			return 0;
+		}
+
+		
+		private function cleant(t:Number, base:Number=NaN):Number {
+			if (isNaN(t)) t = base;
+			else if (t < 0 || t > 1){
+				t %= 1;
+				if (t == 0) t = base;
+				else if (t < 0) t += 1;
+			}
+			return t;
+		}
+
+
+		
 	}
 }
