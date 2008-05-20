@@ -55,8 +55,11 @@ package com.degrafa.geometry.repeaters
 		}
 		
 		/**
-		 * We want to find the property we are offsetting and cache them.
+		 * We want to find the property we are offsetting and cache the property.
 		 * If the sourceObject has changed then we need to find the property again
+		 * We store the object in _targetObject
+		 * And the property name in _targetProperty
+		 * This is an easy way to keep a reference versus trying to cast one.
 		 */
 		private function setTargetProperty(sourceObject:Geometry):void {
 			//If we don't have a valid property set one
@@ -81,10 +84,7 @@ package com.degrafa.geometry.repeaters
 					_targetObject=tempObject;
 					_targetProperty=propChain[i];
 				}
-			
 			}
-
-			
 		}
 		
 		/**
@@ -93,8 +93,19 @@ package com.degrafa.geometry.repeaters
 		public function apply(geometry:Geometry,iteration:Number=0):Geometry {
 			if (geometry!=_sourceGeometry)  //Our source object has changed
 				setTargetProperty(geometry);
-				
-			_targetObject[_targetProperty]+=offset;
+			
+			var tempOffset:Number;
+			
+			if (offset is Array) {
+				tempOffset = offset[iteration % offset.length];
+				trace(tempOffset);
+			}
+			else {
+				tempOffset=Number(offset);
+			}
+			
+			//DEV NOTE: We need to make sure these changes are not destructive to propertyChain Propeties
+			_targetObject[_targetProperty]+=tempOffset;
 			
 			return geometry;
 		}

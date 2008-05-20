@@ -29,6 +29,7 @@ package com.degrafa.geometry.repeaters
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 
+	[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry
 	{
 		
