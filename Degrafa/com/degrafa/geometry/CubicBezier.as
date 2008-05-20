@@ -260,35 +260,28 @@ package com.degrafa.geometry{
 		private function calcBounds():void{
 			
 			if(commandStack.length==0){return;}
-			
-			var boundsMaxX:Number =0;
-			var boundsMaxY:Number =0;
-			var boundsMinX:Number =Number.MAX_VALUE;
-			var boundsMinY:Number =Number.MAX_VALUE;
-			
+						
+			var boundsRect:Rectangle = new Rectangle();
 			var item:Object;
 			
+			var lastX:Number;
+			var lastY:Number;
+			
 			for each (item in commandStack.source){
-				with(item){	
-					boundsMinX = Math.min(boundsMinX,p1x);
-					boundsMinX = Math.min(boundsMinX,p2x);
-					boundsMinX = Math.min(boundsMinX,cx);
-					boundsMaxX = Math.max(boundsMaxX,p1x);
-					boundsMaxX = Math.max(boundsMaxX,p2x);
-					boundsMaxX = Math.max(boundsMaxX,cx);
-					  	
-					boundsMinY = Math.min(boundsMinY,p1y);
-					boundsMinY = Math.min(boundsMinY,p2y);
-					boundsMinY = Math.min(boundsMinY,cy);
-					boundsMaxY = Math.max(boundsMaxY,p1y);
-					boundsMaxY = Math.max(boundsMaxY,p2y);
-					boundsMaxY = Math.max(boundsMaxY,cy);
+				if(item.type=="c"){
+					boundsRect = boundsRect.union(GeometryUtils.bezierBounds(lastX,lastY,item.cx,item.cy,item.x1,item.y1));
+					lastX = item.x1;
+					lastY = item.y1;
+				}
+				else{
+					lastX = item.x;
+					lastY = item.y;
 				}
 				
 	  		}
-	  
-	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
-			
+	  	
+			_bounds = boundsRect;
+        	
 		}
 				
 		/**
