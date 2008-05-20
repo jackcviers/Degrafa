@@ -36,8 +36,7 @@ package com.degrafa.transform{
 	/**
 	* TranslateTransform translates an object in the two-dimensional space. The amount in 
 	* pixels for translating the object is specified through the x and 
-	* y properties. Translation is performed relative to the registration point 
-	* defined via registration point or centerX and centerY respectivly.
+	* y properties. 
 	**/
 	public class TranslateTransform extends Transform{
 		

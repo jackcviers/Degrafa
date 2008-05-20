@@ -29,7 +29,7 @@ package com.degrafa.transform{
 	import flash.geom.Point;
 	
 	/**
-	* Transform is a base transform class.  
+	* Transform is a base transform class that other transforms extend off of.  
 	**/
 	[DefaultProperty("data")]	
 	public class Transform extends DegrafaObject implements ITransform{
@@ -49,7 +49,9 @@ package com.degrafa.transform{
 		}
 		
 		private var _transformMatrix:Matrix=new Matrix();
-		
+		/**
+		* The internal matrix.
+		**/
 		protected function get transformMatrix():Matrix{
 			return _transformMatrix;
 		}
@@ -103,13 +105,17 @@ package com.degrafa.transform{
 			}
 		}
 		
-		//pre cals but does not apply the matrix
+		/**
+		* Pre calculates the matrix values to be applied.
+		**/
 		public function preCalculateMatrix(value:IGeometryComposition):Matrix{
 			//overridden
 			return null;
 		}
 		
-		//calculates and applies the transformation to the geometry
+		/**
+		* Applies the matrix to the given geometry
+		**/
 		public function apply(value:IGeometryComposition):void{
 			
 			//overriden by subclassees if required
@@ -126,7 +132,7 @@ package com.degrafa.transform{
 			var currentPoint:Point=new Point();
 			
 			var item:CommandStackItem;
-			for each (item in value.commandStack.source){
+			for each (item in value.commandStack.cmdSource){
 				switch(item.type){
 					
         			case CommandStackItem.MOVE_TO:
@@ -176,6 +182,9 @@ package com.degrafa.transform{
 			}
 		}
 		
+		/**
+		* Calculates the translation offset based on the set registration point.
+		**/
 		protected function getRegistrationPoint(value:IGeometryComposition):Point{
 			
 			var regPoint:Point;
