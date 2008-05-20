@@ -166,6 +166,45 @@ package com.degrafa.geometry{
 			
 		}
 		
+		private var _length:Number;
+		/**
+		* The length of the line in pixels. Setting this value will modify 
+		* the end point of the line to the appropriate length. If both x1 
+		* and y1 are not set then setting the length will impact x1 only, 
+		* set y1 to y and effectively create a horizontal line. 
+		**/
+		public function get length():Number{
+			var dx:Number = x1 - x;
+			var dy:Number = y1 - y;
+			return Math.sqrt(dx*dx + dy*dy);
+		}
+		
+		public function set length(value:Number):void{
+			if(_length != value){
+				_length = value;
+				
+				//if both x1 and y1 are NaN then set x1 to length
+				if(!_x1 && !_y1 ){
+					_x1 = _length;
+				}
+			
+				//this needs to be done before setting the values
+				var newX1:Number = Math.abs(_length * Math.cos(angle));
+				var newY1:Number = Math.abs(_length * Math.sin(angle));
+								
+				_x1=newX1;
+				_y1=newY1;
+				
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* The angle of the line in radians. 
+		**/
+		public function get angle():Number{
+			return  Math.atan((y1 - y)/(x1 - x));
+		}
 		
 		private var _bounds:Rectangle;
 		/**
@@ -223,6 +262,7 @@ package com.degrafa.geometry{
 			if (!_y){_y = value.y;}
 			if (!_x1){_x1 = value.x1;}
 			if (!_y1){_y1 = value.y1;}
+			if (!_length){_length = value.length;}
 			
 		}
 		
