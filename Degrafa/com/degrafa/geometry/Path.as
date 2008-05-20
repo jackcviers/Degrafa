@@ -157,7 +157,7 @@ package com.degrafa.geometry{
 						case "q":
 							segmentStack.push(new QuadraticBezierTo(pathDataArray[i+1],
 							pathDataArray[i+2], pathDataArray[i+3],
-							pathDataArray[i+4],null,"relative"));
+							pathDataArray[i + 4], null, "relative"));
 							i += 4;
 							break;
 						case "Q":
@@ -378,8 +378,7 @@ package com.degrafa.geometry{
 			var length:int = _segments.items.length;
 				
 			for (;i< length;i++){
-        		
-        		if(ISegment(_segments.items[i]).coordinateType=="relative")
+         		if(ISegment(_segments.items[i]).coordinateType=="relative")
         		{
         			absRelOffset.x =lastPoint.x;
         			absRelOffset.y =lastPoint.y;
@@ -444,20 +443,19 @@ package com.degrafa.geometry{
         				//to add the draw commands to, here we also need to pass the 
         				//last control point for continous bezier paths support
         				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack.source);
-        				
-        				if(_segments.items[i].cx==0 && _segments.items[i].cy ==0
-        				){
-        					lastControlPoint.x = absRelOffset.x+_segments.items[i-1].cx;
-	        				lastControlPoint.y = absRelOffset.y+_segments.items[i-1].cy;
-        				}
+        				if(_segments.items[i].cx==0 && _segments.items[i].cy ==0)
+        				{
+							lastControlPoint.x = absRelOffset.x+ (absRelOffset.x-lastControlPoint.x)
+	        				lastControlPoint.y = absRelOffset.y+ (absRelOffset.y-lastControlPoint.y)
+
+				        	}
         				else{
         					lastControlPoint.x = absRelOffset.x+_segments.items[i].cx;
 	        				lastControlPoint.y = absRelOffset.y+_segments.items[i].cy;
 	        			}
 	        			       			
         				lastPoint.x = absRelOffset.x+_segments.items[i].x;
-	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
-	        				        			
+	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;		
         				break;
         
         			case "CubicBezierTo":
