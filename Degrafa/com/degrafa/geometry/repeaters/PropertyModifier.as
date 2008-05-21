@@ -119,19 +119,19 @@ package com.degrafa.geometry.repeaters
 			
 			var tempOffset:Number;
 			
-			if (offset is Array) {
-				tempOffset = offset[_iteration % offset.length];
+			if (_offset is Array) {
+				tempOffset = _targetObjects[i][_targetProperties[i]] + offset[_iteration % offset.length];
 				//trace(tempOffset);
 			}
-			else if (offset is Function ) {
-				tempOffset=Function(offset).call(this,_iteration);
+			else if (_offset is Function ) {
+				tempOffset=_offset(_iteration);
 			}
 			else {
-				tempOffset=Number(offset);
+				tempOffset=_targetObjects[i][_targetProperties[i]]+Number(_offset);
 			}
 			
 			for (var i:int=0;i<_targetObjects.length;i++) {
-				_targetObjects[i][_targetProperties[i]]+=tempOffset;
+				_targetObjects[i][_targetProperties[i]]=tempOffset;
 			}
 
 		
@@ -161,7 +161,7 @@ package com.degrafa.geometry.repeaters
 					_targets.push(Geometry(GeometryCollection(sourceObject).items[0]));
 				}
 			else {
-				_targets.push(Geometry(sourceObject));
+				_targets.push(sourceObject);
 			}
 
 			//Go through our source objects and find the correct objects.
@@ -170,24 +170,28 @@ package com.degrafa.geometry.repeaters
 				var targetObject:Object=_targets[i];
 				var targetProperty:String;
 				
-				if (targetObject is Geometry) Geometry(targetObject).suppressEventProcessing=true;
-				
-					if (_property.indexOf(".")<0) {
-						targetProperty=_property;
-					} 
-					else {
-						//We must have a property chain lets use it
-						var propChain:Array=_property.split(".");
+				if (targetObject is Geometry) {
+					//We want to make sure we are part of the source object so we dont update properties of other objects
+					if (Geometry(targetObject).parent!=this.parent) continue;
+					Geometry(targetObject).suppressEventProcessing=true;
+				}
+			
+				if (_property.indexOf(".")<0) {
+					targetProperty=_property;
+				} 
+				else {
+					//We must have a property chain lets use it
+					var propChain:Array=_property.split(".");
 
-						for (var i:int=0;i<propChain.length-1;i++) {
-							targetObject=targetObject[propChain[i]];
-						}
-						
-						targetProperty=propChain[i];
-					}					
-					_targetObjects.push(targetObject);
-					_targetProperties.push(targetProperty);
-					_originalValues.push(targetObject[targetProperty]);
+					for (var y:int=0;y<propChain.length-1;y++) {
+						targetObject=targetObject[propChain[y]];
+					}
+					
+					targetProperty=propChain[y];
+				}					
+				_targetObjects.push(targetObject);
+				_targetProperties.push(targetProperty);
+				_originalValues.push(targetObject[targetProperty]);
 			}
 
 		}

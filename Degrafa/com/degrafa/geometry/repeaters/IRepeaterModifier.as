@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.repeaters
 {
-	import com.degrafa.geometry.Geometry;
+	import com.degrafa.core.IDegrafaObject;
 	
 	public interface IRepeaterModifier
 	{
@@ -29,6 +29,7 @@ package com.degrafa.geometry.repeaters
 		function apply():void
 		function end():void
 		function get iteration():Number;
+
 		
 	}
 	

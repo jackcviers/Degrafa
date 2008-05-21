@@ -22,8 +22,8 @@
 package com.degrafa.geometry.repeaters
 {
 	import com.degrafa.IGeometry;
+	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.RepeaterModifierCollection;
-	import com.degrafa.core.utils.CloneUtil;
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.Graphics;
@@ -214,7 +214,9 @@ package com.degrafa.geometry.repeaters
 			for (var i:int=0; i<_count; i++) {
 				
 				//Apply our modifiers
-				for each (var modifier:IRepeaterModifier in _modifiers.items) {
+				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
+					DegrafaObject(modifier).parent=this;
+					
 					if (i==0) modifier.beginModifier(geometryCollection);
 					modifier.apply();
 				}
