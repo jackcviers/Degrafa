@@ -24,12 +24,15 @@ package com.degrafa.geometry.repeaters
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.geometry.Geometry;
 
-	public class PropertyModifier extends DegrafaObject implements IRepeaterModifier
-	{
-	
+	public class PropertyModifier extends DegrafaObject implements IRepeaterModifier{
+			
 		private var _sourceGeometry:Geometry;
 		private var _targetObject:Object;
 		private var _targetProperty:String;
+		
+		public function PropertyModifier(){
+			super();
+		}
 		
 		//Property chain (array or string) that we will apply the offset to
 		private var _property:String
@@ -48,12 +51,7 @@ package com.degrafa.geometry.repeaters
 			_offset=value;
 		}
 		public function get offset():Object { return _offset };
-		
-		public function PropertyModifier()
-		{
-			super(); 
-		}
-		
+				
 		/**
 		 * We want to find the property we are offsetting and cache the property.
 		 * If the sourceObject has changed then we need to find the property again

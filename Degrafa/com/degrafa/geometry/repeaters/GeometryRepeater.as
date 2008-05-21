@@ -28,13 +28,23 @@ package com.degrafa.geometry.repeaters
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	import mx.events.PropertyChangeEvent;
 
 	[DefaultProperty("sourceGeometry")]
-	public class GeometryRepeater extends Geometry implements IGeometry
-	{
+	public class GeometryRepeater extends Geometry implements IGeometry{
+		
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		
+		
+		public function GeometryRepeater(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN){
+			super();
+			this.x=x;
+			this.y=y;
+			this.width=width;
+			this.height=height;
+		}
 		
 		private var _x:Number;
 		/**
@@ -126,32 +136,74 @@ package com.degrafa.geometry.repeaters
 		public function get count():int { return _count; }	
 		
 		
-		private var _modifiers:RepeaterModifierCollection;
+		/*private var _modifiers:RepeaterModifierCollection;
 		
 		public function set modifiers(value:RepeaterModifierCollection):void {
 			_modifiers=value;
 			invalidated=true;
-		}
+		}*/
 		
 		/**
 		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
 		* 
 		**/
-		public function get modifiers():RepeaterModifierCollection { return _modifiers; }
+		//public function get modifiers():RepeaterModifierCollection { return _modifiers; }
+		
+		
+		private var _modifiers:RepeaterModifierCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.geometry.repeaters.IRepeaterModifier")]
+		[ArrayElementType("com.degrafa.geometry.repeaters.IRepeaterModifier")]
+		/**
+		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
+		**/
+		public function get modifiers():Array{
+			initModifiersCollection();
+			return _modifiers.items;
+		}
+		public function set modifiers(value:Array):void{			
+			initModifiersCollection();
+			_modifiers.items = value;
+		}
+		
+		/**
+		* Access to the Degrafa fill collection object for this graphic object.
+		**/
+		public function get modifierCollection():RepeaterModifierCollection{
+			initModifiersCollection();
+			return _modifiers;
+		}
+		
+		/**
+		* Initialize the collection by creating it and adding an event listener.
+		**/
+		private function initModifiersCollection():void{
+			if(!_modifiers){
+				_modifiers = new RepeaterModifierCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_modifiers.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
+		/**
+		* Principle event handler for any property changes to a 
+		* geometry object or it's child objects.
+		**/
+		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+			
+			// getting here means a modifier has changed after treating the items that changed we need to dispatch
+			// so that it works it's way up to start the draw cycle.
+		}
+		
 		
 		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
 		override public function get bounds():Rectangle {
 			return super.bounds;
 		}
 		
-		public function GeometryRepeater(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN)
-		{
-			super();
-			this.x=x;
-			this.y=y;
-			this.width=width;
-			this.height=height;
-		}
+		
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
 			
@@ -165,9 +217,10 @@ package com.degrafa.geometry.repeaters
 			//Clone source geometery to reset it
 			var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
 			
+			//interupt the event propogation for the object we are changing.
 			tempSourceObject.suppressEventProcessing=true;
+			
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
-		//	this.suppressEventProcessing=true;
 			for (var i:int=0; i<_count; i++) {
 				
 				for each (var modifier:IRepeaterModifier in _modifiers.items) {
@@ -178,10 +231,12 @@ package com.degrafa.geometry.repeaters
 
 			}
 			
+			//not sure if we need this nor about the possible cleanup implications
+			tempSourceObject.suppressEventProcessing=true;
+			
 			//Set our source object back to its original state			
 			tempSourceObject=null;
 			
-		//	this.suppressEventProcessing=false;
 			super.draw(graphics,rc);
 			
 		}
