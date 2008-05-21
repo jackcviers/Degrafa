@@ -21,11 +21,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.repeaters
 {
-	import com.degrafa.core.IDegrafaObject;
+	import flash.geom.Rectangle;
 	
 	public interface IRepeaterModifier
 	{
-		function beginModifier(sourceObject:Object):void
+		function beginModify(sourceObject:Object):void
 		function apply():void
 		function end():void
 		function get iteration():Number;

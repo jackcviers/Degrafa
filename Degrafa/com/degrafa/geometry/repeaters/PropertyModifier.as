@@ -24,6 +24,8 @@ package com.degrafa.geometry.repeaters
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.geometry.Geometry;
+	
+	import flash.geom.Rectangle;
 
 	public class PropertyModifier extends DegrafaObject implements IRepeaterModifier{
 		
@@ -91,7 +93,7 @@ package com.degrafa.geometry.repeaters
 		/**
 		 * This tells the modifier that it will be doing iterations and modifying the source object
 		 */
-		public function beginModifier(sourceObject:Object):void {
+		public function beginModify(sourceObject:Object):void {
 			//Expects a geometry arraya
 			
 			if (_modifyInProgress) return;
@@ -109,6 +111,11 @@ package com.degrafa.geometry.repeaters
 			for (var i:int=0;i<_targetObjects.length;i++) {
 				_targetObjects[i][_targetProperties[i]]=_originalValues[i];
 			}
+			
+			for (var i:int=0;i<targets.length;i++) {
+				if (targets[i] is Geometry) Geometry(targets[i]).suppressEventProcessing=false;
+			}
+			_iteration=0;
 			_modifyInProgress=false;
 		}
 		
@@ -118,6 +125,8 @@ package com.degrafa.geometry.repeaters
 		public function apply():void {
 			
 			var tempOffset:Number;
+			
+			var bounds:Rectangle=new Rectangle();
 			
 			if (_offset is Array) {
 				tempOffset = _targetObjects[i][_targetProperties[i]] + offset[_iteration % offset.length];
@@ -134,8 +143,8 @@ package com.degrafa.geometry.repeaters
 				_targetObjects[i][_targetProperties[i]]=tempOffset;
 			}
 
-		
 			_iteration++;
+
 			
 		}
 		
