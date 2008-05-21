@@ -31,7 +31,7 @@ package com.degrafa.geometry.repeaters
 	
 	import mx.events.PropertyChangeEvent;
 
-	[DefaultProperty("sourceGeometry")]
+	//[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry{
 		
 		private var _sourceGeometry:Geometry;
@@ -206,38 +206,34 @@ package com.degrafa.geometry.repeaters
 		
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
-			
-			//We will need to keep track of our bounds as we do this
-			//DEV - Do we want our bounds to be deterministic based on the repeaters OR fixed per width/height ?
-			var minX:Number=0;
-			var minY:Number=0;
-			var maxX:Number=0;
-			var maxY:Number=0;
-			
+			this.suppressEventProcessing=true;
 			//Clone source geometery to reset it
-			var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
-			
-			//interupt the event propogation for the object we are changing.
-			tempSourceObject.suppressEventProcessing=true;
+			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
 			
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
 			for (var i:int=0; i<_count; i++) {
 				
+				//Apply our modifiers
 				for each (var modifier:IRepeaterModifier in _modifiers.items) {
-					tempSourceObject=modifier.apply(tempSourceObject,i);
+					if (i==0) modifier.beginModifier(geometryCollection);
+					modifier.apply();
 				}
-			
-				tempSourceObject.draw(graphics,rc);
-
+				
+				//Draw out our changed object
+				super.draw(graphics,rc);
+				
 			}
 			
 			//not sure if we need this nor about the possible cleanup implications
-			tempSourceObject.suppressEventProcessing=true;
+			//_sourceGeometry.suppressEventProcessing=true	
 			
-			//Set our source object back to its original state			
-			tempSourceObject=null;
+			//End modifications (which returns the object to its original state
+			for each (modifier in _modifiers.items) {
+				modifier.end();
+				modifier=null;
+			}
 			
-			super.draw(graphics,rc);
+			//super.draw(graphics,rc);
 			
 		}
 		

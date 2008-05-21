@@ -22,36 +22,123 @@
 package com.degrafa.geometry.repeaters
 {
 	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.geometry.Geometry;
 
 	public class PropertyModifier extends DegrafaObject implements IRepeaterModifier{
-			
-		private var _sourceGeometry:Geometry;
-		private var _targetObject:Object;
-		private var _targetProperty:String;
+		
+		/**
+		 * the source object we will apply mods to
+		 */
+		private var _sourceObject:Object;
+		
+		/**
+		 * the actual objects that gets modified (could be a child of the source object)
+		 */
+		private var _targetObjects:Array;
+		
+		/**
+		 * the related properties of the targetObjects that gets its value changed
+		 */
+		private var _targetProperties:Array;
+		
+		/**
+		 * the original values of the target objects property
+		 */
+		 private var _originalValues:Array;
+		
+		private var _iteration:Number=0;
+		private var _modifyInProgress:Boolean=false;
+
 		
 		public function PropertyModifier(){
 			super();
 		}
 		
-		//Property chain (array or string) that we will apply the offset to
-		private var _property:String
+		/**
+		 * The current iteration of an active modification
+		 */
+	   	public function get iteration():Number { return _iteration; }
 		
+		/**
+		 * An array of targets
+		 */ 
+		private var _targets:Array
+		public function set targets(value:Array):void {
+			_targets=value;
+		}
+		public function get targets():Array { return _targets }
+		
+		/**
+		 * This is the property we intend to modify when we iterate
+		 */ 
+		private var _property:String;
 		public function set property(value:String):void {
 			_property=value;
-			_targetProperty=null;
 		}
-		
 		public function get property():String { return _property }
-		
-		
-		//Numeric amount to offset property by
+	
+		/**
+		 * This represents how we will be offsetting the property
+		 */ 
 		private var _offset:Object;
 		public function set offset(value:Object):void {
 			_offset=value;
 		}
 		public function get offset():Object { return _offset };
-				
+
+		
+		/**
+		 * This tells the modifier that it will be doing iterations and modifying the source object
+		 */
+		public function beginModifier(sourceObject:Object):void {
+			//Expects a geometry arraya
+			
+			if (_modifyInProgress) return;
+			_sourceObject=sourceObject;
+			setTargetProperty(_sourceObject);
+			_iteration=0;
+			_modifyInProgress=true;
+		}
+		
+		/**
+		 * This ends the modification loop and we need to set back our modified property to its original state
+		 */
+		public function end():void {
+
+			for (var i:int=0;i<_targetObjects.length;i++) {
+				_targetObjects[i][_targetProperties[i]]=_originalValues[i];
+			}
+			_modifyInProgress=false;
+		}
+		
+		/**
+		 * This applies our numeric offset or array of offsets to the property of our geometryObject
+		 */
+		public function apply():void {
+			
+			var tempOffset:Number;
+			
+			if (offset is Array) {
+				tempOffset = offset[_iteration % offset.length];
+				//trace(tempOffset);
+			}
+			else if (offset is Function ) {
+				tempOffset=Function(offset).call(this,_iteration);
+			}
+			else {
+				tempOffset=Number(offset);
+			}
+			
+			for (var i:int=0;i<_targetObjects.length;i++) {
+				_targetObjects[i][_targetProperties[i]]+=tempOffset;
+			}
+
+		
+			_iteration++;
+			
+		}
+		
 		/**
 		 * We want to find the property we are offsetting and cache the property.
 		 * If the sourceObject has changed then we need to find the property again
@@ -59,55 +146,51 @@ package com.degrafa.geometry.repeaters
 		 * And the property name in _targetProperty
 		 * This is an easy way to keep a reference versus trying to cast one.
 		 */
-		private function setTargetProperty(sourceObject:Geometry):void {
-			//If we don't have a valid property set one
-			_sourceGeometry=sourceObject;
+		private function setTargetProperty(sourceObject:Object):void {
+
+			//Clear our targets
+			_targetObjects=new Array();
+			_targetProperties=new Array();
+			_originalValues=new Array();
 			
-			if (_targetObject==null) {
+			if (_targets==null) _targets=new Array();
 			
-				if (_property.indexOf(".")<0) {
-					_targetObject=_sourceGeometry;
-					_targetProperty=_property;
-				} 
-				else {
-					//We must have a property chain lets use it
-					var propChain:Array=_property.split(".");
-					
-					var tempObject:Object=sourceObject;
-					
-					for (var i:int=0;i<propChain.length-1;i++) {
-						tempObject=tempObject[propChain[i]];
-					}
-				
-					_targetObject=tempObject;
-					_targetProperty=propChain[i];
+			//Set our initial source object
+			if (sourceObject is GeometryCollection) {
+				if (_targets.length==0)
+					_targets.push(Geometry(GeometryCollection(sourceObject).items[0]));
 				}
-			}
-		}
-		
-		/**
-		 * This applies our numeric offset or array of offsets to the property of our geometryObject
-		 */
-		public function apply(geometry:Geometry,iteration:Number=0):Geometry {
-			if (geometry!=_sourceGeometry)  //Our source object has changed
-				setTargetProperty(geometry);
-			
-			var tempOffset:Number;
-			
-			if (offset is Array) {
-				tempOffset = offset[iteration % offset.length];
-				trace(tempOffset);
-			}
 			else {
-				tempOffset=Number(offset);
+				_targets.push(Geometry(sourceObject));
 			}
-			
-			//DEV NOTE: We need to make sure these changes are not destructive to propertyChain Propeties
-			_targetObject[_targetProperty]+=tempOffset;
-			
-			return geometry;
+
+			//Go through our source objects and find the correct objects.
+			for (var i:int=0;i<_targets.length;i++) {
+					
+				var targetObject:Object=_targets[i];
+				var targetProperty:String;
+				
+				if (targetObject is Geometry) Geometry(targetObject).suppressEventProcessing=true;
+				
+					if (_property.indexOf(".")<0) {
+						targetProperty=_property;
+					} 
+					else {
+						//We must have a property chain lets use it
+						var propChain:Array=_property.split(".");
+
+						for (var i:int=0;i<propChain.length-1;i++) {
+							targetObject=targetObject[propChain[i]];
+						}
+						
+						targetProperty=propChain[i];
+					}					
+					_targetObjects.push(targetObject);
+					_targetProperties.push(targetProperty);
+					_originalValues.push(targetObject[targetProperty]);
+			}
+
 		}
-		
 		
 	}
 }

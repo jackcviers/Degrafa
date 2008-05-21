@@ -25,7 +25,10 @@ package com.degrafa.geometry.repeaters
 	
 	public interface IRepeaterModifier
 	{
-		function apply(geometry:Geometry,iteration:Number=0):Geometry;	
+		function beginModifier(sourceObject:Object):void
+		function apply():void
+		function end():void
+		function get iteration():Number;
 		
 	}
 	
