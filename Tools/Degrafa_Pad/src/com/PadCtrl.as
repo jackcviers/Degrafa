@@ -6,13 +6,13 @@ package com
 	import flash.net.*;
 	
 	import mx.containers.Canvas;
-	import mx.controls.TextArea;
+	import mx.controls.RichTextEditor;
 	import mx.core.Application;
 	import mx.events.FlexEvent;
 
 	public class PadCtrl extends Application
 	{
-		public var txt_source:TextArea;
+		public var txt_source:RichTextEditor;
 		public var holder:GeometryComposition = new GeometryComposition();
 		[Bindable] public var target1:Canvas;
 		
@@ -25,10 +25,11 @@ package com
 		
 		protected function init(event:FlexEvent):void
 		{
-			capture();
+			capture(null);
+			txt_source.addEventListener(KeyboardEvent.KEY_UP, capture);
 		}
 		
-		public function capture():void
+		public function capture(event:Event):void
 		{
 			Parser.capture(clean());
 			
