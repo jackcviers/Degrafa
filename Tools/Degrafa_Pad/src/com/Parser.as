@@ -66,9 +66,19 @@ package com
 								var obj:Object = ObjectTranslator.objectToInstance(tObj,cls);
 					
 								if(obj is IGraphicsFill)
-									fills[obj.id] = obj;
+								{
+									if(obj is GradientFillBase)
+										fills[obj.id] = parseGradient(resultArray[i],cls);
+									else
+										fills[obj.id] = obj;
+								}
 								else if(obj is IGraphicsStroke)
-									strokes[obj.id] = obj;
+								{
+									if(obj is GradientStrokeBase)
+										strokes[obj.id] = parseGradient(resultArray[i],cls);
+									else
+										strokes[obj.id] = obj;
+								}
 								else if(obj is IDrawDecorator)
 									decorators[obj.id] = obj; 
 							}
@@ -87,11 +97,21 @@ package com
 					obj = ObjectTranslator.objectToInstance(resultArray[i],cls);
 					
 					if(obj is IGraphicsFill)
-						fills[obj.id] = obj;
+					{
+						if(obj is GradientFillBase)
+							fills[obj.id] = parseGradient(resultArray[i],cls);
+						else
+							fills[obj.id] = obj;
+					}
 					else if(obj is IGraphicsStroke)
-						strokes[obj.id] = obj;
+					{
+						if(obj is GradientStrokeBase)
+							strokes[obj.id] = parseGradient(resultArray[i],cls);
+						else
+							strokes[obj.id] = obj;
+					}
 					else if(obj is IDrawDecorator)
-						decorators[obj.id] = obj;  
+						decorators[obj.id] = obj;
 						
 					i++;
 				}
@@ -107,7 +127,20 @@ package com
 			
 			return null;
 		}
-
+		
+		public static function parseGradient(value:Object, cls:Class):Object
+		{
+			var stops:Array = value.GradientStop;
+			var obj:Object = ObjectTranslator.objectToInstance(value,cls);
+			
+			for each(var stop:Object in stops)
+			{
+				obj.gradientStops.push(ObjectTranslator.objectToInstance(stop,GradientStop));
+			}
+			
+			return obj;
+		}
+		
 		public static function typeGeometry():void
 		{
 			for each(var value:Object in geoLate)
