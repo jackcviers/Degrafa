@@ -21,36 +21,34 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.repeaters
 {
-	import com.degrafa.IGeometry;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.RepeaterModifierCollection;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.RegularRectangle;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
 
 	//[DefaultProperty("sourceGeometry")]
-	public class GeometryRepeater extends Geometry implements IGeometry{
+	public class GeometryRepeater extends RegularRectangle {
 		
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		
 		
-		public function GeometryRepeater(x:Number=NaN,y:Number=NaN,width:Number=NaN,height:Number=NaN){
+		public function GeometryRepeater(x:Number=NaN,y:Number=NaN){
 			super();
 			this.x=x;
 			this.y=y;
-			this.width=width;
-			this.height=height;
+
 		}
 		
+		/*
 		private var _x:Number;
-		/**
-		* The x-axis coordinate of the upper left point of the regular rectangle. If not specified 
-		* a default value of 0 is used.
-		**/
+
 		public function get x():Number{
 			if(!_x){return 0;}
 			return _x;
@@ -64,10 +62,7 @@ package com.degrafa.geometry.repeaters
 		
 		
 		private var _y:Number;
-		/**
-		* The y-axis coordinate of the upper left point of the regular rectangle. If not specified 
-		* a default value of 0 is used.
-		**/
+
 		public function get y():Number{
 			if(!_y){return 0;}
 			return _y;
@@ -79,37 +74,7 @@ package com.degrafa.geometry.repeaters
 			}
 		}
 		
-		private var _width:Number;
-		/**
-		* The width of the regular rectangle.
-		**/
-		public function get width():Number{
-			if(!_width){return 0;}
-			return _width;
-		}
-		public function set width(value:Number):void{
-			if(_width != value){
-				_width = value;
-				invalidated = true;
-			}
-		}
-		
-		
-		private var _height:Number;
-		/**
-		* The height of the regular rectangle.
-		**/
-		public function get height():Number{
-			if(!_height){return 0;}
-			return _height;
-		}
-		public function set height(value:Number):void{
-			if(_height != value){
-				_height = value;
-				invalidated = true;
-			}
-		}
-		
+		*/
 		/**
 		* Principle geometry object that will be repeated
 		* 
@@ -135,19 +100,6 @@ package com.degrafa.geometry.repeaters
 		**/
 		public function get count():int { return _count; }	
 		
-		
-		/*private var _modifiers:RepeaterModifierCollection;
-		
-		public function set modifiers(value:RepeaterModifierCollection):void {
-			_modifiers=value;
-			invalidated=true;
-		}*/
-		
-		/**
-		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
-		* 
-		**/
-		//public function get modifiers():RepeaterModifierCollection { return _modifiers; }
 		
 		
 		private var _modifiers:RepeaterModifierCollection;
@@ -200,15 +152,17 @@ package com.degrafa.geometry.repeaters
 		
 		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
 		override public function get bounds():Rectangle {
-			return super.bounds;
+			return _bounds
 		}
 		
 		
-		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
+			var t:Number=getTimer();
+			
 			this.suppressEventProcessing=true;
 			//Clone source geometery to reset it
 			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
+
 			
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
 			for (var i:int=0; i<_count; i++) {
@@ -217,17 +171,17 @@ package com.degrafa.geometry.repeaters
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
 					DegrafaObject(modifier).parent=this;
 					
-					if (i==0) modifier.beginModifier(geometryCollection);
+					if (i==0) modifier.beginModify(geometryCollection);
 					modifier.apply();
 				}
-				
+
 				//Draw out our changed object
 				super.draw(graphics,rc);
 				
 			}
 			
-			//not sure if we need this nor about the possible cleanup implications
-			//_sourceGeometry.suppressEventProcessing=true	
+			//We need to do this before we reset our objects states
+			calcBounds();
 			
 			//End modifications (which returns the object to its original state
 			for each (modifier in _modifiers.items) {
@@ -235,8 +189,18 @@ package com.degrafa.geometry.repeaters
 				modifier=null;
 			}
 			
-			//super.draw(graphics,rc);
+			trace("elapsed draw time: " + String(getTimer()-t));
+		}
+		
+		private function calcBounds():void {
+			_bounds=new Rectangle;
 			
+			for (var i:int=0;i<geometry.length;i++) {
+				 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
+					_bounds.union(Geometry(geometry[i]).bounds);
+			}
+
+			trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
 		
 	}
