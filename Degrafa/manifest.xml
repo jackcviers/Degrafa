@@ -68,6 +68,8 @@
 	<component id="RoundedRectangleRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleRepeater"/>
 	<component id="RoundedRectangleComplexRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleComplexRepeater"/>
 	<component id="VerticalLineRepeater" class="com.degrafa.geometry.repeaters.VerticalLineRepeater"/>
+	<component id="GeometryRepeater" class="com.degrafa.geometry.repeaters.GeometryRepeater"/>
+	<component id="PropertyModifier" class="com.degrafa.geometry.repeaters.PropertyModifier"/>
 	
 	<!--segments-->
 	<component id="ClosePath" class="com.degrafa.geometry.segment.ClosePath"/>
