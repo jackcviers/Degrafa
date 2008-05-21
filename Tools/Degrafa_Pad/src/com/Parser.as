@@ -30,6 +30,7 @@ package com
 
 		public static function capture(value:String):Object
 		{
+		//	ReferenceUtil.getManifestUpdates();
 			geos = {};
 			fills = {};
 			strokes = {};
@@ -48,7 +49,8 @@ package com
 				var i:int = 0;
 				for(var name:String in resultObj.x)
 				{
-					var cls:Class = ReferenceUtil.bigSwitch(name);
+					var cls:Class = ReferenceUtil.getClassReference(name);
+					
 					var tester:Object = new cls();
 					
 					if(resultArray[i] is Array)

@@ -7,32 +7,42 @@ package com
 	
 	import mx.containers.Canvas;
 	import mx.controls.RichTextEditor;
+	import mx.controls.ComboBox;
 	import mx.core.Application;
 	import mx.events.FlexEvent;
 
 	public class PadCtrl extends Application
 	{
 		public var txt_source:RichTextEditor;
+		public var degrafa_Class:ComboBox;
 		public var holder:GeometryComposition = new GeometryComposition();
 		[Bindable] public var target1:Canvas;
 		
 		public function PadCtrl()
 		{
 			super();
-			
 			addEventListener(FlexEvent.CREATION_COMPLETE, init);
 		}
 		
 		protected function init(event:FlexEvent):void
 		{
 			capture(null);
+			degrafa_Class.dataProvider = ReferenceUtil.mxmlList;
+			ReferenceUtil.buildStubs();
+			degrafa_Class.addEventListener(Event.CHANGE, showStub);
 			txt_source.addEventListener(KeyboardEvent.KEY_UP, capture);
 		}
+		
+		public function showStub(event:Event):void
+		{
+			var stub:String = ReferenceUtil.getStub(degrafa_Class.selectedItem as String); 
+			if (txt_source.selection.modifiesSelection) txt_source.selection.text = stub;
+		}
+		
 		
 		public function capture(event:Event):void
 		{
 			Parser.capture(clean());
-			
 			render(Parser.geos);
 		}
 		

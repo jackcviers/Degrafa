@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dp:PadCtrl xmlns:dp="com.*" xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
-	xmlns="http://www.degrafa.com/2008">
-	<GeometryComposition id="holder" graphicsTarget="{[target1]}">
-	</GeometryComposition>
+    xmlns:degrafa="com.degrafa.*" >
+	<degrafa:GeometryComposition id="holder" graphicsTarget="{[target1]}">
+	</degrafa:GeometryComposition>
 	
 	<mx:VDividedBox width="100%" height="100%">
 		<mx:Canvas width="100%" height="70%" id="target1"/>
-		<mx:RichTextEditor id="txt_source" width="100%" height="30%">
+		
+		<mx:RichTextEditor id="txt_source" width="100%" height="30%" title="Degrafa Mark-up" showControlBar="false"
+>
 		<mx:text>
 <![CDATA[<Circle id="circle" radius="100" centerX="300" centerY="100" fill="{green}" stroke="{red}" decorators="{[sd,cd]}"/>
 <Circle id="circle2" radius="100" centerX="50" centerY="50" fill="{blue}" stroke="{bad}"/>
@@ -28,7 +30,8 @@
 </LinearGradientStroke>
 <StrokeDecorator id="sd"/><CurveDecorator id="cd"/>]]>
 		</mx:text>
-		</mx:RichTextEditor><mx:HBox>
+		</mx:RichTextEditor><mx:ComboBox id="degrafa_Class" /><mx:HBox>
+			
 		<!--<mx:Button label="submit" click="capture()"/>-->
 		</mx:HBox>
 	</mx:VDividedBox>
