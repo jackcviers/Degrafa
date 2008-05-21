@@ -2,6 +2,7 @@ package com
 {
 	import com.degrafa.geometry.*;
 	import com.degrafa.paint.*;
+	import com.decorations.*;
 	
 	public class ReferenceUtil
 	{
@@ -49,6 +50,12 @@ package com
 					return LinearGradientStroke;
 				case "RadialGradientStroke":
 					return RadialGradientStroke;
+				case "CurveToLineDecorator":
+					return CurveToLineDecorator;
+				case "StrokeDecorator":
+					return StrokeDecorator;
+				case "CurveDecorator":
+					return CurveDecorator;
 				
 			}
 			return null

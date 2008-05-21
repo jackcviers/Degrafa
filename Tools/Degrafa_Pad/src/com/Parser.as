@@ -119,7 +119,7 @@ package com
 				typeGeometry();
 				
 				return geos;
-			 }
+			}
 			catch(e:Error) 
 			{
 				trace(e.message)

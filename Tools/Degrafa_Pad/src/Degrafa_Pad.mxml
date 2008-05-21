@@ -8,8 +8,8 @@
 		<mx:Canvas width="100%" height="70%" id="target1"/>
 		<mx:RichTextEditor id="txt_source" width="100%" height="30%">
 		<mx:text>
-<![CDATA[<Circle id="circle" radius="200" centerX="300" centerY="400" fill="{green}" stroke="{red}"/>
-<Circle id="circle2" radius="200" fill="{blue}"/>
+<![CDATA[<Circle id="circle" radius="100" centerX="300" centerY="100" fill="{green}" stroke="{red}" decorators="{[sd,cd]}"/>
+<Circle id="circle2" radius="100" centerX="50" centerY="50" fill="{blue}" stroke="{bad}"/>
 <Ellipse id="ell" width="300" height="200" fill="{rad}" x="600" y="200" stroke="{white}"/>
 <SolidFill id="green" color="green"/>
 <SolidFill id="blue" color="blue"/>
@@ -17,15 +17,20 @@
 <SolidStroke id="red" color="red" weight="5"/>
 <SolidStroke id="white" color="white" weight="15"/>
 <RadialGradientFill id="rad" angle="0" focalPointRatio=".75" spreadMethod="reflect" 
-	            cx="150" cy="50" radius="25" >
-	            <GradientStop id="gs" color="#FFF"/>
-	            <GradientStop color="#000"/>
-	            <GradientStop color="#D00"/>
-	        </RadialGradientFill>]]>
+    cx="150" cy="50" radius="25" >
+    <GradientStop id="gs" color="#FFF"/>
+    <GradientStop color="#000"/>
+    <GradientStop color="#D00"/>
+</RadialGradientFill>
+<LinearGradientStroke id="bad" angle="45" weight="10">
+    <GradientStop color="purple" ratio=".8"/>
+    <GradientStop color="orange"/>
+</LinearGradientStroke>
+<StrokeDecorator id="sd"/><CurveDecorator id="cd"/>]]>
 		</mx:text>
 		</mx:RichTextEditor><mx:HBox>
 		<!--<mx:Button label="submit" click="capture()"/>-->
 		</mx:HBox>
 	</mx:VDividedBox>
-	
+	<!--  -->
 </dp:PadCtrl>
