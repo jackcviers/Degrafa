@@ -262,7 +262,7 @@ package com.degrafa.geometry.command{
 				seg = source[i];
 				
 				if (seg.type != "m"){
-					curLength += seg.segmentLength;
+					curLength += seg.segmentLength();
 				}
 				else{
 					continue;
