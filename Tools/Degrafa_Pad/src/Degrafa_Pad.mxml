@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dp:PadCtrl xmlns:dp="com.*" xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2008">
+	<GeometryComposition id="holder" graphicsTarget="{[target1]}">
+	</GeometryComposition>
+	
+	<mx:VDividedBox width="100%" height="100%">
+		<mx:Canvas width="100%" height="70%" id="target1"/>
+		<mx:TextArea id="txt_source" width="100%" height="30%">
+		<mx:text>
+<![CDATA[<Circle id="circle" radius="200" centerX="300" centerY="400" fill="{green}" stroke="{red}"/>
+<Circle id="circle2" radius="200" fill="{blue}"/>
+<Ellipse id="ell" width="300" height="200" fill="{pink}" x="600" y="200" stroke="{white}"/>
+<SolidFill id="green" color="green"/>
+<SolidFill id="blue" color="blue"/>
+<SolidFill id="pink" color="pink"/>
+<SolidStroke id="red" color="red" weight="5"/>
+<SolidStroke id="white" color="white" weight="15"/>]]>
+		</mx:text>
+		</mx:TextArea><mx:HBox>
+		<mx:Button label="submit" click="capture()"/>
+		</mx:HBox>
+	</mx:VDividedBox>
+	
+</dp:PadCtrl>
