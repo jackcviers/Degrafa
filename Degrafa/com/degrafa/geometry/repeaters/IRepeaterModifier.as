@@ -25,8 +25,8 @@ package com.degrafa.geometry.repeaters
 	
 	public interface IRepeaterModifier
 	{
-		function apply(geometry:Geometry,iteration:Number=0):Geometry;
-	
+		function apply(geometry:Geometry,iteration:Number=0):Geometry;	
+		
 	}
 	
 

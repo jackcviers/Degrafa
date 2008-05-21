@@ -32,8 +32,6 @@ package com.degrafa.geometry.repeaters
 	[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry
 	{
-		
-		
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		
@@ -156,7 +154,6 @@ package com.degrafa.geometry.repeaters
 		}
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
-			super.draw(graphics,rc);
 			
 			//We will need to keep track of our bounds as we do this
 			//DEV - Do we want our bounds to be deterministic based on the repeaters OR fixed per width/height ?
@@ -168,19 +165,25 @@ package com.degrafa.geometry.repeaters
 			//Clone source geometery to reset it
 			var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
 			
+			tempSourceObject.suppressEventProcessing=true;
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
+		//	this.suppressEventProcessing=true;
 			for (var i:int=0; i<_count; i++) {
 				
 				for each (var modifier:IRepeaterModifier in _modifiers.items) {
-					_sourceGeometry=modifier.apply(_sourceGeometry,i);
+					tempSourceObject=modifier.apply(tempSourceObject,i);
 				}
 			
-				_sourceGeometry.draw(graphics,rc);
-				
+				tempSourceObject.draw(graphics,rc);
+
 			}
 			
 			//Set our source object back to its original state			
-			_sourceGeometry=tempSourceObject;
+			tempSourceObject=null;
+			
+		//	this.suppressEventProcessing=false;
+			super.draw(graphics,rc);
+			
 		}
 		
 	}
