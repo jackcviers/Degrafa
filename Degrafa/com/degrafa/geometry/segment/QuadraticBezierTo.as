@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
@@ -212,7 +213,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandArray:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if(!invalidated && lastPoint){
 				if(this.lastPoint && !invalidated){
@@ -238,35 +239,45 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			var item:Object;
+			var item:CommandStackItem;
 			
 			if(!invalidated){
-				for each(item in this.commandArray){
-					commandArray.push(item);		
+				for each(item in this.commandStack.source){
+					commandStack.addItem(item);		
 				}
 			}
 			
 			//reset the array
-			this.commandArray.length=0;
+			this.commandStack.length=0;
 									
 			if(isShortSequence){
-				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
+				this.commandStack.addCurveTo(lastPoint.x+(lastPoint.x-lastControlPoint.x),
+				lastPoint.y+(lastPoint.y-lastControlPoint.y),
+				absRelOffset.x+x,
+				absRelOffset.y+y);
+				
+				/*this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
 				absRelOffset.x+x,
 				absRelOffset.y+y,
 				lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				lastPoint.y+(lastPoint.y-lastControlPoint.y)));
+				lastPoint.y+(lastPoint.y-lastControlPoint.y)));*/
 			}
 			else{
-   				this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
+   				this.commandStack.addCurveTo(absRelOffset.x+cx,
+				absRelOffset.y+cy,
+				absRelOffset.x+x,
+				absRelOffset.y+y);
+   				
+   				/*this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
    				absRelOffset.x+x,
 				absRelOffset.y+y,
 				absRelOffset.x+cx,
-				absRelOffset.y+cy));
+				absRelOffset.y+cy));*/
 			}
 			
 			//create a return command array adding each item from the local array
-			for each(item in this.commandArray){
-				commandArray.push(item);
+			for each(item in this.commandStack.source){
+				commandStack.addItem(item);		
 			}
         	
 			this.lastPoint =lastPoint;

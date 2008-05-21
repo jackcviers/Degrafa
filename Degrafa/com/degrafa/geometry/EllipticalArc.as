@@ -319,7 +319,7 @@ package com.degrafa.geometry{
 				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				ArcUtils.drawEllipticalArc(newX,newY,startAngle,arc,width/2,height/2,commandStack.source);
+				ArcUtils.drawEllipticalArc(newX,newY,startAngle,arc,width/2,height/2,commandStack);
 				
 				//close the arc if required
 				if(Math.abs(arc)<360){

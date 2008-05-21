@@ -23,8 +23,7 @@ package com.degrafa.geometry.segment{
 	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
-	
-	import flash.geom.Rectangle;
+	import com.degrafa.geometry.command.CommandStack;
 	
 	[DefaultProperty("data")]
 	[Bindable(event="propertyChange")]
@@ -113,12 +112,15 @@ package com.degrafa.geometry.segment{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandArray:Array=[];
-		public function get commandArray():Array{
-			return _commandArray;
+		private var _commandStack:CommandStack;
+		public function get commandStack():CommandStack{
+			if(!_commandStack)
+				_commandStack = new CommandStack();
+			
+			return _commandStack;
 		}	
-		public function set commandArray(value:Array):void{
-			_commandArray=value;
+		public function set commandStack(value:CommandStack):void{
+			_commandStack=value;
 		}
 				
 	}

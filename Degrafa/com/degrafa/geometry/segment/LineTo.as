@@ -20,6 +20,7 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 	
 	import flash.geom.Point;
@@ -173,7 +174,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandArray:Array):void{
+		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:CommandStack):void{
 			
 			if(!invalidated && lastPoint){
 				if(this.lastPoint && !invalidated){
@@ -191,22 +192,25 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			var item:Object;
+			var item:CommandStackItem;
 			
 			if(!invalidated){
-				for each(item in this.commandArray){
-					commandArray.push(item);		
+				for each(item in this.commandStack.source){
+					commandStack.addItem(item);		
 				}
 			}
 			
 			//reset the array
-			this.commandArray.length=0;
+			this.commandStack.length=0;
 			
-			this.commandArray.push(new CommandStackItem(CommandStackItem.LINE_TO,absRelOffset.x+x,absRelOffset.y+y));
+			
+			this.commandStack.addLineTo(absRelOffset.x+x,absRelOffset.y+y);
+			
+			//this.commandStack.push(new CommandStackItem(CommandStackItem.LINE_TO,absRelOffset.x+x,absRelOffset.y+y));
         	
         	//create a return command array adding each item from the local array
-			for each(item in this.commandArray){
-				commandArray.push(item);
+			for each(item in this.commandStack.source){
+				commandStack.addItem(item);
 			}
         	
 			this.lastPoint =lastPoint;
@@ -214,10 +218,7 @@ package com.degrafa.geometry.segment{
 			
 			//pre calculate the bounds for this segment
 			preDraw();
-			
-			//old just for refference tilltesting complete
-			//calcBounds(lastPoint,new Point(absRelOffset.x+x,absRelOffset.y+y));
-			
+						
 		}
 		
 	}

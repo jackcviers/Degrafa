@@ -84,16 +84,23 @@ package com.degrafa.geometry.command{
 		/**
 		* Returns the length of the this segment
 		**/
-		public function segmentLength():Number{
-			
-			switch(type){
-				case "l":
-					return lineLength(ox,oy,x,y);
-				case "c":
-					return curveLength();
-				default:
-					return 0;		
+		private var _segmentLength:Number=0;
+		public function get segmentLength():Number{
+			if(!_segmentLength){
+				switch(type){
+					case "l":
+						_segmentLength =lineLength(ox,oy,x,y);
+						break;
+					case "c":
+						_segmentLength =curveLength();
+						break;
+					default:
+						_segmentLength =0;
+						break;		
+				}
 			}
+			return _segmentLength;
+			
 		}
 		
 		/**

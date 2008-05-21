@@ -71,18 +71,20 @@ package com.degrafa.geometry.command{
 			owner.initFill(graphics,rc);
 			
 			var item:CommandStackItem;
-			
-			cmdSource = CloneUtil.clone(source)
-
-			_cursor = new DegrafaCursor(cmdSource);
-			
-			//Dev Note :: need to make sure we are only decorating if the decorator 
-			//or geom is invalid in this case we don't need to clone the 
-			//source each time perhaps
-			for each(var decorator:Object in owner.decorators){
-				if(decorator is IDrawDecorator){
-					decorator.execute(this);
+						
+			if(owner.decorators.length !=0){
+				cmdSource = CloneUtil.clone(source)
+				_cursor = new DegrafaCursor(cmdSource);
+				
+				for each(var decorator:Object in owner.decorators){
+					if(decorator is IDrawDecorator){
+						decorator.execute(this);
+					}
 				}
+			
+			}
+			else{
+				_cursor = new DegrafaCursor(source);	
 			}
 			
 			while(_cursor.moveNext()){	   			
@@ -113,7 +115,9 @@ package com.degrafa.geometry.command{
         		updatePointer(item);
         	}
         	
-        	cmdSource.length = 0;
+        	if(owner.decorators.length !=0){
+        		cmdSource.length = 0;
+        	}
         	
         	endDraw(graphics);
 		}
@@ -146,7 +150,7 @@ package com.degrafa.geometry.command{
 			currentPointX =x;
 			currentPointY =y;
 			
-			lengthIsValid = false
+			lengthIsValid = false;
 		}
 		
 		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
@@ -156,11 +160,38 @@ package com.degrafa.geometry.command{
 			currentPointX =x1;
 			currentPointY =y1;
 		
-			lengthIsValid = false
+			lengthIsValid = false;
 		}
 		
 		public function addDelegate(delegate:Function):void{
 			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO));
+		}
+		
+		public function addItem(value:CommandStackItem):void{
+			
+			switch(value.type){
+				
+				case "m":
+				case "l":
+					value.ox=currentPointX;
+					value.oy=currentPointY
+					currentPointX =value.x;
+					currentPointY =value.y;
+					break;
+				case "c":
+					value.ox=currentPointX;
+					value.oy=currentPointY
+					currentPointX =value.x1;
+					currentPointY =value.y1;
+					break;
+				case "d":
+					break;
+			}
+			
+			source.push(value);
+			
+			lengthIsValid = false;
+			
 		}
 		
 		protected function updatePointer(item:CommandStackItem):void{
@@ -201,7 +232,7 @@ package com.degrafa.geometry.command{
 			if(!lengthIsValid){
 				lengthIsValid = true;
 				for each (var item:CommandStackItem in source){
-					_pathLength += item.segmentLength();
+					_pathLength += item.segmentLength;
 				}
 			}
 			return _pathLength;
@@ -230,13 +261,14 @@ package com.degrafa.geometry.command{
 			for (i=0; i<n; i++){
 				seg = source[i];
 				if (seg.type != "m"){
-					curLength += seg.segmentLength();
+					curLength += seg.segmentLength;
 				}
 				else{
 					continue;
 				}
 				if (tLength <= curLength){
-					return seg.segmentPointAt((tLength - lastLength)/seg.segmentLength());
+					trace(seg.segmentPointAt((tLength - lastLength)/seg.segmentLength));
+					return seg.segmentPointAt((tLength - lastLength)/seg.segmentLength);
 				}
 				lastLength = curLength;
 			}
@@ -262,14 +294,14 @@ package com.degrafa.geometry.command{
 				seg = source[i];
 				
 				if (seg.type != "m"){
-					curLength += seg.segmentLength();
+					curLength += seg.segmentLength;
 				}
 				else{
 					continue;
 				}
 				
 				if (tLength <= curLength){
-					return seg.segmentAngleAt((tLength - lastLength)/seg.segmentLength());
+					return seg.segmentAngleAt((tLength - lastLength)/seg.segmentLength);
 				}
 				lastLength = curLength;
 			}

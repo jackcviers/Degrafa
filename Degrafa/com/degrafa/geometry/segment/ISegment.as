@@ -22,9 +22,7 @@
 package com.degrafa.geometry.segment{
 	
 	import com.degrafa.core.IDegrafaObject;
-	
-	import flash.display.DisplayObject;
-	import flash.geom.Rectangle;
+	import com.degrafa.geometry.command.CommandStack;
 	
 	/**
  	* Base interface for all Degrafa segment objects.
@@ -42,8 +40,8 @@ package com.degrafa.geometry.segment{
 		function get coordinateType():String;		
 		function set coordinateType(value:String):void;
 		
-		function get commandArray():Array		
-		function set commandArray(value:Array):void	
+		function get commandStack():CommandStack		
+		function set commandStack(value:CommandStack):void	
 		
 	}
 }

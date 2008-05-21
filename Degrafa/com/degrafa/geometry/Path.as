@@ -396,7 +396,7 @@ package com.degrafa.geometry{
         		
     	    			//pass the last point the abs position and the commandArray 
         				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack.source);
+	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
     	    			
     	    			lastPoint.x = absRelOffset.x+_segments.items[i].x;
 	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
@@ -406,7 +406,7 @@ package com.degrafa.geometry{
         			
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack.source);
+	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
         				
 	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
 	        			
@@ -416,7 +416,7 @@ package com.degrafa.geometry{
         		
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack.source);
+	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
 	        			
 	        			lastPoint.x = absRelOffset.x+_segments.items[i].x;
 	    				break;
@@ -425,7 +425,7 @@ package com.degrafa.geometry{
         			
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack.source);
+	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
         				
         				//reset stop points
     	    			lastPoint.x = _segments.items[i].x+absRelOffset.x;
@@ -442,7 +442,7 @@ package com.degrafa.geometry{
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to, here we also need to pass the 
         				//last control point for continous bezier paths support
-        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack.source);
+        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack);
         				if(_segments.items[i].cx==0 && _segments.items[i].cy ==0)
         				{
 							lastControlPoint.x = absRelOffset.x+ (absRelOffset.x-lastControlPoint.x)
@@ -463,7 +463,7 @@ package com.degrafa.geometry{
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to, here we also need to pass the 
         				//last control point for continous bezier paths support
-        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack.source);
+        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack);
         				
 						lastControlPoint.x = absRelOffset.x+_segments.items[i].cx1;
 	        			lastControlPoint.y = absRelOffset.y+_segments.items[i].cy1;
@@ -477,7 +477,7 @@ package com.degrafa.geometry{
         			
         				//pass the last point the abs position and the commandStack 
         				//to add the draw commands to
-	        		    _segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack.source);
+	        		    _segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
 				    			        			
 	        			lastPoint.x = _segments.items[i].x+absRelOffset.x;
 	        			lastPoint.y = _segments.items[i].y+absRelOffset.y;
@@ -489,7 +489,7 @@ package com.degrafa.geometry{
         				//this should be in all cases the move command
         				if(firstPoint)
         				{
-	        				_segments.items[i].computeSegment(lastPoint,firstPoint,commandStack.source);
+	        				_segments.items[i].computeSegment(lastPoint,firstPoint,commandStack);
 	        				
 	        			}
 	        			
@@ -585,6 +585,7 @@ package com.degrafa.geometry{
 		 	//re init if required
 		 	preDraw();
 			super.draw(graphics,(rc)? rc:_bounds);
+							
         }
 		
 		

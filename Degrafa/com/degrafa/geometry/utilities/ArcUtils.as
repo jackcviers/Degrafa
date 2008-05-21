@@ -22,6 +22,7 @@
 package com.degrafa.geometry.utilities{
 	
 	import com.degrafa.GraphicPoint;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 
 	/**
@@ -128,7 +129,7 @@ package com.degrafa.geometry.utilities{
 		/**
 		* Draws an arc of type "open" only. Accepts an optional x axis rotation value
 		**/
-		public static function drawArc(x:Number,y:Number,startAngle:Number, arc:Number, radius:Number,yRadius:Number,xAxisRotation:Number,commandArray:Array):void
+		public static function drawArc(x:Number,y:Number,startAngle:Number, arc:Number, radius:Number,yRadius:Number,xAxisRotation:Number,commandStack:CommandStack):void
 		{
 						
 			// Circumvent drawing more than is needed
@@ -185,7 +186,10 @@ package com.degrafa.geometry.utilities{
 				
 					// save 
 					
-					commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,anchorPoint.x,anchorPoint.y,controlPoint.x,controlPoint.y));
+					//commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,anchorPoint.x,anchorPoint.y,controlPoint.x,controlPoint.y));
+				
+					commandStack.addCurveTo(controlPoint.x,controlPoint.y,anchorPoint.x,anchorPoint.y);
+				
 				}
 			}
 		}
@@ -193,7 +197,7 @@ package com.degrafa.geometry.utilities{
 		/**
 		* Draws an arc of type (default, chord, pie).  
 		**/
-		public static function drawEllipticalArc(x:Number, y:Number, startAngle:Number, arc:Number, radius:Number,yRadius:Number,commandArray:Array):void
+		public static function drawEllipticalArc(x:Number, y:Number, startAngle:Number, arc:Number, radius:Number,yRadius:Number,commandStack:CommandStack):void
 		{
 			
 			var ax:Number;
@@ -253,7 +257,9 @@ package com.degrafa.geometry.utilities{
 									
 					
 					// save 
-					commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,x1,y1,cx,cy));
+					//commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,x1,y1,cx,cy));
+					
+					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					oldX = x1;
 					oldY = y1;		

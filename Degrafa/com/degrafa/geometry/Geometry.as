@@ -464,16 +464,12 @@ package com.degrafa.geometry{
 			_commandStack=value;
 		}
 		
-		private var _decorators:Array;
+		private var _decorators:Array=[];
 		/**
 		* An Array of decorators that modify this Geometry.  IGlobalDecorator
 		* are executed and cleaned up here. 
 		**/
 		public function get decorators():Array{
-			
-			if(!_decorators)
-				_decorators = new Array(this);
-			
 			return _decorators;
 		}	
 		public function set decorators(value:Array):void{
