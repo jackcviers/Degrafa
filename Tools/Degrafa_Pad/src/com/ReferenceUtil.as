@@ -18,6 +18,7 @@ package com
 
 	public class ReferenceUtil
 	{
+		/*
 		public function ReferenceUtil()
 		{
 		}
@@ -74,20 +75,14 @@ package com
 			}
 			return null
 		}
-		
+		*/
 		
 		public static function getClassReference(name:String):Class
 		{
 			try{
-			var clazz:Class = getDefinitionByName(manifest.component.(@id == name).attribute("class")) as Class;
-		    if (clazz is Class)
-		    {
-			
-				return clazz
-			}
+				var clazz:Class = getDefinitionByName(manifest.component.(@id == name).attribute("class")) as Class;
 			} catch (e:Error)
 			{
-				
 				clazz = String;
 			}
 			return clazz;
@@ -118,8 +113,10 @@ package com
 			commandStack:true,
 			state:true,
 			stateEvent:true,
+			commandArray:true
 		}
 		
+				
 		public static function buildStubs():void
 		{
 			var i:uint = 0;
@@ -148,7 +145,7 @@ package com
 		}
 		
 		
-		// utility method for updating imports in this file from the manifest
+		// utility method for updating imports in this class file from the manifest
 		public static function getManifestUpdates():void
 		{
 			//get all imports
@@ -179,7 +176,7 @@ package com
 		}
 		
 		
-		private var dummyReferences:Array = [
+		private var forceInclusionReferences:Array = [
 				GeometryGroup,
 				Surface,
 				GraphicImage,

@@ -30,8 +30,9 @@
 </LinearGradientStroke>
 <StrokeDecorator id="sd"/><CurveDecorator id="cd"/>]]>
 		</mx:text>
-		</mx:RichTextEditor><mx:ComboBox id="degrafa_Class" /><mx:HBox>
-			
+		</mx:RichTextEditor><mx:HBox>
+			<mx:ComboBox id="degrafa_Class" />
+	
 		<!--<mx:Button label="submit" click="capture()"/>-->
 		</mx:HBox>
 	</mx:VDividedBox>
