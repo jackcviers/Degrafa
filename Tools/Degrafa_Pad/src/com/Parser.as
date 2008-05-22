@@ -30,7 +30,7 @@ package com
 
 		public static function capture(value:String):Object
 		{
-		//	ReferenceUtil.getManifestUpdates();
+		//	com.ManifestReference.getManifestUpdates();
 			geos = {};
 			fills = {};
 			strokes = {};
