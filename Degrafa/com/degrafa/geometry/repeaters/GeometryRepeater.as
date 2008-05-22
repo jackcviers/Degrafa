@@ -21,10 +21,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.repeaters
 {
+	import com.degrafa.IGeometry;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.RepeaterModifierCollection;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.geometry.RegularRectangle;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -33,81 +33,37 @@ package com.degrafa.geometry.repeaters
 	import mx.events.PropertyChangeEvent;
 
 	//[DefaultProperty("sourceGeometry")]
-	public class GeometryRepeater extends RegularRectangle {
+	public class GeometryRepeater extends Geometry implements IGeometry {
 		
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		
 		
-		public function GeometryRepeater(x:Number=NaN,y:Number=NaN){
+		public function GeometryRepeater(){
 			super();
-			this.x=x;
-			this.y=y;
+
 
 		}
-		
-		/*
-		private var _x:Number;
 
-		public function get x():Number{
-			if(!_x){return 0;}
-			return _x;
-		}
-		public function set x(value:Number):void{
-			if(_x != value){
-				_x = value;
-				invalidated = true;
-			}
-		}
 		
-		
-		private var _y:Number;
-
-		public function get y():Number{
-			if(!_y){return 0;}
-			return _y;
-		}
-		public function set y(value:Number):void{
-			if(_y != value){
-				_y = value;
-				invalidated = true;
-			}
-		}
-		
-		*/
-		/**
-		* Principle geometry object that will be repeated
-		* 
-		**/
-		public function set sourceGeometry(value:Geometry):void {
-			_sourceGeometry=value;
-			invalidated=true;
-		}
-		
-		public function get sourceGeometry():Geometry  { return _sourceGeometry; }
-		
-		
-		private var _count:int=1;
-		
-		public function set count(value:int):void {
-			_count=value;
-			invalidated=true;
-		}
-	
 		/**
 		* Denotes how many time object will be repeated
 		* 
 		**/
+		private var _count:int=1;
+		public function set count(value:int):void {
+			_count=value;
+			invalidated=true;
+		}
 		public function get count():int { return _count; }	
 		
 		
-		
-		private var _modifiers:RepeaterModifierCollection;
-		[Inspectable(category="General", arrayType="com.degrafa.geometry.repeaters.IRepeaterModifier")]
-		[ArrayElementType("com.degrafa.geometry.repeaters.IRepeaterModifier")]
 		/**
 		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
 		**/
+		private var _modifiers:RepeaterModifierCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.geometry.repeaters.IRepeaterModifier")]
+		[ArrayElementType("com.degrafa.geometry.repeaters.IRepeaterModifier")]
 		public function get modifiers():Array{
 			initModifiersCollection();
 			return _modifiers.items;
@@ -158,7 +114,7 @@ package com.degrafa.geometry.repeaters
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
 			var t:Number=getTimer();
-			
+		
 			this.suppressEventProcessing=true;
 			//Clone source geometery to reset it
 			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);

@@ -89,6 +89,19 @@ package com.degrafa.geometry.repeaters
 		}
 		public function get offset():Object { return _offset };
 
+		public static var OFFSET_ADD:String="add";
+		public static var OFFSET_NONE:String="none";
+		public static var OFFSET_SUBTRACT:String="subtract";
+		
+		/**
+		 * How to apply the offset for each iteration
+		 */
+		private var _offsetOperator:String="add";
+		[Inspectable(category="General", enumeration="add,subtract,none" )]
+		public function set offsetOperator(value:String):void {
+			_offsetOperator=value;
+		}
+		public function get offsetOperator():String { return _offsetOperator; }
 		
 		/**
 		 * This tells the modifier that it will be doing iterations and modifying the source object
@@ -129,18 +142,24 @@ package com.degrafa.geometry.repeaters
 			var bounds:Rectangle=new Rectangle();
 			
 			if (_offset is Array) {
-				tempOffset = _targetObjects[i][_targetProperties[i]] + offset[_iteration % offset.length];
+				tempOffset = offset[_iteration % offset.length];
 				//trace(tempOffset);
 			}
 			else if (_offset is Function ) {
 				tempOffset=_offset(_iteration);
 			}
 			else {
-				tempOffset=_targetObjects[i][_targetProperties[i]]+Number(_offset);
+				tempOffset=Number(_offset);
 			}
 			
 			for (var i:int=0;i<_targetObjects.length;i++) {
-				_targetObjects[i][_targetProperties[i]]=tempOffset;
+				
+				if (_offsetOperator==PropertyModifier.OFFSET_ADD)
+					_targetObjects[i][_targetProperties[i]]+=tempOffset;
+				else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT)
+					_targetObjects[i][_targetProperties[i]]-=tempOffset;
+				else
+					_targetObjects[i][_targetProperties[i]]=tempOffset;
 			}
 
 			_iteration++;
