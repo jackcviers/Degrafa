@@ -31,7 +31,7 @@
 <StrokeDecorator id="sd"/><CurveDecorator id="cd"/>]]>
 		</mx:text>
 		</mx:RichTextEditor><mx:HBox>
-			<mx:ComboBox id="degrafa_Class" />
+			<mx:ComboBox id="degrafa_Class" /><mx:ColorPicker id="colorChooser" change="updateColor()" visible="false"  />
 	
 		<!--<mx:Button label="submit" click="capture()"/>-->
 		</mx:HBox>

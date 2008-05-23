@@ -11,14 +11,16 @@ package com
 	import mx.containers.Canvas;
 	import mx.controls.RichTextEditor;
 	import mx.controls.ComboBox;
+	import mx.controls.ColorPicker;
 	import mx.core.Application;
 	import mx.events.FlexEvent;
-	
+	import com.degrafa.core.utils.ColorUtil;
 
 	public class PadCtrl extends Application
 	{
 		public var txt_source:RichTextEditor;
 		public var degrafa_Class:ComboBox;
+		public var colorChooser:ColorPicker;
 		public var selectedClass:Label;
 		public var delayTimer:Timer;
 		public var holder:GeometryComposition = new GeometryComposition();
@@ -41,8 +43,8 @@ package com
 			ReferenceUtil.buildStubs();
 			degrafa_Class.addEventListener(Event.CHANGE, showStub);
 			txt_source.addEventListener(Event.CHANGE, updateWhenTypingStops);
-		//	txt_source.doubleClickEnabled = false;
-			txt_source.addEventListener(MouseEvent.DOUBLE_CLICK, contextualDoubleClick);
+			txt_source.doubleClickEnabled = true;
+			txt_source.addEventListener(MouseEvent.DOUBLE_CLICK, contextualDoubleClick,true);
 			txt_source.addEventListener(MouseEvent.CLICK, updateContextDisplay);
 			txt_source.addEventListener(KeyboardEvent.KEY_UP, updateContextDisplay);
 			delayTimer = new Timer(200,1);
@@ -51,6 +53,7 @@ package com
 		
 		public function updateContextDisplay(event:Event):void
 		{
+			firstClickIdx=txt_source.selection.beginIndex
 			getSelectedTagType();
 		}
 		public function updateWhenTypingStops(event:Event):void
@@ -59,15 +62,111 @@ package com
 			delayTimer.reset();
 			delayTimer.start();
 		}
+		private var firstClickIdx:uint = 0;
+		private var attrToggle:String = "value";
+		private var selAttr:uint = 0;
+		private function getAttributeToggle(reset:Boolean):Object
+		{
+			if (reset) {
+				attrToggle = "";
+				selAttr = 0;
+				return false;
+			}
+			return true
+		}
+		
+	
+		
+		 //regex
+			private var nameTest:RegExp = /^[a-zA-Z]\w*/;
+			private var spaceTest:RegExp=/ /;
+			private var attributeValueTest:RegExp =/^\"(.*)\"$/;
+			private var attributeNameTest:RegExp = /^(\w+)=$/;
+			private var attributeRangeTest:RegExp =/^(?P<name>[a-zA-Z]\w+)(?:=\s*\")(?P<value>.*)\"/; //new RegExp("("+attributeNameTest.source+")"+attributeValueTest.source)
+			private var booleanValueTest:RegExp =/^(true|false)$/;
+			private var integerValueTest:RegExp =/^\d+$/;
+			private var decimalValueTest:RegExp =/^(\d|-)?(\d|,)*\.?\d*$/;
+			private var hexValueTest:RegExp= /^(0x|#)[0-9a-fA-F]+/;
+			private var referenceTest:RegExp =/^\{(\[\w+\]|\w+)\}$/;
+			private var csvListTest:RegExp =/^([a-zA-Z]\w*(?:\s*,\s*))*([a-zA-Z]\w*\s*)$/;
+			
+			private var reverseColorHash:Object = { }; //TODO: to retain named colors or short names if they are selected using the picker
+			
 		public function contextualDoubleClick(event:MouseEvent):void
 		{
-			//Event handler not firing yet.
-		//TODO: 
-			//fix the dbl-click selection behavior as follows:
+		var curSelection:TextRange = txt_source.selection;
+		//dbl-click selection behavior as follows:
 			// a) select whole node names only if we're on a node name
-			// b) select ONLY the attribute name if we're on an attribute name
-			// c) select ONLY between attribute value quotes if that's where we are
-			trace("DBL:"+event);
+			// b) toggle between value/name/full with subsequent double-clicks on an attribute
+			
+			var split:int = curSelection.text.indexOf("/><");
+			if (split != -1)
+			{
+				//clean
+				split += curSelection.beginIndex;
+				if (firstClickIdx > split + 2)
+				{
+					curSelection.beginIndex = split + 2;
+				} else
+				{
+					curSelection.endIndex = split ;
+				}
+			}
+
+			var attTest:Object = attributeRangeTest.exec(curSelection.text);
+			if (attTest != null) {
+				
+			
+			var endpos:uint = curSelection.beginIndex+attTest[0].length
+			//always be prepared for full selection:
+			curSelection.endIndex = endpos;
+			if (selAttr != curSelection.beginIndex || attrToggle=="full") {
+					selAttr = curSelection.beginIndex;
+					attrToggle = "value";
+					//value first
+					curSelection.endIndex -= 1;// end quote;
+					curSelection.beginIndex += curSelection.text.indexOf(attTest.value);
+		
+			} else {
+					if (attrToggle == "value") {
+						attrToggle = "name";
+						curSelection.endIndex = curSelection.beginIndex + attTest.name.length;
+					}
+					else {
+						attrToggle = "full";
+						curSelection.beginIndex = selAttr+curSelection.text.search(attributeRangeTest);;
+					}
+				}
+				if (attrToggle == "value") {
+					
+					switch (attTest.name)
+					{
+						case 'color':
+						colorChooser.visible  = true;
+						var col:uint=ColorUtil.resolveColor(attTest.value)
+						colorChooser.selectedColor = col;
+						break;
+						default:
+						colorChooser.visible = false;
+						break;
+					}
+				} else {
+					colorChooser.visible  = false;
+				}
+				return;
+			}
+			
+			if (curSelection.text.substr(0,2) == "</") {
+				curSelection.endIndex -= 2;
+				curSelection.beginIndex += 2;
+				return;
+			}
+			if (curSelection.text.charAt(0) == "<") {
+				curSelection.beginIndex++;
+				return;
+			}
+			
+		
 		}
 		public function showStub(event:Event):void
 		{
@@ -75,8 +174,19 @@ package com
 			if (txt_source.selection.modifiesSelection) txt_source.selection.text = stub;
 		}
 		
+		public function updateColor():void
+		{
+			var sel:uint = colorChooser.selectedColor;
+			//we haven't set up the reverselookup yet, just use regular hex
+			var hexVal:String = "#"+sel.toString(16);
+			txt_source.selection.text = hexVal;
+			capture(new Event(Event.CHANGE));
+			
+		}
+		
 		public function getSelectedTagType():void
 		{
+			//TODO: update to use regex
 			if (txt_source.text.length)
 			{
 				var tRange:TextRange = txt_source.selection;
@@ -109,7 +219,6 @@ package com
 		
 		public function capture(event:Event):void
 		{
-		
 			Parser.capture(clean());
 			render(Parser.geos);
 		}
