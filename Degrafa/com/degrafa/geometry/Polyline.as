@@ -257,7 +257,7 @@ package com.degrafa.geometry{
 				var i:int = 0;
 				var length:int = _points.items.length;					
 				for (;i < length; i++){
-					commandStack.addMoveTo(_points.items[i].x+x,_points.items[i].y+y);
+					commandStack.addLineTo(_points.items[i].x+x,_points.items[i].y+y);
 				}	
 			
 				//close if required
