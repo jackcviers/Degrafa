@@ -123,7 +123,7 @@ package com.degrafa.geometry.repeaters
 		 * This ends the modification loop and we need to set back our modified property to its original state
 		 */
 		public function end():void {
-
+			if (!_modifyInProgress) return;
 			for (var i:int=0;i<_targetObjects.length;i++) {
 				_targetObjects[i][_targetProperties[i]]=_originalValues[i];
 			}
@@ -141,7 +141,7 @@ package com.degrafa.geometry.repeaters
 		 */
 		public function apply():void {
 			
-			var tempOffset:Number;
+			var tempOffset:Object;
 			
 			var bounds:Rectangle=new Rectangle();
 			
@@ -155,17 +155,19 @@ package com.degrafa.geometry.repeaters
 			else {
 				tempOffset=Number(_offset);
 			}
-			
-			for (var i:int=0;i<_targetObjects.length;i++) {
-				
-				if (_offsetOperator==PropertyModifier.OFFSET_ADD)
-					_targetObjects[i][_targetProperties[i]]+=tempOffset;
-				else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT)
-					_targetObjects[i][_targetProperties[i]]-=tempOffset;
-				else
-					_targetObjects[i][_targetProperties[i]]=tempOffset;
-			}
 
+			if (_offset!=null) {
+				for (var i:int=0;i<_targetObjects.length;i++) {
+					
+					if (_offsetOperator==PropertyModifier.OFFSET_ADD)
+						_targetObjects[i][_targetProperties[i]]+=Number(tempOffset);
+					else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT)
+						_targetObjects[i][_targetProperties[i]]-=Number(tempOffset);
+					else
+						_targetObjects[i][_targetProperties[i]]=tempOffset;
+				}
+			}
+			
 			_iteration++;
 
 			

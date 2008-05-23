@@ -51,8 +51,10 @@ package com.degrafa.geometry.repeaters
 		**/
 		private var _count:int=1;
 		public function set count(value:int):void {
+			var oldValue:int=_count;
 			_count=value;
 			invalidated=true;
+			initChange("count",oldValue,_count,this);
 		}
 		public function get count():int { return _count; }	
 		
