@@ -27,6 +27,7 @@ package com.degrafa.geometry.repeaters
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.Graphics;
+	import flash.events.Event;
 	import flash.geom.Rectangle;
 	import flash.utils.getTimer;
 	
@@ -37,12 +38,10 @@ package com.degrafa.geometry.repeaters
 		
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
-		
+		private var _isDrawing:Boolean=false;
 		
 		public function GeometryRepeater(){
 			super();
-
-
 		}
 
 		
@@ -100,9 +99,16 @@ package com.degrafa.geometry.repeaters
 		* geometry object or it's child objects.
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			
+			if(_isDrawing) return;
 			// getting here means a modifier has changed after treating the items that changed we need to dispatch
 			// so that it works it's way up to start the draw cycle.
+			if (!parent){
+                dispatchEvent(event)
+                draw(null,null);
+            }
+            else{
+                dispatchEvent(event)
+            }
 		}
 		
 		
@@ -113,9 +119,14 @@ package com.degrafa.geometry.repeaters
 		
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
+			
+			if(!this.isInitialized){return;}
+			
+			_isDrawing=true;
+			
 			var t:Number=getTimer();
 		
-			this.suppressEventProcessing=true;
+			suppressEventProcessing=true;
 			//Clone source geometery to reset it
 			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
 
@@ -126,13 +137,33 @@ package com.degrafa.geometry.repeaters
 				//Apply our modifiers
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
 					DegrafaObject(modifier).parent=this;
-					
+					DegrafaObject(modifier).suppressEventProcessing=true;
 					if (i==0) modifier.beginModify(geometryCollection);
 					modifier.apply();
 				}
 
 				//Draw out our changed object
-				super.draw(graphics,rc);
+				//super.draw(graphics,rc);
+				
+				if(graphics){
+                    super.draw(graphics,rc);
+                    super.endDraw(graphics);
+                }
+                else{
+                    
+                    if(graphicsTarget){
+                        for each (var targetItem:Object in graphicsTarget){
+                            if(targetItem){
+                                if(autoClearGraphicsTarget){
+                                    targetItem.graphics.clear();
+                                }
+                                super.draw(targetItem.graphics,null);
+                                super.endDraw(targetItem.graphics);
+                            }
+                        }
+                    }
+                    
+                }//
 				
 			}
 			
@@ -142,11 +173,29 @@ package com.degrafa.geometry.repeaters
 			//End modifications (which returns the object to its original state
 			for each (modifier in _modifiers.items) {
 				modifier.end();
-				modifier=null;
+				DegrafaObject(modifier).suppressEventProcessing=false;
 			}
+			
+			suppressEventProcessing=false;
+			
+			_isDrawing=false;
 			
 			trace("elapsed draw time: " + String(getTimer()-t));
 		}
+		
+		/**
+		 * We need to override DegrafaObject here, because we don't want to trigger another change event 
+		 * as it would put us in an endless loop with the draw function
+		 */
+	    override public function dispatchEvent(evt:Event):Boolean{
+	    	if(suppressEventProcessing || _isDrawing){
+	        	evt.stopImmediatePropagation();
+	     		return false;
+	     	}
+	     	
+	     	return eventDispatcher.dispatchEvent(evt);
+	     	
+	    }
 		
 		private function calcBounds():void {
 			_bounds=new Rectangle;

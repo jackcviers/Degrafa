@@ -85,7 +85,9 @@ package com.degrafa.geometry.repeaters
 		 */ 
 		private var _offset:Object;
 		public function set offset(value:Object):void {
+			var oldValue:Object=_offset;
 			_offset=value;
+			initChange("offset",oldValue,_offset,this);
 		}
 		public function get offset():Object { return _offset };
 
@@ -114,6 +116,7 @@ package com.degrafa.geometry.repeaters
 			setTargetProperty(_sourceObject);
 			_iteration=0;
 			_modifyInProgress=true;
+			this.suppressEventProcessing=true;
 		}
 		
 		/**
@@ -130,6 +133,7 @@ package com.degrafa.geometry.repeaters
 			}
 			_iteration=0;
 			_modifyInProgress=false;
+			this.suppressEventProcessing=false;
 		}
 		
 		/**
@@ -203,6 +207,7 @@ package com.degrafa.geometry.repeaters
 					if (Geometry(targetObject).parent!=this.parent) continue;
 					Geometry(targetObject).suppressEventProcessing=true;
 				}
+				else if (targetObject==null) continue;
 			
 				if (_property.indexOf(".")<0) {
 					targetProperty=_property;
