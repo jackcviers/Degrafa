@@ -149,7 +149,7 @@ package com.degrafa.geometry.repeaters
 				
 				if(graphics){
                     super.draw(graphics,rc);
-                    super.endDraw(graphics);
+                   // super.endDraw(graphics);
                 }
                 else{
                     
@@ -160,7 +160,7 @@ package com.degrafa.geometry.repeaters
                                     targetItem.graphics.clear();
                                 }
                                 super.draw(targetItem.graphics,null);
-                                super.endDraw(targetItem.graphics);
+                               // super.endDraw(targetItem.graphics);
                             }
                         }
                     }
