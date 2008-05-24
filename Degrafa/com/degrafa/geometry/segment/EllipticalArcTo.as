@@ -329,7 +329,8 @@ package com.degrafa.geometry.segment{
 			}
 			
 			if(!commandStackItem){
-				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK);
+				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
 			}	
 			
 			var computedArc:Object = ArcUtils.computeSvgArc(rx,ry,xAxisRotation,Boolean(largeArcFlag),
