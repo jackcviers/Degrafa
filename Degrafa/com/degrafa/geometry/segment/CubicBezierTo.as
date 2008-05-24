@@ -340,6 +340,12 @@ package com.degrafa.geometry.segment{
 				1,commandStackItem.commandStack,true);
 			}
 			
+			//not sure about this but it seems the best way temporarily
+			
+			commandStackItem.end.x=absRelOffset.x+x;
+			commandStackItem.end.y=absRelOffset.y+y;
+			
+						
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;
 			this.lastControlPoint=lastControlPoint;

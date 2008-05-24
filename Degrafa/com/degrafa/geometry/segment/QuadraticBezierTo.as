@@ -249,19 +249,25 @@ package com.degrafa.geometry.segment{
 			if(!commandStackItem){	
 				if(isShortSequence){
 					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
-					lastPoint.x+(lastPoint.x-lastControlPoint.x),
-					lastPoint.y+(lastPoint.y-lastControlPoint.y),
+					NaN,
+					NaN,
 					absRelOffset.x+x,
-					absRelOffset.y+y);
+					absRelOffset.y+y,
+					lastPoint.x+(lastPoint.x-lastControlPoint.x),
+					lastPoint.y+(lastPoint.y-lastControlPoint.y)
+					);
 				
 					commandStack.addItem(commandStackItem);
 				}
 				else{
 					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
-					absRelOffset.x+cx,
-					absRelOffset.y+cy,
+					NaN,
+					NaN,
 					absRelOffset.x+x,
-					absRelOffset.y+y);
+					absRelOffset.y+y,
+					absRelOffset.x+cx,
+					absRelOffset.y+cy
+					);
 				
 					commandStack.addItem(commandStackItem);
 					
