@@ -89,18 +89,7 @@ package com.degrafa.geometry.command{
 		public var delegate:Function;
 		
 		public var commandStack:CommandStack;
-		
-		public function resetValues(x:Number=NaN,y:Number=NaN,cx:Number=NaN,cy:Number=NaN,x1:Number=NaN,y1:Number=NaN):void{
-			this.x=x;
-			this.y=y;
-			this.cx=cx;
-			this.cy=cy;
-			this.x1=x1;
-			this.y1=y1;
-			initPoints();
-		}
-		
-		
+				
 		/**
 		* Returns the length of the this segment
 		**/

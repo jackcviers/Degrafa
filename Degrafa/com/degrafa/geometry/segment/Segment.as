@@ -24,6 +24,7 @@ package com.degrafa.geometry.segment{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.command.CommandStackItem;
 	
 	[DefaultProperty("data")]
 	[Bindable(event="propertyChange")]
@@ -112,15 +113,12 @@ package com.degrafa.geometry.segment{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandStack:CommandStack;
-		public function get commandStack():CommandStack{
-			if(!_commandStack)
-				_commandStack = new CommandStack();
-			
-			return _commandStack;
+		private var _commandStackItem:CommandStackItem;
+		public function get commandStackItem():CommandStackItem{
+			return _commandStackItem;
 		}	
-		public function set commandStack(value:CommandStack):void{
-			_commandStack=value;
+		public function set commandStackItem(value:CommandStackItem):void{
+			_commandStackItem=value;
 		}
 				
 	}

@@ -246,48 +246,49 @@ package com.degrafa.geometry.segment{
 			
 			//not yet created need to build it 
 			//otherwise just reset the values.
-			if(this.commandStack.length==0){
+			if(!commandStackItem){	
 				if(isShortSequence){
-					this.commandStack.addCurveTo(lastPoint.x+(lastPoint.x-lastControlPoint.x),
-					lastPoint.y+(lastPoint.y-lastControlPoint.y),
-					absRelOffset.x+x,
-					absRelOffset.y+y);
-				}
-				else{
-	   				this.commandStack.addCurveTo(absRelOffset.x+cx,
-					absRelOffset.y+cy,
-					absRelOffset.x+x,
-					absRelOffset.y+y);
-	   			}
-				commandStack.addCommandStack(this.commandStack);
-			}
-			else{
-				if(isShortSequence){
-					this.commandStack.getItem(0).resetValues(NaN,NaN,
+					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
 					lastPoint.x+(lastPoint.x-lastControlPoint.x),
 					lastPoint.y+(lastPoint.y-lastControlPoint.y),
 					absRelOffset.x+x,
 					absRelOffset.y+y);
+				
+					commandStack.addItem(commandStackItem);
 				}
 				else{
-					this.commandStack.getItem(0).resetValues(NaN,NaN,absRelOffset.x+cx,
+					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
+					absRelOffset.x+cx,
 					absRelOffset.y+cy,
 					absRelOffset.x+x,
 					absRelOffset.y+y);
+				
+					commandStack.addItem(commandStackItem);
+					
+	   			}
+			}
+			else{
+				if(isShortSequence){
+					commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
+					commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
+					commandStackItem.x1 = absRelOffset.x+x,
+					commandStackItem.y1 = absRelOffset.y+y;
+				}
+				else{
+					commandStackItem.cx = absRelOffset.x+cx;
+					commandStackItem.cy = absRelOffset.y+cy,
+					commandStackItem.x1 = absRelOffset.x+x,
+					commandStackItem.y1 = absRelOffset.y+y;
 				}
 			}
-				
-        	
+				        	
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;
 			this.lastControlPoint=lastControlPoint;
 			
 			//pre calculate the bounds for this segment
 			preDraw();
-							
 		
 		}
-		
-		
 	}
 }

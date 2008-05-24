@@ -130,34 +130,16 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			//var item:CommandStackItem;
 			
-			//if(!invalidated){
-				/*for each(item in this.commandStack.source){
-					commandStack.addItem(item);		
-				}*/
-				//return;
-			//}
-			
-			//reset the array
-			//this.commandStack.length=0;
-			
-			if(this.commandStack.length==0){
-				this.commandStack.addLineTo(firstPoint.x,firstPoint.y);
-				commandStack.addCommandStack(this.commandStack);
+			if(!commandStackItem){	
+				commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y);
+				commandStack.addItem(commandStackItem);
 			}
 			else{
-				this.commandStack.getItem(0).resetValues(firstPoint.x,firstPoint.y)
+				commandStackItem.x = firstPoint.x;
+				commandStackItem.y = firstPoint.y;
 			}
-			
-			
-			//this.commandStack.push(new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y));
-			
-			//create a return command array adding each item from the local array
-			/*for each(item in this.commandStack.source){
-				commandStack.addItem(item);
-			}*/
-			
+						
 			this.lastPoint =lastPoint;
 			this.firstPoint=firstPoint;
 			

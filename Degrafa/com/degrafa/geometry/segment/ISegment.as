@@ -23,6 +23,7 @@ package com.degrafa.geometry.segment{
 	
 	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.command.CommandStackItem;
 	
 	/**
  	* Base interface for all Degrafa segment objects.
@@ -40,8 +41,8 @@ package com.degrafa.geometry.segment{
 		function get coordinateType():String;		
 		function set coordinateType(value:String):void;
 		
-		function get commandStack():CommandStack		
-		function set commandStack(value:CommandStack):void	
+		function get commandStackItem():CommandStackItem		
+		function set commandStackItem(value:CommandStackItem):void	
 		
 	}
 }

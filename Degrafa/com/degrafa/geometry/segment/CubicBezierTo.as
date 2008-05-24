@@ -225,7 +225,7 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():Rectangle{
 			
-			if(commandStack.length==0){return null;}
+			if(commandStackItem.commandStack.length==0){return null;}
 			
 			var boundsMaxX:Number =0;
 			var boundsMaxY:Number =0;
@@ -234,7 +234,7 @@ package com.degrafa.geometry.segment{
 			
 			var item:CommandStackItem;
 			
-			for each(item in this.commandStack.source){
+			for each(item in this.commandStackItem.commandStack.source){
 				if(item.type==2){
 					with(item){	
 						boundsMinX = Math.min(boundsMinX,x1);
@@ -313,12 +313,14 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//add for the first run
-			if(this.commandStack.length==0){			
-				commandStack.addCommandStack(this.commandStack);
+			if(!commandStackItem){			
+				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
+				commandStack.addItem(commandStackItem);
 			}
 			
 			//clear the array in this case as it's a complex item
-			this.commandStack.length=0;
+			commandStackItem.commandStack.length=0;
 						
 			if(isShortSequence){
 				
@@ -327,7 +329,7 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack,true);
+				1,commandStackItem.commandStack,true);
 			}
 			else{
 				GeometryUtils.cubicToQuadratic(
@@ -335,10 +337,8 @@ package com.degrafa.geometry.segment{
 				new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
 				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
 				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,this.commandStack,true);
+				1,commandStackItem.commandStack,true);
 			}
-			
-			
 			
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;

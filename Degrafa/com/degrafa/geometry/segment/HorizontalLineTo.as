@@ -164,37 +164,24 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			//var item:CommandStackItem;
-			
 			if(!invalidated){
-				/*for each(item in this.commandStack.source){
-					commandStack.addItem(item);		
-				}*/
 				return;
 			}
 			
-			//reset the array
-			this.commandStack.length=0;
+			if(!commandStackItem){	
+				commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,absRelOffset.x+x,lastPoint.y);
+				commandStack.addItem(commandStackItem);
+			}
+			else{
+				commandStackItem.x = absRelOffset.x+x;
+				commandStackItem.y = lastPoint.y;
+			}
 			
-			this.commandStack.addLineTo(absRelOffset.x+x,lastPoint.y);
-			
-			commandStack.addCommandStack(this.commandStack);
-			
-			//this.commandArray.push(new CommandStackItem(CommandStackItem.LINE_TO,absRelOffset.x+x,lastPoint.y));
-        	
-        	//create a return command array adding each item from the local array
-			/*for each(item in this.commandStack.source){
-				commandStack.addItem(item);
-			}*/
-        	
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;
 			
 			//pre calculate the bounds for this segment
 			preDraw();
-			
-			//old just for refference tilltesting complete
-        	//calcBounds(lastPoint,new Point(absRelOffset.x+x,lastPoint.y));
 			
 		}
 		

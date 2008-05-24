@@ -119,6 +119,7 @@ package com.degrafa.geometry.command{
         				item.delegate(this);
         				break;
         			
+        			//recurse if required
         			case CommandStackItem.COMMAND_STACK:
         				renderCommandStack(new DegrafaCursor(item.commandStack.source))
         		
