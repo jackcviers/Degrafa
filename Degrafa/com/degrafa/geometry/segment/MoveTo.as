@@ -194,12 +194,13 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			var item:CommandStackItem;
+			//var item:CommandStackItem;
 			
 			if(!invalidated){
-				for each(item in this.commandStack.source){
+				/*for each(item in this.commandStack.source){
 					commandStack.addItem(item);		
-				}
+				}*/
+				return;
 			}
 			
 			//reset the array
@@ -207,12 +208,14 @@ package com.degrafa.geometry.segment{
 			
 			this.commandStack.addMoveTo(absRelOffset.x+x,absRelOffset.y+y);
 			
+			commandStack.addCommandStack(this.commandStack);
+			
 			//this.commandArray.push(new CommandStackItem(CommandStackItem.MOVE_TO,absRelOffset.x+x,absRelOffset.y+y));
         	
         	//create a return command array adding each item from the local array
-			for each(item in this.commandStack.source){
+			/*for each(item in this.commandStack.source){
 				commandStack.addItem(item);	
-			}
+			}*/
         	
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;

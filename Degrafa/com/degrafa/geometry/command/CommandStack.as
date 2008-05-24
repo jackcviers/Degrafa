@@ -70,8 +70,6 @@ package com.degrafa.geometry.command{
 			//setup the fill
 			owner.initFill(graphics,rc);
 			
-			var item:CommandStackItem;
-						
 			if(owner.decorators.length !=0){
 				cmdSource = CloneUtil.clone(source)
 				_cursor = new DegrafaCursor(cmdSource);
@@ -87,9 +85,21 @@ package com.degrafa.geometry.command{
 				_cursor = new DegrafaCursor(source);	
 			}
 			
-			while(_cursor.moveNext()){	   			
+			renderCommandStack(_cursor);
+			        	
+        	if(owner.decorators.length !=0){
+        		cmdSource.length = 0;
+        	}
+        	
+        	endDraw(graphics);
+		}
+		
+		private function renderCommandStack(cursor:DegrafaCursor=null):void{
+			
+			var item:CommandStackItem;
+			while(cursor.moveNext()){	   			
 	   			
-	   			item = _cursor.current;
+	   			item = cursor.current;
 					
 				switch(item.type){
 					
@@ -106,20 +116,18 @@ package com.degrafa.geometry.command{
         				break;
         				
         			case CommandStackItem.DELEGATE_TO:
-        				////Dev Note ::?? can we *optionally* pass the source and or graphics/rc here .. ?
-        				//to avoid storing it locally
         				item.delegate(this);
         				break;
+        			
+        			case CommandStackItem.COMMAND_STACK:
+        				renderCommandStack(new DegrafaCursor(item.commandStack.source))
+        		
         		}
         		
         		updatePointer(item);
         	}
-        	
-        	if(owner.decorators.length !=0){
-        		cmdSource.length = 0;
-        	}
-        	
-        	endDraw(graphics);
+			
+				
 		}
 		
 		protected function endDraw(graphics:Graphics):void{
@@ -135,6 +143,7 @@ package com.degrafa.geometry.command{
 			}
 	    }
 		
+		//create and add move to item
 		public function addMoveTo(x:Number,y:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
 			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
@@ -143,6 +152,7 @@ package com.degrafa.geometry.command{
 			currentPointY =y;
 		}
 		
+		//create and add line to item
 		public function addLineTo(x:Number,y:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.LINE_TO,
 			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
@@ -153,6 +163,7 @@ package com.degrafa.geometry.command{
 			lengthIsValid = false;
 		}
 		
+		//create and add curve to item
 		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
 			source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
 			NaN,NaN,x1,y1,cx,cy,currentPointX,currentPointY));
@@ -163,49 +174,48 @@ package com.degrafa.geometry.command{
 			lengthIsValid = false;
 		}
 		
+		//create and add delegate function item
 		public function addDelegate(delegate:Function):void{
 			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO));
 		}
 		
+		//create and add command stack item
+		public function addCommandStack(commandStack:CommandStack):void{
+			source.push(new CommandStackItem(CommandStackItem.COMMAND_STACK,
+			NaN,NaN,NaN,NaN,NaN,NaN,currentPointX,currentPointY,commandStack));
+			
+			//currentPointX =x;
+			//currentPointY =y;
+			
+		}
+		
+		public function getItem(index:int):CommandStackItem{
+			return source[index];
+		}
+		
+		//add an already created item		
 		public function addItem(value:CommandStackItem):void{
 			
-			switch(value.type){
-				
-				case "m":
-				case "l":
-					value.ox=currentPointX;
-					value.oy=currentPointY
-					currentPointX =value.x;
-					currentPointY =value.y;
-					break;
-				case "c":
-					value.ox=currentPointX;
-					value.oy=currentPointY
-					currentPointX =value.x1;
-					currentPointY =value.y1;
-					break;
-				case "d":
-					break;
-			}
-			
+			value.originX=currentPointX;
+			value.originY=currentPointY;
+			currentPointX =value.end.x;
+			currentPointY =value.end.y;
+					
 			source.push(value);
 			
-			lengthIsValid = false;
+			if(value.type != CommandStackItem.COMMAND_STACK){
+				lengthIsValid = false;
+			}
 			
 		}
 		
 		protected function updatePointer(item:CommandStackItem):void{
-			item.ox = pointer.x;
-			item.oy = pointer.y;
+			item.originX = pointer.x;
+			item.originY = pointer.y;
 			
-			if(item.x)
-				pointer.x = item.x;
-    		if(item.y)
-    			pointer.y = item.y;
-    		if(item.x1)
-				pointer.x = item.x1;
-    		if(item.y1)
-    			pointer.y = item.y1;
+			pointer.x = item.end.x;
+			pointer.y = item.end.y;
+			
 		}
 				
 		protected var _cursor:DegrafaCursor;
@@ -260,7 +270,7 @@ package com.degrafa.geometry.command{
 			
 			for (i=0; i<n; i++){
 				seg = source[i];
-				if (seg.type != "m"){
+				if (seg.type != 0){
 					curLength += seg.segmentLength;
 				}
 				else{
@@ -293,7 +303,7 @@ package com.degrafa.geometry.command{
 			for (i=0; i<n; i++){
 				seg = source[i];
 				
-				if (seg.type != "m"){
+				if (seg.type != 0){
 					curLength += seg.segmentLength;
 				}
 				else{

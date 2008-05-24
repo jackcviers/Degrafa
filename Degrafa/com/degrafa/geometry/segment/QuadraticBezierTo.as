@@ -239,46 +239,44 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			var item:CommandStackItem;
-			
+			//not changed just exit
 			if(!invalidated){
-				for each(item in this.commandStack.source){
-					commandStack.addItem(item);		
-				}
+				return;
 			}
 			
-			//reset the array
-			this.commandStack.length=0;
-									
-			if(isShortSequence){
-				this.commandStack.addCurveTo(lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				lastPoint.y+(lastPoint.y-lastControlPoint.y),
-				absRelOffset.x+x,
-				absRelOffset.y+y);
-				
-				/*this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
-				absRelOffset.x+x,
-				absRelOffset.y+y,
-				lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				lastPoint.y+(lastPoint.y-lastControlPoint.y)));*/
+			//not yet created need to build it 
+			//otherwise just reset the values.
+			if(this.commandStack.length==0){
+				if(isShortSequence){
+					this.commandStack.addCurveTo(lastPoint.x+(lastPoint.x-lastControlPoint.x),
+					lastPoint.y+(lastPoint.y-lastControlPoint.y),
+					absRelOffset.x+x,
+					absRelOffset.y+y);
+				}
+				else{
+	   				this.commandStack.addCurveTo(absRelOffset.x+cx,
+					absRelOffset.y+cy,
+					absRelOffset.x+x,
+					absRelOffset.y+y);
+	   			}
+				commandStack.addCommandStack(this.commandStack);
 			}
 			else{
-   				this.commandStack.addCurveTo(absRelOffset.x+cx,
-				absRelOffset.y+cy,
-				absRelOffset.x+x,
-				absRelOffset.y+y);
-   				
-   				/*this.commandArray.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,
-   				absRelOffset.x+x,
-				absRelOffset.y+y,
-				absRelOffset.x+cx,
-				absRelOffset.y+cy));*/
+				if(isShortSequence){
+					this.commandStack.getItem(0).resetValues(NaN,NaN,
+					lastPoint.x+(lastPoint.x-lastControlPoint.x),
+					lastPoint.y+(lastPoint.y-lastControlPoint.y),
+					absRelOffset.x+x,
+					absRelOffset.y+y);
+				}
+				else{
+					this.commandStack.getItem(0).resetValues(NaN,NaN,absRelOffset.x+cx,
+					absRelOffset.y+cy,
+					absRelOffset.x+x,
+					absRelOffset.y+y);
+				}
 			}
-			
-			//create a return command array adding each item from the local array
-			for each(item in this.commandStack.source){
-				commandStack.addItem(item);		
-			}
+				
         	
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;

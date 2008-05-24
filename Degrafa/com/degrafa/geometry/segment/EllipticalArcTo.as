@@ -323,13 +323,13 @@ package com.degrafa.geometry.segment{
 		**/
 		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:CommandStack):void{
 			
-			var item:CommandStackItem;
+			//var item:CommandStackItem;
 			
 			//test if anything has changed and only recalculate if something has
 			if(!invalidated){
-				for each(item in this.commandStack.source){
+				/*for each(item in this.commandStack.source){
 					commandStack.addItem(item);
-				}
+				}*/
 				return;
 			}
 			
@@ -346,12 +346,19 @@ package com.degrafa.geometry.segment{
 			
 						
 			//create a return command array adding each item from the local array
-			for each(item in this.commandStack.source){
+			/*for each(item in this.commandStack.source){
 				commandStack.addItem(item);
-			}
+			}*/
+			
+			
+			//NOTE :: why was this after adding the command stack 
+			//items before this latest change??
 			
 			//add the move to at the start of this stack
 			this.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
+			
+						
+			commandStack.addCommandStack(this.commandStack);
 			
 			this.lastPoint = lastPoint;
 			this.absRelOffset = absRelOffset;

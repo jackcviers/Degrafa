@@ -235,7 +235,7 @@ package com.degrafa.geometry.segment{
 			var item:CommandStackItem;
 			
 			for each(item in this.commandStack.source){
-				if(item.type=="c"){
+				if(item.type==2){
 					with(item){	
 						boundsMinX = Math.min(boundsMinX,x1);
 						boundsMinX = Math.min(boundsMinX,cx);
@@ -297,20 +297,10 @@ package com.degrafa.geometry.segment{
 				}
 			}
 			
-			var item:CommandStackItem;
-			
 			//test if anything has changed and only recalculate if something has
 			if(!invalidated){
-				//add each item from the local array (for some reason concat is not working properly here.)
-				for each(item in this.commandStack.source){
-					commandStack.addItem(item);
-				}
 				return;
 			}
-			
-			
-			//reset the array
-			this.commandStack.length=0;
 									
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
@@ -321,8 +311,15 @@ package com.degrafa.geometry.segment{
 				cy1Offset =0.000001;
 		
 			}
-	
-
+			
+			//add for the first run
+			if(this.commandStack.length==0){			
+				commandStack.addCommandStack(this.commandStack);
+			}
+			
+			//clear the array in this case as it's a complex item
+			this.commandStack.length=0;
+						
 			if(isShortSequence){
 				
 				GeometryUtils.cubicToQuadratic(
@@ -341,10 +338,7 @@ package com.degrafa.geometry.segment{
 				1,this.commandStack,true);
 			}
 			
-			//add each item from the local array (for some reason concat is not working properly here.)
-			for each(item in this.commandStack.source){
-				commandStack.addItem(item);
-			}
+			
 			
 			this.lastPoint =lastPoint;
 			this.absRelOffset=absRelOffset;

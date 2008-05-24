@@ -26,16 +26,17 @@ package com.degrafa.geometry.command{
 	
 	public class CommandStackItem{
 		
-		public static const MOVE_TO:String="m";
-		public static const LINE_TO:String="l";
-		public static const CURVE_TO:String="c";
-		public static const DELEGATE_TO:String="d";
+		public static const MOVE_TO:int=0;
+		public static const LINE_TO:int=1;
+		public static const CURVE_TO:int=2;
+		public static const DELEGATE_TO:int=3;
+		public static const COMMAND_STACK:int=4;
 		
-		private var start:Point = new Point();
-		private var control:Point = new Point();
-		private var end:Point = new Point();
+		public var start:Point = new Point();
+		public var control:Point = new Point();
+		public var end:Point = new Point();
 		
-		public function CommandStackItem(type:String="",x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,ox:Number=NaN,oy:Number=NaN){
+		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,originX:Number=NaN,originY:Number=NaN,commandStack:CommandStack=null){
 			this.type = type;
 			
 			this.x=x;
@@ -44,23 +45,29 @@ package com.degrafa.geometry.command{
 			this.y1=y1;
 			this.cx=cx;
 			this.cy=cy;
-			this.ox=ox;
-			this.oy=oy;
+			this.originX=originX;
+			this.originY=originY;
 			
-			start.x = ox;
-			start.y = oy;
+			this.commandStack = commandStack;
 			
-			control.x = (cx)? cx:0;
-			control.y = (cy)? cy:0;
-			
-			end.x = (type=="l")? x:x1;
-			end.y = (type=="l")? y:y1;
+			initPoints();
 			
 			registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
 			
 		}
+		
+		private function initPoints():void{
+			start.x = originX;
+			start.y = originY;
+			
+			control.x = (cx)? cx:0;
+			control.y = (cy)? cy:0;
+			
+			end.x = (type==1 || type==0)? x:x1;
+			end.y = (type==1 || type==0)? y:y1;
+		}
 				
-		public var type:String;
+		public var type:int;
 		public var id:String;
 		public var reference:String;
 		
@@ -74,12 +81,25 @@ package com.degrafa.geometry.command{
 		public var cx:Number;
 		public var cy:Number;
 		
-		// Origin points 
-		public var ox:Number;
-		public var oy:Number;
-		
+		// Origin point 
+		public var originX:Number;
+		public var originY:Number;
+				
 		// Function used in a DELEGATE_TO command
 		public var delegate:Function;
+		
+		public var commandStack:CommandStack;
+		
+		public function resetValues(x:Number=NaN,y:Number=NaN,cx:Number=NaN,cy:Number=NaN,x1:Number=NaN,y1:Number=NaN):void{
+			this.x=x;
+			this.y=y;
+			this.cx=cx;
+			this.cy=cy;
+			this.x1=x1;
+			this.y1=y1;
+			initPoints();
+		}
+		
 		
 		/**
 		* Returns the length of the this segment
@@ -88,12 +108,17 @@ package com.degrafa.geometry.command{
 		public function get segmentLength():Number{
 			if(!_segmentLength){
 				switch(type){
-					case "l":
-						_segmentLength =lineLength(ox,oy,x,y);
+					case CommandStackItem.LINE_TO:
+						_segmentLength =lineLength(originX,originY,x,y);
 						break;
-					case "c":
+					case CommandStackItem.CURVE_TO:
 						_segmentLength =curveLength();
 						break;
+					
+					case CommandStackItem.COMMAND_STACK:
+						_segmentLength =commandStack.pathLength();
+						break;
+					
 					default:
 						_segmentLength =0;
 						break;		
@@ -109,10 +134,13 @@ package com.degrafa.geometry.command{
 		public function segmentPointAt(t:Number):Point{
 			
 			switch(type){
-				case "l":
-					return pointAt(t,ox,oy,x,y);
-				case "c":
+				case CommandStackItem.LINE_TO:
+					return pointAt(t,originX,originY,x,y);
+				case CommandStackItem.CURVE_TO:
 					return curvePointAt(t);
+				case CommandStackItem.COMMAND_STACK:
+					return commandStack.pathPointAt(t);
+					
 				default:
 					return null;		
 			}
@@ -124,10 +152,13 @@ package com.degrafa.geometry.command{
 		public function segmentAngleAt(t:Number):Number{
 			
 			switch(type){
-				case "l":
-					return angle(ox,oy,x,y);
-				case "c":
+				case CommandStackItem.LINE_TO:
+					return angle(originX,originY,x,y);
+				case CommandStackItem.CURVE_TO:
 					return curveAngleAt(t);
+				case CommandStackItem.COMMAND_STACK:
+					return commandStack.pathAngleAt(t);
+					
 				default:
 					return 0;		
 			}
@@ -149,22 +180,22 @@ package com.degrafa.geometry.command{
 		**/
 		private function curveLength(accuracy:Number=5):Number {
 						
-			var dx:Number = x1 - ox;
-			var dy:Number = y1 - oy;
-			var cx:Number = (cx - ox)/dx;
-			var cy:Number = (cy - oy)/dy;
+			var dx:Number = x1 - originX;
+			var dy:Number = y1 - originY;
+			var cx:Number = (cx - originX)/dx;
+			var cy:Number = (cy - originY)/dy;
 			var f1:Number;
 			var f2:Number;
 			var t:Number;
 			var d:Number = 0;
-			var p:Point = new Point(ox,oy);
+			var p:Point = new Point(originX,originY);
 			var np:Point;
 			var i:Number;
 			for (i=1; i<accuracy; i++){
 				t = i/accuracy;
 				f1 = 2*t*(1 - t);
 				f2 = t*t;
-				np = new Point(ox + dx*(f1*cx + f2), oy + dy*(f1*cy + f2));
+				np = new Point(originX + dx*(f1*cx + f2), originY + dy*(f1*cy + f2));
 				d += lineLength(p.x,p.y,np.x,np.y);
 				p = np;
 			}
