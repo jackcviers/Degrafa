@@ -197,7 +197,6 @@ package com.degrafa{
 		
 			if(graphics){
 				super.draw(graphics,rc);
-				super.endDraw(graphics);
 			}
 			else{
 				
@@ -208,7 +207,6 @@ package com.degrafa{
 								targetItem.graphics.clear();
 							}
 							super.draw(targetItem.graphics,null);
-							super.endDraw(targetItem.graphics);
 						}
 					}
 				}
