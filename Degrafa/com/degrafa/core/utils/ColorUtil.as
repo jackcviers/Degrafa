@@ -28,18 +28,18 @@ package com.degrafa.core.utils{
 	public class ColorUtil{
 		public static function resolveColor(value:Object, none:uint = 0):uint {
 			if(value is uint){
-				if (value.toString(16).length==3){
-					return parseColorNotation(value as uint);		
-				}
-				else{
+			//	if (value.toString(16).length==3){
+			//		return parseColorNotation(value as uint);		
+			//	}
+			//	else{
 					return value as uint;
-				}
+			//	}
 			} 
 			else if(value is String){
 				return resolveColorFromString(value as String, none);
 			} 
 			else{
-				//always return black if not valide or no color found
+				//always return black if not valid or no color found
 				return 0x000000;
 			}
 		}
@@ -58,8 +58,10 @@ package com.degrafa.core.utils{
 			}
 			var color:uint = 0;
 			if(String(value).charAt(0)=="#" || String(value).substr(0,2)=="0x") {
-				// todo: shorthand
-				color = parseInt(String(value).replace("#", ""), 16);
+				value = value.replace("#", "");
+				//shorthand  e.g #FDF expands to #FFDDFF
+				if (value.length == 3) color = parseColorNotation(value);
+				else color = parseInt(value, 16);
 			} else { color = parseInt(String(value), 10); }
 			if(isNaN(color) || color==0) {
 				color = resolveColorFromKey(value as String, none);
@@ -150,36 +152,23 @@ package com.degrafa.core.utils{
 		/**
 		* Converts a decimal color to a hex value.
 		**/
-		public static function decColorToHex(color:Number):String{
+		public static function decColorToHex(color:uint,prefix:String="0x"):String{
 			
-			var colorArray:Array = color.toString(16).toUpperCase().split('');
-			var numChars:Number = colorArray.length;
-			
-			var i:int
-			for(i=0;i<(6-numChars);i++){
-				colorArray.unshift("0");
-			}
-			
-			return('0x' + colorArray.join(''));
-				
+			var hexVal:String =   ("00000" + color.toString(16).toUpperCase()).substr( -6);
+			return prefix + hexVal;
+						
 		}
 		
 		/**
 		* Take a short color notation and convert it to a full color.
 		* Repeats each value once so that #FB0 expands to #FFBB00 
 		**/
-		public static function parseColorNotation(color:uint):uint{
-			
-			//break this into an array to work with 
-			var repeatArray:Array = color.toString(16).split("");
-			
-			//repeat and cast it back
-			repeatArray[0] += repeatArray[0];
-			repeatArray[1] += repeatArray[1];
-			repeatArray[2] += repeatArray[2];
-			
-			return uint("0x" + repeatArray.join(""));
-				
+		public static function parseColorNotation(color:String):uint
+		{
+			//dev note:extra check here for #, although it's already removed when requested from inside resolveColorFromString method above
+			color = color.replace("#", ""); 
+			color = '0x'+color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
+			return uint(color);				
 		}
 		
 	}
