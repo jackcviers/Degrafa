@@ -28,12 +28,12 @@ package com.degrafa.core.utils{
 	public class ColorUtil{
 		public static function resolveColor(value:Object, none:uint = 0):uint {
 			if(value is uint){
-			//	if (value.toString(16).length==3){
-			//		return parseColorNotation(value as uint);		
-			//	}
-			//	else{
+				if (value.toString(16).length==3){
+					return parseColorNotation(value.toString(16));		
+				}
+				else{
 					return value as uint;
-			//	}
+				}
 			} 
 			else if(value is String){
 				return resolveColorFromString(value as String, none);
