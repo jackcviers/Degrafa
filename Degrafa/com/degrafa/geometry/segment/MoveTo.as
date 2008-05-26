@@ -148,10 +148,10 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			_bounds = new Rectangle(
-									Math.min(lastPoint.x, absRelOffset.x + x),
-									Math.min(lastPoint.y, absRelOffset.y + y), 
-									Math.abs(absRelOffset.x + x - lastPoint.x),
-									Math.abs(absRelOffset.y + y - lastPoint.y)
+									Math.min(lastPoint.x, commandStackItem.x),
+									Math.min(lastPoint.y, commandStackItem.y), 
+									Math.abs(commandStackItem.x - lastPoint.x),
+									Math.abs(commandStackItem.y - lastPoint.y)
 									);
 		}
 		
@@ -174,33 +174,37 @@ package com.degrafa.geometry.segment{
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);
-		private var absRelOffset:Point= new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if (!invalidated )
 				{
-					invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) )
+					invalidated= (!lastPoint.equals(this.lastPoint) )
 				}
 			
 			if(invalidated){
 		
 				if(!commandStackItem){	
 					commandStackItem = new CommandStackItem(CommandStackItem.MOVE_TO,
-					absRelOffset.x+x,absRelOffset.y+y);
+					_absCoordType? x: lastPoint.x+x,_absCoordType? y: lastPoint.y+y);
 					commandStack.addItem(commandStackItem);
 				}
 				else{
-					commandStackItem.x = absRelOffset.x+x;
-					commandStackItem.y = absRelOffset.y+y;
+					if (_absCoordType)
+						{
+						commandStackItem.x = x;
+						commandStackItem.y = y
+						} else {
+						commandStackItem.x = lastPoint.x + x;
+						commandStackItem.y = lastPoint.y + y;
+					}
 				}
+				//update this segment's point tracking reference
 				this.lastPoint.x = lastPoint.x;
 				this.lastPoint.y = lastPoint.y;
-				this.absRelOffset.x = absRelOffset.x;
-				this.absRelOffset.y = absRelOffset.y;				
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference

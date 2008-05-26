@@ -180,6 +180,13 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
+			_bounds = GeometryUtils.bezierBounds(	lastPoint.x,
+													lastPoint.y,
+													commandStackItem.cx,
+													commandStackItem.cy,
+													commandStackItem.x1,
+													commandStackItem.y1);
+			/*
 			if(isShortSequence){
 				_bounds = GeometryUtils.bezierBounds(lastPoint.x,lastPoint.y,lastPoint.x+(lastPoint.x-lastControlPoint.x),
 				lastPoint.y+(lastPoint.y-lastControlPoint.y),absRelOffset.x+x,absRelOffset.y+y);
@@ -187,7 +194,7 @@ package com.degrafa.geometry.segment{
 			else{
 				_bounds = GeometryUtils.bezierBounds(lastPoint.x,lastPoint.y,absRelOffset.x+cx,
 				absRelOffset.y+cy,absRelOffset.x+x,absRelOffset.y+y);
-			}
+			} */
 		}
 		
 		private var _bounds:Rectangle;
@@ -207,17 +214,16 @@ package com.degrafa.geometry.segment{
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);
-		private var absRelOffset:Point=new Point(NaN,NaN);
 		private var lastControlPoint:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if (!invalidated )
 			{
-				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) || !lastControlPoint.equals(this.lastControlPoint))
+				invalidated= (!lastPoint.equals(this.lastPoint) || !lastControlPoint.equals(this.lastControlPoint))
 			}
 			
 			
@@ -230,8 +236,8 @@ package com.degrafa.geometry.segment{
 						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
 						NaN,
 						NaN,
-						absRelOffset.x+x,
-						absRelOffset.y+y,
+						_absCoordType? x:lastPoint.x+x,
+						_absCoordType? y:lastPoint.y+y,
 						lastPoint.x+(lastPoint.x-lastControlPoint.x),
 						lastPoint.y+(lastPoint.y-lastControlPoint.y)
 						);
@@ -242,34 +248,43 @@ package com.degrafa.geometry.segment{
 						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
 						NaN,
 						NaN,
-						absRelOffset.x+x,
-						absRelOffset.y+y,
-						absRelOffset.x+cx,
-						absRelOffset.y+cy
+						_absCoordType? x:lastPoint.x+x,
+						_absCoordType? y:lastPoint.y+y,
+						_absCoordType? cx:lastPoint.x+cx,
+						_absCoordType? cy:lastPoint.y+cy
 						);
 					
 						commandStack.addItem(commandStackItem);
 						
 					}
 				}
-				else{
+				else{  
 					if(isShortSequence){
 						commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
 						commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
-						commandStackItem.x1 = absRelOffset.x+x,
-						commandStackItem.y1 = absRelOffset.y+y;
+						commandStackItem.x1 = _absCoordType? x:lastPoint.x+x,
+						commandStackItem.y1 = _absCoordType? y:lastPoint.y+y;
 					}
-					else{
-						commandStackItem.cx = absRelOffset.x+cx;
-						commandStackItem.cy = absRelOffset.y+cy,
-						commandStackItem.x1 = absRelOffset.x+x,
-						commandStackItem.y1 = absRelOffset.y+y;
+					else
+					{
+						if (_absCoordType)
+						{
+						commandStackItem.cx = cx;
+						commandStackItem.cy = cy;
+						commandStackItem.x1 = x;
+						commandStackItem.y1 = y;
+						} else {
+						commandStackItem.cx = lastPoint.x + cx;
+						commandStackItem.cy = lastPoint.y + cy;
+						commandStackItem.x1 = lastPoint.x + x;
+						commandStackItem.y1 = lastPoint.y + y;
+						}
+						
 					}
 				}
+				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;
 				this.lastPoint.y = lastPoint.y;
-				this.absRelOffset.x = absRelOffset.x;
-				this.absRelOffset.y = absRelOffset.y;
 				this.lastControlPoint.x = lastControlPoint.x;
 				this.lastControlPoint.y = lastControlPoint.y;				
 			}

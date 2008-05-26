@@ -123,7 +123,6 @@ package com.degrafa.geometry{
 						case "L":
 							segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2]));
 							i+=2;
-							
 							//if the next item in the array is a number 
 							//assume that the line is a continued array
 							//so create a new line segment for each point 
@@ -134,7 +133,6 @@ package com.degrafa.geometry{
 									i+=2;
 								}
 							}
-							
 							break;
 								
 						case "l":
@@ -374,30 +372,13 @@ package com.degrafa.geometry{
 			//which case we need to mirror the last used control point (s,S,t,T)
 			var lastControlPoint:Point=lastPoint.clone();
 			
-			//absolute or relative offset
-			var absRelOffset:Point =lastPoint.clone();
-			
 			var i:int = 0;
 			var length:int = _segments.items.length;
 			var s:uint=getTimer()	
 		
 			for (; i < length; i++)
 			{
-				var curSegment:Object = _segments.items[i];
-				var segType:String = curSegment.segmentType;
-         		if(curSegment.coordinateType=="relative")
-        		{
-						absRelOffset.x =lastPoint.x;
-						absRelOffset.y =lastPoint.y;
-					}
-					else
-					{
-						absRelOffset.x = 0;	
-						absRelOffset.y = 0;	
-        		}
-        		
-					curSegment.computeSegment(firstPoint,lastPoint,absRelOffset,lastControlPoint,commandStack);
-
+				_segments.items[i].computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
         	}
 			trace('command stack build:' + ((getTimer() - s)));        	
 		}

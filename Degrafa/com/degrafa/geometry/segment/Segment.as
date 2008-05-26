@@ -83,22 +83,24 @@ package com.degrafa.geometry.segment{
 			if(_isShortSequence != value){
 				_isShortSequence = value;
 			}
-			
 		}
 		
 		
 		/**
 		* Coordinate type to be used for segment.
 		**/
-		private var _coordinateType:String="absolute";
+		internal var _absCoordType:Boolean = true;
+		
 		[Inspectable(category="General", enumeration="absolute,relative", defaultValue="absolute")]
-		public function set coordinateType(value:String):void{
-			if(_coordinateType != value){
-				_coordinateType = value;
+		public function set coordinateType(value:String):void
+		{
+			if ((value == "absolute") != _absCoordType)
+			{
+				_absCoordType = (value == "absolute");
 			}
 		}
 		public function get coordinateType():String{
-			return _coordinateType;
+			return _absCoordType? "absolute":"relative";
 		}
 		
 		//strickly overriden for each segment type

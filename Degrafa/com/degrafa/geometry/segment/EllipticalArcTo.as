@@ -316,18 +316,20 @@ package com.degrafa.geometry.segment{
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);
-		private var absRelOffset:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 		
 			
 			if (!invalidated )
 			{
-				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) )
+				invalidated= (!lastPoint.equals(this.lastPoint)  )
 			}
+			//precalc new last point tracking values
+			var nlpx:Number = _absCoordType? x :lastPoint.x + x;
+			var nlpy:Number = _absCoordType? y : lastPoint.y + y ;
 			
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
@@ -338,7 +340,7 @@ package com.degrafa.geometry.segment{
 			}	
 			
 			var computedArc:Object = ArcUtils.computeSvgArc(rx,ry,xAxisRotation,Boolean(largeArcFlag),
-			Boolean(sweepFlag),x+absRelOffset.x,y+absRelOffset.y,lastPoint.x,lastPoint.y);
+			Boolean(sweepFlag), nlpx, nlpy , lastPoint.x, lastPoint.y);
 	        
 	        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
 	        computedArc.arc,computedArc.radius,computedArc.yRadius,
@@ -346,19 +348,17 @@ package com.degrafa.geometry.segment{
 			
 			//add the move to at the start of this stack
 			commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
-			
-						
+			//update the stack being built
 			commandStack.addItem(commandStackItem);
 			
+			//update this segment's point references
 			this.lastPoint.x = lastPoint.x;
 			this.lastPoint.y = lastPoint.y;
-			this.absRelOffset.x = absRelOffset.x;
-			this.absRelOffset.y = absRelOffset.y;
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
-        		lastPoint.x = commandStackItem.x1;
-				lastPoint.y = commandStackItem.y1;
+        		lastPoint.x = nlpx;
+				lastPoint.y = nlpy;
 			
 			//pre calculate the bounds for this segment
 			preDraw();

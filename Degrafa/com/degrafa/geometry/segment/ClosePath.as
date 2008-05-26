@@ -115,7 +115,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if (!invalidated )
 				{
@@ -131,6 +131,7 @@ package com.degrafa.geometry.segment{
 					commandStackItem.x = firstPoint.x;
 					commandStackItem.y = firstPoint.y;
 				}
+				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;
 				this.lastPoint.y = lastPoint.y;
 				this.firstPoint.x = firstPoint.x;

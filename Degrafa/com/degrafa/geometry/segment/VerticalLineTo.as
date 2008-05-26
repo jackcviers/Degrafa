@@ -123,9 +123,9 @@ package com.degrafa.geometry.segment{
 		
 			_bounds = new Rectangle(
 							lastPoint.x,
-							Math.min(lastPoint.y, absRelOffset.y + y), 
+							Math.min(lastPoint.y, commandStackItem.y), 
 							0,
-							Math.abs(absRelOffset.y + y - lastPoint.y)
+							Math.abs(commandStackItem.y - lastPoint.y)
 						);
 						
 		}
@@ -147,15 +147,14 @@ package com.degrafa.geometry.segment{
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);
-		private var absRelOffset:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-	public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+	public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if(!invalidated) {
-				invalidated= (!lastPoint.x==this.lastPoint.x || !absRelOffset.y==this.absRelOffset.y)
+				invalidated= (lastPoint.x!=this.lastPoint.x || (!this._absCoordType && lastPoint.y!=this.lastPoint.y) )
 			}
 			
 			if(invalidated){
@@ -163,18 +162,17 @@ package com.degrafa.geometry.segment{
 			if(!commandStackItem){	
 				commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,
 				lastPoint.x,
-				absRelOffset.y+y);
+				_absCoordType? y:lastPoint.y + y);
 				
 				commandStack.addItem(commandStackItem);
 			}
 			else{
 				commandStackItem.x = lastPoint.x;
-				commandStackItem.y = absRelOffset.y+y;
+				commandStackItem.y = _absCoordType? y:lastPoint.y + y;
 			}
+				//update this segment's Point tracking reference
 				this.lastPoint.x = lastPoint.x;
 				this.lastPoint.y = lastPoint.y;
-				this.absRelOffset.x = absRelOffset.x;
-				this.absRelOffset.y = absRelOffset.y;
 			}
 			
 			

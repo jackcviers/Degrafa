@@ -265,28 +265,37 @@ package com.degrafa.geometry.segment{
 		} 
 				
 		private var lastPoint:Point=new Point(NaN,NaN);
-		private var absRelOffset:Point=new Point(NaN,NaN);
 		private var lastControlPoint:Point=new Point(NaN,NaN);
 		private static var _cy1Offset:Number =0.000001;
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
 			if (!invalidated )
 			{
-				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) || !lastControlPoint.equals(this.lastControlPoint))
+				invalidated= (!lastPoint.equals(this.lastPoint) || !lastControlPoint.equals(this.lastControlPoint))
 			}
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
 			//can sometimes occur from this.
 			var cy1Offset:Number = (cy1 == y)? _cy1Offset:0;
-			//some early references to the updated last tracking point coords in case we exit early
-			var nlcpx:Number = absRelOffset.x + cx1;
-			var nlcpy:Number = absRelOffset.y + cy1 + cy1Offset;
-			var nlpx:Number = absRelOffset.x + x; 
-			var nlpy:Number = absRelOffset.y + y;
 			
+			//some early references to the updated last tracking point coords in case we exit early
+			var nlcpx:Number;
+			var nlcpy:Number;
+			var nlpx:Number; 
+			var nlpy:Number;
+			if (_absCoordType)
+			{
+				nlcpx = cx1; nlcpy = cy1Offset + cy1; nlpx = x; nlpy = y;
+				
+			} else {
+				nlcpx = lastPoint.x + cx1;
+				nlcpy = lastPoint.y + cy1 + cy1Offset;;
+				nlpx = lastPoint.x + x;
+				nlpy = lastPoint.y + y;				
+			}
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 		
@@ -312,21 +321,19 @@ package com.degrafa.geometry.segment{
 				else{
 					GeometryUtils.cubicToQuadratic(
 					new GraphicPoint(lastPoint.x,lastPoint.y),
-					new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
+					new GraphicPoint(_absCoordType? cx:lastPoint.x+cx,_absCoordType ? cy : lastPoint.y+cy),
 					new GraphicPoint(nlcpx,nlcpy),
 					new GraphicPoint(nlpx,nlpy),
 					1,commandStackItem.commandStack,true);
 				}
 				
 				//not sure about this but it seems the best way temporarily
+				commandStackItem.end.x = nlpx;
+				commandStackItem.end.y = nlpy;
 				
-				commandStackItem.end.x = absRelOffset.x+x;
-				commandStackItem.end.y = absRelOffset.y + y;
-				
+				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;
 				this.lastPoint.y = lastPoint.y;
-				this.absRelOffset.x = absRelOffset.x;
-				this.absRelOffset.y = absRelOffset.y;
 				this.lastControlPoint.x = lastControlPoint.x;
 				this.lastControlPoint.y = lastControlPoint.y;	
 			}
