@@ -149,11 +149,6 @@ package com.degrafa.geometry.segment{
 		private function calcBounds():void
 		{
 
-/*			var l:Number = Math.min(lastPoint.x, absRelOffset.x + x);
-			var t:Number = Math.min(lastPoint.y, absRelOffset.y + y);
-			var w:Number = Math.abs(absRelOffset.x + x - lastPoint.x);
-			var h:Number = Math.abs(absRelOffset.y + y - lastPoint.y);
-*/
 			_bounds = new Rectangle(
 									Math.min(lastPoint.x, absRelOffset.x + x),
 									Math.min(lastPoint.y, absRelOffset.y + y), 
@@ -169,8 +164,6 @@ package com.degrafa.geometry.segment{
 		**/
 		public function get bounds():Rectangle
 		{
-			// if (!_bounds) trace('boundless')
-			 
 			return _bounds;	
 		}
 		
@@ -195,8 +188,6 @@ package com.degrafa.geometry.segment{
 					invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) )
 				}
 
-			
-			
 			if(invalidated){
 		
 				if(!commandStackItem){	
@@ -207,7 +198,10 @@ package com.degrafa.geometry.segment{
 					commandStackItem.x = absRelOffset.x+x;
 					commandStackItem.y = absRelOffset.y+y;
 				}
-			
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
+				this.absRelOffset.x = absRelOffset.x;
+				this.absRelOffset.y = absRelOffset.y;	
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
