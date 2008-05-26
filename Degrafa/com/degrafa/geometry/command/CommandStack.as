@@ -36,7 +36,6 @@ package com.degrafa.geometry.command{
 		public var source:Array = [];
 		public var cmdSource:Array;
 		public var pointer:Point = new Point(0,0);
-		public var graphics:Graphics;
 		
 		//used to store the origin at creation time as items are added
 		//and used to set the origin in the items as they are created
@@ -55,8 +54,6 @@ package com.degrafa.geometry.command{
 		
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
-			this.graphics = graphics;
-						
 			//exit if no command stack
 			if(source.length==0){return;}
 			
@@ -85,7 +82,7 @@ package com.degrafa.geometry.command{
 				_cursor = new DegrafaCursor(source);	
 			}
 			
-			renderCommandStack(_cursor);
+			renderCommandStack(graphics,rc,_cursor);
 			        	
         	if(owner.decorators.length !=0){
         		cmdSource.length = 0;
@@ -94,7 +91,7 @@ package com.degrafa.geometry.command{
         	endDraw(graphics);
 		}
 		
-		private function renderCommandStack(cursor:DegrafaCursor=null):void{
+		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 			
 			var item:CommandStackItem;
 			while(cursor.moveNext()){	   			
@@ -116,12 +113,12 @@ package com.degrafa.geometry.command{
         				break;
         				
         			case CommandStackItem.DELEGATE_TO:
-        				item.delegate(this);
+        				item.delegate(graphics,rc,this);
         				break;
         			
         			//recurse if required
         			case CommandStackItem.COMMAND_STACK:
-        				renderCommandStack(new DegrafaCursor(item.commandStack.source))
+        				renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
         		
         		}
         		
@@ -187,7 +184,6 @@ package com.degrafa.geometry.command{
 			
 			//currentPointX =x;
 			//currentPointY =y;
-			
 		}
 		
 		public function getItem(index:int):CommandStackItem{
@@ -331,6 +327,5 @@ package com.degrafa.geometry.command{
 		}
 
 
-		
 	}
 }
