@@ -272,7 +272,7 @@ package com.degrafa.geometry.segment{
 			
 			for each(item in commandStackItem.commandStack.source){
 				with(item){
-					if(type=="m"){
+					if(type==CommandStackItem.MOVE_TO){
 						boundsMinX = Math.min(boundsMinX,x);
 						boundsMinY = Math.min(boundsMinY,y);
 						boundsMaxX = Math.max(boundsMaxX,x);
@@ -315,19 +315,23 @@ package com.degrafa.geometry.segment{
 			
 		} 
 		
-		private var lastPoint:Point;
-		private var absRelOffset:Point;
+		private var lastPoint:Point=new Point(NaN,NaN);
+		private var absRelOffset:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		
 			
-			//test if anything has changed and only recalculate if something has
-			if(!invalidated){
-				return;
+			if (!invalidated )
+			{
+				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) )
 			}
 			
+			//test if anything has changed and only recalculate if something has
+			if(invalidated){
+				
 			if(!commandStackItem){
 				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
 				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
@@ -346,8 +350,15 @@ package com.degrafa.geometry.segment{
 						
 			commandStack.addItem(commandStackItem);
 			
-			this.lastPoint = lastPoint;
-			this.absRelOffset = absRelOffset;
+			this.lastPoint.x = lastPoint.x;
+			this.lastPoint.y = lastPoint.y;
+			this.absRelOffset.x = absRelOffset.x;
+			this.absRelOffset.y = absRelOffset.y;
+			}
+			
+			//update the buildFlashCommandStack Point tracking reference
+        		lastPoint.x = commandStackItem.x1;
+				lastPoint.y = commandStackItem.y1;
 			
 			//pre calculate the bounds for this segment
 			preDraw();

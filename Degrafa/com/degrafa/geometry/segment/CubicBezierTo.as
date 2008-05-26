@@ -264,91 +264,78 @@ package com.degrafa.geometry.segment{
 			invalidated = false;
 		} 
 				
-		private var lastPoint:Point;
-		private var absRelOffset:Point;
-		private var lastControlPoint:Point;
-		
+		private var lastPoint:Point=new Point(NaN,NaN);
+		private var absRelOffset:Point=new Point(NaN,NaN);
+		private var lastControlPoint:Point=new Point(NaN,NaN);
+		private static var _cy1Offset:Number =0.000001;
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
-			if(!invalidated && lastPoint){
-				if(this.lastPoint && !invalidated){
-					if(!lastPoint.equals(this.lastPoint)){
-						invalidated =true;
-					}
-				}
+			if (!invalidated )
+			{
+				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) || !lastControlPoint.equals(this.lastControlPoint))
 			}
-			
-			if(!invalidated && absRelOffset){
-				if(this.absRelOffset && !invalidated){
-					if(!absRelOffset.equals(this.absRelOffset)){
-						invalidated =true;
-					}
-				}
-			}
-			
-			if(!invalidated && lastControlPoint){
-				if(this.lastControlPoint && !invalidated){
-					if(!lastControlPoint.equals(this.lastControlPoint)){
-						invalidated =true;
-					}
-				}
-			}
-			
-			//test if anything has changed and only recalculate if something has
-			if(!invalidated){
-				return;
-			}
-									
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
 			//can sometimes occur from this.
-			var cy1Offset:Number=0;
-			if (cy1 == y) {
+			var cy1Offset:Number = (cy1 == y)? _cy1Offset:0;
+			//some early references to the updated last tracking point coords in case we exit early
+			var nlcpx:Number = absRelOffset.x + cx1;
+			var nlcpy:Number = absRelOffset.y + cy1 + cy1Offset;
+			var nlpx:Number = absRelOffset.x + x; 
+			var nlpy:Number = absRelOffset.y + y;
 			
-				cy1Offset =0.000001;
+			//test if anything has changed and only recalculate if something has
+			if(invalidated){
 		
-			}
-			
-			//add for the first run
-			if(!commandStackItem){			
-				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
-				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
-				commandStack.addItem(commandStackItem);
-			}
-			
-			//clear the array in this case as it's a complex item
-			commandStackItem.commandStack.length=0;
-						
-			if(isShortSequence){
+				//add for the first run
+				if(!commandStackItem){			
+					commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
+					commandStack.addItem(commandStackItem);
+				}
 				
-				GeometryUtils.cubicToQuadratic(
-				new GraphicPoint(lastPoint.x,lastPoint.y),
-				new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
-				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
-				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,commandStackItem.commandStack,true);
+				//clear the array in this case as it's a complex item
+				commandStackItem.commandStack.length=0;
+							
+				if(isShortSequence){
+					
+					GeometryUtils.cubicToQuadratic(
+					new GraphicPoint(lastPoint.x,lastPoint.y),
+					new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
+					new GraphicPoint(nlcpx,nlcpy),
+					new GraphicPoint(nlpx,nlpy),
+					1,commandStackItem.commandStack,true);
+				}
+				else{
+					GeometryUtils.cubicToQuadratic(
+					new GraphicPoint(lastPoint.x,lastPoint.y),
+					new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
+					new GraphicPoint(nlcpx,nlcpy),
+					new GraphicPoint(nlpx,nlpy),
+					1,commandStackItem.commandStack,true);
+				}
+				
+				//not sure about this but it seems the best way temporarily
+				
+				commandStackItem.end.x = absRelOffset.x+x;
+				commandStackItem.end.y = absRelOffset.y + y;
+				
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
+				this.absRelOffset.x = absRelOffset.x;
+				this.absRelOffset.y = absRelOffset.y;
+				this.lastControlPoint.x = lastControlPoint.x;
+				this.lastControlPoint.y = lastControlPoint.y;	
 			}
-			else{
-				GeometryUtils.cubicToQuadratic(
-				new GraphicPoint(lastPoint.x,lastPoint.y),
-				new GraphicPoint(absRelOffset.x+cx,absRelOffset.y+cy),
-				new GraphicPoint(absRelOffset.x+cx1,absRelOffset.y+cy1+cy1Offset),
-				new GraphicPoint(absRelOffset.x+x,absRelOffset.y+y),
-				1,commandStackItem.commandStack,true);
-			}
-			
-			//not sure about this but it seems the best way temporarily
-			
-			commandStackItem.end.x=absRelOffset.x+x;
-			commandStackItem.end.y=absRelOffset.y+y;
-			
 						
-			this.lastPoint =lastPoint;
-			this.absRelOffset=absRelOffset;
-			this.lastControlPoint=lastControlPoint;
+			//update the buildFlashCommandStack Point tracking reference
+			lastPoint.x = nlpx;
+			lastPoint.y = nlpy;
+			lastControlPoint.x = nlcpx;
+			lastControlPoint.y = nlcpy;
 						
 			//pre calculate the bounds for this segment
 			preDraw();

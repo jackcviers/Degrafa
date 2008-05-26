@@ -206,91 +206,80 @@ package com.degrafa.geometry.segment{
 			invalidated = false;
 		} 
 		
-		private var lastPoint:Point;
-		private var absRelOffset:Point;
-		private var lastControlPoint:Point;
+		private var lastPoint:Point=new Point(NaN,NaN);
+		private var absRelOffset:Point=new Point(NaN,NaN);
+		private var lastControlPoint:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
-			if(!invalidated && lastPoint){
-				if(this.lastPoint && !invalidated){
-					if(!lastPoint.equals(this.lastPoint)){
-						invalidated =true;
-					}
-				}
+			if (!invalidated )
+			{
+				invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) || !lastControlPoint.equals(this.lastControlPoint))
 			}
 			
-			if(!invalidated && absRelOffset){
-				if(this.absRelOffset && !invalidated){
-					if(!absRelOffset.equals(this.absRelOffset)){
-						invalidated =true;
-					}
-				}
-			}
 			
-			if(!invalidated && lastControlPoint){
-				if(this.lastControlPoint && !invalidated){
-					if(!lastControlPoint.equals(this.lastControlPoint)){
-						invalidated =true;
-					}
-				}
-			}
-			
-			//not changed just exit
-			if(!invalidated){
-				return;
-			}
-			
+		
+			if (invalidated){
 			//not yet created need to build it 
 			//otherwise just reset the values.
-			if(!commandStackItem){	
-				if(isShortSequence){
-					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
-					NaN,
-					NaN,
-					absRelOffset.x+x,
-					absRelOffset.y+y,
-					lastPoint.x+(lastPoint.x-lastControlPoint.x),
-					lastPoint.y+(lastPoint.y-lastControlPoint.y)
-					);
-				
-					commandStack.addItem(commandStackItem);
-				}
-				else{
-					commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
-					NaN,
-					NaN,
-					absRelOffset.x+x,
-					absRelOffset.y+y,
-					absRelOffset.x+cx,
-					absRelOffset.y+cy
-					);
-				
-					commandStack.addItem(commandStackItem);
+				if(!commandStackItem){	
+					if(isShortSequence){
+						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
+						NaN,
+						NaN,
+						absRelOffset.x+x,
+						absRelOffset.y+y,
+						lastPoint.x+(lastPoint.x-lastControlPoint.x),
+						lastPoint.y+(lastPoint.y-lastControlPoint.y)
+						);
 					
-	   			}
-			}
-			else{
-				if(isShortSequence){
-					commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
-					commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
-					commandStackItem.x1 = absRelOffset.x+x,
-					commandStackItem.y1 = absRelOffset.y+y;
+						commandStack.addItem(commandStackItem);
+					}
+					else{
+						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
+						NaN,
+						NaN,
+						absRelOffset.x+x,
+						absRelOffset.y+y,
+						absRelOffset.x+cx,
+						absRelOffset.y+cy
+						);
+					
+						commandStack.addItem(commandStackItem);
+						
+					}
 				}
 				else{
-					commandStackItem.cx = absRelOffset.x+cx;
-					commandStackItem.cy = absRelOffset.y+cy,
-					commandStackItem.x1 = absRelOffset.x+x,
-					commandStackItem.y1 = absRelOffset.y+y;
+					if(isShortSequence){
+						commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
+						commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
+						commandStackItem.x1 = absRelOffset.x+x,
+						commandStackItem.y1 = absRelOffset.y+y;
+					}
+					else{
+						commandStackItem.cx = absRelOffset.x+cx;
+						commandStackItem.cy = absRelOffset.y+cy,
+						commandStackItem.x1 = absRelOffset.x+x,
+						commandStackItem.y1 = absRelOffset.y+y;
+					}
 				}
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
+				this.absRelOffset.x = absRelOffset.x;
+				this.absRelOffset.y = absRelOffset.y;
+				this.lastControlPoint.x = lastControlPoint.x;
+				this.lastControlPoint.y = lastControlPoint.y;				
 			}
-				        	
-			this.lastPoint =lastPoint;
-			this.absRelOffset=absRelOffset;
-			this.lastControlPoint=lastControlPoint;
+			
+			//update the buildFlashCommandStack Point tracking reference
+        		lastPoint.x = commandStackItem.x1;
+				lastPoint.y = commandStackItem.y1;
+				lastControlPoint.x = commandStackItem.cx;
+				lastControlPoint.y = commandStackItem.cy;	
+				
 			
 			//pre calculate the bounds for this segment
 			preDraw();

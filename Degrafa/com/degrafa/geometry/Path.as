@@ -33,6 +33,8 @@ package com.degrafa.geometry{
 	
 	import mx.events.PropertyChangeEvent;
 	
+	
+	import flash.utils.getTimer;
 	//--------------------------------------
 	//  Other metadata
 	//--------------------------------------
@@ -59,6 +61,7 @@ package com.degrafa.geometry{
  	* 
  	**/
 	public class Path extends Geometry implements IGeometry{
+
 		
 		/**
 	 	* Constructor.
@@ -104,7 +107,7 @@ package com.degrafa.geometry{
 				* Quadratic Bezier = Q,q,T,t
 				* Cubic Bezier = C,c,S,s
 				**/
-				
+				var start:uint = getTimer();
 				var pathDataArray:Array = PathDataToArray(value)
 			
 				//store the array as we add items and set the segments after 
@@ -260,7 +263,7 @@ package com.degrafa.geometry{
 					}
 				}
 			
-			
+			trace('path data parsing:'+ ((getTimer()-start)))
 				segments = segmentStack;
 				invalidated = true;
 				
@@ -376,131 +379,27 @@ package com.degrafa.geometry{
 			
 			var i:int = 0;
 			var length:int = _segments.items.length;
-				
-			for (;i< length;i++){
-         		if(ISegment(_segments.items[i]).coordinateType=="relative")
+			var s:uint=getTimer()	
+		
+			for (; i < length; i++)
+			{
+				var curSegment:Object = _segments.items[i];
+				var segType:String = curSegment.segmentType;
+         		if(curSegment.coordinateType=="relative")
         		{
-        			absRelOffset.x =lastPoint.x;
-        			absRelOffset.y =lastPoint.y;
+						absRelOffset.x =lastPoint.x;
+						absRelOffset.y =lastPoint.y;
+					}
+					else
+					{
+						absRelOffset.x = 0;	
+						absRelOffset.y = 0;	
         		}
-        		else
-        		{
-        			absRelOffset.x = 0;	
-        			absRelOffset.y = 0;	
-        			
-        		}
-        		        		
-        		switch (ISegment(_segments.items[i]).segmentType)
-        		{        			
-        			case "LineTo":
         		
-    	    			//pass the last point the abs position and the commandArray 
-        				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
-    	    			
-    	    			lastPoint.x = absRelOffset.x+_segments.items[i].x;
-	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
-	        			break;
-        
-        			case "VerticalLineTo":
-        			
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
-        				
-	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
-	        			
-	    				break;
-        
-        			case "HorizontalLineTo":
-        		
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
-	        			
-	        			lastPoint.x = absRelOffset.x+_segments.items[i].x;
-	    				break;
-        
-        			case "MoveTo":
-        			
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to
-	        			_segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
-        				
-        				//reset stop points
-    	    			lastPoint.x = _segments.items[i].x+absRelOffset.x;
-	        			lastPoint.y = _segments.items[i].y+absRelOffset.y;
-        				
-        				
-        				firstPoint.x=_segments.items[i].x+absRelOffset.x;
-        				firstPoint.y=_segments.items[i].y+absRelOffset.y;
-        				        				
-        				break;
-        
-        			case "QuadraticBezierTo":
-        			
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to, here we also need to pass the 
-        				//last control point for continous bezier paths support
-        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack);
-        				if(_segments.items[i].cx==0 && _segments.items[i].cy ==0)
-        				{
-							lastControlPoint.x = absRelOffset.x+ (absRelOffset.x-lastControlPoint.x)
-	        				lastControlPoint.y = absRelOffset.y+ (absRelOffset.y-lastControlPoint.y)
+					curSegment.computeSegment(firstPoint,lastPoint,absRelOffset,lastControlPoint,commandStack);
 
-				        	}
-        				else{
-        					lastControlPoint.x = absRelOffset.x+_segments.items[i].cx;
-	        				lastControlPoint.y = absRelOffset.y+_segments.items[i].cy;
-	        			}
-	        			       			
-        				lastPoint.x = absRelOffset.x+_segments.items[i].x;
-	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;		
-        				break;
-        
-        			case "CubicBezierTo":
-        			
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to, here we also need to pass the 
-        				//last control point for continous bezier paths support
-        				_segments.items[i].computeSegment(lastPoint,absRelOffset,lastControlPoint,commandStack);
-        				
-						lastControlPoint.x = absRelOffset.x+_segments.items[i].cx1;
-	        			lastControlPoint.y = absRelOffset.y+_segments.items[i].cy1;
-	        			
-						lastPoint.x = absRelOffset.x+_segments.items[i].x;
-	        			lastPoint.y = absRelOffset.y+_segments.items[i].y;
-        				
-        				break;
-        
-        			case "EllipticalArcTo":
-        			
-        				//pass the last point the abs position and the commandStack 
-        				//to add the draw commands to
-	        		    _segments.items[i].computeSegment(lastPoint,absRelOffset,commandStack);
-				    			        			
-	        			lastPoint.x = _segments.items[i].x+absRelOffset.x;
-	        			lastPoint.y = _segments.items[i].y+absRelOffset.y;
-	        			        			
-        				break;
-        
-        			case "ClosePath":
-        				//the first point used is our close point for the path
-        				//this should be in all cases the move command
-        				if(firstPoint)
-        				{
-	        				_segments.items[i].computeSegment(lastPoint,firstPoint,commandStack);
-	        				
-	        			}
-	        			
-	        			lastPoint.x = firstPoint.x;
-	        			lastPoint.y = firstPoint.y;
-	        			
-        				break;
-        				
-        		}
-        	}						 		
-			        	
+        	}
+			trace('command stack build:' + ((getTimer() - s)));        	
 		}
 		
 		private var _bounds:Rectangle;
@@ -532,8 +431,8 @@ package com.degrafa.geometry{
         				break;
         			
         			default:	
-        				boundsRect = boundsRect.union(_segments.items[i].bounds);
-        		}
+						boundsRect = boundsRect.union(_segments.items[i].bounds);
+					}
         		
         	}		
         	

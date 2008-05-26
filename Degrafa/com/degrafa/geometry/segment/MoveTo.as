@@ -147,9 +147,12 @@ package com.degrafa.geometry.segment{
 		* Calculates the bounds for this segment. 
 		**/	
 		private function calcBounds():void{
-			_bounds = new Rectangle(Math.min(lastPoint.x,absRelOffset.x+x),
-			Math.min(lastPoint.y,absRelOffset.y+y), absRelOffset.x+x-lastPoint.x,
-			absRelOffset.y+y-lastPoint.y);
+			_bounds = new Rectangle(
+									Math.min(lastPoint.x, absRelOffset.x + x),
+									Math.min(lastPoint.y, absRelOffset.y + y), 
+									Math.abs(absRelOffset.x + x - lastPoint.x),
+									Math.abs(absRelOffset.y + y - lastPoint.y)
+									);
 		}
 		
 		private var _bounds:Rectangle;
@@ -170,46 +173,39 @@ package com.degrafa.geometry.segment{
 			
 		} 
 		
-		private var lastPoint:Point;
-		private var absRelOffset:Point;
+		private var lastPoint:Point=new Point(NaN,NaN);
+		private var absRelOffset:Point= new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,absRelOffset:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
-			if(!invalidated && lastPoint){
-				if(this.lastPoint && !invalidated){
-					if(!lastPoint.equals(this.lastPoint)){
-						invalidated =true;
-					}
+			if (!invalidated )
+				{
+					invalidated= (!lastPoint.equals(this.lastPoint) || !absRelOffset.equals(this.absRelOffset) )
 				}
-			}
 			
-			if(!invalidated && absRelOffset){
-				if(this.absRelOffset && !invalidated){
-					if(!absRelOffset.equals(this.absRelOffset)){
-						invalidated =true;
-					}
+			if(invalidated){
+		
+				if(!commandStackItem){	
+					commandStackItem = new CommandStackItem(CommandStackItem.MOVE_TO,
+					absRelOffset.x+x,absRelOffset.y+y);
+					commandStack.addItem(commandStackItem);
 				}
+				else{
+					commandStackItem.x = absRelOffset.x+x;
+					commandStackItem.y = absRelOffset.y+y;
+				}
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
+				this.absRelOffset.x = absRelOffset.x;
+				this.absRelOffset.y = absRelOffset.y;				
 			}
 			
-			if(!invalidated){
-				return;
-			}
-			
-			if(!commandStackItem){	
-				commandStackItem = new CommandStackItem(CommandStackItem.MOVE_TO,
-				absRelOffset.x+x,absRelOffset.y+y);
-				commandStack.addItem(commandStackItem);
-			}
-			else{
-				commandStackItem.x = absRelOffset.x+x;
-				commandStackItem.y = absRelOffset.y+y;
-			}
-			
-			this.lastPoint =lastPoint;
-			this.absRelOffset=absRelOffset;
+			//update the buildFlashCommandStack Point tracking reference
+        	firstPoint.x=lastPoint.x = commandStackItem.x;
+			firstPoint.y=lastPoint.y = commandStackItem.y;
 			
 			//pre calculate the bounds for this segment
 			preDraw();

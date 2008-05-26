@@ -83,9 +83,12 @@ package com.degrafa.geometry.segment{
 		* Calculates the bounds for this segment. 
 		**/	
 		private function calcBounds():void{
-			_bounds = new Rectangle(Math.min(lastPoint.x,firstPoint.x),
-			Math.min(lastPoint.y,firstPoint.y), firstPoint.x-lastPoint.x,
-			firstPoint.y-lastPoint.y);
+			_bounds = new Rectangle(
+							Math.min(lastPoint.x,firstPoint.x),
+							Math.min(lastPoint.y, firstPoint.y), 
+							Math.abs(firstPoint.x-lastPoint.x),
+							Math.abs(firstPoint.y - lastPoint.y)
+							);
 		}
 		
 		private var _bounds:Rectangle;
@@ -106,43 +109,37 @@ package com.degrafa.geometry.segment{
 			
 		} 
 		
-		private var lastPoint:Point;
-		private var firstPoint:Point;
+		private var lastPoint:Point=new Point(NaN,NaN);
+		private var firstPoint:Point=new Point(NaN,NaN);
 		
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
-		public function computeSegment(lastPoint:Point,firstPoint:Point,commandStack:CommandStack):void{
+		public function computeSegment(firstPoint:Point,lastPoint:Point,absRelOffset:Point,lastControlPoint:Point,commandStack:CommandStack):void{
 			
-			if(!invalidated && lastPoint){
-				if(this.lastPoint && !invalidated){
-					if(!lastPoint.equals(this.lastPoint)){
-						invalidated =true;
-					}
+			if (!invalidated )
+				{
+					invalidated= (!lastPoint.equals(this.lastPoint) || !firstPoint.equals(this.firstPoint) )
 				}
-			}
 			
-			if(!invalidated && firstPoint){
-				if(this.firstPoint && !invalidated){
-					if(!firstPoint.equals(this.firstPoint)){
-						invalidated =true;
-					}
+			if (invalidated){
+				if(!commandStackItem){	
+					commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y);
+					commandStack.addItem(commandStackItem);
 				}
+				else{
+					commandStackItem.x = firstPoint.x;
+					commandStackItem.y = firstPoint.y;
+				}
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
+				this.firstPoint.x = firstPoint.x;
+				this.firstPoint.y = firstPoint.y;
 			}
-			
-			
-			if(!commandStackItem){	
-				commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y);
-				commandStack.addItem(commandStackItem);
-			}
-			else{
-				commandStackItem.x = firstPoint.x;
-				commandStackItem.y = firstPoint.y;
-			}
-						
-			this.lastPoint =lastPoint;
-			this.firstPoint=firstPoint;
-			
+			//update the buildFlashCommandStack Point tracking reference
+        		lastPoint.x = commandStackItem.x;
+				lastPoint.y = commandStackItem.y;
+				
 			//pre calculate the bounds for this segment
 			preDraw();
 			
