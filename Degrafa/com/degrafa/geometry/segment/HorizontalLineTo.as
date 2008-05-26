@@ -121,9 +121,9 @@ package com.degrafa.geometry.segment{
 		private function calcBounds():void
 		{
 			_bounds = new Rectangle(
-										Math.min(lastPoint.x,commandStackItem.x),
+										Math.min(lastPoint.x,_commandStackItem.x),
 										lastPoint.y, 
-										Math.abs(commandStackItem.x-lastPoint.x),
+										Math.abs(_commandStackItem.x-lastPoint.x),
 										0
 									);
 		}
@@ -156,13 +156,13 @@ package com.degrafa.geometry.segment{
 			}
 			
 			if(invalidated){
-				if(!commandStackItem){	
-					commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,_absCoordType? x:lastPoint.x + x,lastPoint.y);
-					commandStack.addItem(commandStackItem);
+				if(!_commandStackItem){	
+					_commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,_absCoordType? _x:lastPoint.x + _x,lastPoint.y);
+					commandStack.addItem(_commandStackItem);
 				}
 				else{
-					commandStackItem.x = _absCoordType? x:lastPoint.x + x;
-					commandStackItem.y = lastPoint.y;
+					_commandStackItem.x = _absCoordType? _x:lastPoint.x + _x;
+					_commandStackItem.y = lastPoint.y;
 				}
 				//update this segment's point tracking reference
 				this.lastPoint.x = lastPoint.x;
@@ -171,7 +171,7 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
-			lastPoint.x = commandStackItem.x;
+			lastPoint.x = _commandStackItem.x;
 
 			
 			//pre calculate the bounds for this segment

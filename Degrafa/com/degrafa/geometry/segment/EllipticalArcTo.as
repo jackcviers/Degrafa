@@ -181,7 +181,7 @@ package com.degrafa.geometry.segment{
 		
 		
 		
-		private var _largeArcFlag:Number=-1;
+		private var _largeArcFlag:int=-1;
 		/**
 		* A value indicating if the arc is to use a large arc. 
 		* A value of 0 = true and a value of 1 = false
@@ -199,7 +199,7 @@ package com.degrafa.geometry.segment{
 		}
 		
 		
-		private var _sweepFlag:Number=-1;
+		private var _sweepFlag:int=-1;
 		/**
 		* A value indicating if the arc is to use a sweep. 
 		* A value of 0 = true and a value of 1 = false
@@ -261,7 +261,7 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
-			if(commandStackItem.commandStack.length==0){return;}
+			if(_commandStackItem.commandStack.length==0){return;}
 			
 			var boundsMaxX:int =0;
 			var boundsMaxY:int =0;
@@ -270,7 +270,7 @@ package com.degrafa.geometry.segment{
 			
 			var item:CommandStackItem;
 			
-			for each(item in commandStackItem.commandStack.source){
+			for each(item in _commandStackItem.commandStack.source){
 				with(item){
 					if(type==CommandStackItem.MOVE_TO){
 						boundsMinX = Math.min(boundsMinX,x);
@@ -328,28 +328,28 @@ package com.degrafa.geometry.segment{
 				invalidated= (!lastPoint.equals(this.lastPoint)  )
 			}
 			//precalc new last point tracking values
-			var nlpx:Number = _absCoordType? x :lastPoint.x + x;
-			var nlpy:Number = _absCoordType? y : lastPoint.y + y ;
+			var nlpx:Number = _absCoordType? x :lastPoint.x + _x;
+			var nlpy:Number = _absCoordType? y : lastPoint.y + _y ;
 			
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 				
-			if(!commandStackItem){
-				commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+			if(!_commandStackItem){
+				_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
 				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
 			}	
 			
-			var computedArc:Object = ArcUtils.computeSvgArc(rx,ry,xAxisRotation,Boolean(largeArcFlag),
-			Boolean(sweepFlag), nlpx, nlpy , lastPoint.x, lastPoint.y);
+			var computedArc:Object = ArcUtils.computeSvgArc(_rx,_ry,xAxisRotation,Boolean(_largeArcFlag),
+			Boolean(_sweepFlag), nlpx, nlpy , lastPoint.x, lastPoint.y);
 	        
 	        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
 	        computedArc.arc,computedArc.radius,computedArc.yRadius,
-	        computedArc.xAxisRotation,commandStackItem.commandStack);
+	        computedArc.xAxisRotation,_commandStackItem.commandStack);
 			
 			//add the move to at the start of this stack
-			commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
+			_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
 			//update the stack being built
-			commandStack.addItem(commandStackItem);
+			commandStack.addItem(_commandStackItem);
 			
 			//update this segment's point references
 			this.lastPoint.x = lastPoint.x;

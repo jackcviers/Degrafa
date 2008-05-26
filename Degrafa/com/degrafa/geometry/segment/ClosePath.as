@@ -123,13 +123,13 @@ package com.degrafa.geometry.segment{
 				}
 			
 			if (invalidated){
-				if(!commandStackItem){	
-					commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y);
-					commandStack.addItem(commandStackItem);
+				if(!_commandStackItem){	
+					_commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO,firstPoint.x,firstPoint.y);
+					commandStack.addItem(_commandStackItem);
 				}
 				else{
-					commandStackItem.x = firstPoint.x;
-					commandStackItem.y = firstPoint.y;
+					_commandStackItem.x = firstPoint.x;
+					_commandStackItem.y = firstPoint.y;
 				}
 				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;
@@ -138,8 +138,8 @@ package com.degrafa.geometry.segment{
 				this.firstPoint.y = firstPoint.y;
 			}
 			//update the buildFlashCommandStack Point tracking reference
-        		lastPoint.x = commandStackItem.x;
-				lastPoint.y = commandStackItem.y;
+        		lastPoint.x = _commandStackItem.x;
+				lastPoint.y = _commandStackItem.y;
 				
 			//pre calculate the bounds for this segment
 			preDraw();

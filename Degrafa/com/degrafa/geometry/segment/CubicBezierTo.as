@@ -225,7 +225,7 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():Rectangle{
 			
-			if(commandStackItem.commandStack.length==0){return null;}
+			if(_commandStackItem.commandStack.length==0){return null;}
 			
 			var boundsMaxX:Number =0;
 			var boundsMaxY:Number =0;
@@ -234,7 +234,7 @@ package com.degrafa.geometry.segment{
 			
 			var item:CommandStackItem;
 			
-			for each(item in this.commandStackItem.commandStack.source){
+			for each(item in _commandStackItem.commandStack.source){
 				if(item.type==2){
 					with(item){	
 						boundsMinX = Math.min(boundsMinX,x1);
@@ -279,7 +279,7 @@ package com.degrafa.geometry.segment{
 			//if the last controly and the y are the same add a 
 			//minute offset to avoid a display parasite that 
 			//can sometimes occur from this.
-			var cy1Offset:Number = (cy1 == y)? _cy1Offset:0;
+			var cy1Offset:Number = (_cy1 == _y)? _cy1Offset:0;
 			
 			//some early references to the updated last tracking point coords in case we exit early
 			var nlcpx:Number;
@@ -288,48 +288,48 @@ package com.degrafa.geometry.segment{
 			var nlpy:Number;
 			if (_absCoordType)
 			{
-				nlcpx = cx1; nlcpy = cy1Offset + cy1; nlpx = x; nlpy = y;
+				nlcpx = _cx1; nlcpy = cy1Offset + _cy1; nlpx = _x; nlpy = _y;
 				
 			} else {
-				nlcpx = lastPoint.x + cx1;
-				nlcpy = lastPoint.y + cy1 + cy1Offset;;
-				nlpx = lastPoint.x + x;
-				nlpy = lastPoint.y + y;				
+				nlcpx = lastPoint.x + _cx1;
+				nlcpy = lastPoint.y + _cy1 + cy1Offset;;
+				nlpx = lastPoint.x + _x;
+				nlpy = lastPoint.y + _y;				
 			}
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 		
 				//add for the first run
-				if(!commandStackItem){			
-					commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+				if(!_commandStackItem){			
+					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
 					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
-					commandStack.addItem(commandStackItem);
+					commandStack.addItem(_commandStackItem);
 				}
 				
 				//clear the array in this case as it's a complex item
-				commandStackItem.commandStack.length=0;
+				_commandStackItem.commandStack.length=0;
 							
-				if(isShortSequence){
+				if(_isShortSequence){
 					
 					GeometryUtils.cubicToQuadratic(
 					new GraphicPoint(lastPoint.x,lastPoint.y),
 					new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
 					new GraphicPoint(nlcpx,nlcpy),
 					new GraphicPoint(nlpx,nlpy),
-					1,commandStackItem.commandStack,true);
+					1,_commandStackItem.commandStack,true);
 				}
 				else{
 					GeometryUtils.cubicToQuadratic(
 					new GraphicPoint(lastPoint.x,lastPoint.y),
-					new GraphicPoint(_absCoordType? cx:lastPoint.x+cx,_absCoordType ? cy : lastPoint.y+cy),
+					new GraphicPoint(_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy),
 					new GraphicPoint(nlcpx,nlcpy),
 					new GraphicPoint(nlpx,nlpy),
-					1,commandStackItem.commandStack,true);
+					1,_commandStackItem.commandStack,true);
 				}
 				
 				//not sure about this but it seems the best way temporarily
-				commandStackItem.end.x = nlpx;
-				commandStackItem.end.y = nlpy;
+				_commandStackItem.end.x = nlpx;
+				_commandStackItem.end.y = nlpy;
 				
 				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;

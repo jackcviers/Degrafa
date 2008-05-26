@@ -182,10 +182,10 @@ package com.degrafa.geometry.segment{
 			
 			_bounds = GeometryUtils.bezierBounds(	lastPoint.x,
 													lastPoint.y,
-													commandStackItem.cx,
-													commandStackItem.cy,
-													commandStackItem.x1,
-													commandStackItem.y1);
+													_commandStackItem.cx,
+													_commandStackItem.cy,
+													_commandStackItem.x1,
+													_commandStackItem.y1);
 			/*
 			if(isShortSequence){
 				_bounds = GeometryUtils.bezierBounds(lastPoint.x,lastPoint.y,lastPoint.x+(lastPoint.x-lastControlPoint.x),
@@ -232,52 +232,52 @@ package com.degrafa.geometry.segment{
 			//not yet created need to build it 
 			//otherwise just reset the values.
 				if(!commandStackItem){	
-					if(isShortSequence){
-						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
+					if(_isShortSequence){
+						_commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
 						NaN,
 						NaN,
-						_absCoordType? x:lastPoint.x+x,
-						_absCoordType? y:lastPoint.y+y,
+						_absCoordType? x:lastPoint.x+_x,
+						_absCoordType? y:lastPoint.y+_y,
 						lastPoint.x+(lastPoint.x-lastControlPoint.x),
 						lastPoint.y+(lastPoint.y-lastControlPoint.y)
 						);
 					
-						commandStack.addItem(commandStackItem);
+						commandStack.addItem(_commandStackItem);
 					}
 					else{
-						commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
+						_commandStackItem = new CommandStackItem(CommandStackItem.CURVE_TO,
 						NaN,
 						NaN,
-						_absCoordType? x:lastPoint.x+x,
-						_absCoordType? y:lastPoint.y+y,
-						_absCoordType? cx:lastPoint.x+cx,
-						_absCoordType? cy:lastPoint.y+cy
+						_absCoordType? _x:lastPoint.x+_x,
+						_absCoordType? _y:lastPoint.y+_y,
+						_absCoordType? _cx:lastPoint.x+_cx,
+						_absCoordType? _cy:lastPoint.y+_cy
 						);
 					
-						commandStack.addItem(commandStackItem);
+						commandStack.addItem(_commandStackItem);
 						
 					}
 				}
 				else{  
 					if(isShortSequence){
-						commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
-						commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
-						commandStackItem.x1 = _absCoordType? x:lastPoint.x+x,
-						commandStackItem.y1 = _absCoordType? y:lastPoint.y+y;
+						_commandStackItem.cx = lastPoint.x+(lastPoint.x-lastControlPoint.x);
+						_commandStackItem.cy = lastPoint.y+(lastPoint.y-lastControlPoint.y),
+						_commandStackItem.x1 = _absCoordType? _x:lastPoint.x+_x,
+						_commandStackItem.y1 = _absCoordType? _y:lastPoint.y+_y;
 					}
 					else
 					{
 						if (_absCoordType)
 						{
-						commandStackItem.cx = cx;
-						commandStackItem.cy = cy;
-						commandStackItem.x1 = x;
-						commandStackItem.y1 = y;
+						_commandStackItem.cx = _cx;
+						_commandStackItem.cy = _cy;
+						_commandStackItem.x1 = _x;
+						_commandStackItem.y1 = _y;
 						} else {
-						commandStackItem.cx = lastPoint.x + cx;
-						commandStackItem.cy = lastPoint.y + cy;
-						commandStackItem.x1 = lastPoint.x + x;
-						commandStackItem.y1 = lastPoint.y + y;
+						_commandStackItem.cx = lastPoint.x + _cx;
+						_commandStackItem.cy = lastPoint.y + _cy;
+						_commandStackItem.x1 = lastPoint.x + _x;
+						_commandStackItem.y1 = lastPoint.y + _y;
 						}
 						
 					}
@@ -290,10 +290,10 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
-        		lastPoint.x = commandStackItem.x1;
-				lastPoint.y = commandStackItem.y1;
-				lastControlPoint.x = commandStackItem.cx;
-				lastControlPoint.y = commandStackItem.cy;	
+        		lastPoint.x = _commandStackItem.x1;
+				lastPoint.y = _commandStackItem.y1;
+				lastControlPoint.x = _commandStackItem.cx;
+				lastControlPoint.y = _commandStackItem.cy;	
 				
 			
 			//pre calculate the bounds for this segment

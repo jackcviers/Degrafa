@@ -148,10 +148,10 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			_bounds = new Rectangle(
-									Math.min(lastPoint.x, commandStackItem.x),
-									Math.min(lastPoint.y, commandStackItem.y), 
-									Math.abs(commandStackItem.x - lastPoint.x),
-									Math.abs(commandStackItem.y - lastPoint.y)
+									Math.min(lastPoint.x, _commandStackItem.x),
+									Math.min(lastPoint.y, _commandStackItem.y), 
+									Math.abs(_commandStackItem.x - lastPoint.x),
+									Math.abs(_commandStackItem.y - lastPoint.y)
 									);
 		}
 		
@@ -188,18 +188,18 @@ package com.degrafa.geometry.segment{
 			if(invalidated){
 		
 				if(!commandStackItem){	
-					commandStackItem = new CommandStackItem(CommandStackItem.MOVE_TO,
-					_absCoordType? x: lastPoint.x+x,_absCoordType? y: lastPoint.y+y);
-					commandStack.addItem(commandStackItem);
+					_commandStackItem = new CommandStackItem(CommandStackItem.MOVE_TO,
+					_absCoordType? _x: lastPoint.x+_x,_absCoordType? _y: lastPoint.y+_y);
+					commandStack.addItem(_commandStackItem);
 				}
 				else{
 					if (_absCoordType)
 						{
-						commandStackItem.x = x;
-						commandStackItem.y = y
+						_commandStackItem.x = _x;
+						_commandStackItem.y = _y
 						} else {
-						commandStackItem.x = lastPoint.x + x;
-						commandStackItem.y = lastPoint.y + y;
+						_commandStackItem.x = lastPoint.x + _x;
+						_commandStackItem.y = lastPoint.y + _y;
 					}
 				}
 				//update this segment's point tracking reference
@@ -208,8 +208,8 @@ package com.degrafa.geometry.segment{
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
-        	firstPoint.x=lastPoint.x = commandStackItem.x;
-			firstPoint.y=lastPoint.y = commandStackItem.y;
+        	firstPoint.x=lastPoint.x = _commandStackItem.x;
+			firstPoint.y=lastPoint.y = _commandStackItem.y;
 			
 			//pre calculate the bounds for this segment
 			preDraw();

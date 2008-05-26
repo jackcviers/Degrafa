@@ -75,7 +75,7 @@ package com.degrafa.geometry.segment{
 		* cubic instance where the the mirror of the last control point 
 		* is to be used as the new see svg specification S,s,T,t
 		**/
-		private var _isShortSequence:Boolean;
+		internal var _isShortSequence:Boolean;
 		public function get isShortSequence():Boolean{
 			return _isShortSequence;
 		}
@@ -115,7 +115,7 @@ package com.degrafa.geometry.segment{
 		/**
 		* An Array of flash rendering commands that make up this element. 
 		**/
-		private var _commandStackItem:CommandStackItem;
+		internal var _commandStackItem:CommandStackItem;
 		public function get commandStackItem():CommandStackItem{
 			return _commandStackItem;
 		}	
