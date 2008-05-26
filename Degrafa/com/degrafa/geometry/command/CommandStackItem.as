@@ -53,7 +53,7 @@ package com.degrafa.geometry.command{
 			initPoints();
 			
 			registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
-			
+			registerClassAlias("flash.geom.Point", Point);
 		}
 		
 		private function initPoints():void{
@@ -66,26 +66,104 @@ package com.degrafa.geometry.command{
 			end.x = (type==1 || type==0)? x:x1;
 			end.y = (type==1 || type==0)? y:y1;
 		}
-				
+		
 		public var type:int;
 		public var id:String;
 		public var reference:String;
 		
-		//Line or move to
-		public var x:Number;
-		public var y:Number;
+		public var invalidated:Boolean;
 		
-		//curve only
-		public var x1:Number;
-		public var y1:Number;
-		public var cx:Number;
-		public var cy:Number;
+		/**
+		 * x coordinate for a LINE_TO or MOVE_TO
+		 */		
+		private var _x:Number;
+		public function get x():Number{
+			return _x;
+		}
+		public function set x(value:Number):void{
+			if(_x != value){
+				_x = value;
+				invalidated = true;
+			}
+		}
+		/**
+		 * y coordinate for a LINE_TO or MOVE_TO
+		 */
+		private var _y:Number;
+		public function get y():Number{
+			return _y;
+		}
+		public function set y(value:Number):void{
+			if(_y != value){
+				_y = value;
+				invalidated = true;
+			}
+		}
+		/**
+		 *  x1 anchor point for a CURVE_TO
+		 */		
+		private var _x1:Number;
+		public function get x1():Number{
+			return _x1;
+		}
+		public function set x1(value:Number):void{
+			if(_x1 != value){
+				_x1 = value;
+				invalidated = true;
+			}
+		}
+		/**
+		 *  y1 anchor point for CURVE_TO
+		 */		
+		private var _y1:Number;
+		public function get y1():Number{
+			return _y1;
+		}
+		public function set y1(value:Number):void{
+			if(_y1 != value){
+				_y1 = value;
+				invalidated = true;
+			}
+		}
+		/**
+		 *  cx control point for a CURVE_TO
+		 */
+		private var _cx:Number;
+		public function get cx():Number{
+			return _cx;
+		}
+		public function set cx(value:Number):void{
+			if(_cx != value){
+				_cx = value;
+				invalidated = true;
+			}
+		}
+		/**
+		 *  cy control point for a CURVE_TO
+		 */
+		private var _cy:Number;
+		public function get cy():Number{
+			return _cy;
+		}
+		public function set cy(value:Number):void{
+			if(_cy != value){
+				_cy = value;
+				invalidated = true;
+			}
+		}
 		
-		// Origin point 
+		/**
+		 * x value before a change to the drawing position
+		 */		
 		public var originX:Number;
+		/**
+		 * y value before a change to the drawing position
+		 */	
 		public var originY:Number;
 				
-		// Function used in a DELEGATE_TO command
+		/**
+		 * Function to be called during the draw loop 
+		 */		
 		public var delegate:Function;
 		
 		public var commandStack:CommandStack;
@@ -226,5 +304,28 @@ package com.degrafa.geometry.command{
 			return Math.atan2(y1 - y, x1 - x);
 		}
 		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function derive(value:CommandStackItem):void
+		{
+			if (!type){type=value.type;}
+			
+			if (!x){x=value.x;}
+			if (!y){y=value.y;}
+			
+			if (!x1){x1=value.x1;}
+			if (!y1){y1=value.y1;}
+			if (!cx){cx=value.cx;}
+			if (!cy){cy=value.cy;}
+			
+			if (!originX){originX=value.originX;}
+			if (!originY){originY=value.originY;}
+			
+			if (!reference){reference=value.reference;}
+			
+			invalidated = true;
+		}
 	}
 }
