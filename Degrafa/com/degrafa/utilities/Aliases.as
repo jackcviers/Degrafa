@@ -140,7 +140,7 @@ package com.degrafa.utilities{
 						SkewTransform:SkewTransform,
 						TransformGroup:TransformGroup,
 						TranslateTransform:TranslateTransform
-					}
+					},
 					utilities: {
 						ExternalBitmap:ExternalBitmap,
 						LoadingLocation:LoadingLocation
