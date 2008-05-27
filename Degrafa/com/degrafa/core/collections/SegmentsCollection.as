@@ -41,7 +41,6 @@ package com.degrafa.core.collections{
 		public function SegmentsCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(ISegment,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.SegmentsCollection", SegmentsCollection);
 		}
 		
 		/**

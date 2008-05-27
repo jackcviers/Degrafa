@@ -57,7 +57,6 @@ package com.degrafa{
 			this.y=y
 			this.point.x=x
 			this.point.y=y
-			registerClassAlias("com.degrafa.GraphicPointEX", GraphicPointEX);
 		}
 		
 		private var _data:String;

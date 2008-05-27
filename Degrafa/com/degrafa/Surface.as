@@ -52,7 +52,6 @@ package com.degrafa{
 		
 		public function Surface(){
 			super();
-			registerClassAlias("com.degrafa.Surface", Surface);
 		}
 				
 		

@@ -40,8 +40,8 @@ package com.degrafa.core.collections{
 	 	*/	
 		public function RepeaterModifierCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IRepeaterModifier,array,suppressEvents);
+		
 			
-			registerClassAlias("com.degrafa.core.collections.RepeaterModifierCollection", RepeaterModifierCollection);
 		}
 		
 		/**

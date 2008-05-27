@@ -59,7 +59,6 @@ package com.degrafa.paint{
 			_ratio.value = ratio;
 			_ratio.unit = ratioUnit;
 			
-			registerClassAlias("com.degrafa.paint.GradientStop", GradientStop);
 		}
 	    
 	    private var _alpha:Number = 1;

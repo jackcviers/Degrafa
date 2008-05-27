@@ -38,7 +38,6 @@ package com.degrafa.transform{
 	public class TransformGroup extends Transform{
 		public function TransformGroup(){
 			super();
-			registerClassAlias("com.degrafa.transform.TransformGroup", TransformGroup);
 		}
 		
 		private var _transforms:TransformCollection;

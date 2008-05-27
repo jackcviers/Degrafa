@@ -55,7 +55,6 @@ package com.degrafa.geometry{
 			this.x=x;
 			this.y=y;
 			
-			registerClassAlias("com.degrafa.geometry.Move", Move);
 		}
 		
 		/**

@@ -62,8 +62,7 @@ package com.degrafa.geometry{
 			this.y=y;
 			this.y1=y1;
 		
-			registerClassAlias("com.degrafa.geometry.VerticalLine", VerticalLine);
-			
+				
 		}
 		
 		/**

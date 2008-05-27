@@ -58,7 +58,7 @@ package com.degrafa.skins
 		
 		public function GraphicBorderSkin(){
 			super();
-			registerClassAlias("com.degrafa.skins.GraphicBorderSkin", GraphicBorderSkin);
+
 		}
 						
 		

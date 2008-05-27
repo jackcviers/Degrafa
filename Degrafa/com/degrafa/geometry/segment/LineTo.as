@@ -65,8 +65,7 @@ package com.degrafa.geometry.segment{
 			this.coordinateType=coordinateType;
 			this.isShortSequence = false;
 			
-			registerClassAlias("com.degrafa.geometry.segment.LineTo", LineTo);	
-		
+			
 		}
 		
 		/**

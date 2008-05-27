@@ -41,7 +41,6 @@ package com.degrafa.core.collections{
 		public function GraphicsCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphic,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GraphicsCollection", GraphicsCollection);
 		}
 		
 		/**

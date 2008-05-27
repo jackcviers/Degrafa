@@ -43,7 +43,6 @@ package com.degrafa.core.collections{
 		public function DisplayObjectCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(DisplayObject,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.DisplayObjectCollection", DisplayObjectCollection);
 		}
 		
 		

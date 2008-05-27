@@ -62,7 +62,6 @@ package com.degrafa.geometry{
 			this.y=y;
 			this.x1=x1;
 			
-			registerClassAlias("com.degrafa.geometry.HorizontalLine", HorizontalLine);
 			
 		}
 		

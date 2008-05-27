@@ -57,7 +57,6 @@ package com.degrafa.paint{
 			shape = new Shape();
 			this.fills = fills;
 			
-			registerClassAlias("com.degrafa.paint.ComplexFill", ComplexFill);
 		}
 		
 		

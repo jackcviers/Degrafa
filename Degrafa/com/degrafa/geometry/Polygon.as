@@ -62,7 +62,7 @@ package com.degrafa.geometry{
 				this.points=points;
 			}
 			
-			registerClassAlias("com.degrafa.geometry.Polygon", Polygon);
+
 		}
 		
 		/**

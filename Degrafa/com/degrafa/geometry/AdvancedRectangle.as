@@ -71,7 +71,6 @@ package com.degrafa.geometry{
 		
 		public function AdvancedRectangle(){
 			super();
-			registerClassAlias("com.degrafa.geometry.AdvancedRectangle", AdvancedRectangle);
 		}
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {

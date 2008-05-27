@@ -124,11 +124,12 @@ package com.degrafa.geometry.repeaters
 		 */
 		public function end():void {
 			if (!_modifyInProgress) return;
-			for (var i:int=0;i<_targetObjects.length;i++) {
+			var i:uint;
+			for (i=0;i<_targetObjects.length;i++) {
 				_targetObjects[i][_targetProperties[i]]=_originalValues[i];
 			}
 			
-			for (var i:int=0;i<targets.length;i++) {
+			for (i=0;i<targets.length;i++) {
 				if (targets[i] is Geometry) Geometry(targets[i]).suppressEventProcessing=false;
 			}
 			_iteration=0;

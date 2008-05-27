@@ -82,7 +82,6 @@ package com.degrafa.geometry.repeaters{
 			this.offsetHeight=offsetHeight;
 			this.offsetCornerRadius=offsetCornerRadius;
 			
-			registerClassAlias("com.degrafa.geometry.repeaters.RoundedRectangleRepeater", RoundedRectangleRepeater);
 		}
 		
 		/**

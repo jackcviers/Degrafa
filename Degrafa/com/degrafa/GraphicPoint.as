@@ -33,7 +33,6 @@ package com.degrafa{
 		
 		public function GraphicPoint(x:Number=0, y:Number=0){
 			super(x, y);
-			registerClassAlias("com.degrafa.GraphicPoint", GraphicPoint);
 		}
 		
 	}

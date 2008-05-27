@@ -67,7 +67,6 @@ package com.degrafa.core.collections{
 	       		items =array;
 	       	}
 	       	
-	       	registerClassAlias("com.degrafa.core.collections.DegrafaCollection", DegrafaCollection);
 	    }
 				
 		private var _enableTypeChecking:Boolean=true;

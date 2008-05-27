@@ -89,7 +89,6 @@ package com.degrafa.geometry.repeaters{
 			this.offsetCx1=offsetCx1;
 			this.offsetCy1=offsetCy1;
 		
-			registerClassAlias("com.degrafa.geometry.repeaters.CubicBezierRepeater", CubicBezierRepeater);
 		}
 		
 		/**

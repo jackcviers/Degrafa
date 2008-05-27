@@ -65,7 +65,6 @@ package com.degrafa.geometry{
 			this.height=height;
 			this.cornerRadius=cornerRadius;
 			
-			registerClassAlias("com.degrafa.geometry.RoundedRectangle", RoundedRectangle);
 		}
 		
 		/**

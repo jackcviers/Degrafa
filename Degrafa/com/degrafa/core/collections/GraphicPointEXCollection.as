@@ -40,7 +40,7 @@ package com.degrafa.core.collections{
 		public function GraphicPointEXCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(GraphicPointEX,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GraphicPointEXCollection", GraphicPointEXCollection);
+			
 		}
 		
 		/**

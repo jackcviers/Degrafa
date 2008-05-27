@@ -41,7 +41,7 @@ package com.degrafa.transform{
 		
 		public function ScaleTransform(){
 			super();
-			registerClassAlias("com.degrafa.transform.ScaleTransform", ScaleTransform);
+
 		}
 		
 		private var _scaleX:Number=1;

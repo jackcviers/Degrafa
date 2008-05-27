@@ -42,7 +42,6 @@ package com.degrafa.core.collections{
 		public function GeometryCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGeometry,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GeometryCollection", GeometryCollection);
 		}
 		
 		/**

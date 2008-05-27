@@ -40,7 +40,6 @@ package com.degrafa.transform{
 				
 		public function SkewTransform(){
 			super();
-			registerClassAlias("com.degrafa.transform.SkewTransform", SkewTransform);
 		}
 		
 		private var _skewAngleX:Number=0;

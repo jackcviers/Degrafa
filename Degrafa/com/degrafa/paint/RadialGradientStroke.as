@@ -44,9 +44,7 @@ package com.degrafa.paint{
 		public function RadialGradientStroke(){
 			super();
 			super.gradientType = "radial";
-			
-			registerClassAlias("com.degrafa.paint.RadialGradientStroke", RadialGradientStroke);
-			
+					
 		}
 		
 		private var _cx:Number;

@@ -75,7 +75,6 @@ package com.degrafa.geometry.repeaters{
 			super.offsetX=offsetX;
 			super.offsetY=offsetY;
 			
-			registerClassAlias("com.degrafa.geometry.repeaters.EllipseRepeater", EllipseRepeater);
 		}
 		
 		/**

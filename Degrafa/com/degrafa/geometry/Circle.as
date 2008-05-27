@@ -60,8 +60,7 @@ package com.degrafa.geometry{
 			this.centerY=centerY;
 			this.radius=radius;
 			
-			registerClassAlias("com.degrafa.geometry.Circle", Circle);
-			
+		
 		}
 		
 		/**

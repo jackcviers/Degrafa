@@ -42,7 +42,6 @@ package com.degrafa.core.collections{
 		public function FillCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicsFill,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.FillCollection", FillCollection);
 		}
 		
 		/**

@@ -45,7 +45,7 @@ package com.degrafa.transform{
 		
 		public function TranslateTransform(){
 			super();
-			registerClassAlias("com.degrafa.transform.TranslateTransform", TranslateTransform);
+			
 		}
 		
 		//setting these has no effect on TranslateTransform

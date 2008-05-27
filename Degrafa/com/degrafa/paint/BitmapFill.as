@@ -73,7 +73,6 @@ package com.degrafa.paint{
 		public function BitmapFill(source:Object = null,loc:LoadingLocation=null){
 			this._loadingLocation = loc;
 			this.source = source;
-			registerClassAlias("com.degrafa.paint.BitmapFill", BitmapFill);
 			
 		}
 		

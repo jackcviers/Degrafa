@@ -75,8 +75,7 @@ package com.degrafa.geometry.segment{
 			this.coordinateType=coordinateType;
 			this.isShortSequence =isShortSequence
 			
-			registerClassAlias("com.degrafa.geometry.segment.CubicBezierTo", CubicBezierTo);	
-			
+					
 		}
 		
 		/**

@@ -45,7 +45,6 @@ package com.degrafa.paint{
 		public function LinearGradientStroke(){
 			super();
 			super.gradientType = "linear";
-			registerClassAlias("com.degrafa.paint.LinearGradientStroke", LinearGradientStroke);	
 		}
 		
 		/**

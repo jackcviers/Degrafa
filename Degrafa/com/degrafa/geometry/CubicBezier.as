@@ -72,7 +72,6 @@ package com.degrafa.geometry{
 			this.x1=x1;
 			this.y1=y1;
 			
-			registerClassAlias("com.degrafa.geometry.CubicBezier", CubicBezier);
 			
 		}
 		

@@ -55,7 +55,6 @@ package com.degrafa.paint{
 			this.fill = fill;
 			this.blendMode = blendMode;
 			
-			registerClassAlias("com.degrafa.paint.BlendFill", BlendFill);
 		}
 		
 		// property backing vars

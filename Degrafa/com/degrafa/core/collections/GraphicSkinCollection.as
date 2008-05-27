@@ -44,7 +44,6 @@ package com.degrafa.core.collections{
 		public function GraphicSkinCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicSkin,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GraphicSkinCollection", GraphicSkinCollection);
 		}
 		
 		/**

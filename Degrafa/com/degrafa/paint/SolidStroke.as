@@ -62,7 +62,6 @@ package com.degrafa.paint{
 			this.alpha = alpha;
 			this.weight = weight;
 			
-			registerClassAlias("com.degrafa.paint.SolidStroke", SolidStroke);
 			
 		}
 		

@@ -49,7 +49,6 @@ package com.degrafa{
 	
 		public function GeometryGroup(){
 			super();
-			registerClassAlias("com.degrafa.GeometryGroup", GeometryGroup);
 		} 						
 		
 		private var _geometry:GeometryCollection;

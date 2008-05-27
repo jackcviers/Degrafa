@@ -82,7 +82,6 @@ package com.degrafa.geometry.repeaters{
 			this.offsetStartAngle=offsetStartAngle;
 			this.offsetArc=offsetArc;
 			
-			registerClassAlias("com.degrafa.geometry.repeaters.EllipticalArcRepeater", EllipticalArcRepeater);
 		}
 		
 		

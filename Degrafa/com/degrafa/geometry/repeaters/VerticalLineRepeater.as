@@ -76,8 +76,7 @@ package com.degrafa.geometry.repeaters{
 			this.moveOffsetX=moveOffsetX;
 			this.moveOffsetY=moveOffsetY;
 		
-			registerClassAlias("com.degrafa.geometry.repeaters.VerticalLineRepeater", VerticalLineRepeater);
-			
+					
 		}
 		
 		/**

@@ -259,8 +259,7 @@ package com.degrafa.skins
 			_borderMetrics = EdgeMetrics.EMPTY;
 			background = new ComplexFill();
 			refreshStyles();
-			
-			registerClassAlias("com.degrafa.skins.CSSSkin", CSSSkin);
+
 		}
 		
 		

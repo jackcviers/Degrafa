@@ -56,7 +56,6 @@ package com.degrafa.paint{
 			this.alpha = alpha;
 			this.color = color;
 			
-			registerClassAlias("com.degrafa.paint.SolidFill", SolidFill);
 			
 		}
 		

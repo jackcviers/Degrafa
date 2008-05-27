@@ -50,8 +50,7 @@ package com.degrafa.geometry.segment{
 		public function ClosePath(){
 			
 			super();
-			registerClassAlias("com.degrafa.geometry.segment.ClosePath", ClosePath);	
-		
+					
 		}
 		
 		/**

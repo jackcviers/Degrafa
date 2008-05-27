@@ -121,7 +121,6 @@ package com.degrafa.utilities{
 				_externalSize = true;
 			}
 			
-			registerClassAlias("com.degrafa.utilities.ExternalBitmap", ExternalBitmap);
 		}
 		
 				

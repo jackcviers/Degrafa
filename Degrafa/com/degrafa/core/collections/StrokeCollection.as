@@ -40,9 +40,7 @@ package com.degrafa.core.collections{
 	 	*/	
 		public function StrokeCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicsStroke,array,suppressEvents);
-			
-			registerClassAlias("com.degrafa.core.collections.StrokeCollection", StrokeCollection);
-			
+					
 		}
 		
 		/**

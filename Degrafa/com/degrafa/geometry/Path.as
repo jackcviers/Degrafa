@@ -77,7 +77,6 @@ package com.degrafa.geometry{
 			
 			super.data=data;
 			
-			registerClassAlias("com.degrafa.geometry.Path", Path);
 			
 		}
 		

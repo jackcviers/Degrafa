@@ -62,8 +62,7 @@ package com.degrafa.geometry{
 			this.width=width;
 			this.height=height;
 			
-			registerClassAlias("com.degrafa.geometry.RegularRectangle", RegularRectangle);
-			
+	
 		}
 		
 		/**

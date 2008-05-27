@@ -37,7 +37,6 @@ package com.degrafa.transform{
 			super();
 		}
 		
-		registerClassAlias("com.degrafa.transform.MatrixTransform", MatrixTransform);
 		
 	}
 }

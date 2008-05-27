@@ -45,7 +45,6 @@ package com.degrafa{
 		
 		public function GraphicImage(){
 			super();
-			registerClassAlias("com.degrafa.GraphicImage", GraphicImage);
 		}
 		
 		/**

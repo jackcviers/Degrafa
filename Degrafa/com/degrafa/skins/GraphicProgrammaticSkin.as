@@ -55,7 +55,6 @@ package com.degrafa.skins
 		
 		public function GraphicProgrammaticSkin(){
 			super();
-			registerClassAlias("com.degrafa.skins.GraphicProgrammaticSkin", GraphicProgrammaticSkin);
 		}
 				
 		private var _stroke:IGraphicsStroke;

@@ -40,9 +40,7 @@ package com.degrafa.core.collections{
 	 	*/
 		public function TransformCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(ITransform,array,suppressEvents);
-			
-			registerClassAlias("com.degrafa.core.collections.TransformCollection", TransformCollection);
-			
+					
 		}
 		
 		/**

@@ -52,8 +52,6 @@ package com.degrafa.geometry.command{
 			
 			initPoints();
 			
-			registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
-			registerClassAlias("flash.geom.Point", Point);
 		}
 		
 		private function initPoints():void{

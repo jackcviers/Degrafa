@@ -32,7 +32,6 @@ package com.degrafa.geometry{
 		public function PolygonLibrary(){
 			super();
 			
-			registerClassAlias("com.degrafa.geometry.PolygonLibrary", PolygonLibrary);
 			
 		} 
 				 

@@ -41,7 +41,6 @@ package com.degrafa.core.collections{
 		public function GraphicPointCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(IGraphicPoint,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GraphicPointCollection", GraphicPointCollection);
 		}
 		
 		/**

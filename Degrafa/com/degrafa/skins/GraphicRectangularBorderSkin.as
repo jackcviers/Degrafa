@@ -53,7 +53,6 @@ package com.degrafa.skins{
 	public class GraphicRectangularBorderSkin extends RectangularBorder implements IGraphicSkin{		
 		public function GraphicRectangularBorderSkin(){
 			super();
-			registerClassAlias("com.degrafa.skins.GraphicRectangularBorderSkin", GraphicRectangularBorderSkin);
 		}
 				
 		private var _stroke:IGraphicsStroke;

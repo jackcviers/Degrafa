@@ -39,7 +39,7 @@ package com.degrafa.transform{
 		
 		public function RotateTransform(){
 			super();
-			registerClassAlias("com.degrafa.transform.RotateTransform", RotateTransform);
+	
 		}
 		
 		private var _angle:Number=0;

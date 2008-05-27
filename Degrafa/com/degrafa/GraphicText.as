@@ -75,7 +75,6 @@ package com.degrafa
 		{
 			super();
 			defaultTextFormat = _textFormat;
-			registerClassAlias("com.degrafa.GraphicText", GraphicText);
 		}
 		
 		/**

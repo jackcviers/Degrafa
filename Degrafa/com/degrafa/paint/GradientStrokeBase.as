@@ -45,7 +45,6 @@ package com.degrafa.paint {
 		
 		public function GradientStrokeBase(){
 			super();
-			registerClassAlias("com.degrafa.paint.GradientStrokeBase", GradientStrokeBase);
 		}
 		
 		

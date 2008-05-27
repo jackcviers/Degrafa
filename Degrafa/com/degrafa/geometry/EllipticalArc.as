@@ -71,7 +71,6 @@ package com.degrafa.geometry{
 			this.arc=arc;
 			this.closureType=closureType;
 			
-			registerClassAlias("com.degrafa.geometry.EllipticalArc", EllipticalArc);
 		}
 		
 		/**

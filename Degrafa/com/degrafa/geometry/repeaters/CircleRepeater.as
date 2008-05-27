@@ -73,8 +73,7 @@ package com.degrafa.geometry.repeaters{
 			super.offsetX=offsetX;
 			super.offsetY=offsetY;
 			
-			registerClassAlias("com.degrafa.geometry.repeaters.CircleRepeater", CircleRepeater);
-			
+					
 		}
 		
 		public var offsetAccuracy:int = 10;

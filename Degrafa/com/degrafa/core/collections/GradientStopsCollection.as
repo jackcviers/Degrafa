@@ -41,7 +41,6 @@ package com.degrafa.core.collections{
 		public function GradientStopsCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(GradientStop,array,suppressEvents);
 			
-			registerClassAlias("com.degrafa.core.collections.GradientStopsCollection", GradientStopsCollection);
 		}
 		
 		/**

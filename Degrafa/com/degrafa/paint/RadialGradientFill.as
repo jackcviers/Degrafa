@@ -47,7 +47,6 @@ package com.degrafa.paint{
 		public function RadialGradientFill(){
 			super();
 			super.gradientType = "radial";
-			registerClassAlias("com.degrafa.paint.RadialGradientFill", RadialGradientFill);		
 		}
 		
 		private var _cx:Number;

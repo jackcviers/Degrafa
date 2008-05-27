@@ -52,7 +52,6 @@ package com.degrafa{
 		
 		public function GeometryComposition(){
 			super();
-			registerClassAlias("com.degrafa.GeometryComposition", GeometryComposition);
 		}
 		
 		private var _fills:FillCollection;

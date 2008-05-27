@@ -47,7 +47,6 @@ package com.degrafa.paint{
 		public function LinearGradientFill(){
 			super();
 			super.gradientType="linear";
-			registerClassAlias("com.degrafa.paint.LinearGradientFill", LinearGradientFill);
 		}
 		
 		/**

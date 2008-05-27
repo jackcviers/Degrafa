@@ -74,8 +74,6 @@ package com.degrafa.geometry{
 			this.topRightRadius=topRightRadius;
 			this.bottomLeftRadius=bottomLeftRadius;
 			this.bottomRightRadius=bottomRightRadius;
-			
-			registerClassAlias("com.degrafa.geometry.RoundedRectangleComplex", RoundedRectangleComplex);	
 		}
 		
 		/**
