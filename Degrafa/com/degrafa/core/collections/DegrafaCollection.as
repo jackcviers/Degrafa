@@ -24,7 +24,7 @@ package com.degrafa.core.collections{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	
-	import flash.net.registerClassAlias;
+	
 	import flash.utils.getQualifiedClassName;
 	
 	import mx.events.PropertyChangeEvent;

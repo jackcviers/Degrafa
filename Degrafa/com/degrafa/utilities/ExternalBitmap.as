@@ -29,7 +29,7 @@ package com.degrafa.utilities{
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import com.degrafa.utilities.LoadingLocation;
-	import flash.net.registerClassAlias;
+	
 
 
 	

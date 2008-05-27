@@ -22,7 +22,7 @@
 package com.degrafa.geometry.command{
 	
 	import flash.geom.Point;
-	import flash.net.registerClassAlias;
+	
 	
 	public class CommandStackItem{
 		

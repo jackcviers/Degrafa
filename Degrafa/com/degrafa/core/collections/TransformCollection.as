@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.transform.ITransform;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The TransformCollection stores a collection of ITransform objects
  	**/

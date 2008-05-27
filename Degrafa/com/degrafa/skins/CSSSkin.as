@@ -32,7 +32,7 @@ package com.degrafa.skins
 	import com.degrafa.paint.SolidFill;
 	
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.core.EdgeMetrics;
 	import mx.graphics.GradientEntry;

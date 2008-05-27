@@ -30,7 +30,7 @@ package com.degrafa.paint{
 	import flash.display.Shape;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.graphics.IFill;

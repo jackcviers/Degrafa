@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.paint.GradientStop;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The GradientStopsCollection stores a collection of GradientStop objects
  	**/	

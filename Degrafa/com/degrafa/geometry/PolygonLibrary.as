@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import flash.net.registerClassAlias;
+	
 		
 	[Exclude(name="data", kind="property")] 
 	

@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.core.IGraphicsStroke;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The StrokeCollection stores a collection of IGraphicsStroke objects
  	**/

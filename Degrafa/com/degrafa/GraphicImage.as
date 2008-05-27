@@ -28,7 +28,7 @@ package com.degrafa{
 	import flash.events.Event;
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
-	import flash.net.registerClassAlias;
+	
 	
 	[Bindable(event="propertyChange")]
 	

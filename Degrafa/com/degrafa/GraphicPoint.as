@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa{
 	import flash.geom.Point;
-	import flash.net.registerClassAlias;
+	
 	
 	[Bindable]
 	/**

@@ -26,7 +26,7 @@ package com.degrafa.transform{
 	
 	import flash.geom.Matrix;
 	import flash.geom.Point;
-	import flash.net.registerClassAlias;
+	
 	
 	[Bindable]
 	/**

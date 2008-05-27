@@ -27,7 +27,7 @@ package com.degrafa.paint{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.graphics.IFill;

@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.GraphicPointEX;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The GraphicPointEXCollection stores a collection of GraphicPointEX objects
  	**/

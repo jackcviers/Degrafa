@@ -25,7 +25,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.Measure;
 	import com.degrafa.core.utils.ColorUtil;
 	
-	import flash.net.registerClassAlias;
+	
 	
 	//--------------------------------------
 	//  Other metadata

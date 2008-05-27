@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	
 	import flash.display.DisplayObject;
-	import flash.net.registerClassAlias;
+	
 	
 	/**
  	* The DisplayObjectCollection stores a collection of flash.display.DisplayObject 

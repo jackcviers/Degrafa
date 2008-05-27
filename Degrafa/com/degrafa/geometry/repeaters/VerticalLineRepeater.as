@@ -25,7 +25,7 @@ package com.degrafa.geometry.repeaters{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	//--------------------------------------
 	//  Other metadata

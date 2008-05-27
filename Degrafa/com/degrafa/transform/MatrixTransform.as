@@ -22,7 +22,7 @@
 
 package com.degrafa.transform{
 	
-	import flash.net.registerClassAlias;
+	
 	
 	/**
 	* Matrix Transform creates an affine matrix transformation to manipulate the object in the 

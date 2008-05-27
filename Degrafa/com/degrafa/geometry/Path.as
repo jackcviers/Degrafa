@@ -29,7 +29,7 @@ package com.degrafa.geometry{
 	import flash.display.Graphics;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.events.PropertyChangeEvent;
 	
@@ -373,13 +373,13 @@ package com.degrafa.geometry{
 			
 			var i:int = 0;
 			var length:int = _segments.items.length;
-			var s:uint=getTimer()	
+	//		var s:uint=getTimer()	
 		
 			for (; i < length; i++)
 			{
 				_segments.items[i].computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
         	}
-			trace('command stack build:' + ((getTimer() - s)));        	
+	//		trace('command stack build:' + ((getTimer() - s)));        	
 		}
 		
 		private var _bounds:Rectangle;

@@ -26,7 +26,7 @@ package com.degrafa.geometry.segment{
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	//--------------------------------------
 	//  Other metadata
 	//--------------------------------------

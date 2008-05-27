@@ -27,7 +27,7 @@ package com.degrafa.geometry{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	//--------------------------------------
 	//  Other metadata

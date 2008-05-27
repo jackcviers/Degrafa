@@ -25,7 +25,7 @@ package com.degrafa.transform{
 	import com.degrafa.core.collections.TransformCollection;
 	
 	import flash.geom.Matrix;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.events.PropertyChangeEvent;
 			

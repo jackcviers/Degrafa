@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.geometry.segment.ISegment;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The SegmentsCollection stores a collection of ISegment objects
  	**/

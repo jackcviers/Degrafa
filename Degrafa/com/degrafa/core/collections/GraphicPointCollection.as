@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.IGraphicPoint;
 	
-	import flash.net.registerClassAlias;
+	
 	
 	/**
  	*  The GraphicPointCollection stores a collection of IGraphicPoint objects

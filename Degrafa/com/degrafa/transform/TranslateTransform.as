@@ -24,7 +24,7 @@ package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	
 	import flash.geom.Matrix;
-	import flash.net.registerClassAlias;
+	
 
 	
 	[Exclude(name="centerX", kind="property")]

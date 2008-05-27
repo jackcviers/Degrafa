@@ -31,7 +31,7 @@ package com.degrafa{
 	import com.degrafa.core.DegrafaObject;
 	
 	import flash.geom.Point;
-	import flash.net.registerClassAlias;
+	
 	
 	
 	[Bindable(event="propertyChange")]

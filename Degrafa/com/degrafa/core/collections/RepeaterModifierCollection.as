@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	import com.degrafa.geometry.repeaters.IRepeaterModifier;
 	
-	import flash.net.registerClassAlias;
+	
 	/**
  	*  The RepeaterModifierCollection stores a collection of RepeaterModifier objects
  	**/	

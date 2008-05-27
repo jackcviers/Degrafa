@@ -27,7 +27,7 @@ package com.degrafa{
 	
 	import flash.display.DisplayObject;
 	import flash.events.Event;
-	import flash.net.registerClassAlias;
+	
 	
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;

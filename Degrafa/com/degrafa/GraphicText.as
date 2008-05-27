@@ -32,7 +32,7 @@ package com.degrafa
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	

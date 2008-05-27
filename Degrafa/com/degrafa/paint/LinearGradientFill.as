@@ -25,7 +25,7 @@ package com.degrafa.paint{
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	import flash.net.registerClassAlias;
+	
 	
 	[Exclude(name="focalPointRatio", kind="property")]
 	[Bindable(event="propertyChange")]

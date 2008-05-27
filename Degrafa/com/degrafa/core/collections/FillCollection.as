@@ -22,7 +22,7 @@
 package com.degrafa.core.collections{
 	
 	import com.degrafa.core.IGraphicsFill;
-	import flash.net.registerClassAlias;
+	
 	
 	/**
  	*  The FillCollection stores a collection of IGraphicsFill objects

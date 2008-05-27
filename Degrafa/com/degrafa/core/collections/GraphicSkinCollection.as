@@ -25,7 +25,7 @@ package com.degrafa.core.collections{
 	//the the correct types are returned.
 	import com.degrafa.core.IGraphicSkin;
 	
-	import flash.net.registerClassAlias;
+	
 	
 	/**
  	*  The GraphicSkinCollection stores a collection of IGraphicSkin objects
