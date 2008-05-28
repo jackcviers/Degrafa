@@ -21,17 +21,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.utilities{
 	
-	import com.degrafa.GraphicPoint;
+
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
-	
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import mx.validators.NumberValidator;
 	
 	/**
 	* A helper utility class for various geometric calculations.
 	**/
-	public class GeometryUtils{
-		
+	public class GeometryUtils
+	{
+		//dividing by 2 is frequently required
+		private static var half:Number = 0.5;
 		/**
 		* Calculates the barycenter of a quadratic bezier curve.
 		*  
@@ -194,15 +197,16 @@ package com.degrafa.geometry.utilities{
 			return new Rectangle(bounds.xMin,bounds.yMin,bounds.xMax-bounds.xMin,bounds.yMax-bounds.yMin);
 			
 		}	
-	
+
 		/**
 		* LineIntersects
 		* Returns the point of intersection between two lines
-		* @param p1, p2 (GraphicPoint) line 1 point struct
-		* @param p3, p4 (GraphicPoint) line 2 point struct
-		* @return GraphicPoint (Point object of intersection)
+		* @param p1, p2 (Point) line 1 point struct
+		* @param p3, p4 (Point) line 2 point struct
+		* @return Point (Point object of intersection)
 		*/
-		public static function lineIntersects (p1:GraphicPoint, p2:GraphicPoint, p3:GraphicPoint, p4:GraphicPoint):GraphicPoint {
+
+		public static function lineIntersects (p1:Point, p2:Point, p3:Point, p4:Point):Point {
 			var x1:Number = p1.x; 
 			var y1:Number = p1.y;
 			var x4:Number = p4.x; 
@@ -210,7 +214,7 @@ package com.degrafa.geometry.utilities{
 		    var dx1:Number = p2.x - x1;
 		    var dx2:Number = p3.x - x4;
 	
-			var intersectPoint:GraphicPoint = new GraphicPoint()
+			var intersectPoint:Point = new Point()
 		
 			if (!(dx1 || dx2)){
 				
@@ -247,32 +251,34 @@ package com.degrafa.geometry.utilities{
 		/**
 		* MidPoint
 		* Returns the midpoint Point of 2 Point structures
-		* @param p1 GraphicPoint Struc 1
-		* @param p2 GraphicPoint Struc 2
-		* @return GraphicPoint (the midpoint of the 2 points)
+		* @param p1 Point Struc 1
+		* @param p2 Point Struc 2
+		* @return Point (the midpoint of the 2 points)
 		*/
-		public static function midPoint(p1:GraphicPoint, p2:GraphicPoint):GraphicPoint{
-			return new GraphicPoint((p1.x + p2.x)/2,(p1.y + p2.y)/2);
+		public static function midPoint(p1:Point, p2:Point):Point{
+			return new Point((p1.x + p2.x)*half,(p1.y + p2.y)*half);
 		}
+		
+		
 		
 		/**
 		* SplitBezier
 		* Divides a cubic bezier curve into two cubic bezier curve definitions
 		* 
-		* @param p1 (GraphicPoint) endpoint 1
-		* @param c1 (GraphicPoint) control point 1
-		* @param c2 (GraphicPoint)control point 2
-		* @param p2 (GraphicPoint) endpoint 2
+		* @param p1 (Point) endpoint 1
+		* @param c1 (Point) control point 1
+		* @param c2 (Point)control point 2
+		* @param p2 (Point) endpoint 2
 		* @return Object (object with two cubic bezier definitions, b0 and b1) 
 		*/
-		public static function splitBezier(p1:GraphicPoint, c1:GraphicPoint, c2:GraphicPoint, p2:GraphicPoint):Object{	    						
+		public static function splitBezier(p1:Point, c1:Point, c2:Point, p2:Point):Object{	    						
 		   
-		    var p01:GraphicPoint = midPoint(p1, c1);
-		    var p12:GraphicPoint = midPoint(c1, c2);
-		    var p23:GraphicPoint = midPoint(c2, p2);
-		    var p02:GraphicPoint = midPoint(p01, p12);
-		    var p13:GraphicPoint = midPoint(p12, p23);
-		    var p03:GraphicPoint = midPoint(p02, p13);
+		    var p01:Point = midPoint(p1, c1);
+		    var p12:Point = midPoint(c1, c2);
+		    var p23:Point = midPoint(c2, p2);
+		    var p02:Point = midPoint(p01, p12);
+		    var p13:Point = midPoint(p12, p23);
+		    var p03:Point = midPoint(p02, p13);
 						
 			return { b0:{p1:p1, c1:p01, c2:p02, p2:p03}, b1:{p1:p03, c1:p13, c2:p23, p2:p2} };
 			
@@ -319,12 +325,12 @@ package com.degrafa.geometry.utilities{
 		* @param point The point to rotate.
 		* @param degrees A radius to rotate.
 		* 
-		* @return The transformed GraphicPoint point object.     
+		* @return The transformed Point point object.     
    		**/  
-		public static function rotatePoint(value:GraphicPoint,angle:Number):GraphicPoint{
+		public static function rotatePoint(value:Point,angle:Number):Point{
 			var radius:Number = Math.sqrt(Math.pow(value.x, 2)+Math.pow(value.y, 2));
 			var angle:Number = Math.atan2(value.y, value.x)+degressToRadius(angle);
-			return new GraphicPoint(roundTo(radius*Math.cos(angle), 3), roundTo(radius*Math.sin(angle), 3));
+			return new Point(roundTo(radius*Math.cos(angle), 3), roundTo(radius*Math.sin(angle), 3));
 		}
 		
 		/**
@@ -334,10 +340,10 @@ package com.degrafa.geometry.utilities{
 		* @param centerPoint the center point that point should be roatated around.
 		* @param degrees A radius to rotate.
 		* 
-		* @return The transformed GraphicPoint point object.     
+		* @return The transformed Point point object.     
    		**/  
-		public static function rotatePointOnCenterPoint(point:GraphicPoint,centerPoint:GraphicPoint,degrees:Number):GraphicPoint{
-			var tempReturnPoint:GraphicPoint = new GraphicPoint();
+		public static function rotatePointOnCenterPoint(point:Point,centerPoint:Point,degrees:Number):Point{
+			var tempReturnPoint:Point = new Point();
 			var radians:Number = (degrees/180)*Math.PI;
 			
 			tempReturnPoint.x = centerPoint.x + ( Math.cos(radians) * 
@@ -352,48 +358,82 @@ package com.degrafa.geometry.utilities{
 			
 		}
 		
-	
+		//performance/optimization (assumption only:avoid local variable creation in recursive function calls)
+		//the following external variable references are used to avoid local variable/Number object creation on recursive calls
+		//they are not required as local variables/new instances by recursion in the cubicToQuadratic function
+		private static var sx:Number;
+		private static var sy:Number;
+		private static var m1:Number;
+		private static var m2:Number;
+		private static var dx:Number;
+		private static var dy:Number;
+		private static var dx1:Number;
+		private static var dx2:Number;
 		/**
 		* CubicToQuadratic
 		* <p>Approximates a cubic bezier with as many quadratic bezier segments (n) as required 
-		* to achieve a specified tolerance.</p>
+		* to achieve a specified tolerance. </p>
 		* 
-		* @param p1 (GraphicPoint) endpoint
-		* @param c1 (GraphicPoint) 1st control point
-		* @param c2 (GraphicPoint) 2nd control point
-		* @param p2 (GraphicPoint) endpoint
-		* @param k: tolerance (low number = most accurate result)
-		* @param qcurves (Array) will contain array of quadratic bezier curves, each element containing p1x, p1y, cx, cy, p2x, p2y (start point, control points, end point
+		* @param p1x first endpoint x coord
+		* @param p1y first endpoint y coord
+		* @param c1x 1st control point x coord
+		* @param c1y 1st control point y coord
+		* @param c2x 2nd control point x coord
+		* @param c2y 2nd control point y coord
+		* @param p2x last endpoint x coord
+		* @param p2y last endpoint y coord
+		* @param k tolerance (low number = most accurate result)
+		* @param commandStack will contain the path of quadratic bezier curves that closely approximates the original cubic bezier curve
 		*/
-	 	public static function cubicToQuadratic(p1:GraphicPoint, c1:GraphicPoint, c2:GraphicPoint, p2:GraphicPoint, k:Number, commandStack:CommandStack,isSegment:Boolean):void{
-	 			 		
-			// find intersection between bezier arms
-			var s:Object = lineIntersects(p1, c1, c2, p2);
+	 	public static function cubicToQuadratic(p1x:Number,p1y:Number, c1x:Number,c1y:Number, c2x:Number,c2y:Number, p2x:Number,p2y:Number, k:Number, commandStack:CommandStack):void{
+			
+			// find intersection between bezier arms (intersection point calculated as coords sx,xy)
+			dx1= c1x - p1x;
+			dx2 = c2x - p2x;
 
+			if (!dx1){
+				sx=p1x;
+				sy=((c2y - p2y) / dx2) * (p1x - p2x) + p2y;
+			} 
+			else if (!dx2){
+				sx=p2x;
+				sy=((c1y - p1y) / dx1) * (p2x - p1x) + p1y;
+
+			} else{
+				m1 = (c1y - p1y) / dx1;
+				m2 = (c2y - p2y) / dx2;
+				
+				sx = (-m2 * p2x + p2y + m1 * p1x - p1y) / (m1 - m2);
+				sy = m1 * (sx - p1x) + p1y;
+			}
 			// find distance between the midpoints
-			var dx:Number = (p1.x + p2.x + s.x * 4 - (c1.x + c2.x) * 3) * .125;
-			var dy:Number = (p1.y + p2.y + s.y * 4 - (c1.y + c2.y) * 3) * .125;
+			dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
+			dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
 			
 			// split curve if the quadratic isn't close enough
-			if (dx*dx + dy*dy > k){
-				var halves:Object = splitBezier(p1, c1, c2, p2);
-				var b0:Object = halves.b0; 
-				var b1:Object = halves.b1;
+			if (dx * dx + dy * dy > k)
+			{
+				//dev note:these cannot be static external variables for performance gain, as they are required to maintain previous values on return from recusive execution
+				var p01x:Number = (p1x + c1x) * half;
+				var p01y:Number = (p1y + c1y) * half;
+				var p12x:Number= (c1x + c2x) * half;
+				var p12y:Number = (c1y + c2y) * half;				
+				var p23x:Number = (c2x + p2x) * half;
+				var p23y:Number = (c2y + p2y) * half;					
+				var p02x:Number = (p01x + p12x) * half;
+				var p02y:Number= (p01y + p12y) * half;
+				var p13x:Number= (p12x + p23x ) * half;
+				var p13y:Number = (p12y + p23y ) * half;					
+				var p03x:Number= (p02x + p13x) * half;
+				var p03y:Number = (p02y + p13y) * half;	
 				// recursive call to subdivide curve
-				cubicToQuadratic (p1,b0.c1, b0.c2, b0.p2,k, commandStack,isSegment);
-				cubicToQuadratic (b1.p1,b1.c1,b1.c2, p2,k, commandStack,isSegment);
+				cubicToQuadratic (p1x,p1y,p01x,p01y,p02x,p02y, p03x,p03y,k, commandStack);
+				cubicToQuadratic (p03x,p03y,p13x,p13y,p23x,p23y, p2x,p2y,k, commandStack);	
 			} 
 			else{
 				
-				//if it's a segment then we don't add the move to
-				//p1x:p1.x, p1y:p1.y
-				if(!isSegment){
-					//quadratics.push(new CommandStackItem(CommandStackItem.MOVE_TO,p1.x,p1.y));
-					commandStack.addMoveTo(p1.x,p1.y);
-				}
 				// end recursion by saving points
-				//quadratics.push(new CommandStackItem(CommandStackItem.CURVE_TO,NaN,NaN,p2.x,p2.y,s.x,s.y));
-				commandStack.addCurveTo(s.x,s.y,p2.x,p2.y);
+				commandStack.addCurveTo(sx,sy,p2x,p2y);
 			}
 		}
 	

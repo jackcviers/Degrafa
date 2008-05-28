@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
-	import com.degrafa.GraphicPoint;
+	import flash.geom.Point;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.GeometryUtils;
@@ -308,23 +308,24 @@ package com.degrafa.geometry.segment{
 				//clear the array in this case as it's a complex item
 				_commandStackItem.commandStack.length=0;
 							
-				if(_isShortSequence){
-					
-					GeometryUtils.cubicToQuadratic(
-					new GraphicPoint(lastPoint.x,lastPoint.y),
-					new GraphicPoint(lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y)),
-					new GraphicPoint(nlcpx,nlcpy),
-					new GraphicPoint(nlpx,nlpy),
-					1,_commandStackItem.commandStack,true);
+				 if(_isShortSequence){
+                                        
+						GeometryUtils.cubicToQuadratic(
+						lastPoint.x,lastPoint.y,
+						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
+						nlcpx,nlcpy,
+						nlpx,nlpy,
+						1,_commandStackItem.commandStack);
 				}
 				else{
-					GeometryUtils.cubicToQuadratic(
-					new GraphicPoint(lastPoint.x,lastPoint.y),
-					new GraphicPoint(_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy),
-					new GraphicPoint(nlcpx,nlcpy),
-					new GraphicPoint(nlpx,nlpy),
-					1,_commandStackItem.commandStack,true);
+						GeometryUtils.cubicToQuadratic(
+						lastPoint.x,lastPoint.y,
+						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
+						nlcpx,nlcpy,
+						nlpx,nlpy,
+						1,_commandStackItem.commandStack);
 				}
+
 				
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;

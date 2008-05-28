@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.GraphicPoint;
+	import flash.geom.Point;
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
@@ -299,11 +299,13 @@ package com.degrafa.geometry{
 				}
 				
 				commandStack.length=0;
-				
+				//add a MoveTo at the start of the commandStack rendering chain
+				commandStack.addMoveTo(x,y);
+			
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				GeometryUtils.cubicToQuadratic(new GraphicPoint(x,y),new GraphicPoint(cx,cy),new GraphicPoint(cx1,cy1+cy1Offset)
-				,new GraphicPoint(x1,y1),1,commandStack,false);	
+				GeometryUtils.cubicToQuadratic(x,y,cx,cy,cx1,cy1+cy1Offset
+				,x1,y1,1,commandStack);	
 								
 				calcBounds();
 				invalidated = false;

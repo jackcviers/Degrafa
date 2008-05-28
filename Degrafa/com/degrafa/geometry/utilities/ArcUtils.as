@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.utilities{
 	
-	import com.degrafa.GraphicPoint;
+	import flash.geom.Point;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 
@@ -155,9 +155,9 @@ package com.degrafa.geometry.utilities{
 			var ay:Number =y-Math.sin(angle)*(yRadius);
 			
 			//prepar to rotate each control point and anchor around the svg x-axis
-			var pivotPoint:GraphicPoint = new GraphicPoint(x,y);
-			var anchorPoint:GraphicPoint = new GraphicPoint(0,0);
-			var controlPoint:GraphicPoint = new GraphicPoint(0,0);
+			var pivotPoint:Point = new Point(x,y);
+			var anchorPoint:Point = new Point(0,0);
+			var controlPoint:Point = new Point(0,0);
 										
 			// Draw as 45 degree segments
 			if (segs>0) 
