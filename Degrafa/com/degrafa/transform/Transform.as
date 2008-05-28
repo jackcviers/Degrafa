@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.geometry.command.CommandStackItem;
@@ -113,28 +114,21 @@ package com.degrafa.transform{
 			return null;
 		}
 		
-		/**
-		* Applies the matrix to the given geometry
-		**/
-		public function apply(value:IGeometryComposition):void{
-			
-			//overriden by subclassees if required
-			
-			if(!invalidated){
-				return;
-			}
-			
-			invalidated = false;
-			
-			//make sure we have a valid command stack
-			if(value.commandStack.source.length==0){return;}
-						
-			var currentPoint:Point=new Point();
-			
+		
+		private function processCommandStack(stack:CommandStack,currentPoint:Point):void
+		{
 			var item:CommandStackItem;
-			for each (item in value.commandStack.cmdSource){
+			if (stack.source.length == 0)
+			{return; }
+			
+			for each (item in stack.source)
+			{
 				switch(item.type){
+					case CommandStackItem.COMMAND_STACK:
+					//recursion
+					processCommandStack(item.commandStack,currentPoint)
 					
+					break;
         			case CommandStackItem.MOVE_TO:
         				currentPoint.x=item.x;
         				currentPoint.y=item.y;
@@ -180,6 +174,23 @@ package com.degrafa.transform{
         				break;
         		}
 			}
+			
+		}
+		/**
+		* Applies the matrix to the given geometry
+		**/
+		public function apply(value:IGeometryComposition):void{
+			
+			//overriden by subclassees if required
+			if(!invalidated){
+				return;
+			}
+			
+			invalidated = false;
+			
+			
+			var currentPoint:Point=new Point();
+			processCommandStack(value.commandStack, currentPoint);
 		}
 		
 		/**
