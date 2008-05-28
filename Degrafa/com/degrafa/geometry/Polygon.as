@@ -238,7 +238,7 @@ package com.degrafa.geometry{
 		override public function preDraw():void{
 			if(invalidated){
 				
-				if(!_points){return;}
+				if(!_points || !_points.items){return;}
 				
 				commandStack.length=0;
 				
