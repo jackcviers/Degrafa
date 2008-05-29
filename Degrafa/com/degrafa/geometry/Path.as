@@ -75,7 +75,7 @@ package com.degrafa.geometry{
 		public function Path(data:String=null){
 			super();
 			
-			super.data=data;
+			this.data=data;
 			
 			
 		}
