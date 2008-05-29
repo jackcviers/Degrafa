@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:degrafa="http://www.degrafa.com/2008"
+	layout="absolute" width="100%" height="100%">
+	<mx:Style>	
+		@font-face {
+		    src: url("./assets/comic.ttf");
+		    fontFamily: "ComicSans";
+		    advancedAntiAliasing: true;
+		}
+	</mx:Style>
+	<mx:Script>
+		<![CDATA[
+		
+			import com.degrafa.utilities.SWFReader;
+			import com.degrafa.utilities.swf.SWFTag;
+			import com.degrafa.utilities.swf.SWFShapeReader;
+			import com.degrafa.utilities.swf.fonts.FontSet;
+			import com.degrafa.utilities.swf.fonts.FontGlyph;
+
+			import mx.events.ListEvent;
+			import mx.controls.Tree;
+
+			
+			[Bindable]
+			private var swfReader:SWFReader;
+			private var shapeReader:SWFShapeReader;
+			
+			private var urlLoader:URLLoader;
+					
+											
+			private function runTest1():void {
+				var request:URLRequest = new URLRequest('assets/SWFImportTestAssets.swf');				
+				urlLoader = new URLLoader();
+				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				urlLoader.load(request);
+				urlLoader.addEventListener(Event.COMPLETE, completeHandler);
+			}
+			
+			private function runTest2():void {
+				var request:URLRequest = new URLRequest('assets/ArialUnicode.swf');				
+				urlLoader = new URLLoader();
+				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				urlLoader.load(request);
+				urlLoader.addEventListener(Event.COMPLETE, completeHandler);
+			}
+			
+			private function runTest3():void {
+				var appBytes:ByteArray = Application.application.loaderInfo.bytes;
+				var tags:Array, i:int, len:int;
+				
+				if (!swfReader) {
+					swfReader = new SWFReader();
+				}
+				
+				swfReader.loadBytes(appBytes as ByteArray);
+				tags = swfReader.tags;
+				result.text = "";
+				tags.forEach(dumpTagFromArray);
+			
+			}
+			
+			private function completeHandler(event:Event):void {
+				var tags:Array, i:int, len:int;
+				
+				if (!swfReader) {
+					swfReader = new SWFReader();
+				}
+				
+				
+				swfReader.loadBytes(urlLoader.data as ByteArray);
+			
+				tags = swfReader.tags;
+				result.text = "";
+				tags.forEach(dumpTagFromArray);
+			}
+			
+			private function dumpTagFromArray(tag:SWFTag, index:int, source:Array):void {
+				result.text += tag.toString() + "\n";
+			}
+			
+			public function fontTreeLabelFunction(item:Object):String {
+				var cp:uint;
+				var text:String;
+				var hex:String;
+				if (item is FontSet) {
+					return (item as FontSet).fontName + ' (' + (item as FontSet).numGlyphs + ' glyphs)';
+				}
+				else if (item is FontGlyph) {
+					cp = (item as FontGlyph).codePoint;
+					text = String.fromCharCode(cp);
+					if (!cp || !text || cp == 0x0A || cp == 0x0D) { text = '?'; }
+					hex = cp.toString(16).toUpperCase();
+					while (hex.length < 4) { hex = '0' + hex; }
+					return 'U+' + hex  + ' (' + text + ')';
+				}
+				return '';
+			}
+			
+			public function treeChangeHandler(event:ListEvent):void {
+				var item:Object = (event.target as Tree).selectedItem;
+				var glyph:FontGlyph, bytes:ByteArray;
+			
+				if (item is FontGlyph) {
+					glyph = item as FontGlyph;
+					if (!shapeReader) { shapeReader = new SWFShapeReader(); }
+					bytes = glyph.fontSet.tag.bytes;
+					bytes.position = glyph.shapeOffset;				
+					shapeReader.readShape(glyph.shapeOffset, glyph.shapeOffsetEnd, bytes);
+					degrafaPath.data = shapeReader.path;
+					trace(degrafaPath.data);					
+				}
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
+
+		<mx:HBox width="100%">
+			<mx:Button label="Run Test #1" click="runTest1()" toolTip="Load External SWF with Webdings and Futura fonts"/>
+			<mx:Button label="Run Test #2" click="runTest2()" toolTip="Load External SWF with Arial Unicode MS font"/>
+			<mx:Button label="Run Test #3" click="runTest3()" toolTip="Introspect SWF for Comic Sans font"/>
+		</mx:HBox>
+		<mx:HDividedBox width="100%" height="100%">
+			<mx:Tree width="20%" height="100%" dataProvider="{swfReader.fonts}" labelFunction="{fontTreeLabelFunction}" change="treeChangeHandler(event)" />
+			<mx:VDividedBox width="80%" height="100%">
+				<mx:HBox width="100%" height="80%">
+					<mx:Canvas id="displayCanvas" width="{displayCanvas.height}" height="100%" backgroundColor="#ffffff">
+						<mx:UIComponent id="drawTarget" x="{displayCanvas.width / 4}" y="{displayCanvas.height * 0.75}" scaleX="{displayCanvas.width / 2048}" scaleY="{displayCanvas.height / 2048}" />
+					</mx:Canvas>		
+					<mx:TabNavigator width="100%" height="100%">
+					<mx:Box label="SWFX">
+						<mx:TextArea id="raw" width="100%" height="100%" editable="false" />	
+					</mx:Box>
+					<mx:Box label="SVG Path">
+						<mx:TextArea id="svg" width="100%" height="100%" editable="false" />	
+					</mx:Box>	
+					<mx:Box label="Degrafa MXML">
+						<mx:TextArea id="degrafa" width="100%" height="100%" editable="false" />	
+					</mx:Box>	
+				</mx:TabNavigator>							
+				</mx:HBox>
+				<mx:TabNavigator width="100%" height="20%">
+					<mx:Box label="Log">
+						<mx:TextArea id="result" width="100%" height="100%" editable="false" />	
+					</mx:Box>
+				</mx:TabNavigator>
+			</mx:VDividedBox>		
+		</mx:HDividedBox>
+	</mx:VBox>
+
+
+<degrafa:GeometryComposition graphicsTarget="{[drawTarget]}">
+	
+	<!-- Path for holding the current glyph (bug: disappears when set programmatically) -->										
+	<degrafa:Path id="degrafaPath"
+					data="M920,-304Q920,-135,800.5,-15.5Q681,104,512,104Q343,104,223.5,-15.5Q104,-135,104,-304Q104,-473,223.5,-592.5Q343,-712,512,-712Q681,-712,800.5,-592.5Q920,-473,920,-304L920,-304M856,-304Q856,-446.5,755.5,-547Q654.5,-648,512,-648Q384.5,-648,288,-565.5L352.5,-501L307,-451L241.5,-517Q168,-423.5,168,-304Q168,-161.5,269,-60.5Q369.5,40,512,40Q631,40,724.5,-34L665.5,-92.5L710.5,-142.5L773,-80.5Q856,-177,856,-304L856,-304M664,-400L664,-144.5Q664,-83,620,-39.5Q576,4,514.5,4Q452.5,4,408,-40Q364,-84,364,-147L364,-236Q339,-237,321.5,-254.5Q304,-272,304,-296Q304,-320,321.5,-337.5Q339,-355,364,-356L364,-572Q519.5,-572,598.5,-516.5Q664,-470.5,664,-400L664,-400M388,-516L528,-528.5L423,-552L388,-552L388,-516L388,-516M388,-456L604.5,-481L563.5,-511L388,-492L388,-456L388,-456M388,-400L633.5,-431.5L620.5,-459.5L388,-432L388,-400L388,-400M388,-376L640,-376L640,-404L388,-376L388,-376M388,-148L640,-148L640,-356L620,-356Q620,-302.5,608,-281Q595.5,-260,566,-260Q512,-260,512,-356L388,-356L388,-148L388,-148M364,-260L364,-332Q328,-329,328,-296Q328,-263,364,-260L364,-260M456,-96L572,-96L572,-116L456,-116L456,-96L456,-96M420,-300L452,-300L435,-280L420,-300L420,-300M496,-328L496,-172L476,-172L476,-312L408,-312L408,-328L496,-328L496,-328Z">
+		<degrafa:fill>
+			<degrafa:SolidFill color="#00ff00"/>
+		</degrafa:fill> 
+		<degrafa:stroke>
+			<degrafa:SolidStroke alpha=".25" color="#0000ff"/>
+		</degrafa:stroke>
+	</degrafa:Path>
+
+	<!-- Test: The pirate head (very light) -->
+	<degrafa:Path 
+		data="M920,-304Q920,-135,800.5,-15.5Q681,104,512,104Q343,104,223.5,-15.5Q104,-135,104,-304Q104,-473,223.5,-592.5Q343,-712,512,-712Q681,-712,800.5,-592.5Q920,-473,920,-304L920,-304M856,-304Q856,-446.5,755.5,-547Q654.5,-648,512,-648Q384.5,-648,288,-565.5L352.5,-501L307,-451L241.5,-517Q168,-423.5,168,-304Q168,-161.5,269,-60.5Q369.5,40,512,40Q631,40,724.5,-34L665.5,-92.5L710.5,-142.5L773,-80.5Q856,-177,856,-304L856,-304M664,-400L664,-144.5Q664,-83,620,-39.5Q576,4,514.5,4Q452.5,4,408,-40Q364,-84,364,-147L364,-236Q339,-237,321.5,-254.5Q304,-272,304,-296Q304,-320,321.5,-337.5Q339,-355,364,-356L364,-572Q519.5,-572,598.5,-516.5Q664,-470.5,664,-400L664,-400M388,-516L528,-528.5L423,-552L388,-552L388,-516L388,-516M388,-456L604.5,-481L563.5,-511L388,-492L388,-456L388,-456M388,-400L633.5,-431.5L620.5,-459.5L388,-432L388,-400L388,-400M388,-376L640,-376L640,-404L388,-376L388,-376M388,-148L640,-148L640,-356L620,-356Q620,-302.5,608,-281Q595.5,-260,566,-260Q512,-260,512,-356L388,-356L388,-148L388,-148M364,-260L364,-332Q328,-329,328,-296Q328,-263,364,-260L364,-260M456,-96L572,-96L572,-116L456,-116L456,-96L456,-96M420,-300L452,-300L435,-280L420,-300L420,-300M496,-328L496,-172L476,-172L476,-312L408,-312L408,-328L496,-328L496,-328Z">
+		<degrafa:fill>
+			<degrafa:SolidFill color="#ffffff"/>
+		</degrafa:fill> 
+		<degrafa:stroke>
+			<degrafa:SolidStroke alpha=".25" color="#000000"/>
+		</degrafa:stroke>
+	</degrafa:Path>
+
+	
+	<!-- Degrafa path for defining the 1024x1024 pixel EM square -->
+	
+	<degrafa:Path data="M0 -1024L1024 -1024L1024 0L0 0L0 -1024Z">
+		<degrafa:fill>
+			<degrafa:SolidFill color="#FF0000" alpha="0.1"/>
+		</degrafa:fill> 
+		<degrafa:stroke>
+			<degrafa:SolidStroke alpha="0" color="#000000"/>
+		</degrafa:stroke>
+	</degrafa:Path>
+					
+</degrafa:GeometryComposition>
+	
+</mx:Application>
