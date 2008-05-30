@@ -136,22 +136,23 @@ package com.degrafa.utilities.swf
 
 							fontBaseline = 0; // 1024 - (moveDeltaY / 20);
 
-							trace('Baseline: ' + fontBaseline);
+						//	trace('Baseline: ' + fontBaseline);
 
 							x = moveDeltaX / 20;
 							y = moveDeltaY / 20 + fontBaseline;
 														
 							xx = moveDeltaX;
 							yy = moveDeltaY;
-							path += "M" + x + "," + y;								
 						}
 						else {
 							x = moveDeltaX / 20;
 							y = moveDeltaY / 20; // + fontBaseline;
 							xx = moveDeltaX;
 							yy = moveDeltaY;
-							path += "M" + x + "," + y;	
 						}
+
+						path += "M" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);	
+
 						
 						trace('SSCR' + numBits + '\t' + moveDeltaX +  '\t' + moveDeltaY + '\t\t\t\t\t\t' + xx + '\t' + yy);
 								
@@ -216,7 +217,7 @@ package com.degrafa.utilities.swf
 					x += moveDeltaX / 20;
 					y += moveDeltaY / 20 + fontBaseline;
 											
-					path += "L" + x + "," + y;	
+					path += "L" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);	
 					
 				}
 				else {					// It's a curved edge
@@ -237,7 +238,7 @@ package com.degrafa.utilities.swf
 					xx += controlDeltaX + anchorDeltaX;
 					yy += controlDeltaY + anchorDeltaY;
 					
-					path += "Q" + cx + "," + cy + "," + ax + "," + ay;	
+					path += "Q" + (Math.abs(cx) < 0.0001 ? 0 : cx) + "," + (Math.abs(cy) < 0.0001 ? 0 : cy) + "," + (Math.abs(ax) < 0.0001 ? 0 : ax) + "," + (Math.abs(ay) < 0.0001 ? 0 : ay);	
 
 					trace('CER\t' + controlDeltaX + '\t' + controlDeltaY +'\t' + anchorDeltaX + '\t' + anchorDeltaY + '\t\t\t\t' + xx + '\t' + yy);
 
