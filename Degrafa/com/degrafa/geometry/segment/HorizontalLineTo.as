@@ -124,6 +124,15 @@ package com.degrafa.geometry.segment{
 										Math.abs(_commandStackItem.x-lastPoint.x),
 										0
 									);
+			
+			//temporary fix for 0 width or height
+			if(_bounds.width == 0){
+				_bounds.width =0.000001;
+			}
+			if(_bounds.height== 0){
+				_bounds.height =0.000001;
+			}
+									
 		}
 		
 		private var _bounds:Rectangle;
