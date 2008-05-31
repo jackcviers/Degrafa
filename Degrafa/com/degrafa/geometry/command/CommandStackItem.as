@@ -22,7 +22,7 @@
 package com.degrafa.geometry.command{
 	
 	import flash.geom.Point;
-	
+	import flash.net.registerClassAlias;
 	
 	public class CommandStackItem{
 		
@@ -35,6 +35,8 @@ package com.degrafa.geometry.command{
 		public var start:Point = new Point();
 		public var control:Point = new Point();
 		public var end:Point = new Point();
+		
+		private static var isRegistered:Boolean = false;
 		
 		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,originX:Number=NaN,originY:Number=NaN,commandStack:CommandStack=null){
 			this.type = type;
@@ -52,6 +54,11 @@ package com.degrafa.geometry.command{
 			
 			initPoints();
 			
+			if(!isRegistered){
+				registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
+				registerClassAlias("flash.geom.Point", Point);
+				isRegistered = true;
+			}
 		}
 		
 		private function initPoints():void{
