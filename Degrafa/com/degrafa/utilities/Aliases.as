@@ -17,7 +17,7 @@ package com.degrafa.utilities{
 	import com.degrafa.paint.*
 	import com.degrafa.skins.*
 	import com.degrafa.transform.*
-	import com.degrafa.utilities.*
+	import com.degrafa.utilities.external.*
 	
 	/**
 	* The Aliases helper is for registering a Degrafa manifest of class aliases.
@@ -141,7 +141,7 @@ package com.degrafa.utilities{
 						TransformGroup:TransformGroup,
 						TranslateTransform:TranslateTransform
 					},
-					utilities: {
+					utilities: { 
 						ExternalBitmap:ExternalBitmap,
 						LoadingLocation:LoadingLocation
 					}

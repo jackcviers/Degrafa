@@ -8,7 +8,7 @@
 	* A representation of a loading location specified in terms of a base path and 
 	* crossdomain policy file to be accessed. To be associated with externally loaded content.
 	* */
-	public class  LoadingLocation 
+	public class  LoadingLocation  
 	{
 		private var _basepath:String=null;
 		private var _policyFile:String=null;

@@ -89,6 +89,6 @@
 	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
 	
 	<!--runtime bitmaps-->
-	<component id="LoadingLocation" class="com.degrafa.utilities.LoadingLocation" />
+	<component id="LoadingLocation" class="com.degrafa.utilities.external.LoadingLocation" />
 	
 </componentPackage>    
