@@ -23,6 +23,8 @@
 package com.degrafa.transform{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.TransformCollection;
+	import com.degrafa.transform.TransformBase
+	import flash.geom.Point;
 	
 	import flash.geom.Matrix;
 	
@@ -31,11 +33,14 @@ package com.degrafa.transform{
 			
 	[DefaultProperty("transforms")]	
 	/**
-	* TransformGroup is a transformation class to store composit transformations.
-	* 
-	* Coming Soon. 
-	**/
-	public class TransformGroup extends Transform{
+	* TransformGroup is a transformation class a collection of Degrafa Transforms that are processed together 
+	* to generate a composite transform on the requesting geometry and/or fill object.
+	* The same collection of transforms will generate a different result depending on their sequence.
+	* This behavior follows the rules of Matrix multiplication [reference to go here]
+	*/
+	public class TransformGroup extends TransformBase implements ITransform
+	{
+	
 		public function TransformGroup(){
 			super();
 		}
@@ -86,39 +91,26 @@ package com.degrafa.transform{
 			dispatchEvent(event)
 		}
 		
-		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
-			//concat the matrix's in the group	
-			transformMatrix = new Matrix;
-			
-			for each(var matrix:Transform in transforms){
-				
-				if(matrix is TranslateTransform){
-				}
-				else{
-					if(registrationPoint){
-						Transform(matrix).registrationPoint = registrationPoint;
-					}
-					else{
-						Transform(matrix).centerX = centerX;
-						Transform(matrix).centerY = centerX;
-					}
-				}
-				
-				//concat it in
-				transformMatrix.concat(matrix.preCalculateMatrix(value));
-				
-			}	
-			
-			return transformMatrix;
+		override public function get isIdentity():Boolean
+		{
+			//for now override and return false. Need to address this
+			return false;
 		}
 		
-		override public function apply(value:IGeometryComposition):void{
-			
-			invalidated = true;
-			preCalculateMatrix(value);
-			super.apply(value);
-			
+		override public function getTransformFor(value:IGeometryComposition):Matrix
+		{
+			//dev note: this doesn't yet have an invalidation check..
+			var offset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
+			var retMatrix:Matrix = new Matrix();
+		    retMatrix.translate( -offset.x, -offset.y);
+			for each(var matrix:ITransform in transforms)
+			{
+				retMatrix.concat(matrix.transformMatrix);
+			}
+			retMatrix.translate(offset.x, offset.y)
+			return retMatrix;
 		}
+		
 		
 	}
 }

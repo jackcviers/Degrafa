@@ -22,85 +22,39 @@
 
 package com.degrafa.transform{
 	
-	import com.degrafa.IGeometryComposition;
-	
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	
+	import com.degrafa.transform.TransformBase
+
 	
 	[Bindable]
 	/**
 	* RotateTransform rotates an object in the two-dimensional plane by specifying an angle 
 	* and a registration point defined in registration point or centerX and centerY respectivly.
 	**/
-	public class RotateTransform extends Transform{
+	public class RotateTransform extends TransformBase  implements ITransform{
 		
-		private var radians:Number;
+	//	private var radians:Number;
 		
 		public function RotateTransform(){
 			super();
 	
 		}
 		
-		private var _angle:Number=0;
-		/**
-		* The rotation angle of the transform in degrees. A value between 0 and 360.
-		**/
-		public function get angle():Number{
+	
+
+		public function get angle():Number
+		{
 			return _angle;
 		}
-		public function set angle(value:Number):void{
-			
-			if(_angle != value){
-				radians = ((_angle-value)/180)* Math.PI;
-				_angle = value;
-				invalidated = true;
-			}
-			else{
-				radians = NaN;
+		public function set angle(value:Number):void
+		{
+			if (value != _angle)
+			 {
+				 _angle = value;
+				 invalidated = true;
 			}
 		}
-		
-		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
-			
-			if(!invalidated && !radians){return transformMatrix;}
-			
-			//store the previous matrix for inversion
-			var previousMatrix:Matrix=transformMatrix.clone();
-		
-			if(radians){
-			
-				var trans:Point;
-				if(registrationPoint){
-					trans = getRegistrationPoint(value)
-				}
-				else{
-					trans = new Point(centerX,centerY);
-				}
-				
-				transformMatrix.translate(-trans.x,-trans.y);
-				transformMatrix.rotate(radians);
-				transformMatrix.translate(trans.x,trans.y);
-				
-				radians = NaN;
-			}
-					
-			//invert the previous matrix and concat the results before application
-			if(previousMatrix){
-				previousMatrix.invert();
-				transformMatrix.concat(previousMatrix);
-			}
-			
-			return transformMatrix;	
-		}	
-			
-		override public function apply(value:IGeometryComposition):void{
-						
-			preCalculateMatrix(value);
-		
-			super.apply(value);
-		}
-		
 		
 	}
+		
+
 }

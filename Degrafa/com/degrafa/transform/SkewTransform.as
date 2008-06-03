@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
-	import com.degrafa.IGeometryComposition;
-	
-	import flash.geom.Matrix;
+
+	import com.degrafa.transform.TransformBase;
+	import com.degrafa.transform.ITransform;
 	
 	
 	[Bindable]
@@ -33,75 +33,39 @@ package com.degrafa.transform{
 	* The transformation skews the x-axis and y-axis values relative to the 
 	* registration point defined in registration point or centerX and centerY respectivly.
 	**/
-	public class SkewTransform extends Transform{
+	public class SkewTransform extends TransformBase {
 		
-		private var currentSkewAngleX:Number;
-		private var currentSkewAngleY:Number;
 				
 		public function SkewTransform(){
 			super();
 		}
 		
-		private var _skewAngleX:Number=0;
-		public function get skewAngleX():Number{
-			return _skewAngleX;
+		public function get skewX():Number
+		{
+			return _skewX;
 		}
 		
-		public function set skewAngleX(value:Number):void{
-			if(_skewAngleX != value){
-				currentSkewAngleX = (value-_skewAngleX)/100;
-				_skewAngleX = value;
-				invalidated = true;
-			}
-			else{
-				currentSkewAngleX = NaN;
-			}
-		}
-			
-		private var _skewAngleY:Number=0;
-		public function get skewAngleY():Number{
-			return _skewAngleY;
+		public function get skewY():Number
+		{
+			return _skewY;
 		}
 		
-		public function set skewAngleY(value:Number):void{
-			if(_skewAngleY != value){
-				currentSkewAngleY = (value-_skewAngleY)/100;
-				_skewAngleY = value;
-				invalidated = true;
-			}
-			else{
-				currentSkewAngleY = NaN;
+		
+		public function set skewX(value:Number):void 
+		{
+			if (value != _skewX)
+			 {
+				 _skewX = value;
+				 invalidated = true;
 			}
 		}
-		
-		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
-			
-			if(!invalidated && !currentSkewAngleX && !currentSkewAngleY){return transformMatrix;}
-			
-			if(currentSkewAngleX){
-				transformMatrix.c = currentSkewAngleX;
-				currentSkewAngleX = NaN;
+		public function set skewY(value:Number):void 
+		{	
+			if (value != _skewY)
+			 {
+				 _skewY = value;
+				 invalidated = true;
 			}
-			else{
-				transformMatrix.c =0;
-			}
-		
-			if(currentSkewAngleY){
-				transformMatrix.b = currentSkewAngleY;
-				currentSkewAngleY = NaN;
-			}
-			else{
-				transformMatrix.b =0;
-			}
-			
-			return 	transformMatrix;
-		}
-		
-		override public function apply(value:IGeometryComposition):void{
-			
-			preCalculateMatrix(value);
-									
-			super.apply(value);
 		}
 		
 	}

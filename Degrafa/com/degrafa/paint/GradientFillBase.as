@@ -23,11 +23,14 @@ package com.degrafa.paint{
 	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.GradientStopsCollection;
+	import com.degrafa.geometry.Geometry;
+	import com.degrafa.IGeometryComposition;
+	import com.degrafa.transform.ITransform;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
-	
+	import flash.geom.Point;
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("gradientStops")]
@@ -220,7 +223,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		public function begin(graphics:Graphics, rc:Rectangle):void{
+		public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
 			var matrix:Matrix;
 			
 			//ensure that all defaults are in fact set these are temp until fully tested
@@ -228,21 +231,23 @@ package com.degrafa.paint{
 			if(!_focalPointRatio){_focalPointRatio=0;}
 			if(!_spreadMethod){_spreadMethod="pad";}
 			if(!_interpolationMethod){_interpolationMethod="rgb";}
-						
+			matrix=new Matrix();			
 			if (rc)
 			{				
-				matrix=new Matrix();
+				
 				matrix.createGradientBox(rc.width, rc.height,
 				(_angle/180)*Math.PI, rc.x, rc.y);
 				var xp:Number = (angle % 90)/90;
 				var yp:Number = 1 - xp;
-				processEntries(rc.width*xp + rc.height*yp);
+				processEntries(rc.width * xp + rc.height * yp);
+				
 			}
-			else
-			{
-				matrix = null;
-			}			
-									
+
+			var transformRequest:ITransform;
+			if (requester && (transformRequest  = (requester as Geometry).transform)) {
+				matrix.concat(transformRequest.getTransformFor(requester));
+			}
+							
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}

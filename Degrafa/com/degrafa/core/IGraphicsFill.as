@@ -21,14 +21,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core{
 	import com.degrafa.core.IDegrafaObject;
-	import mx.graphics.IFill;
+	import com.degrafa.IGeometryComposition;
+	import flash.geom.Rectangle;
+	import flash.display.Graphics;
+
 	
 	/**
  	* Base interface for all Degrafa fill objects.
  	**/ 
-	public interface IGraphicsFill extends IDegrafaObject, IFill{
+	public interface IGraphicsFill extends IDegrafaObject{
 		//no difference as of yet basically used to limit the list
 		// we have to be careful as we would like the ability to use
 		//IGraphicsFill objects for charts etc..
+			
+
+		function begin(target:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void
+
+
+		function end(target:Graphics):void
 	}
 }

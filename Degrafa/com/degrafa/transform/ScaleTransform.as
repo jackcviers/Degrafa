@@ -22,11 +22,8 @@
 
 package com.degrafa.transform{
 	
-	import com.degrafa.IGeometryComposition;
-	
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	
+	import com.degrafa.transform.TransformBase;
+	import com.degrafa.transform.ITransform;
 	
 	[Bindable]
 	/**
@@ -34,89 +31,64 @@ package com.degrafa.transform{
 	* The transformation scales the x-axis and y-axis values relative to the 
 	* registration point defined in registration point or centerX and centerY respectivly.
 	**/
-	public class ScaleTransform extends Transform{
+	public class ScaleTransform extends TransformBase implements ITransform{
 		
-		private var currentScaleXRatio:Number;
-		private var currentScaleYRatio:Number;
+
 		
 		public function ScaleTransform(){
 			super();
-
 		}
 		
-		private var _scaleX:Number=1;
-		public function get scaleX():Number{
+	
+		public function get scaleX():Number
+		{
 			return _scaleX;
 		}
 		
-		public function set scaleX(value:Number):void{
-			if(_scaleX != value){
-				currentScaleXRatio = value/_scaleX;
-				_scaleX = value;
-				invalidated = true;
-			}
-			else{
-				currentScaleXRatio = NaN;
-			}
-		}
-		
-		private var _scaleY:Number=1;
-		public function get scaleY():Number{
+		public function get scaleY():Number
+		{
 			return _scaleY;
 		}
 		
-		public function set scaleY(value:Number):void{
-			if(_scaleY != value){
-				currentScaleYRatio = value/_scaleY;
-				_scaleY = value;
+
+		private var uniform:Boolean = false;
+		
+		public function set scale(value:Number):void
+		{
+			if (_scaleX != value || _scaleY != value)
+			{
+				_scaleX = _scaleY = value;
 				invalidated = true;
 			}
-			else{
-				currentScaleYRatio = NaN;
-			}
+			uniform = true;
+		}
+	
+		public function get scale():Number
+		{
+			if (uniform) return _scaleX;
+			return NaN;
 		}
 		
-		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
-			
-			if(!invalidated && !currentScaleXRatio && !currentScaleYRatio){return transformMatrix;}
-			
-			//store the previous matrix for inversion
-			var previousMatrix:Matrix=transformMatrix.clone();
-			
-			var trans:Point;
-			if(registrationPoint){
-				trans = getRegistrationPoint(value)
+		public function set scaleX( value:Number):void
+		{
+			if (value != _scaleX)
+			 {
+				 _scaleX = value;
+				 invalidated = true;
 			}
-			else{
-				trans = new Point(centerX,centerY);
-			}
-				
-			if(currentScaleXRatio){
-				transformMatrix.a *= currentScaleXRatio;
-				currentScaleXRatio = NaN;
-			}
-			
-			if(currentScaleYRatio){
-				transformMatrix.d *= currentScaleYRatio;
-				currentScaleYRatio = NaN;
-			}
-			
-			//invert the previous matrix and concat the results before application
-			if(previousMatrix){
-				previousMatrix.invert();
-				transformMatrix.concat(previousMatrix);
-			}
-			
-			return transformMatrix;
+			uniform = false;
 		}
 		
-		override public function apply(value:IGeometryComposition):void{
-			
-			preCalculateMatrix(value);
-		
-			super.apply(value);
-			
+		public function set scaleY( value:Number):void
+		{
+			if (value != _scaleY)
+			 {
+				 _scaleY = value;
+				 invalidated = true;
+			}
+			uniform = false;
 		}
+		
 		
 	}
 }

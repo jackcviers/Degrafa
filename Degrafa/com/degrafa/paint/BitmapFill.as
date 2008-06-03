@@ -25,6 +25,9 @@ package com.degrafa.paint{
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
+	import com.degrafa.geometry.Geometry;
+	import com.degrafa.IGeometryComposition;
+	import com.degrafa.transform.ITransform;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -38,8 +41,9 @@ package com.degrafa.paint{
 	
 	import flash.utils.getDefinitionByName;
 	
-	import com.degrafa.utilities.ExternalBitmap;
-	import com.degrafa.utilities.LoadingLocation;
+	import com.degrafa.utilities.external.ExternalBitmapData;
+	import com.degrafa.utilities.external.ExternalDataAsset;
+	import com.degrafa.utilities.external.LoadingLocation;
 	import flash.utils.setTimeout;
 	
 	[DefaultProperty("source")]
@@ -66,7 +70,7 @@ package com.degrafa.paint{
 		private var sprite:Sprite;
 		private var target:DisplayObject;
 		private var bitmapData:BitmapData;
-		private var _externalBitmap:ExternalBitmap;
+		private var _externalBitmapData:ExternalBitmapData;
 		private var _loadingLocation:LoadingLocation;
 		
 		
@@ -380,14 +384,14 @@ package com.degrafa.paint{
 		//EXTERNAL BITMAP SUPPORT
 	
 		/**
-		 * handles the ready state for an ExternalBitmap as the source of a BitmapFill
-		 * @param	evt an ExternalBitmap.STATUS_READY event
+		 * handles the ready state for an ExternalBitmapData as the source of a BitmapFill
+		 * @param	evt an ExternalDataAsset.STATUS_READY event
 		 */
 		private function externalBitmapHandler(evt:Event):void {
-	//TODO: consider passing all ExternalBitmap events through here and redispatching from BitmapFill		
+	//TODO: consider passing all ExternalBitmapData events through here and redispatching from BitmapFill		
 			switch(evt.type)
 			{
-			case ExternalBitmap.STATUS_READY:
+			case ExternalDataAsset.STATUS_READY:
 				var oldValue:Object = bitmapData;
 				bitmapData = evt.target.content;
 				initChange("source", oldValue, bitmapData, this);
@@ -419,7 +423,7 @@ package com.degrafa.paint{
 		 * A class representing a subclass of DisplayObject. The BitmapFill instantiates the class and creates a bitmap rendering of it. 
 		 * An instance of a DisplayObject. The BitmapFill copies it into a Bitmap for filling. 
 		 * The name of a subclass of DisplayObject. The BitmapFill loads the class, instantiates it, and creates a bitmap rendering of it.
-		 * An instance of an ExternalBitmap to be loaded at runtime.
+		 * An instance of an ExternalBitmapData to be loaded at runtime.
 		 * A url string to either as a relative url (local domain or with a LoadingLocation) or absolute with no LoadingLocation (see loadingLocation property)
 		 **/
 		public function get source():Object { return bitmapData; }
@@ -434,16 +438,16 @@ package com.degrafa.paint{
 			if (!value) {
 				return;
 			}
-			if (_externalBitmap) {
-				_externalBitmap.removeEventListener(ExternalBitmap.STATUS_READY, externalBitmapHandler);
-				_externalBitmap = null;
+			if (_externalBitmapData) {
+				_externalBitmapData.removeEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler);
+				_externalBitmapData = null;
 			}
-			if (value is ExternalBitmap) {
-				_externalBitmap = value as ExternalBitmap;
+			if (value is ExternalBitmapData) {
+				_externalBitmapData = value as ExternalBitmapData;
 				if (value.content) {		
 					value = value.content;
 				} else {
-					value.addEventListener(ExternalBitmap.STATUS_READY,externalBitmapHandler)
+					value.addEventListener(ExternalDataAsset.STATUS_READY,externalBitmapHandler)
 				return;
 				}
 			}
@@ -481,14 +485,14 @@ package com.degrafa.paint{
 					var cls:Class = Class(getDefinitionByName(value as String));	
 				} catch (e:Error)
 				{
-					//if its not a class name, assume url string for an ExternalBitmap
-					//and wait for isInitialized to check/access loadingLocation mxml assignment
+					//if its not a class name, assume url string for an ExternalBitmapData
+					//and kludge: wait for isInitialized to check/access loadingLocation mxml assignment
 					if (!isInitialized) {
 						setTimeout(
 							function():void
 							{source = value },1);
 					} else {
-						source = ExternalBitmap.getUniqueInstance(value as String, _loadingLocation);
+						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
 					}
 					return;
 				}
@@ -510,7 +514,7 @@ package com.degrafa.paint{
 		}
 		
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
 			
 			if(!bitmapData) {
 				return;
@@ -599,7 +603,11 @@ package com.degrafa.paint{
 			matrix.scale(_scaleX,_scaleY);
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
-			
+		
+			var transformRequest:ITransform;
+			if (requester && (transformRequest  = (requester as Geometry).transform)) {
+				matrix.concat(transformRequest.getTransformFor(requester));
+			}
 			graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}
 		

@@ -24,13 +24,14 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.IGeometryComposition;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
 	
 	import mx.events.PropertyChangeEvent;
-	import mx.graphics.IFill;
+
 	
 	[DefaultProperty("fill")]
 	[Bindable(event="propertyChange")]
@@ -42,7 +43,7 @@ package com.degrafa.paint{
 	[IconFile("BlendFill.png")]
 	
 	/**
-	 * Used to wrap standard IFill objects for use in a ComplexFill.
+	 * Used to wrap standard IGraphicsFill objects for use in a ComplexFill.
 	 * The blendMode is only recognized in the context of a ComplexFill.
 	 */
 	public class BlendFill extends DegrafaObject implements IGraphicsFill, IBlend{
@@ -51,7 +52,7 @@ package com.degrafa.paint{
 		// Constructor
 		//*****************************************
 		
-		public function BlendFill(fill:IFill = null, blendMode:String = "normal"){
+		public function BlendFill(fill:IGraphicsFill = null, blendMode:String = "normal"){
 			this.fill = fill;
 			this.blendMode = blendMode;
 			
@@ -59,7 +60,7 @@ package com.degrafa.paint{
 		
 		// property backing vars
 		private var _blendMode:String;
-		private var _fill:IFill;
+		private var _fill:IGraphicsFill;
 		
 		
 		//**************************************
@@ -78,10 +79,10 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		 * The IFill which this BlendFill wraps.
+		 * The IGraphicsFill which this BlendFill wraps.
 		 */
-		public function get fill():IFill { return _fill; }
-		public function set fill(value:IFill):void {
+		public function get fill():IGraphicsFill { return _fill; }
+		public function set fill(value:IGraphicsFill):void {
 			if(_fill != value) {
 				if(_fill is IGraphicsFill) {
 					(_fill as IGraphicsFill).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler, false);
@@ -101,9 +102,9 @@ package com.degrafa.paint{
 		// Public Methods
 		//*****************************************
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
 			if(fill != null) {
-				fill.begin(graphics, rectangle);
+				fill.begin(graphics, rectangle,requester);
 			}
 		}
 		

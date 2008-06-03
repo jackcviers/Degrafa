@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
-	import com.degrafa.IGeometryComposition;
 	
-	import flash.geom.Matrix;
+	import com.degrafa.transform.TransformBase;
+	import com.degrafa.transform.ITransform;
 	
 
 	
@@ -38,11 +38,9 @@ package com.degrafa.transform{
 	* pixels for translating the object is specified through the x and 
 	* y properties. 
 	**/
-	public class TranslateTransform extends Transform{
+	public class TranslateTransform extends TransformBase implements ITransform{
 		
-		private var currentTranslateX:Number;
-		private var currentTranslateY:Number;
-		
+
 		public function TranslateTransform(){
 			super();
 			
@@ -57,74 +55,30 @@ package com.degrafa.transform{
 		override public function set registrationPoint(value:String):void{}
 		
 		
-		private var _x:Number=0;
-		/**
-		* The value to transform along the x axis.
-		**/
-		public function get x():Number{
-			return _x;
+		public function get x():Number
+		{
+			return _tx;
 		}
-		public function set x(value:Number):void{
-			if(_x != value){
-				currentTranslateX = value-_x;
-				_x = value;
-				invalidated = true;
-			}
-			else{
-				currentTranslateX = NaN;
+		public function set x(value:Number):void
+		{
+			if (value != _tx)
+			 {
+				 _tx = value;
+				 invalidated = true;
 			}
 		}
-		
-		private var _y:Number=0;
-		/**
-		* The value to transform along the y axis.
-		**/
-		public function get y():Number{
-			return _y;
+		public function get y():Number
+		{
+			return _ty;
 		}
-		public function set y(value:Number):void{
-			if(_y != value){
-				currentTranslateY = value-_y;
-				_y = value;
-				invalidated = true;
-			}
-			else{
-				currentTranslateY = NaN;
+		public function set y(value:Number):void
+		{
+			if (value != _ty)
+			 {
+				 _ty = value;
+				 invalidated = true;
 			}
 		}
-		
-		override public function preCalculateMatrix(value:IGeometryComposition):Matrix{
-			
-			if(!invalidated && !currentTranslateX && !currentTranslateY){return transformMatrix;}
-			
-			if(currentTranslateX){
-				transformMatrix.tx = currentTranslateX;
-				currentTranslateX = NaN;
-			}
-			else{
-				transformMatrix.tx =0;
-			}
-			
-			if(currentTranslateY){
-				transformMatrix.ty = currentTranslateY;
-				currentTranslateY = NaN;
-			}
-			else{
-				transformMatrix.ty =0;
-			}
-			
-			return transformMatrix;
-			
-		}
-		
-		override public function apply(value:IGeometryComposition):void{
-			
-			preCalculateMatrix(value);
-						
-			super.apply(value);
-			
-		}
-	
 	}
 	
 }

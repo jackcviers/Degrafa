@@ -12,6 +12,7 @@
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 		
 	<!--Transforms-->
+	<component id="Transform" class="com.degrafa.transform.Transform"/>
 	<component id="MatrixTransform" class="com.degrafa.transform.MatrixTransform"/>
 	<component id="RotateTransform" class="com.degrafa.transform.RotateTransform"/>
 	<component id="ScaleTransform" class="com.degrafa.transform.ScaleTransform"/>

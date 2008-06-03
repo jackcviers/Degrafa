@@ -24,6 +24,9 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.geometry.Geometry;
+	import com.degrafa.IGeometryComposition;
+	import com.degrafa.transform.ITransform;
 	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -33,7 +36,7 @@ package com.degrafa.paint{
 	
 	
 	import mx.events.PropertyChangeEvent;
-	import mx.graphics.IFill;
+	
 	
 	[DefaultProperty("fills")]
 	
@@ -44,7 +47,7 @@ package com.degrafa.paint{
 	[IconFile("ComplexFill.png")]
 	
 	/**
-	 * Used to render multiple, layered IFill objects as a single fill.
+	 * Used to render multiple, layered IGraphicsFill objects as a single fill.
 	 * This allows complex background graphics to be rendered with a single drawing pass.
 	 */
 	public class ComplexFill extends DegrafaObject implements IGraphicsFill, IBlend{
@@ -65,9 +68,9 @@ package com.degrafa.paint{
 		//************************************
 		
 		/**
-		 * Combines an IFill object with the target ComplexFill, merging ComplexFills if necessary.
+		 * Combines an IGraphicsFill object with the target ComplexFill, merging ComplexFills if necessary.
 		 */
-		public static function add(value:IFill, target:ComplexFill):void {
+		public static function add(value:IGraphicsFill, target:ComplexFill):void {
 			// todo: update this to account for events
 			var complex:ComplexFill = target;
 			if(complex == null) {
@@ -77,7 +80,7 @@ package com.degrafa.paint{
 				complex.fills = new Array();
 			}
 			if(value is ComplexFill) {
-				for each(var fill:IFill in (value as ComplexFill).fills) {
+				for each(var fill:IGraphicsFill in (value as ComplexFill).fills) {
 					complex.fills.push(fill);
 					complex.refresh();
 				}
@@ -108,7 +111,7 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		 * Array of IFill Objects to be rendered
+		 * Array of IGraphicsFill Objects to be rendered
 		 */
 		public function get fills():Array { return _fills; }
 		public function set fills(value:Array):void {
@@ -126,11 +129,11 @@ package com.degrafa.paint{
 		// Public Methods
 		//*********************************************
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
 			// todo: optimize with more cacheing
 			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
 				if(_fills.length == 1) { // short cut
-					(_fills[0] as IFill).begin(graphics, rectangle);
+					(_fills[0] as IGraphicsFill).begin(graphics, rectangle,requester);
 				} else {
 					var matrix:Matrix = new Matrix(1, 0, 0, 1, rectangle.x*-1, rectangle.y*-1);
 					if(fillsChanged || bitmapData == null || rectangle.width != bitmapData.width || rectangle.height != bitmapData.height) { // cacheing
@@ -138,19 +141,19 @@ package com.degrafa.paint{
 						var g:Graphics = shape.graphics;
 						g.clear();
 						var lastType:String;
-						for each(var fill:IFill in _fills) {
+						for each(var fill:IGraphicsFill in _fills) {
 							if(fill is IBlend) {
 								if(lastType == "fill") {
-									bitmapData.draw(shape, matrix);
+									bitmapData.draw(shape, matrix,null,null,null,true);
 								}
 								g.clear();
-								fill.begin(g, rectangle);
+								fill.begin(g, rectangle,null);
 								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 								fill.end(g);
-								bitmapData.draw(shape, matrix, null, (fill as IBlend).blendMode);
+								bitmapData.draw(shape, matrix, null, (fill as IBlend).blendMode,null,true);
 								lastType = "blend";
 							} else {
-								fill.begin(g, rectangle);
+								fill.begin(g, rectangle,null);
 								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 								fill.end(g);
 								lastType = "fill";
@@ -162,6 +165,10 @@ package com.degrafa.paint{
 						}
 					}
 					matrix.invert();
+					var transformRequest:ITransform;
+					if (requester && (transformRequest  = (requester as Geometry).transform)) {
+						matrix.concat(transformRequest.getTransformFor(requester));
+					}
 					graphics.beginBitmapFill(bitmapData, matrix);
 				}
 			}
@@ -181,7 +188,7 @@ package com.degrafa.paint{
 		//********************************************
 		
 		private function addFillListeners(fills:Array):void {
-			var fill:IFill;
+			var fill:IGraphicsFill;
 			for each(fill in fills) {
 				if(fill is IGraphicsFill) {
 					(fill as IGraphicsFill).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler, false, 0, true);
@@ -190,7 +197,7 @@ package com.degrafa.paint{
 		}
 		
 		private function removeFillListeners(fills:Array):void {
-			var fill:IFill;
+			var fill:IGraphicsFill;
 			for each(fill in fills) {
 				if(fill is IGraphicsFill) {
 					(fill as IGraphicsFill).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler, false);

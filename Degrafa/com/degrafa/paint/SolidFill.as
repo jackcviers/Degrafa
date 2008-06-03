@@ -24,6 +24,8 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.utils.ColorUtil;
+	import com.degrafa.IGeometryComposition;
+	import flash.geom.Matrix;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -127,7 +129,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		public function begin(graphics:Graphics, rc:Rectangle):void{
+		public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
 			var tempColor:uint;
 			// if no color function, use normal color var
 			if(colorFunction!=null){

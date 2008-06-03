@@ -22,6 +22,7 @@
 package com.degrafa.paint{
 	
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.IGeometryComposition;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -129,15 +130,15 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle):void{
+		override public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
 			if(_cx && _cy && _radius){
-				super.begin(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2));
+				super.begin(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2),requester);
 			}
 			else if (_radius){
-				super.begin(graphics,new Rectangle(0,0,radius*2,radius*2));
+				super.begin(graphics,new Rectangle(0,0,radius*2,radius*2),requester);
 			}
 			else{
-				super.begin(graphics,rc);
+				super.begin(graphics,rc,requester);
 			}			
 		}
 		

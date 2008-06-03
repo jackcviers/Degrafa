@@ -26,6 +26,7 @@ package com.degrafa.geometry.command{
 	import com.degrafa.core.utils.CloneUtil;
 	import com.degrafa.decorators.IDrawDecorator;
 	import com.degrafa.geometry.Geometry;
+	import flash.geom.Matrix;
 	
 	import flash.display.Graphics;
 	import flash.geom.Point;
@@ -57,9 +58,9 @@ package com.degrafa.geometry.command{
 			//exit if no command stack
 			if(source.length==0){return;}
 			
-			if(owner.transform){
-				owner.transform.apply(owner);
-			}
+		//	if(owner.transform){
+		//		owner.transform.apply(owner);
+		//	}
 						
 			//setup the stroke
 			owner.initStroke(graphics,rc);
@@ -94,6 +95,15 @@ package com.degrafa.geometry.command{
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 			
 			var item:CommandStackItem;
+			var trans:Boolean = (owner.transform && !owner.transform.isIdentity);
+			var transXY:Point;
+			var transCP:Point;
+			
+			if (trans) {
+				var transMatrix:Matrix = owner.transform.getTransformFor(owner);
+				transXY = new Point();
+				transCP = new Point();
+			}
 			while(cursor.moveNext()){	   			
 	   			
 	   			item = cursor.current;
@@ -101,15 +111,32 @@ package com.degrafa.geometry.command{
 				switch(item.type){
 					
         			case CommandStackItem.MOVE_TO:
-        				graphics.moveTo(item.x,item.y);
+					    if (trans)
+					    {
+							transXY.x = item.x; transXY.y = item.y;
+							transXY = transMatrix.transformPoint(transXY);
+							graphics.moveTo(transXY.x,transXY.y);
+						} else graphics.moveTo(item.x,item.y);
         				break;
         			
         			case CommandStackItem.LINE_TO:
-        				graphics.lineTo(item.x,item.y);
+        				 if (trans)
+					    {
+							transXY.x = item.x; transXY.y = item.y;
+							transXY = transMatrix.transformPoint(transXY);
+							graphics.lineTo(transXY.x,transXY.y);
+						} else graphics.lineTo(item.x,item.y);
         				break;
         			
         			case CommandStackItem.CURVE_TO:
-        				graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
+        				 if (trans)
+					    {
+							transXY.x = item.x1; transXY.y = item.y1;
+							transCP.x = item.cx; transCP.y = item.cy;
+							transXY = transMatrix.transformPoint(transXY);
+							transCP = transMatrix.transformPoint(transCP);
+							graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
+						} else graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
         				break;
         				
         			case CommandStackItem.DELEGATE_TO:

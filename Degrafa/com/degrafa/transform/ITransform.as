@@ -25,15 +25,16 @@ package com.degrafa.transform{
 	import com.degrafa.core.IDegrafaObject;
 	
 	import flash.geom.Matrix;
-	
+	import flash.geom.Point;
 	/**
 	* ITransform is the base interface for transform.
 	**/ 
 	public interface ITransform extends IDegrafaObject{		
 		function get data():String;
 		function set data(value:String):void;
-		function apply(value:IGeometryComposition):void;
-		function preCalculateMatrix(value:IGeometryComposition):Matrix;
-		
+		function get isIdentity():Boolean;
+		function get transformMatrix():Matrix;
+		function getRegPoint(value:IGeometryComposition):Point;
+		function getTransformFor(value:IGeometryComposition):Matrix;
 	}
 }

@@ -31,6 +31,7 @@ package com.degrafa.geometry{
 	import com.degrafa.decorators.IGlobalDecorator;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
+	import flash.geom.Matrix;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -434,7 +435,7 @@ package com.degrafa.geometry{
 				
 			//setup the fill
 	        if (_fill){   
-	        	_fill.begin(graphics, (rc) ? rc:null);	
+	        	_fill.begin(graphics, (rc) ? rc:null,this);	
 	        }
 	        
 		}
