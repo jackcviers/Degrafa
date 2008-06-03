@@ -1,4 +1,4 @@
-﻿package com.degrafa.utilities
+﻿package com.degrafa.utilities.external
 {
 	import mx.core.Application;
 	import flash.system.Security;

@@ -19,38 +19,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.utilities{
+package com.degrafa.utilities.external {
 	import flash.events.EventDispatcher
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.events.Event;
+	import flash.events.SecurityErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
-	import com.degrafa.utilities.LoadingLocation;
+	import com.degrafa.utilities.external.LoadingLocation;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	
 
 
 	
 	/**
-	* The ExternalBitmap class defines the properties for an external BitmapData source as either 
-	* a jpg, png or gif image file. You can use an ExternalBitmap object in actionscript - it may be useful to 
-	* set up preloading, for example, but in mxml use of an ExternalBitmap is already encapsulated into 
-	* the BitmapFill class and is by virtue of whether the source assignment to a BitmapFill is determined to be 
-	* a url.
-	* The bitmapData provided by an ExternalBitmap will only be available once the asset from the external url has 
-	* loaded and its bitmap data has been extracted. This may mean that if it has not already loaded when needed,
-	* the BitmapFill will redraw and it will appear at some point in time after other sibling geometry has already rendered.
+	* The ExternalDataAsset class defines the properties for an external data source used at runtime by Degrafa. 
+	* You can use an ExternalDataAsset object in actionscript - it may be useful to 
+	* set up preloading, for example, but in mxml use of an ExternalDataAsset is already encapsulated into 
+	* the Degrafa class that uses the content (when it is ready) by virtue of its source property assignment.
+	* The data content provided by an ExternalDataAsset will only be available once the asset from the external url has 
+	* loaded.
 	*/
-	public class ExternalBitmap extends EventDispatcher {
+	public class ExternalDataAsset extends EventDispatcher {
 		private var _url:String; 
-		private var _type:String ;
+		//type as identified by mime type
+		private var _mimeType:String ;
+		//status before and during loading
 		private var _status:String ;
-		private var _loader:Loader;
+		//either a URLLoader or a Loader intance
+		private var _loader:Object;
+		//external bytesize, if known before loading (provided for actionscript use/preloading support only). 
 		private var _externalSize:Boolean = false;
-		private var _bitmapData:BitmapData;
 		private var _bytesTotalExternal:Number=NaN; //assigned a value at instantiation if available. Possible use via actionscript for preloading activity.
+		
+		protected var dataType:Class;
+		protected var _data:Object;
+		//optional LoadingLocation for external security file/policy file requests
 		private var _loadingLocation:LoadingLocation;
 		
 		//static status constants/events
@@ -71,164 +80,208 @@ package com.degrafa.utilities{
 		public static const TYPE_IMAGE_PNG:String = 	'image/png';
 		public static const TYPE_IMAGE_GIF:String = 	'image/gif';
 		
-		//for loading from external domains, see note in load method
-		public static var canAccessBitmapData:LoaderContext = new LoaderContext(true);
+		//for loading from external domains using a Loader,always assume bitmapData is wanted see note in load method
+		public static var requestBitmapDataAccess:LoaderContext = new LoaderContext(true);
 
-		
-		private static var _uniqueHash:Object=new Object();
+		//store a dictionary of references to instances by class, based on urls. This is ignored by the constructor
+		//and is only for use by the static getUniqueInstance class function, to faciliatate url assignments to source properties for Degrafa mxml
+		private static var _uniqueInstances:Dictionary=new Dictionary();
 		
 		/**
 		 * static method to prevent multiple instances referring to the same external asset
-		 * this avoids creation of multiple instances of the same loaded BitmapData
+		 * this avoids creation of multiple instances of the same loaded data (multiple instances remain possible if required, by simply by using the constructor)
 		 * @param	url the url to the external asset (must be relative if a LoadingLocation is used)
 		 * @param	loc an optional LoadingLocation
 		 */
-		public static function getUniqueInstance(url:String = null, loc:LoadingLocation = null):ExternalBitmap
+		protected static function getUniqueInstance(url:String = null, loc:LoadingLocation = null,clazz:Class=null):ExternalDataAsset
 		{
-			if (url && ExternalBitmap._uniqueHash[url] && ExternalBitmap._uniqueHash[url].loadingLocation === loc)
+		//	if (clazz.prototype== ExternalDataAsset) {
+			if (!_uniqueInstances[clazz]) _uniqueInstances[clazz] = new Dictionary();
+			if (url && _uniqueInstances[clazz][url] && _uniqueInstances[clazz][url].loadingLocation === loc)
 			{
 			//	trace('found existing instance:'+url)
-				return ExternalBitmap._uniqueHash[url]
+				return _uniqueInstances[clazz][url]
 			} else {
 			//		trace('creating new instance:'+url)
-				 ExternalBitmap._uniqueHash[url] = new ExternalBitmap(url);
-				 if (loc) ExternalBitmap._uniqueHash[url].loadingLocation = loc;
-				 return ExternalBitmap._uniqueHash[url];
+				_uniqueInstances[clazz][url] = new clazz(url);
+				 if (loc) _uniqueInstances[clazz][url].loadingLocation = loc;
+				 return _uniqueInstances[clazz][url];
 			}
+		//	} else return null;
 		}
 		
 		
 		/**
 		 * Constructor
 		 * 
-		 * <p>The ExternalBitmap constructor has one optional argument for url(s) and a second optional argument
+		 * <p>The ExternalDataAsset constructor has one optional argument for url(s) and a second optional argument
 		 * to specifiy filesize for an external bitmap (useful when considered as part of a collection to preload if the data is available). 
 		 * The url argument can be either a string for a single url or an array of url strings for backup.</p>
 		 * 
 		 * @param	url			a single url as a string. If a loadingGroup association is made in the loadingGroup property the url should be relative to the LoadingGroup basePath : use a LoadingGroup for fallback urls to provide redundancy under error conditions
 		 * @param	totalBytes	an [optional] specification for the total bytes to be loaded for this item, only available through the constructor (actionscript use)
 		 */
-		public function ExternalBitmap(url:String = null, totalBytes:Number = NaN) {
+		public function ExternalDataAsset(url:String = null, totalBytes:Number = NaN,loader:Class=null) {
 			if (url != null)
 			{
 				_url = url;
 			}
-			_loader = new Loader();
-			_type = ExternalBitmap.TYPE_UNKNOWN;
-			_status = ExternalBitmap.STATUS_WAITING;
+			if (!_loader) _loader = Loader;
+			_loader  = new loader();
+			_mimeType = ExternalDataAsset.TYPE_UNKNOWN;
+			_status = ExternalDataAsset.STATUS_WAITING;
 			if (!isNaN(totalBytes)) {
 				_bytesTotalExternal = Math.floor(totalBytes);
 				_externalSize = true;
 			}
-			
 		}
 		
-				
+
 		/**
-		 * load this item, using LoadingGroup settings if this ExternalBitmap is associated with a LoadingGroup instance
+		 * load this item, using LoadingGroup settings if this ExternalDataAsset is associated with a LoadingGroup instance
 		 */
 		public function load():void {
 			if (_url.length){
-			with (_loader.contentLoaderInfo) {
-				if (!hasEventListener(Event.OPEN)) {
-					addEventListener(Event.OPEN, onLoadStart);	
-					addEventListener(ProgressEvent.PROGRESS, onLoadProgress);
-					addEventListener(Event.COMPLETE, onLoadComplete);
-					addEventListener(Event.INIT, onLoadInit);
-					addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-				}
-			}
+			addListeners();
 
 			var loadFrom:String;
 			if (_loadingLocation)
 			{
 				if (!_loadingLocation.requestedPolicyFile) _loadingLocation.requestPolicyFile();
-				
 				loadFrom = _loadingLocation.basePath + _url;
-
 			} else {
 				loadFrom = _url;
-			
 			}
 				
 			//for loading from external domains, set default loading behaviour to check policy file permissions and attempt loading of default policyfile location/name if not yet granted.
-			_loader.load(new URLRequest(loadFrom),ExternalBitmap.canAccessBitmapData );
-			_status = ExternalBitmap.STATUS_REQUESTED;
-			dispatchEvent(new Event(ExternalBitmap.STATUS_REQUESTED));
+			if (_loader is Loader) (_loader as Loader).load(new URLRequest(loadFrom),requestBitmapDataAccess );
+		    else
+		    {
+				(_loader as URLLoader).load(new URLRequest(loadFrom));
+			}
+			_status = ExternalDataAsset.STATUS_REQUESTED;
+			dispatchEvent(new Event(ExternalDataAsset.STATUS_REQUESTED));
 			} 
+		}
+		
+		/**
+		 * add internal listeners for loading support
+		 */
+		private function addListeners():void
+		{
+			var target:Object
+			if (_loader is URLLoader)
+			{
+				target = _loader as URLLoader;
+			} else if (_loader is Loader)
+			{
+				target = (_loader as Loader).contentLoaderInfo;
+			}
+			if (!target.hasEventListener(Event.OPEN)) {
+			with (target) {
+				
+					addEventListener(Event.OPEN, onLoadStart);	
+					addEventListener(ProgressEvent.PROGRESS, onLoadProgress);
+					addEventListener(Event.COMPLETE, onLoadComplete);
+					addEventListener(Event.INIT, onLoadInit);
+					addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+					
+				}
+			 if (target is URLLoader) (target as URLLoader).addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
+			}
 		}
 		
 		/**
 		 * remove internal listeners for loading support
 		 */
 		private function removeListeners():void {
-			with (_loader.contentLoaderInfo) {
-				removeEventListener(Event.OPEN, onLoadStart);	
-				removeEventListener(ProgressEvent.PROGRESS, onLoadProgress);
-				removeEventListener(Event.COMPLETE, onLoadComplete);
-				removeEventListener(Event.INIT, onLoadInit);
-				removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+			var target:Object
+			if (_loader is URLLoader)
+			{
+				target = _loader as URLLoader;
+			} else if (_loader is Loader)
+			{
+				target = (_loader as Loader).contentLoaderInfo;
+			}
+			if (hasEventListener(Event.OPEN)) {
+			with (target) {
+					removeEventListener(Event.OPEN, onLoadStart);	
+					removeEventListener(ProgressEvent.PROGRESS, onLoadProgress);
+					removeEventListener(Event.COMPLETE, onLoadComplete);
+					removeEventListener(Event.INIT, onLoadInit);
+					removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+				}
+				if (target is URLLoader) (target as URLLoader).removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 			}
 		}
 		
 		/**
-		 * Check mime type of loaded content. Incorporated in loading event processing, but not yet used. May be used to restrict loading to image assets only
+		 * Check mime type of loaded content. Incorporated in loading event processing, but not yet used. May be used to restrict loading to data assets only
 		 * to prevent swf loading. The ExternalBitmap class is intended for bitmap loading only.
 		 */
 		private function checkContentType():void {
-			if (_type == ExternalBitmap.TYPE_UNKNOWN && _loader.contentLoaderInfo.contentType != null) {
-				_type = _loader.contentLoaderInfo.contentType;
+			if (_mimeType == ExternalDataAsset.TYPE_UNKNOWN && _loader.contentLoaderInfo.contentType != null) {
+				_mimeType = _loader.contentLoaderInfo.contentType;
 				//this contentType property did not seem to be available until after the last progress event in testing
-				dispatchEvent(new Event(ExternalBitmap.STATUS_IDENTIFIED));
+				dispatchEvent(new Event(ExternalDataAsset.STATUS_IDENTIFIED));
 			}
 		}
+		
+		/**
+		 * event handler for explicit SecurityError from a URLLoader based load
+		 * @param	evt event received from eventDispatcher
+		 */
+		private function onSecurityError(evt:Event):void {
+			_status = ExternalDataAsset.STATUS_SECURITY_ERROR;
+			removeListeners();
+			dispatchEvent(new Event(ExternalDataAsset.STATUS_SECURITY_ERROR));
+			//this ExternalDataAsset does nothing now...as it cannot.
+		}
+		
 		
 		/**
 		 * event handler for start of loading 
 		 * @param	evt event received from eventDispatcher
 		 */
 		private function onLoadStart(evt:Event):void {
-			_status = ExternalBitmap.STATUS_STARTED;
+			_status = ExternalDataAsset.STATUS_STARTED;
 			checkContentType();
-			dispatchEvent(new Event(ExternalBitmap.STATUS_STARTED));
+			dispatchEvent(new Event(ExternalDataAsset.STATUS_STARTED));
 		}
 		
+		//overridden in subclasses, processes the loaded content,
+		//returns the status as one of the ExternalDataAsset.STATUS constants.
+		protected function processLoad(_loader:Object):String
+		{
+			return ExternalDataAsset.STATUS_READY;
+		}
+		//overridden in subclasses
+		protected function cleanUp():void
+		{
+			
+		}
 		/**
 		 * event handler for completion of loading
 		 * @param	evt event received from eventDispatcher
 		 */
 		private function onLoadComplete(evt:Event):void {
 			checkContentType();
-		//	trace(ExternalBitmap.STATUS_READY + ":" + _url);
-			var tempBitmapdata:BitmapData = _bitmapData;
-			var err:Boolean = false;
-			try {
-				_bitmapData = new BitmapData(_loader.content.width, _loader.content.height, true, 0x00000000);
-				_bitmapData.draw(_loader.content);
-			} catch (e:Error)
-			{
-				//the image has loaded but a crossdomain permission was not granted
-				//so the bitmapData cannot be accessed. 
-				//Only recourse is to check for another location if we're using a LoadingGroup
-				//consider dispatching a specific permission failure event here.
-				err = true;
-			}
-				//release the loaded DisplayObject
-				_loader.unload();
 
-			if (!err) 
+			//let the sub-class process the loader's content and return the status
+			_status = processLoad(_loader);
+			
+			switch (_status)
 			{
-				_status = ExternalBitmap.STATUS_READY;
-				dispatchEvent(new Event(ExternalBitmap.STATUS_READY));
-				//release the old bitmapdata (if it existed) to free up memory
-				if (tempBitmapdata) tempBitmapdata.dispose(); 
-				removeListeners();
-			} else {
-				//we cannot provide the bitmapdata for use in the BitmapFill
-				//just dispatch a security error event, the BitmapFill will not be rendered
-				_status = ExternalBitmap.STATUS_SECURITY_ERROR;
-				removeListeners();
-				dispatchEvent(new Event(ExternalBitmap.STATUS_SECURITY_ERROR));
+				case ExternalDataAsset.STATUS_READY:
+					dispatchEvent(new Event(ExternalDataAsset.STATUS_READY));
+					cleanUp();
+					removeListeners();
+				break;
+				case ExternalDataAsset.STATUS_SECURITY_ERROR:
+				//the data is inaccessible after load (e.g. bitmapdata loaded with a Loader)
+					removeListeners();
+					dispatchEvent(new Event(ExternalDataAsset.STATUS_SECURITY_ERROR));
+				break;
 			}
 		}
 		
@@ -238,8 +291,8 @@ package com.degrafa.utilities{
 		 */
 		private function onLoadProgress(evt:ProgressEvent):void {
 			checkContentType();
-			_status = ExternalBitmap.STATUS_PROGRESS;
-			dispatchEvent(new ProgressEvent(ExternalBitmap.STATUS_PROGRESS, false, false, evt.bytesLoaded, evt.bytesTotal));
+			_status = ExternalDataAsset.STATUS_PROGRESS;
+			dispatchEvent(new ProgressEvent(ExternalDataAsset.STATUS_PROGRESS, false, false, evt.bytesLoaded, evt.bytesTotal));
 		}
 		
 		/**
@@ -248,9 +301,9 @@ package com.degrafa.utilities{
 		 */
 		private function onLoadInit(evt:Event):void {
 			checkContentType();
-			_status = ExternalBitmap.STATUS_INITIALIZING;
+			_status = ExternalDataAsset.STATUS_INITIALIZING;
 			checkContentType();
-			dispatchEvent(new Event(ExternalBitmap.STATUS_INITIALIZING));
+			dispatchEvent(new Event(ExternalDataAsset.STATUS_INITIALIZING));
 		}
 		
 		/**
@@ -259,8 +312,8 @@ package com.degrafa.utilities{
 		 */
 		private function onLoadError(evt:IOErrorEvent):void {
 		//	trace('LOAD ERROR:error '+evt)
-			_status = ExternalBitmap.STATUS_LOAD_ERROR;
-			dispatchEvent(new Event(ExternalBitmap.STATUS_LOAD_ERROR));
+			_status = ExternalDataAsset.STATUS_LOAD_ERROR;
+			dispatchEvent(new Event(ExternalDataAsset.STATUS_LOAD_ERROR));
 			//we cannot provide the bitmapdata for use in the BitmapFill
 			//just dispatch a STATUS_LOAD_ERROR event, the BitmapFill will not be rendered
 			removeListeners();
@@ -274,10 +327,10 @@ package com.degrafa.utilities{
 		 */
 		public function get content():Object {
 		//	trace(_status+',content requested for '+_url)
-			if (_status == ExternalBitmap.STATUS_READY) return _bitmapData;
+			if (_status == ExternalDataAsset.STATUS_READY) return (_data as dataType);
 			else {
 				//initiate load if it has not already commenced and return false (could also be null if preferred).
-				if (_status == ExternalBitmap.STATUS_WAITING) load();
+				if (_status == ExternalDataAsset.STATUS_WAITING) load();
 				return false;
 			}
 		}
@@ -286,7 +339,7 @@ package com.degrafa.utilities{
 		 * the current bytes loaded for this ExternalBitmap
 		 */
 		public function get bytesLoaded():Number {
-			if (!(_status == ExternalBitmap.STATUS_WAITING || _status == ExternalBitmap.STATUS_REQUESTED))  return _loader.contentLoaderInfo.bytesLoaded;
+			if (!(_status == ExternalDataAsset.STATUS_WAITING || _status == ExternalDataAsset.STATUS_REQUESTED))  return _loader.contentLoaderInfo.bytesLoaded;
 			else return 0; //this is always accurate!
 		}
 		
@@ -295,7 +348,7 @@ package com.degrafa.utilities{
 		 * the value returned is NaN for unassigned, unverified (from actual file data) values
 		 */
 		public function get bytesTotal():Number {
-			if (!(_status == ExternalBitmap.STATUS_WAITING || _status == ExternalBitmap.STATUS_REQUESTED)) return _loader.contentLoaderInfo.bytesTotal;
+			if (!(_status == ExternalDataAsset.STATUS_WAITING || _status == ExternalDataAsset.STATUS_REQUESTED)) return _loader.contentLoaderInfo.bytesTotal;
 			else return _bytesTotalExternal; //returns NaN if unassigned a value from the constructor at this point
 		}
 		
@@ -304,15 +357,15 @@ package com.degrafa.utilities{
 		 * @return Boolean value of true if status was anything other than waiting when called, otherwise false
 		 */
 		private function reset():Boolean {
-			if (!(_status == ExternalBitmap.STATUS_WAITING || _status == ExternalBitmap.STATUS_READY)) {
+			if (!(_status == ExternalDataAsset.STATUS_WAITING || _status == ExternalDataAsset.STATUS_READY)) {
 				//cancel any load in progress:
 				removeListeners();
 				_loader.close();
 			}
-			var reload:Boolean = (_status!=ExternalBitmap.STATUS_WAITING)
-			_status = ExternalBitmap.STATUS_WAITING;
+			var reload:Boolean = (_status!=ExternalDataAsset.STATUS_WAITING)
+			_status = ExternalDataAsset.STATUS_WAITING;
 			_bytesTotalExternal = NaN;
-			_type = ExternalBitmap.TYPE_UNKNOWN;
+			_mimeType = ExternalDataAsset.TYPE_UNKNOWN;
 			return reload;
 		}
 		
@@ -338,9 +391,9 @@ package com.degrafa.utilities{
 		/**
 		 *optional loadingLocation reference. Using a LoadingLocation simplifies management of groups of bitmap assets from other domains
 		 *by permitting different locations (alternate domains used for loading) to be specified once in code
-		 *if a loadingLocation is specified the url property must be relative to the basepath specified in the LoadingLocation
+		 *if a loadingLocation is specified the url property in the ExternalDataAsset must be relative to the basepath specified in the LoadingLocation
 		 *if an ExternalBitmap's domain has a non-default policy file, a LoadingLocation must be used to specify the explicit location and
-		 *name of the cross-domain file that grants access. An ExternalBitmap without a LoadingLocation will only check for permission 
+		 *name of the cross-domain file that grants access. An ExternalDataAsset without a LoadingLocation will only check for permission 
 		 *in the default location and name (web document root, crossdomain.xml) for permission to access the remote file's BitmapData.
 		*/
 		public function get loadingLocation():LoadingLocation { return _loadingLocation; }
