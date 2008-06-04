@@ -544,7 +544,6 @@ package com.degrafa.geometry{
 				if(enableEvents){	
 					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
-					trace('transform change');							
 				//call local helper to dispatch event
 				initChange("transform",oldValue,_transform,this);
 			}

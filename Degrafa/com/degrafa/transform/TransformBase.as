@@ -68,7 +68,7 @@ package com.degrafa.transform{
 			if (!invalidated) return _transformMatrix;
 			else {
 				//recreate the matrix based on the transform properties
-				//the sequence used here will result in a matrix that mimics the behavior exhibited by the Flash IDE
+				//the sequence used here will result in a matrix that appears to mimic the behavior exhibited by the Flash IDE
 				//re-use the matrix instead of creating a new Matrix instance to begin from an identity matrix
 				_transformMatrix.a = _transformMatrix.d = 1;
 				_transformMatrix.b = _transformMatrix.c = _transformMatrix.tx = _transformMatrix.ty = 0;
@@ -136,6 +136,7 @@ package com.degrafa.transform{
 				var oldValue:String=_registrationPoint;
 				_registrationPoint = value;
 			}
+			
 		}
 		
 		
@@ -210,7 +211,9 @@ package com.degrafa.transform{
 		 */
 		public function get isIdentity():Boolean
 		{
-			//dev note: this may be useful to avoid the transform branch in commandstack rendering
+			// make sure we're checking a validated transform
+			if (invalidated) var forceupdate:Matrix = transformMatrix; 
+			//dev note: this may be useful to avoid the transform conditional branch in commandstack rendering
 			//need to check fastest way to compare to identity matrix, ie. like this or via toString()
 			return (_transformMatrix.a == 1 && !_transformMatrix.b  && !_transformMatrix.c  && _transformMatrix.d == 1 && !_transformMatrix.tx && !_transformMatrix.ty);
 		}

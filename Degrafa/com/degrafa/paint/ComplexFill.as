@@ -138,8 +138,9 @@ package com.degrafa.paint{
 			// todo: optimize with more cacheing
 			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
 				if (_fills.length == 1) { // short cut
-					(_fills[0] ).requester = _requester;
-					(_fills[0] ).begin(graphics, rectangle);
+					trace('short');
+					_fills[0].requester = _requester;
+					(_fills[0] as IFill ).begin(graphics, rectangle);
 					_requester = null;
 				} else {
 					var matrix:Matrix = new Matrix(1, 0, 0, 1, rectangle.x*-1, rectangle.y*-1);
@@ -148,7 +149,7 @@ package com.degrafa.paint{
 						var g:Graphics = shape.graphics;
 						g.clear();
 						var lastType:String;
-						for each(var fill:IGraphicsFill in _fills) {
+						for each(var fill:IFill in _fills) {
 							if(fill is IBlend) {
 								if(lastType == "fill") {
 									bitmapData.draw(shape, matrix,null,null,null,true);
