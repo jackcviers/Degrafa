@@ -158,21 +158,23 @@ package com.degrafa.paint{
 			super.end(graphics);
 		}
 		
+		
+		
 		/**
 		* Begins the fill for the graphics context.
 		* 
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
+		override public function begin(graphics:Graphics, rc:Rectangle):void{
 			if(_x && _y && _width && _height){
-				super.begin(graphics,new Rectangle(x,y,width,height),requester);
+				super.begin(graphics,new Rectangle(x,y,width,height));
 			}
 			else if (_width && _height){
-				super.begin(graphics,new Rectangle(0,0,width, height),requester);
+				super.begin(graphics,new Rectangle(0,0,width, height));
 			}
 			else{
-				super.begin(graphics,rc,requester);
+				super.begin(graphics,rc);
 			}
 		}
 		

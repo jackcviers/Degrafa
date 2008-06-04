@@ -217,7 +217,7 @@ package com.degrafa.utilities.external {
 		
 		/**
 		 * Check mime type of loaded content. Incorporated in loading event processing, but not yet used. May be used to restrict loading to data assets only
-		 * to prevent swf loading. The ExternalBitmap class is intended for bitmap loading only.
+		 * to prevent swf loading. E.g. The ExternalBitmapData subclass is intended for bitmap loading only.
 		 */
 		private function checkContentType():void {
 			if (_mimeType == ExternalDataAsset.TYPE_UNKNOWN && _loader.contentLoaderInfo.contentType != null) {
@@ -336,7 +336,7 @@ package com.degrafa.utilities.external {
 		}
 		
 		/**
-		 * the current bytes loaded for this ExternalBitmap
+		 * the current bytes loaded for this ExternalDataAsset
 		 */
 		public function get bytesLoaded():Number {
 			if (!(_status == ExternalDataAsset.STATUS_WAITING || _status == ExternalDataAsset.STATUS_REQUESTED))  return _loader.contentLoaderInfo.bytesLoaded;
@@ -344,7 +344,7 @@ package com.degrafa.utilities.external {
 		}
 		
 		/**
-		 * the bytesTotal for this ExternalBitmap if known (i.e. verified during an actual load, or the value provided if pre-assigned through the constructor when instantiated)
+		 * the bytesTotal for this ExternalDataAsset if known (i.e. verified during an actual load, or the value provided if pre-assigned through the constructor when instantiated)
 		 * the value returned is NaN for unassigned, unverified (from actual file data) values
 		 */
 		public function get bytesTotal():Number {
@@ -392,7 +392,7 @@ package com.degrafa.utilities.external {
 		 *optional loadingLocation reference. Using a LoadingLocation simplifies management of groups of bitmap assets from other domains
 		 *by permitting different locations (alternate domains used for loading) to be specified once in code
 		 *if a loadingLocation is specified the url property in the ExternalDataAsset must be relative to the basepath specified in the LoadingLocation
-		 *if an ExternalBitmap's domain has a non-default policy file, a LoadingLocation must be used to specify the explicit location and
+		 *if an ExternalDataAsset's domain has a non-default policy file, a LoadingLocation must be used to specify the explicit location and
 		 *name of the cross-domain file that grants access. An ExternalDataAsset without a LoadingLocation will only check for permission 
 		 *in the default location and name (web document root, crossdomain.xml) for permission to access the remote file's BitmapData.
 		*/

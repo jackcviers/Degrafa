@@ -514,7 +514,14 @@ package com.degrafa.paint{
 		}
 		
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
+		//reference to the requesting geometry
+		private var _requester:IGeometryComposition;
+		public function set requester(value:IGeometryComposition):void
+		{
+			_requester = value;
+		}
+		
+		public function begin(graphics:Graphics, rectangle:Rectangle):void {
 			
 			if(!bitmapData) {
 				return;
@@ -604,9 +611,12 @@ package com.degrafa.paint{
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
 		
+			
 			var transformRequest:ITransform;
-			if (requester && (transformRequest  = (requester as Geometry).transform)) {
-				matrix.concat(transformRequest.getTransformFor(requester));
+			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
+				matrix.concat(transformRequest.getTransformFor(_requester));
+				//remove the requester reference
+				_requester = null;
 			}
 			graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}

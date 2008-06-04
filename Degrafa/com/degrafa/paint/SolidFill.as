@@ -123,13 +123,21 @@ package com.degrafa.paint{
 			}
 		}
 		
+		
+		//reference to the requesting geometry
+		private var _requester:IGeometryComposition;
+		public function set requester(value:IGeometryComposition):void
+		{
+			_requester = value;
+		}
+		
 		/**
 		* Begins the fill for the graphics context.
 		* 
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
+		public function begin(graphics:Graphics, rc:Rectangle):void{
 			var tempColor:uint;
 			// if no color function, use normal color var
 			if(colorFunction!=null){

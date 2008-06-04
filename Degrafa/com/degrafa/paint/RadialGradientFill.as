@@ -130,15 +130,15 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle,requester:IGeometryComposition=null):void{
+		override public function begin(graphics:Graphics, rc:Rectangle):void{
 			if(_cx && _cy && _radius){
-				super.begin(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2),requester);
+				super.begin(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2));
 			}
 			else if (_radius){
-				super.begin(graphics,new Rectangle(0,0,radius*2,radius*2),requester);
+				super.begin(graphics,new Rectangle(0,0,radius*2,radius*2));
 			}
 			else{
-				super.begin(graphics,rc,requester);
+				super.begin(graphics,rc);
 			}			
 		}
 		

@@ -36,7 +36,7 @@ package com.degrafa.paint{
 	
 	
 	import mx.events.PropertyChangeEvent;
-	
+	import mx.graphics.IFill;
 	
 	[DefaultProperty("fills")]
 	
@@ -68,9 +68,9 @@ package com.degrafa.paint{
 		//************************************
 		
 		/**
-		 * Combines an IGraphicsFill object with the target ComplexFill, merging ComplexFills if necessary.
+		 * Combines an IFill object with the target ComplexFill, merging ComplexFills if necessary.
 		 */
-		public static function add(value:IGraphicsFill, target:ComplexFill):void {
+		public static function add(value:IFill, target:ComplexFill):void {
 			// todo: update this to account for events
 			var complex:ComplexFill = target;
 			if(complex == null) {
@@ -80,7 +80,7 @@ package com.degrafa.paint{
 				complex.fills = new Array();
 			}
 			if(value is ComplexFill) {
-				for each(var fill:IGraphicsFill in (value as ComplexFill).fills) {
+				for each(var fill:IFill  in (value as ComplexFill).fills) {
 					complex.fills.push(fill);
 					complex.refresh();
 				}
@@ -123,17 +123,24 @@ package com.degrafa.paint{
 		}
 		
 		
-		
+		//reference to the requesting geometry
+		private var _requester:IGeometryComposition;
+		public function set requester(value:IGeometryComposition):void
+		{
+			_requester = value;
+		}
 		
 		//*********************************************
 		// Public Methods
 		//*********************************************
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
+		public function begin(graphics:Graphics, rectangle:Rectangle):void {
 			// todo: optimize with more cacheing
 			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
-				if(_fills.length == 1) { // short cut
-					(_fills[0] as IGraphicsFill).begin(graphics, rectangle,requester);
+				if (_fills.length == 1) { // short cut
+					(_fills[0] ).requester = _requester;
+					(_fills[0] ).begin(graphics, rectangle);
+					_requester = null;
 				} else {
 					var matrix:Matrix = new Matrix(1, 0, 0, 1, rectangle.x*-1, rectangle.y*-1);
 					if(fillsChanged || bitmapData == null || rectangle.width != bitmapData.width || rectangle.height != bitmapData.height) { // cacheing
@@ -147,13 +154,13 @@ package com.degrafa.paint{
 									bitmapData.draw(shape, matrix,null,null,null,true);
 								}
 								g.clear();
-								fill.begin(g, rectangle,null);
+								fill.begin(g, rectangle);
 								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 								fill.end(g);
 								bitmapData.draw(shape, matrix, null, (fill as IBlend).blendMode,null,true);
 								lastType = "blend";
 							} else {
-								fill.begin(g, rectangle,null);
+								fill.begin(g, rectangle);
 								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 								fill.end(g);
 								lastType = "fill";
@@ -166,8 +173,10 @@ package com.degrafa.paint{
 					}
 					matrix.invert();
 					var transformRequest:ITransform;
-					if (requester && (transformRequest  = (requester as Geometry).transform)) {
-						matrix.concat(transformRequest.getTransformFor(requester));
+					if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
+						matrix.concat(transformRequest.getTransformFor(_requester));
+						//remove the requester reference
+						_requester = null;
 					}
 					graphics.beginBitmapFill(bitmapData, matrix);
 				}

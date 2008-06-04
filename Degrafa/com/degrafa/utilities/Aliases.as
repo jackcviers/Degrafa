@@ -142,8 +142,10 @@ package com.degrafa.utilities{
 						TranslateTransform:TranslateTransform
 					},
 					utilities: { 
-						ExternalBitmap:ExternalBitmap,
-						LoadingLocation:LoadingLocation
+						external:{
+								ExternalBitmapData:ExternalBitmapData,
+								LoadingLocation:LoadingLocation
+								}
 					}
 				}
 			}

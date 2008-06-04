@@ -434,8 +434,11 @@ package com.degrafa.geometry{
 			}
 				
 			//setup the fill
-	        if (_fill){   
-	        	_fill.begin(graphics, (rc) ? rc:null,this);	
+	        if (_fill)
+	        {   
+				//this is a quick fix because we can't pass it in the method signature with IFill
+				_fill.requester = this;
+	        	_fill.begin(graphics, (rc) ? rc:null);	
 	        }
 	        
 		}
@@ -541,7 +544,7 @@ package com.degrafa.geometry{
 				if(enableEvents){	
 					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
-												
+					trace('transform change');							
 				//call local helper to dispatch event
 				initChange("transform",oldValue,_transform,this);
 			}

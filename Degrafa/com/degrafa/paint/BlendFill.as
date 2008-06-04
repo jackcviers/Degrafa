@@ -25,13 +25,12 @@ package com.degrafa.paint{
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.IGeometryComposition;
-	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
 	
 	import mx.events.PropertyChangeEvent;
-
+	import mx.graphics.IFill;
 	
 	[DefaultProperty("fill")]
 	[Bindable(event="propertyChange")]
@@ -43,7 +42,7 @@ package com.degrafa.paint{
 	[IconFile("BlendFill.png")]
 	
 	/**
-	 * Used to wrap standard IGraphicsFill objects for use in a ComplexFill.
+	 * Used to wrap standard IFill objects for use in a ComplexFill.
 	 * The blendMode is only recognized in the context of a ComplexFill.
 	 */
 	public class BlendFill extends DegrafaObject implements IGraphicsFill, IBlend{
@@ -52,7 +51,7 @@ package com.degrafa.paint{
 		// Constructor
 		//*****************************************
 		
-		public function BlendFill(fill:IGraphicsFill = null, blendMode:String = "normal"){
+		public function BlendFill(fill:IFill = null, blendMode:String = "normal"){
 			this.fill = fill;
 			this.blendMode = blendMode;
 			
@@ -60,7 +59,7 @@ package com.degrafa.paint{
 		
 		// property backing vars
 		private var _blendMode:String;
-		private var _fill:IGraphicsFill;
+		private var _fill:IFill;
 		
 		
 		//**************************************
@@ -79,10 +78,10 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		 * The IGraphicsFill which this BlendFill wraps.
+		 * The IFill which this BlendFill wraps.
 		 */
-		public function get fill():IGraphicsFill { return _fill; }
-		public function set fill(value:IGraphicsFill):void {
+		public function get fill():IFill { return _fill; }
+		public function set fill(value:IFill):void {
 			if(_fill != value) {
 				if(_fill is IGraphicsFill) {
 					(_fill as IGraphicsFill).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler, false);
@@ -95,21 +94,28 @@ package com.degrafa.paint{
 		}
 		
 		
-		
+		//reference to the requesting geometry
+		private var _requester:IGeometryComposition;
+		public function set requester(value:IGeometryComposition):void
+		{
+			_requester = value;
+		}
 		
 		
 		//*****************************************
 		// Public Methods
 		//*****************************************
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle,requester:IGeometryComposition=null):void {
-			if(fill != null) {
-				fill.begin(graphics, rectangle,requester);
+		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+			if (fill != null) {
+			if (fill is IGraphicsFill)	(fill as IGraphicsFill).requester = _requester;
+				fill.begin(graphics, rectangle);
+				_requester = null;
 			}
 		}
 		
 		public function end(graphics:Graphics):void {
-			if(fill != null) {
+			if (fill != null) {
 				fill.end(graphics);
 			}
 		}
