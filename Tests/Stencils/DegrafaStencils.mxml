@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007" xmlns:Libs="stencils.*">
+		
+		<!--Arrows stencil-->
+		<GeometryComposition graphicsTarget="{[arrowsTarget]}">
+			<Libs:ArrowsStencil id="arrows" type="ARROW_CHEVRON" x="0" y="0" 
+					width="100" height="100">
+					<Libs:fill>
+						<LinearGradientFill angle="90">
+							<GradientStop color="#EE9819"/>
+							<GradientStop color="#FAE38F"/>
+						</LinearGradientFill>
+					</Libs:fill>
+					<Libs:stroke>
+						<SolidStroke color="#EE9819"/>
+					</Libs:stroke>
+			</Libs:ArrowsStencil>
+		</GeometryComposition>
+		
+		<mx:Canvas width="100" height="100" x="41" y="72" id="arrowsTarget"/>
+		<mx:Label x="41" y="16" text="Arrows"/>
+		<mx:ComboBox id="arrowsCombo" dataProvider="{arrows.shapeList}" 
+			change="arrows.type=arrowsCombo.selectedLabel"  x="41" y="42"/>
+				
+		<!--Flow chart stencil-->
+		<GeometryComposition graphicsTarget="{[flowchartTarget]}">
+			<Libs:FlowChartStencil id="flows" type="CARD" x="0" y="0" 
+					width="100" height="100">
+					<Libs:fill>
+						<LinearGradientFill angle="90">
+							<GradientStop color="#EE9819"/>
+							<GradientStop color="#FAE38F"/>
+						</LinearGradientFill>
+					</Libs:fill>
+					<Libs:stroke>
+						<SolidStroke color="#EE9819"/>
+					</Libs:stroke>
+			</Libs:FlowChartStencil>
+		</GeometryComposition>
+		
+		<mx:Canvas width="100" height="100" x="286" y="72" id="flowchartTarget"/>
+		<mx:Label x="286" y="16" text="Flow chart"/>
+		<mx:ComboBox id="flowsCombo" dataProvider="{flows.shapeList}" 
+			change="flows.type=flowsCombo.selectedLabel"  x="286" y="42"/>
+		
+		
+		<!--Assorted shapes stencil-->
+		<GeometryComposition graphicsTarget="{[assortedTarget]}">
+			<Libs:AssortedShapesStencil id="assorted" type="CROSS_MALTESE" x="0" y="0" 
+					width="100" height="100">
+					<Libs:fill>
+						<LinearGradientFill angle="90">
+							<GradientStop color="#EE9819"/>
+							<GradientStop color="#FAE38F"/>
+						</LinearGradientFill>
+					</Libs:fill>
+					<Libs:stroke>
+						<SolidStroke color="#EE9819"/>
+					</Libs:stroke>
+			</Libs:AssortedShapesStencil>
+		</GeometryComposition>
+		
+		<mx:Canvas width="100" height="100" x="536" y="72" id="assortedTarget"/>
+		<mx:Label x="536" y="16" text="Assorted"/>
+		<mx:ComboBox id="assortedCombo" dataProvider="{assorted.shapeList}" 
+			change="assorted.type=assortedCombo.selectedLabel"  x="536" y="42"/>
+		
+		
+		<!--Puzzle shapes stencil-->
+		<GeometryComposition graphicsTarget="{[puzzleTarget]}">
+			<Libs:PuzzleStencil id="puzzle" type="PART_001" x="0" y="0" 
+					width="100" height="100">
+					<Libs:fill>
+						<LinearGradientFill angle="90">
+							<GradientStop color="#EE9819"/>
+							<GradientStop color="#FAE38F"/>
+						</LinearGradientFill>
+					</Libs:fill>
+					<Libs:stroke>
+						<SolidStroke color="#EE9819"/>
+					</Libs:stroke>
+			</Libs:PuzzleStencil>
+		</GeometryComposition>
+		
+		<mx:Canvas width="100" height="100" x="41" y="274" id="puzzleTarget"/>
+		<mx:Label x="41" y="218" text="Puzzle"/>
+		<mx:ComboBox id="puzzleCombo" dataProvider="{puzzle.shapeList}" 
+			change="puzzle.type=puzzleCombo.selectedLabel"  x="41" y="244"/>
+		
+		
+		
+		
+				
+		
+</mx:Application>
