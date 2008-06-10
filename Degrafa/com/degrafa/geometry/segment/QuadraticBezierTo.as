@@ -179,21 +179,41 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
-			_bounds = GeometryUtils.bezierBounds(	lastPoint.x,
-													lastPoint.y,
-													_commandStackItem.cx,
-													_commandStackItem.cy,
-													_commandStackItem.x1,
-													_commandStackItem.y1);
-			/*
-			if(isShortSequence){
-				_bounds = GeometryUtils.bezierBounds(lastPoint.x,lastPoint.y,lastPoint.x+(lastPoint.x-lastControlPoint.x),
-				lastPoint.y+(lastPoint.y-lastControlPoint.y),absRelOffset.x+x,absRelOffset.y+y);
+			//test if the curve equates to a v line and treat as such
+			if(lastPoint.x == _commandStackItem.cx == _commandStackItem.x1 ){
+				_bounds = new Rectangle(lastPoint.x,Math.min(lastPoint.y, _commandStackItem.y1), 
+				0.00001,Math.abs(_commandStackItem.y1 - lastPoint.y));
+				
+			}
+			//test if the curve equates to a h line and treat as such
+			else if (lastPoint.y == _commandStackItem.cy == _commandStackItem.y1){
+				_bounds = new Rectangle(Math.min(lastPoint.x,_commandStackItem.x),
+				lastPoint.y, Math.abs(_commandStackItem.x-lastPoint.x),0.00001);
+				
 			}
 			else{
-				_bounds = GeometryUtils.bezierBounds(lastPoint.x,lastPoint.y,absRelOffset.x+cx,
-				absRelOffset.y+cy,absRelOffset.x+x,absRelOffset.y+y);
-			} */
+				_bounds = GeometryUtils.bezierBounds(lastPoint.x,
+				lastPoint.y, _commandStackItem.cx, _commandStackItem.cy,
+				_commandStackItem.x1,_commandStackItem.y1);
+			
+			}
+						
+			if(_bounds.width==0 || !_bounds.width){
+				_bounds.width = 0.001;
+			}
+			
+			if(_bounds.height==0 || !_bounds.height){
+				_bounds.height = 0.001;
+			}
+			
+			if(_bounds.y==0 || !_bounds.y){
+				_bounds.y = 0.001;
+			}
+			
+			if(_bounds.x==0 || !_bounds.x){
+				_bounds.x = 0.001;
+			}
+			
 		}
 		
 		private var _bounds:Rectangle;
