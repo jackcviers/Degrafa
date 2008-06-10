@@ -346,7 +346,8 @@ package com.degrafa.geometry.segment{
 	        computedArc.xAxisRotation,_commandStackItem.commandStack);
 			
 			//add the move to at the start of this stack
-			_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
+			//_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
+			
 			//update the stack being built
 			commandStack.addItem(_commandStackItem);
 			
