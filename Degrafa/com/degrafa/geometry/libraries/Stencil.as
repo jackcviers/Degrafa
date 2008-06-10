@@ -222,7 +222,7 @@ package com.degrafa.geometry.stencil{
 		* This ensures that rendering is always started at point(0,0) and that the maximum
 		* allotted spaced is used for both width and height.  
 		**/
-    	public function calculateRatios2():void{
+    	public function calculateRatios():void{
 						
 			var maxPointX:Number=0;
 			var maxPointY:Number=0;
@@ -381,61 +381,6 @@ package com.degrafa.geometry.stencil{
 				}
 			}
 		}
-	
-		
-		/**
-		* Proportionally sizes each point in the collection to the given width and height
-		* taking into account any additional x or y offset that the data may have. 
-		* This ensures that rendering is always started at point(0,0) and that the maximum
-		* allotted spaced is used for both width and height.  
-		**/
-    	private function calculateRatios():void{
-			
-			var maxPointX:Number=0;
-			var maxPointY:Number=0;
-			
-			var item:CommandStackItem;
-			var i:int = 0;
-			
-			//get the max x or y and compute a ratio of the width and height
-			for each (item in commandStack.source){
-				switch(item.type){
-					case 0:
-					case 1:
-						maxPointX =Math.max(maxPointX,item.x);
-						maxPointY =Math.max(maxPointY,item.y);
-						break;
-					case 2:
-						maxPointX =Math.max(maxPointX,item.x1);
-						maxPointY =Math.max(maxPointY,item.y1);
-						maxPointX =Math.max(maxPointX,item.cx);
-						maxPointY =Math.max(maxPointY,item.cy);
-						break;
-				}
-			}
-			
-			//get the percentage of the max points to width and height
-			var xMultiplier:Number=_width/maxPointX;
-			var yMultiplier:Number=_height/maxPointY;
-			
-			//multiply the axis by the difference
-			for each (item in commandStack.source){
-				switch(item.type){
-					case 0:
-					case 1:
-						item.x = (item.x * xMultiplier);
-						item.y = (item.y * yMultiplier);		
-						break;
-					case 2:
-						item.cx = (item.cx * xMultiplier);
-						item.cy = (item.cy * yMultiplier);
-						item.x1 = (item.x1 * xMultiplier);
-						item.y1 = (item.y1 * yMultiplier);
-						break;
-						
-				}
-			}
-		}
 		
 		private var _bounds:Rectangle;
 		/**
@@ -458,7 +403,7 @@ package com.degrafa.geometry.stencil{
 				commandStack = itemDataDictionary[type].originalCommandStack;
 				
 				//resize
-				calculateRatios2();
+				calculateRatios();
 				
 				invalidated = false;
 			}
