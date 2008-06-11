@@ -30,6 +30,7 @@ package com.degrafa.geometry.stencil{
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
@@ -46,11 +47,6 @@ package com.degrafa.geometry.stencil{
 		public function Stencil(){
 			super();
 		}
-		
-		/**
-		* Makes sure that the object is set to 0,0 before any x or y offsets are applied.
-		**/ 
-		public var autoNormalizeData:Boolean=true;
 		
 		/**
 		* adds a new item to the library
@@ -222,36 +218,40 @@ package com.degrafa.geometry.stencil{
 		* This ensures that rendering is always started at point(0,0) and that the maximum
 		* allotted spaced is used for both width and height.  
 		**/
-    	public function calculateRatios():void{
-						
-			var maxPointX:Number=0;
-			var maxPointY:Number=0;
+    	private function calculateRatios():void{
 			
-			var minPointX:Number=Number.POSITIVE_INFINITY;
-			var minPointY:Number=Number.POSITIVE_INFINITY;
+			var minPoint:Point = new Point(Number.POSITIVE_INFINITY,Number.POSITIVE_INFINITY);
+			var maxPoint:Point = new Point(0,0);
 			
-			//required to compute the tight bounds for a curve
 			var lastX:Number=0;
 			var lastY:Number=0;
 			
+			getCommandStackMinMax(commandStack,maxPoint,minPoint,lastX,lastY);
+						
+			//apply the offset
+			applyOffsetToCommandStack(commandStack,
+			width/(maxPoint.x-minPoint.x),
+			height/(maxPoint.y-minPoint.y),
+			minPoint);
+			
+		}
+		
+		//loops through the given command stack and calculates the min and max points
+		private function getCommandStackMinMax(commandStack:CommandStack,maxPoint:Point,minPoint:Point,lastX:Number,lastY:Number):void{
+						
 			var bezierRect:Rectangle;
 			
-			//for nested command stacks
-			var nestedItem:CommandStackItem;
-			
-			//get the max x or y and compute a ratio of the width and height and 
-			//the min so we can offset to 0,0 if needed.
 			var item:CommandStackItem;
 			
 			for each (item in commandStack.source){
 				switch(item.type){
 					case 0:
 					case 1:
-						maxPointX =Math.max(maxPointX,item.x);
-						maxPointY =Math.max(maxPointY,item.y);
+						maxPoint.x =Math.max(maxPoint.x,item.x);
+						maxPoint.y =Math.max(maxPoint.y,item.y);
 						
-						minPointX =Math.min(minPointX,item.x);
-						minPointY =Math.min(minPointY,item.y);
+						minPoint.x =Math.min(minPoint.x,item.x);
+						minPoint.y =Math.min(minPoint.y,item.y);
 						
 						//store for next iteration
 						lastX=item.x;
@@ -270,17 +270,17 @@ package com.degrafa.geometry.stencil{
 						}
 						else{
 							//now take our bounds into account
-							maxPointX =Math.max(maxPointX,bezierRect.x);
-							maxPointY =Math.max(maxPointY,bezierRect.y);
+							maxPoint.x =Math.max(maxPoint.x,bezierRect.x);
+							maxPoint.y =Math.max(maxPoint.y,bezierRect.y);
 							
-							maxPointX =Math.max(maxPointX,bezierRect.x+bezierRect.width);
-							maxPointY =Math.max(maxPointY,bezierRect.y+bezierRect.height);
+							maxPoint.x =Math.max(maxPoint.x,bezierRect.x+bezierRect.width);
+							maxPoint.y =Math.max(maxPoint.y,bezierRect.y+bezierRect.height);
 							
-							minPointX =Math.min(minPointX,bezierRect.x);
-							minPointY =Math.min(minPointY,bezierRect.y);
+							minPoint.x =Math.min(minPoint.x,bezierRect.x);
+							minPoint.y =Math.min(minPoint.y,bezierRect.y);
 							
-							minPointX =Math.min(minPointX,bezierRect.x+bezierRect.width);
-							minPointY =Math.min(minPointY,bezierRect.y+bezierRect.height);
+							minPoint.x =Math.min(minPoint.x,bezierRect.x+bezierRect.width);
+							minPoint.y =Math.min(minPoint.y,bezierRect.y+bezierRect.height);
 						}
 						
 						//store for next iteration
@@ -289,48 +289,19 @@ package com.degrafa.geometry.stencil{
 						break;
 						
 					case 4:
-					
-						//nested command stack type
-						for each (nestedItem in item.commandStack.source){
-						
-							bezierRect = GeometryUtils.bezierBounds(lastX,lastY,
-							nestedItem.cx,nestedItem.cy,nestedItem.x1,nestedItem.y1);
-							
-							if(isNaN(bezierRect.x) || isNaN(bezierRect.y)){
-								//Dead curve. Not sure what to call it but the 
-								//current algorithm hates when the cx and cy 
-								//are the same and the x1 and y1 are the same
-								//results in a NaN value.
-							}
-							else{
-								//now take our bounds into account
-								maxPointX =Math.max(maxPointX,bezierRect.x);
-								maxPointY =Math.max(maxPointY,bezierRect.y);
-								
-								maxPointX =Math.max(maxPointX,bezierRect.x+bezierRect.width);
-								maxPointY =Math.max(maxPointY,bezierRect.y+bezierRect.height);
-								
-								minPointX =Math.min(minPointX,bezierRect.x);
-								minPointY =Math.min(minPointY,bezierRect.y);
-								
-								minPointX =Math.min(minPointX,bezierRect.x+bezierRect.width);
-								minPointY =Math.min(minPointY,bezierRect.y+bezierRect.height);
-							}
-							
-							//store for next iteration
-							lastX=nestedItem.x1;
-							lastY=nestedItem.y1;
-						}
+						//recurse
+						getCommandStackMinMax(item.commandStack,maxPoint,minPoint,lastX,lastY);
 						break;
 				}
 			}
+					
+		}
+		
+		
+		//loops through the given command stack applying the offset
+		private function applyOffsetToCommandStack(commandStack:CommandStack,xMultiplier:Number,yMultiplier:Number,minPoint:Point):void{
 			
-			
-			//get the percentage of the max points to width and height take into account 
-			//the x,y 0,0 offset this should always provide a perfect tight fit no mater 
-			//what the object.
-			var xMultiplier:Number=width/(maxPointX-minPointX);
-			var yMultiplier:Number=height/(maxPointY-minPointY);
+			var item:CommandStackItem;
 			
 			//multiply the axis by the difference
 			for each (item in commandStack.source){
@@ -338,56 +309,53 @@ package com.degrafa.geometry.stencil{
 					case 0:
 					case 1:
 						if(item.x!=0){
-							item.x = (item.x-minPointX) * xMultiplier;
+							item.x = (item.x-minPoint.x) * xMultiplier;
 						}
 						if(item.y!=0){
-							item.y = (item.y-minPointY) * yMultiplier;
+							item.y = (item.y-minPoint.y) * yMultiplier;
 						}
+						
+						//offset according to x and y
+						item.x += x;
+						item.y += y;
 						break;
 					case 2:	
 						if(item.cx!=0){
-							item.cx = (item.cx-minPointX) * xMultiplier;
+							item.cx = (item.cx-minPoint.x) * xMultiplier;
 						} 
 						if(item.cy!=0){
-							item.cy = (item.cy-minPointY) * yMultiplier;
+							item.cy = (item.cy-minPoint.y) * yMultiplier;
 						}
 						if(item.x1!=0){
-							item.x1 = (item.x1-minPointX) * xMultiplier;
+							item.x1 = (item.x1-minPoint.x) * xMultiplier;
 						}
 						
 						if(item.y1!=0){
-							item.y1 = (item.y1-minPointY) * yMultiplier;
-						}
-						break;
-					case 4:
-						//nested command stack type
-						for each (nestedItem in item.commandStack.source){
-							if(nestedItem.cx!=0){
-								nestedItem.cx = (nestedItem.cx-minPointX) * xMultiplier;
-							} 
-							if(nestedItem.cy!=0){
-								nestedItem.cy = (nestedItem.cy-minPointY) * yMultiplier;
-							}
-							if(nestedItem.x1!=0){
-								nestedItem.x1 = (nestedItem.x1-minPointX) * xMultiplier;
-							}
-							
-							if(nestedItem.y1!=0){
-								nestedItem.y1 = (nestedItem.y1-minPointY) * yMultiplier;
-							}
+							item.y1 = (item.y1-minPoint.y) * yMultiplier;
 						}
 						
+						//offset according to x and y
+						item.cx += x;
+						item.cy += y;
+						item.x1 += x;
+						item.y1 += y;
+						
 						break;
+					case 4:
+						//recurse
+						applyOffsetToCommandStack(item.commandStack,xMultiplier,yMultiplier,minPoint);
+						break;	
 				}
 			}
 		}
+		
 		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return itemDataDictionary[type].originalBounds;	
+			return _bounds;	
 		}
 		
 		/**
@@ -398,6 +366,8 @@ package com.degrafa.geometry.stencil{
 			if(!data){return}
 			
 			if(invalidated){
+				
+				_bounds = new Rectangle(x,y,width,height);
 				
 				//set the right command stack
 				commandStack = itemDataDictionary[type].originalCommandStack;
@@ -424,7 +394,7 @@ package com.degrafa.geometry.stencil{
 			//re init if required
 		 	preDraw();
 		 	
-			super.draw(graphics,(rc)? rc:new Rectangle(_x,_y,_width,_height));
+			super.draw(graphics,(rc)? rc:_bounds);
 	 	}
 		
 		
