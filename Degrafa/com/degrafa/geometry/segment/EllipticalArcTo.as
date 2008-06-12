@@ -24,6 +24,7 @@ package com.degrafa.geometry.segment{
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.ArcUtils;
+	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -260,48 +261,34 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
+			//TODO: implement a (presumably) faster geometric bounds calculation in ArcUtils based on the arcTo parameters alone
+			
 			if(_commandStackItem.commandStack.length==0){return;}
-			
-			var boundsMaxX:int =0;
-			var boundsMaxY:int =0;
-			var boundsMinX:int =int.MAX_VALUE;
-			var boundsMinY:int =int.MAX_VALUE;
-			
+			var newx:Number = _absCoordType? x:lastPoint.x + x;
+			var newy:Number = _absCoordType? y:lastPoint.y + y;
+	
 			var item:CommandStackItem;
+			var lpX:Number;
+			var lpY:Number;
+			if (_bounds) {
+				_bounds.x = Math.min(lastPoint.x, newx);
+				_bounds.y = Math.min(lastPoint.y, newy);
+				_bounds.bottom = Math.max(lastPoint.y, newy);
+				_bounds.right = Math.max(lastPoint.x, newx);
+				
+			} else 	_bounds = new Rectangle(Math.min(lastPoint.x, newx), Math.min(lastPoint.y, newy), Math.abs(lastPoint.x - newx), Math.abs(lastPoint.y - newy));
 			
 			for each(item in _commandStackItem.commandStack.source){
-				with(item){
-					if(type==CommandStackItem.MOVE_TO){
-						boundsMinX = Math.min(boundsMinX,x);
-						boundsMinY = Math.min(boundsMinY,y);
-						boundsMaxX = Math.max(boundsMaxX,x);
-						boundsMaxY = Math.max(boundsMaxY,y);
+				with(item)
+					{
+						_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX?lpX:lastPoint.x, lpY?lpY:lastPoint.y, cx, cy, x1, y1));
+						lpX = x1;
+						lpY = y1;
+
 					}
-					else{
-						boundsMinX = Math.min(boundsMinX,x1);
-						boundsMinX = Math.min(boundsMinX,cx);
-						boundsMaxX = Math.max(boundsMaxX,x1);
-						boundsMaxX = Math.max(boundsMaxX,cx);
-					
-						boundsMinY = Math.min(boundsMinY,y1);
-						boundsMinY = Math.min(boundsMinY,cy);
-						boundsMaxY = Math.max(boundsMaxY,y1);
-						boundsMaxY = Math.max(boundsMaxY,cy);
-					}
-				}
-				
+
 			}
-	  		
-	  		//update with the points passed
-	  		if(lastPoint){
-	  			boundsMaxX = Math.max(boundsMaxX,lastPoint.x);
-	  			boundsMinX = Math.min(boundsMinX,lastPoint.x);
-	  			boundsMaxY = Math.max(boundsMaxY,lastPoint.y);
-	  			boundsMinY = Math.min(boundsMinY,lastPoint.y);
-	  		}
-	  			  		
-	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
-			
+	  				
 		}	
 		
 		/**
@@ -330,9 +317,30 @@ package com.degrafa.geometry.segment{
 			var nlpx:Number = _absCoordType? x :lastPoint.x + _x;
 			var nlpy:Number = _absCoordType? y : lastPoint.y + _y ;
 			
+			//edge case: if lastpoint and endpoint are the same, then ignore this arc segment (SVG implementation notes: F.6.2 Out-of-range parameters)
+			if (nlpx == lastPoint.x && nlpy == lastPoint.y)
+			{
+				_bounds = new Rectangle(nlpx, nlpy, 0, 0);
+				//or maybe:
+				//_bounds = new Rectangle(nlpx, nlpy, 0.0001, 0.0001);
+				invalidated = false;
+				return;
+			}
+			
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
-				
+			
+				//edge case: if either of the radii are zero, it's a straight line (SVG implementation notes)
+			if (_rx == 0 || _ry == 0) {
+				if (!_commandStackItem || _commandStackItem.type != CommandStackItem.LINE_TO)
+				{
+					_commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO, nlpx, nlpy);
+				} else {
+					_commandStackItem.x = nlpx;
+					_commandStackItem.y = nlpy;
+				}
+				// TODO: if this is a horizontal or vertical line, the bounds won't be correct
+			} else {	
 			if(!_commandStackItem){
 				_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
 				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
@@ -344,7 +352,7 @@ package com.degrafa.geometry.segment{
 	        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
 	        computedArc.arc,computedArc.radius,computedArc.yRadius,
 	        computedArc.xAxisRotation,_commandStackItem.commandStack);
-			
+			}
 			//add the move to at the start of this stack
 			//_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
 			
