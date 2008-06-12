@@ -88,6 +88,12 @@ package com.degrafa.geometry.segment{
 							Math.abs(firstPoint.x-lastPoint.x),
 							Math.abs(firstPoint.y - lastPoint.y)
 							);
+			if(_bounds.width == 0){
+				_bounds.width =0.000001;
+			}
+			if(_bounds.height== 0){
+				_bounds.height =0.000001;
+			}
 		}
 		
 		private var _bounds:Rectangle;

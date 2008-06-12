@@ -94,8 +94,10 @@ package com.degrafa.geometry.utilities{
 			
 			return {x:x + v*(2*(1-v)*(cx-x) + v*(x1 - x)),y:y + v*(2*(1-v)*(cy-y) + v*(y1 - y))};
 		}
-
-
+		
+		//optimization:reuse a single Rectangle instance rather than creating new Rectangle instances for the bezierbounds calc
+		private static var bezBoundsRect:Rectangle = new Rectangle();
+		
 		/**
 		* Return the tight bounding rectangle for a bezier curve.
 		* 
@@ -112,89 +114,105 @@ package com.degrafa.geometry.utilities{
 			
 			
 			var t: Number;
-			var bounds:Object = {};
 			
-			//-- yMax
+			if (x == cx && cx == x1)
+			{
+				//vertical line
+				bezBoundsRect.x = x;
+				bezBoundsRect.y = Math.min(y, y1);
+				bezBoundsRect.width = 0.0001;
+				bezBoundsRect.height = Math.abs(y1 - y);
+				return bezBoundsRect;
+			}
+			if (y == cy && cy == y1)
+			{
+				//horizontal line
+				bezBoundsRect.x = Math.min(x,x1);
+				bezBoundsRect.y = y;
+				bezBoundsRect.width = Math.abs(x1 - x);
+				bezBoundsRect.height = 0.0001;
+				return bezBoundsRect;
+			}
+			//-- yMin
 			if( y > y1 ){	
 				if( cy > y1 ){ 
-					bounds.yMin = y1;
+					bezBoundsRect.y = y1;
 				}
 				else{
 					t = -( cy - y ) / ( y1 - 2 * cy + y );
-					bounds.yMin = ( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
+					bezBoundsRect.y=( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
 				}
 			}
 			else{
 				if( cy > y ){
-					bounds.yMin = y;
+					bezBoundsRect.y = y;
 				} 
 				else{
 					t = -( cy - y ) / ( y1 - 2 * cy + y );
-					bounds.yMin = ( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
+					bezBoundsRect.y=( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
 				}
 			}
 			
-			//-- yMin
+			//-- yMax
 			if( y > y1 ){	
 				if( cy < y ){ 
-					bounds.yMax = y;
+					bezBoundsRect.bottom=y
 				}
 				else{
 					t = -( cy - y ) / ( y1 - 2 * cy + y );
-					bounds.yMax = ( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
+					bezBoundsRect.bottom=( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
 				}
 			}
 			else{
 				if( y1 > cy ){
-					bounds.yMax = y1;
+					bezBoundsRect.bottom = y1;
 				} 
 				else{
 					t = -( cy - y ) / ( y1 - 2 * cy + y );
-					bounds.yMax = ( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
+					bezBoundsRect.bottom =( 1 - t ) * ( 1 - t ) * y + 2 * t * ( 1 - t ) * cy + t * t * y1;
 				}
 			}
 			
 			//-- xMin
 			if( x > x1 ){	
 				if( cx > x1 ){
-					bounds.xMin = x1;
+					bezBoundsRect.x = x1;
 				} 
 				else{
 					t = -( cx - x ) / ( x1 - 2 * cx + x );
-					bounds.xMin = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
+					bezBoundsRect.x = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
 				}
 			}
 			else{
 				if( cx > x ){ 
-					bounds.xMin = x;
+					bezBoundsRect.x = x;
 				}
 				else{
 					t = -( cx - x ) / ( x1 - 2 * cx + x );
-					bounds.xMin = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
+					bezBoundsRect.x = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
 				}
 			}
 		
 			//-- xMax
 			if( x > x1 ){	
 				if( cx < x ){ 
-					bounds.xMax = x;
+					bezBoundsRect.right = x;
 				}
 				else{
 					t = -( cx - x ) / ( x1 - 2 * cx + x );
-					bounds.xMax = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
+					bezBoundsRect.right =( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
 				}
 			}
 			else{
 				if( cx < x1 ){ 
-					bounds.xMax = x1;
+					bezBoundsRect.right = x1;
 				}
 				else{
 					t = -( cx - x ) / ( x1 - 2 * cx + x );
-					bounds.xMax = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
+					bezBoundsRect.right = ( 1 - t ) * ( 1 - t ) * x + 2 * t * ( 1 - t ) * cx + t * t * x1;
 				}
 			}
-			
-			return new Rectangle(bounds.xMin,bounds.yMin,bounds.xMax-bounds.xMin,bounds.yMax-bounds.yMin);
+			return bezBoundsRect;
 			
 		}	
 
@@ -390,8 +408,20 @@ package com.degrafa.geometry.utilities{
 			// find intersection between bezier arms (intersection point calculated as coords sx,xy)
 			dx1= c1x - p1x;
 			dx2 = c2x - p2x;
+			if (p1y == p2y && c1y == p2y && c2y == p2y)
+			{
+				//horizontal line: store it as a curveTo anyway (for now)
+				commandStack.addCurveTo(p2x, p2y,p2x, p2y);
+				return;
+			}
+			if (!dx1 && !dx2 && p1x==p2x)
+			{
+				//vertical line: store it as a curveTo anyway (for now)
+				commandStack.addCurveTo(p2x, p2y,p2x, p2y);
+				return;
 
-			if (!dx1){
+			}
+			else if (!dx1){
 				sx=p1x;
 				sy=((c2y - p2y) / dx2) * (p1x - p2x) + p2y;
 			} 
@@ -433,6 +463,7 @@ package com.degrafa.geometry.utilities{
 			else{
 				
 				// end recursion by saving points
+				
 				commandStack.addCurveTo(sx,sy,p2x,p2y);
 			}
 		}

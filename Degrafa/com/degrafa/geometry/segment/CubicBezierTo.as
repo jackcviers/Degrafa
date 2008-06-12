@@ -226,32 +226,32 @@ package com.degrafa.geometry.segment{
 			
 			if(_commandStackItem.commandStack.length==0){return null;}
 			
-			var boundsMaxX:Number =0;
-			var boundsMaxY:Number =0;
-			var boundsMinX:Number =Number.MAX_VALUE;
-			var boundsMinY:Number =Number.MAX_VALUE;
 			
+			var newx:Number = _absCoordType? x:lastPoint.x + x;
+			var newy:Number = _absCoordType? y:lastPoint.y + y;
 			var item:CommandStackItem;
-			
-			for each(item in _commandStackItem.commandStack.source){
-				if(item.type==2){
-					with(item){	
-						boundsMinX = Math.min(boundsMinX,x1);
-						boundsMinX = Math.min(boundsMinX,cx);
-						boundsMaxX = Math.max(boundsMaxX,x1);
-						boundsMaxX = Math.max(boundsMaxX,cx);
-						
-						boundsMinY = Math.min(boundsMinY,y1);
-						boundsMinY = Math.min(boundsMinY,cy);
-						boundsMaxY = Math.max(boundsMaxY,y1);
-						boundsMaxY = Math.max(boundsMaxY,cy);
-					}
-				}
+			var lpX:Number;
+			var lpY:Number;
+			if (_bounds) { //re-use the existing Rectangle instance
+				_bounds.x = Math.min(lastPoint.x, newx);
+				_bounds.y = Math.min(lastPoint.y, newy);
+				_bounds.bottom = Math.max(lastPoint.y, newy);
+				_bounds.right = Math.max(lastPoint.x, newx);
 				
-	  		}
-	  
-	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
-			
+			} else 	_bounds = new Rectangle(Math.min(lastPoint.x, newx), Math.min(lastPoint.y, newy), Math.abs(lastPoint.x - newx), Math.abs(lastPoint.y - newy));
+
+			for each(item in _commandStackItem.commandStack.source){
+				with(item)
+					{
+						_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX?lpX:lastPoint.x, lpY?lpY:lastPoint.y, cx, cy, x1, y1));
+						lpX = x1;
+						lpY = y1;
+					}
+			}
+			//adjustment for horizontal and vertical lines
+			if (_bounds.width == 0) _bounds.width = 0.0001;
+			if (_bounds.height == 0) _bounds.height = 0.0001;
+
 			return _bounds;
 		}
 		
@@ -295,9 +295,11 @@ package com.degrafa.geometry.segment{
 				nlpx = lastPoint.x + _x;
 				nlpy = lastPoint.y + _y;				
 			}
+			
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
-		
+			
+				
 				//add for the first run
 				if(!_commandStackItem){			
 					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
