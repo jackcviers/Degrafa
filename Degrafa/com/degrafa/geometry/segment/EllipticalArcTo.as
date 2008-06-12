@@ -261,9 +261,8 @@ package com.degrafa.geometry.segment{
 		**/	
 		private function calcBounds():void{
 			
-			//TODO: implement a (presumably) faster geometric bounds calculation in ArcUtils based on the arcTo parameters alone
-			
-			if(_commandStackItem.commandStack.length==0){return;}
+					
+			if(_commandStackItem.type==CommandStackItem.COMMAND_STACK &&  _commandStackItem.commandStack.length==0){return;}
 			var newx:Number = _absCoordType? x:lastPoint.x + x;
 			var newy:Number = _absCoordType? y:lastPoint.y + y;
 	
@@ -277,7 +276,15 @@ package com.degrafa.geometry.segment{
 				_bounds.right = Math.max(lastPoint.x, newx);
 				
 			} else 	_bounds = new Rectangle(Math.min(lastPoint.x, newx), Math.min(lastPoint.y, newy), Math.abs(lastPoint.x - newx), Math.abs(lastPoint.y - newy));
-			
+			//handle the edge case where it could be a lineSegment (in which case we've already got the bounds)
+			if (_commandStackItem.type == CommandStackItem.LINE_TO) {
+				//deal with horizontal or vertical lines
+				if (_bounds.width == 0) _bounds.width = 0.0001;
+				if (_bounds.height == 0) _bounds.height = 0.0001;
+				return;
+			}
+			//otherwise it's a regular commandStack of quadratic beziers
+			//TODO: implement a (presumably) faster geometric bounds calculation in ArcUtils based on the arcTo parameters alone
 			for each(item in _commandStackItem.commandStack.source){
 				with(item)
 					{
@@ -330,7 +337,7 @@ package com.degrafa.geometry.segment{
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 			
-				//edge case: if either of the radii are zero, it's a straight line (SVG implementation notes)
+			//edge case: if either of the radii are zero, it's a straight line (SVG implementation notes)
 			if (_rx == 0 || _ry == 0) {
 				if (!_commandStackItem || _commandStackItem.type != CommandStackItem.LINE_TO)
 				{
@@ -339,7 +346,6 @@ package com.degrafa.geometry.segment{
 					_commandStackItem.x = nlpx;
 					_commandStackItem.y = nlpy;
 				}
-				// TODO: if this is a horizontal or vertical line, the bounds won't be correct
 			} else {	
 			if(!_commandStackItem){
 				_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
