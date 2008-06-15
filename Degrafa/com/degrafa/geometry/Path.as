@@ -371,15 +371,14 @@ package com.degrafa.geometry{
 			//which case we need to mirror the last used control point (s,S,t,T)
 			var lastControlPoint:Point=lastPoint.clone();
 			
-			var i:int = 0;
-			var length:int = _segments.items.length;
-	//		var s:uint=getTimer()	
-		
-			for (; i < length; i++)
+	//	var s:uint=getTimer()	
+		var curSegment:Object;
+
+			for each(curSegment in _segments.items)
 			{
-				_segments.items[i].computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
-        	}
-	//		trace('command stack build:' + ((getTimer() - s)));        	
+				curSegment.computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
+	       	}
+	//	trace('command stack build:' + ((getTimer() - s)));        	
 		}
 		
 		private var _bounds:Rectangle;
@@ -395,29 +394,16 @@ package com.degrafa.geometry{
 		**/				
 		private function calcBounds():Rectangle{
 			
-			var boundsRect:Rectangle = new Rectangle();
-			
-			var i:int = 0;
-			var length:int = _segments.items.length;
-			
+
+			if (_bounds) _bounds.setEmpty() else _bounds = new Rectangle();
+
+			var curSegment:Object
 			//union all segment bounds	
-			for (;i< length;i++){
-        		
-        		//note:: though we do calculate the moveTo segments 
-        		//bounds (for other uses) we do not include them in the 
-        		//tight bounds calculations for a path.
-        		switch (ISegment(_segments.items[i]).segmentType){
-        			case "MoveTo":
-        				break;
-        			
-        			default:	
-						boundsRect = boundsRect.union(_segments.items[i].bounds);
-					}
-        		
+
+        	for each(curSegment in _segments.items) {	
+				_bounds = _bounds.union(curSegment.bounds);
         	}		
-        	
-        	_bounds = boundsRect;
-        	
+
         	return _bounds;
         	
 		}
@@ -463,8 +449,7 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
 		 	//re init if required
 		 	preDraw();
-			super.draw(graphics,(rc)? rc:_bounds);
-							
+			super.draw(graphics, (rc)? rc:_bounds);
         }
 		
 		
