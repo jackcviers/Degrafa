@@ -213,8 +213,16 @@ package com.degrafa.geometry{
 		/**
 		* Calculates the bounds for this element. 
 		**/		
-		private function calcBounds():void{
-			_bounds = GeometryUtils.bezierBounds(x,y,cx,cy,x1,y1);
+		private function calcBounds():void
+		{
+			var rect:Rectangle = GeometryUtils.bezierBounds(x, y, cx, cy, x1, y1);
+			if (!_bounds) _bounds = rect.clone()
+			else {
+				_bounds.x = rect.x;
+				_bounds.y = rect.y;
+				_bounds.width = rect.width;
+				_bounds.height = rect.height;
+			}	
 		}
 		
 		/**
@@ -244,7 +252,7 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
 			//re init if required
 		 	preDraw();
-			super.draw(graphics,(rc)? rc:_bounds);
+			super.draw(graphics, (rc)? rc:_bounds);
 		}
 		
 		/**
