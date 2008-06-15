@@ -184,8 +184,16 @@ package com.degrafa.geometry{
 		/**
 		* Calculates the bounds for this element. 
 		**/
-		private function calcBounds():void{
-			_bounds = new Rectangle(x,y,width,height);
+		private function calcBounds():void
+		{
+			if (!_bounds)
+			_bounds = new Rectangle(x, y, width, height);
+			else {
+				_bounds.x = x;
+				_bounds.y = y;
+				_bounds.width = width;
+				_bounds.height = height;
+			}
 		}	
 		
 		/**

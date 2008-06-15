@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.geometry.command.CommandStackItem;
 	import flash.geom.Point;
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.utilities.GeometryUtils;
@@ -259,27 +260,35 @@ package com.degrafa.geometry{
 		private function calcBounds():void{
 			
 			if(commandStack.length==0){return;}
-						
-			var boundsRect:Rectangle = new Rectangle();
-			var item:Object;
 			
-			var lastX:Number;
-			var lastY:Number;
-			
-			for each (item in commandStack.source){
-				if(item.type=="c"){
-					boundsRect = boundsRect.union(GeometryUtils.bezierBounds(lastX,lastY,item.cx,item.cy,item.x1,item.y1));
-					lastX = item.x1;
-					lastY = item.y1;
-				}
-				else{
-					lastX = item.x;
-					lastY = item.y;
-				}
+			var item:CommandStackItem;
+			var lpX:Number;
+			var lpY:Number;
+			if (_bounds) { //re-use the existing Rectangle instance
+				_bounds.x = Math.min(x, x1);
+				_bounds.y = Math.min(y, y1);
+				_bounds.bottom = Math.max(y, y1);
+				_bounds.right = Math.max(x, x1);
 				
-	  		}
-	  	
-			_bounds = boundsRect;
+			} else 	_bounds = new Rectangle(Math.min(x, x1), Math.min(y, y1), Math.abs(x1 - x), Math.abs(y1 - y));
+
+			for each(item in commandStack.source){
+				with(item)
+					{
+						if (type == CommandStackItem.MOVE_TO)
+						{
+							lpX = x;
+							lpY = y;
+						} else {
+							_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX,lpY, cx, cy, x1, y1));
+							lpX = x1;
+							lpY = y1;
+						}
+					}
+			}
+			//adjustment for horizontal and vertical lines
+			if (_bounds.width == 0) _bounds.width = 0.0001;
+			if (_bounds.height == 0) _bounds.height = 0.0001;
         	
 		}
 				
@@ -323,7 +332,7 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			//re init if required
 		 	preDraw();
-			super.draw(graphics,(rc)? rc:_bounds);
+			super.draw(graphics, (rc)? rc:_bounds);
 		}
 		
 		/**

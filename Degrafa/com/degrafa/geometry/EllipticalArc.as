@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.geometry.utilities.GeometryUtils;
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.ArcUtils;
@@ -238,48 +239,42 @@ package com.degrafa.geometry{
 		private function calcBounds():void{
 			
 			if(commandStack.length==0){return;}
-			
-			var boundsMaxX:int =0;
-			var boundsMaxY:int =0;
-			var boundsMinX:int =int.MAX_VALUE;
-			var boundsMinY:int =int.MAX_VALUE;
-			
-			//draw each item in the array
-			var item:Object;
-			for each (item in commandStack.source){
-				with(item){
-					switch(type){
-						case CommandStackItem.MOVE_TO:
-							break;
-						case CommandStackItem.LINE_TO:
-							boundsMinX = Math.min(boundsMinX,x);
-							boundsMaxX = Math.max(boundsMaxX,x);
-							boundsMinY = Math.min(boundsMinY,y);
-							boundsMaxY = Math.max(boundsMaxY,y);
-							break;
-						case CommandStackItem.CURVE_TO:
-					
-							boundsMinX = Math.min(boundsMinX,x);
-							boundsMinX = Math.min(boundsMinX,x1);
-							boundsMinX = Math.min(boundsMinX,cx);
-							boundsMaxX = Math.max(boundsMaxX,x);
-							boundsMaxX = Math.max(boundsMaxX,x1);
-							boundsMaxX = Math.max(boundsMaxX,cx);
-							  	
-							boundsMinY = Math.min(boundsMinY,y);
-							boundsMinY = Math.min(boundsMinY,y1);
-							boundsMinY = Math.min(boundsMinY,cy);
-							boundsMaxY = Math.max(boundsMaxY,y);
-							boundsMaxY = Math.max(boundsMaxY,y1);
-							boundsMaxY = Math.max(boundsMaxY,cy);
-							
-							break;
+			var item:CommandStackItem;
+			var lpX:Number;
+			var lpY:Number;
+			if (_bounds) {
+				_bounds.x = x+width/2;
+				_bounds.y = y+height/2;
+				_bounds.width = 0.0001;
+				_bounds.right = 0.0001;
+				
+			} else 	_bounds = new Rectangle(x+width/2, y+height/2, 0.0001, 0.0001);
+
+			//it's a regular commandStack of quadratic beziers
+			//TODO: implement a (presumably) faster geometric bounds calculation in ArcUtils based on the arcTo parameters alone
+			for each(item in commandStack.source){
+				with(item)
+					{
+						if (type == CommandStackItem.MOVE_TO)
+						{
+							lpX = x;
+							lpY = y;
+						} else {
+						if (type == CommandStackItem.LINE_TO)
+						{
+							_bounds = _bounds.union(new Rectangle(Math.min(lpX,x),Math.min(lpY,y),Math.abs(x-lpX),Math.abs(y-lpY)));
+							lpX = x;
+							lpY = y;
+						} else {
+							_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX, lpY, cx, cy, x1, y1));
+							lpX = x1;
+							lpY = y1;
+							}
+						}
+
 					}
-				}				
-	  		}
-	  		
-	      	_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
-			
+			}
+		
 		}	
 				
 		/**
@@ -300,7 +295,7 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				
-				commandStack.addMoveTo(x,y);				
+			//	commandStack.addMoveTo(x,y);				
 				//Calculate the center point. We only needed is we have a pie type 
 				//closeur. May want to store this local sometime
 				var ax:Number=newX-Math.cos(-(startAngle/180)*Math.PI)*width/2;
@@ -312,9 +307,9 @@ package com.degrafa.geometry{
 						commandStack.addMoveTo(ax,ay);
 						commandStack.addLineTo(newX,newY);
 					}
-				}
+				} else 	commandStack.addMoveTo(newX,newY);
 				
-				commandStack.addMoveTo(newX,newY);
+			
 				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
