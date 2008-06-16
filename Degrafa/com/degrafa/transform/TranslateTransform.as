@@ -55,10 +55,7 @@ package com.degrafa.transform{
 		override public function set registrationPoint(value:String):void{}
 		
 		
-		public function get x():Number
-		{
-			return _tx;
-		}
+
 		public function set x(value:Number):void
 		{
 			if (value != _tx)
@@ -67,10 +64,7 @@ package com.degrafa.transform{
 				 invalidated = true;
 			}
 		}
-		public function get y():Number
-		{
-			return _ty;
-		}
+
 		public function set y(value:Number):void
 		{
 			if (value != _ty)

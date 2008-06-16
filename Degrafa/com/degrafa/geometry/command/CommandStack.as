@@ -57,10 +57,19 @@ package com.degrafa.geometry.command{
 			
 			//exit if no command stack
 			if(source.length==0){return;}
-			
-		//	if(owner.transform){
-		//		owner.transform.apply(owner);
-		//	}
+	
+			var requester:Geometry = owner;
+			//establish a transform context if there are ancestral transforms
+			while (requester.parent)
+				{
+					//assign a transformContext based on the closest ancestral transform
+					requester = (requester.parent as Geometry);
+					if (requester.transform) {
+						owner.transformContext = requester.transform.getTransformFor(requester);
+						break;
+					}
+				}
+
 						
 			//setup the stroke
 			owner.initStroke(graphics,rc);
@@ -91,16 +100,19 @@ package com.degrafa.geometry.command{
         	
         	endDraw(graphics);
 		}
-		
+
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
-			
+		
 			var item:CommandStackItem;
-			var trans:Boolean = (owner.transform && !owner.transform.isIdentity);
+			
+			
+			var trans:Boolean =  (owner.transformContext ||(owner.transform && !owner.transform.isIdentity));
+			
 			var transXY:Point;
 			var transCP:Point;
 			
-			if (trans) {
-				var transMatrix:Matrix = owner.transform.getTransformFor(owner);
+			if (trans ) {
+				var transMatrix:Matrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
 				transXY = new Point();
 				transCP = new Point();
 			}

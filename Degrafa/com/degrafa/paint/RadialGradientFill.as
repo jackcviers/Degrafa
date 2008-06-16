@@ -93,10 +93,11 @@ package com.degrafa.paint{
 			}
 		}
 		
-		
+		private var _radiusy:Number;
 		private var _radius:Number;
+		private var _ellipse:Boolean;
 		/**
-		* The radius of the gradient fill. If not specified a default value of 0 
+		* The radius of the gradient fill, for a circular radial gradient, otherwise it represents the x radius of an elliptical radial gradient. If not specified a default value of 0 
 		* is used.
 		**/
 		public function get radius():Number{
@@ -107,13 +108,50 @@ package com.degrafa.paint{
 			if(_radius != value){
 				var oldValue:Number=_radius;
 				
-				_radius = value;
-				
+				_radiusy = _radius = value;
+				_ellipse = false;
 				//call local helper to dispatch event	
 				initChange("radius",oldValue,_radius,this);
 			}
 		}
-		
+		/**
+		* The x radius of the gradient fill, before any rotation is applied, for an elliptical radial gradient. If not specified a default value of 0 
+		* is used.
+		**/
+		public function get radiusX():Number{
+			if(!_radius){return 0;}
+			return _radius;
+		}
+		public function set radiusX(value:Number):void
+		{
+			if(_radius != value){
+				var oldValue:Number=_radius;
+				
+				_radius = value;
+				_ellipse = (_radius!=_radiusy);
+				//call local helper to dispatch event	
+				initChange("radiusX",oldValue,_radius,this);
+			}
+		}
+		/**
+		* The y radius of the gradient fill, before any rotation is applied, for an elliptical radial gradient. If not specified a default value of 0 
+		* is used.
+		**/
+		public function get radiusY():Number{
+			if(!_radiusy){return 0;}
+			return _radiusy;
+		}
+		public function set radiusY(value:Number):void
+		{
+			if(_radiusy != value){
+				var oldValue:Number=_radiusy;
+				
+				_radiusy = value;
+				_ellipse = (_radius!=_radiusy);
+				//call local helper to dispatch event	
+				initChange("radiusY",oldValue,_radiusy,this);
+			}
+		}
 		
 		/**
 		* Ends the fill for the graphics context.
@@ -132,10 +170,10 @@ package com.degrafa.paint{
 		**/
 		override public function begin(graphics:Graphics, rc:Rectangle):void{
 			if(_cx && _cy && _radius){
-				super.begin(graphics,new Rectangle(cx-radius,cy-radius,radius*2,radius*2));
+				super.begin(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
 			}
 			else if (_radius){
-				super.begin(graphics,new Rectangle(0,0,radius*2,radius*2));
+				super.begin(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
 			}
 			else{
 				super.begin(graphics,rc);
@@ -150,7 +188,8 @@ package com.degrafa.paint{
 			
 			if (!_cx){_cx = value.cx;}
 			if (!_cy){_cy = value.cy;}
-			if (!_radius){_radius = value.radius;}
+			if (!_radius){_radius = value.radius; }
+			if (!_radiusy) { _radiusy = value.radiusY; _ellipse = (_radiusy != _radius); }
 			if (!_spreadMethod){_spreadMethod = value.spreadMethod;}
 			if (!_angle){_angle = value.angle;}
 			if (!_blendMode){_blendMode = value.blendMode;}

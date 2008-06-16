@@ -36,5 +36,16 @@ package com.degrafa.transform{
 		function get transformMatrix():Matrix;
 		function getRegPoint(value:IGeometryComposition):Point;
 		function getTransformFor(value:IGeometryComposition):Matrix;
+		function get registrationPoint():String;
+		function set registrationPoint(value:String):void
+		//getters are always available on all subclasses
+		function get scaleX():Number;
+		function get scaleY():Number;
+		function get x():Number;
+		function get y():Number;
+		function get angle():Number;
+		function get skewX():Number;
+		function get skewY():Number;
+		
 	}
 }

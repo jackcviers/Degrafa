@@ -22,8 +22,12 @@
 
 package com.degrafa.transform{
 
+	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
+	import flash.geom.Rectangle;
+	import mx.core.IMXMLObject;
 
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -50,7 +54,7 @@ package com.degrafa.transform{
 			_data=value;
 		}
 		
-		//matrix transform properties that can be selectively exposed via getters/setters in sub-classes
+		//matrix transform properties that can be selectively exposed via setters in sub-classes
 		protected var _scaleX:Number = 1;
 		protected var _scaleY:Number = 1;
 		protected var _skewY:Number = 0;
@@ -70,11 +74,10 @@ package com.degrafa.transform{
 				//recreate the matrix based on the transform properties
 				//the sequence used here will result in a matrix that appears to mimic the behavior exhibited by the Flash IDE
 				//re-use the matrix instead of creating a new Matrix instance to begin from an identity matrix
-				_transformMatrix.a = _transformMatrix.d = 1;
-				_transformMatrix.b = _transformMatrix.c = _transformMatrix.tx = _transformMatrix.ty = 0;
-				if (_scaleX || _scaleY) _transformMatrix.scale(_scaleX, _scaleY);
-				
-				if (_skewX || _skewY)
+				_transformMatrix.identity();
+			
+			if (_scaleX || _scaleY) _transformMatrix.scale(_scaleX, _scaleY);
+			if (_skewX || _skewY)
 				{
 					var skewMat:Matrix = new Matrix();
 					skewMat.a =  Math.cos(_skewY*Math.PI/180);
@@ -83,7 +86,8 @@ package com.degrafa.transform{
 					skewMat.d =  Math.cos(_skewX * Math.PI / 180);
 					_transformMatrix.concat(skewMat);
 				}
-			 if (_angle) _transformMatrix.rotate(_angle*Math.PI/180);
+			 if (_angle) _transformMatrix.rotate(_angle * Math.PI / 180);
+			
 		     if (_tx ||_ty)	_transformMatrix.translate(_tx, _ty);
 			}
 			invalidated = false;
@@ -181,6 +185,33 @@ package com.degrafa.transform{
 			return regPoint;
 			
 		}
+		
+		
+		public function getTransformedBoundsFor(value:IGeometryComposition):Rectangle
+		{
+			var requester:Geometry = (value as Geometry);
+			var trans:Matrix = getTransformFor(value);
+			var tempBounds:Rectangle = requester.bounds.clone();
+			var tl:Point = tempBounds.topLeft;
+			var br:Point = tempBounds.bottomRight;
+			var tr:Point;
+			var bl:Point;
+			( tr =tl.clone()).offset(br.x - tl.x, 0);
+			( bl = tl.clone()).offset(0, br.y - tl.y);
+
+			var points:Array = [trans.transformPoint(br),trans.transformPoint(tr),trans.transformPoint(bl)];
+			tempBounds.setEmpty();
+			tempBounds.topLeft = trans.transformPoint(tl);
+			for each(var p:Point in points)
+			{
+				if (tempBounds.x > p.x) tempBounds.x = p.x;
+				if (tempBounds.y > p.y) tempBounds.y = p.y;
+				if (tempBounds.right < p.x) tempBounds.right = p.x;
+				if (tempBounds.bottom < p.y) tempBounds.bottom = p.y;
+			}
+			return tempBounds;
+		}
+		
 		/**
 		 * Retrieves the adjusted matrix for the registration offset based on the Geometry target bounds, 
 		 * if this transform is based on a registrationPoint, otherwise based on the centerX and centerY settings
@@ -190,14 +221,42 @@ package com.degrafa.transform{
 		public function getTransformFor(value:IGeometryComposition):Matrix
 		{
 			var offset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
-			var retMatrix:Matrix = new Matrix();
-		    retMatrix.translate( -offset.x, -offset.y);
-			retMatrix.concat(transformMatrix);
-			retMatrix.translate(offset.x, offset.y)
-			return retMatrix;
+			//first check for a transform history...
+			//this relies on the nested update sequence from parent to children to work in 
+			//a stable way.
+
+			var requester:Geometry = (value as Geometry);
+			var context:Matrix = requester.transformContext;
+
+			if (!context)
+			{
+				//check the parent hierachy for the closest ancestor with a transform
+				while (requester.parent)
+				{
+					requester = (requester.parent as Geometry);
+					if (requester.transform) {
+						context = requester.transform.getTransformFor(requester);
+						break;
+					}
+				}
+			}
+		
+			var transMat:Matrix = new Matrix();
+			transMat.translate( -offset.x, -offset.y);
+			transMat.concat(transformMatrix);
+			transMat.translate(offset.x, offset.y)
+			
+			//TODO: Something is not working as it should here:
+			if (context) {
+				transMat.concat(context);
+			}
+			return transMat;
+			
 		}
 		/**
-		 * Retreives the registration offset for the Geometry target
+		 * Retrieves the registration offset for the Geometry target. If the registrationPoint property is set,
+		 * this will return the registrationPoint calculated from the geometry target bounds, otherwise it will
+		 * return the centerX and centerY settings for this Transform.
 		 * @param	value
 		 * @return
 		 */
@@ -218,6 +277,41 @@ package com.degrafa.transform{
 			return (_transformMatrix.a == 1 && !_transformMatrix.b  && !_transformMatrix.c  && _transformMatrix.d == 1 && !_transformMatrix.tx && !_transformMatrix.ty);
 		}
 		
+		//getters are always available from the base class
+		public function get y():Number
+		{
+			return _ty;
+		}
+		
+		public function get x():Number
+		{
+			return _tx;
+		}
+		
+		public function get angle():Number
+		{
+			return _angle;
+		}
+		
+		public function get scaleX():Number
+		{
+			return _scaleX;
+		}
+		
+		public function get scaleY():Number
+		{
+			return _scaleY;
+		}
+		
+		public function get skewX():Number
+		{
+			return _skewX;
+		}
+		
+		public function get skewY():Number
+		{
+			return _skewY;
+		}
 
 	}
 }

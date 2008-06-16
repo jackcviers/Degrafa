@@ -40,7 +40,7 @@ package com.degrafa.paint{
 	import flash.geom.Rectangle;
 	
 	import flash.utils.getDefinitionByName;
-	
+		import mx.events.PropertyChangeEvent;
 	import com.degrafa.utilities.external.ExternalBitmapData;
 	import com.degrafa.utilities.external.ExternalDataAsset;
 	import com.degrafa.utilities.external.LoadingLocation;
@@ -486,7 +486,7 @@ package com.degrafa.paint{
 				} catch (e:Error)
 				{
 					//if its not a class name, assume url string for an ExternalBitmapData
-					//and kludge: wait for isInitialized to check/access loadingLocation mxml assignment
+					//and wait for isInitialized to check/access loadingLocation mxml assignment
 					if (!isInitialized) {
 						setTimeout(
 							function():void
@@ -535,8 +535,9 @@ package com.degrafa.paint{
 			var positionY:Number = 0;
 			
 			var matrix:Matrix = new Matrix();
-			matrix.translate(rectangle.x, rectangle.y);
 			
+
+			matrix.translate(rectangle.x, rectangle.y);
 			// deal with stretching
 			if(repeatX == BitmapFill.STRETCH || repeatY == BitmapFill.STRETCH) {
 				var stretchX:Number = repeatX == STRETCH ? rectangle.width : template.width;
@@ -573,6 +574,12 @@ package com.degrafa.paint{
 			if(repeatY == BitmapFill.NONE || repeatY == BitmapFill.REPEAT) {
 				positionY = _offsetY.relativeTo(rectangle.height-template.height)
 			}
+		/*	if (_transform)
+			{
+				positionX += _transform.x;
+				positionY += _transform.y;
+			}*/
+			
 			
 			// deal with repeating (or no-repeating rather)
 			if(repeatX == BitmapFill.NONE || repeatY == BitmapFill.NONE) {
@@ -606,10 +613,19 @@ package com.degrafa.paint{
 				repeat = false;
 			}
 			
-			matrix.translate(-_originX,-_originY);
-			matrix.scale(_scaleX,_scaleY);
+			matrix.translate( -_originX, -_originY);
+			if (_transform) {
+				var temp:Matrix = _transform.transformMatrix.clone();
+				temp.translate(-template.width/2,-template.height/2)
+				matrix.concat(temp);
+				
+			}
+			matrix.scale(_scaleX, _scaleY);
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
+		//	matrix.scale(_scaleX*(_transform?_transform.scaleX:0),_scaleY*(_transform?_transform.scaleY:0));
+		//	matrix.rotate(_rotation+(_transform?_transform.angle *Math.PI/180:0));
+		//	matrix.translate(positionX+(_transform?_transform.x :0), positionY+(_transform?_transform.y :0));
 		
 			
 			var transformRequest:ITransform;
@@ -625,6 +641,39 @@ package com.degrafa.paint{
 			graphics.endFill();
 		}
 		
+		private var _transform:ITransform;
+		/**
+		* Defines the transform object that will be used for 
+		* altering this bitmapfill object.
+		**/
+		public function get transform():ITransform{
+			return _transform;
+		}
+		public function set transform(value:ITransform):void{
+			
+			if(_transform != value){
+			
+				var oldValue:Object=_transform;
+			
+				if(_transform){
+					if(_transform.hasEventManager){
+						_transform.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+								
+				_transform = value;
+				
+				if(enableEvents){
+					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				}
+				//call local helper to dispatch event
+				initChange("transform", oldValue, _transform, this);
+			}
+			
+		}
 		
+		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+			dispatchEvent(event);
+		}
 	}
 }

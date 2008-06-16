@@ -32,7 +32,6 @@ package com.degrafa.transform{
 	**/
 	public class RotateTransform extends TransformBase  implements ITransform{
 		
-	//	private var radians:Number;
 		
 		public function RotateTransform(){
 			super();
@@ -41,10 +40,6 @@ package com.degrafa.transform{
 		
 	
 
-		public function get angle():Number
-		{
-			return _angle;
-		}
 		public function set angle(value:Number):void
 		{
 			if (value != _angle)

@@ -218,7 +218,7 @@ package com.degrafa.paint{
 		}
 		
 		//reference to the requesting geometry
-		private var _requester:IGeometryComposition;
+		protected var _requester:IGeometryComposition;
 		public function set requester(value:IGeometryComposition):void
 		{
 			_requester = value;
@@ -249,14 +249,22 @@ package com.degrafa.paint{
 				processEntries(rc.width * xp + rc.height * yp);
 				
 			}
-
+		
 			var transformRequest:ITransform;
-			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
-				matrix.concat(transformRequest.getTransformFor(_requester));
+			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+				
+				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+				else matrix.concat((_requester as Geometry).transformContext);
 				//remove the requester reference
 				_requester = null;
 			}
-							
+			if (_transform)
+			{
+				//this fill's transform:ignore the registration point /center point settings etc - use the center of the gradient box.
+				matrix.translate(-(rc.x+rc.width/2),-(rc.y+rc.height/2))
+				matrix.concat(_transform.transformMatrix);
+				matrix.translate((rc.x+rc.width/2),(rc.y+rc.height/2))
+			}
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}
@@ -269,6 +277,39 @@ package com.degrafa.paint{
 		public function end(graphics:Graphics):void{
 			graphics.endFill();
 		}
+		
+		protected var _transform:ITransform;
+		/**
+		* Defines the transform object that will be used for 
+		* altering this gradientfill object.
+		**/
+		public function get transform():ITransform{
+			return _transform;
+		}
+		public function set transform(value:ITransform):void{
+			
+			if(_transform != value){
+			
+				var oldValue:Object=_transform;
+			
+				if(_transform){
+					if(_transform.hasEventManager){
+						_transform.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+								
+				_transform = value;
+				
+				if(enableEvents){	
+					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				}
+				//call local helper to dispatch event
+				initChange("transform",oldValue,_transform,this);
+			}
+			
+		}
+		
+		
 		
 		/**
 		* Process the gradient stops 

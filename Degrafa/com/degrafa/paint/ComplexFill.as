@@ -171,6 +171,7 @@ package com.degrafa.paint{
 						if(lastType == "fill") {
 							bitmapData.draw(shape, matrix);
 						}
+						fillsChanged = false;
 					}
 					matrix.invert();
 					var transformRequest:ITransform;

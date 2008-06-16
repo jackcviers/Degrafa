@@ -42,30 +42,7 @@ package com.degrafa.transform{
 			super();
 		}
 		
-		public function get scaleX():Number
-		{
-			return _scaleX;
-		}
 		
-		public function get scaleY():Number
-		{
-			return _scaleY;
-		}
-		
-		public function get skewX():Number
-		{
-			return _skewX;
-		}
-		
-		public function get skewY():Number
-		{
-			return _skewY;
-		}
-		
-		public function get angle():Number
-		{
-			return _angle;
-		}
 		public function set angle(value:Number):void
 		{
 			if (value != _angle)
@@ -106,10 +83,7 @@ package com.degrafa.transform{
 				 invalidated = true;
 			}
 		}
-		public function get x():Number
-		{
-			return _tx;
-		}
+
 		public function set x(value:Number):void
 		{
 			if (value != _tx)
@@ -118,10 +92,7 @@ package com.degrafa.transform{
 				 invalidated = true;
 			}
 		}
-		public function get y():Number
-		{
-			return _ty;
-		}
+		
 		public function set y(value:Number):void
 		{
 			if (value != _ty)

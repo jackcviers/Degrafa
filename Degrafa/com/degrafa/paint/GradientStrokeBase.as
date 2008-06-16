@@ -22,6 +22,8 @@
 package com.degrafa.paint {
 	
 	import com.degrafa.core.IGraphicsStroke;
+	import com.degrafa.geometry.Geometry;
+	import com.degrafa.transform.ITransform;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
@@ -213,7 +215,22 @@ package com.degrafa.paint {
 			} else {
 				matrix=null;
 			}
-			
+			//handle transforms on the gradient stroke
+			//first from the requesting geometry:
+			var transformRequest:ITransform;
+			if (super._requester && (transformRequest  = (super._requester as Geometry).transform)) {
+					matrix.concat(transformRequest.getTransformFor(super._requester));
+				//remove the requester reference
+				super._requester = null;
+			}
+			//next for the stroke's own transforms:
+			if (super._transform)
+			{
+				//this stroke's transform:ignore the registration point /center point settings etc - use the center of the gradient box.
+				matrix.translate(-(rc.x+rc.width/2),-(rc.y+rc.height/2))
+				matrix.concat(super._transform.transformMatrix);
+				matrix.translate((rc.x+rc.width/2),(rc.y+rc.height/2))
+			}
 			graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			

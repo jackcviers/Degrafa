@@ -40,16 +40,6 @@ package com.degrafa.transform{
 		}
 		
 	
-		public function get scaleX():Number
-		{
-			return _scaleX;
-		}
-		
-		public function get scaleY():Number
-		{
-			return _scaleY;
-		}
-		
 
 		private var uniform:Boolean = false;
 		

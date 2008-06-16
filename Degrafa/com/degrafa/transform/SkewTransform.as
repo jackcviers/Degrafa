@@ -40,16 +40,7 @@ package com.degrafa.transform{
 			super();
 		}
 		
-		public function get skewX():Number
-		{
-			return _skewX;
-		}
-		
-		public function get skewY():Number
-		{
-			return _skewY;
-		}
-		
+			
 		
 		public function set skewX(value:Number):void 
 		{

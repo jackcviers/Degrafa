@@ -202,7 +202,6 @@ package com.degrafa.geometry{
 			return _geometry.items;
 		}
 		public function set geometry(value:Array):void{
-			
 			initGeometryCollection();
 			_geometry.items = value;
 		}
@@ -518,17 +517,34 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-		
+		/**
+		 * A reference to the transformation matrix context within which local transforms will be applied.
+		 * Similar in concept to the concatenatedMatrix on a flash DisplayObjects transform property.
+		 */
+		private var _transformContext:Matrix;
+		public function get transformContext():Matrix
+		{
+			return _transformContext;
+		}
+		public function set transformContext(value:Matrix):void
+		{
+			_transformContext = value;
+		}
 		private var _transform:ITransform;
 		/**
-		* Defines the fill object that will be used for 
+		* Defines the transform object that will be used for 
 		* rendering this geometry object.
 		**/
 		public function get transform():ITransform{
 			return _transform;
 		}
-		public function set transform(value:ITransform):void{
-			
+		public function set transform(value:ITransform):void
+		{
+			//get a reference to the transform hierachy
+			if (parent && (parent as Geometry).transform)
+			{
+				_transformContext = (parent as Geometry).transform.getTransformFor(parent as Geometry);
+			} 
 			if(_transform != value){
 			
 				var oldValue:Object=_transform;
@@ -564,7 +580,7 @@ package com.degrafa.geometry{
 			
 			commandStack.draw(graphics,rc);
          	endDraw(graphics);
-         	
+         
   		}		
   		
   		

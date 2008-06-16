@@ -242,7 +242,6 @@ package com.degrafa.paint{
 				//call local helper to dispatch event	
 				initChange("caps",oldValue,_caps,this);
 			}
-			
 		}
 		
 		/**
