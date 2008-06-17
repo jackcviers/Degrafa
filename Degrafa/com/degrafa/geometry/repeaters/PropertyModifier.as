@@ -211,23 +211,27 @@ package com.degrafa.geometry.repeaters
 				}
 				else if (targetObject==null) continue;
 			
-				if (_property.indexOf(".")<0) {
-					targetProperty=_property;
+				if (_property.indexOf(".") < 0) {
+					if (_property.indexOf("[")<0)
+					targetProperty = _property;
+					else {
+						targetProperty = _property.substring(_property.indexOf("[") + 1, _property.indexOf("]") );
+						targetObject = targetObject[_property.substr(0, _property.indexOf("[") )];
+					}
 				} 
 				else {
 					//We must have a property chain lets use it
-					var propChain:Array=_property.split(".");
+					var propChain:Array=_property.split(/[\.\[]/);
 
-					for (var y:int=0;y<propChain.length-1;y++) {
-						targetObject=targetObject[propChain[y]];
+					for (var y:int = 0; y < propChain.length - 1; y++) {
+						if (propChain[y].indexOf("]") != -1) propChain[y] = propChain[y].substr(0, propChain[y].indexOf("]") );
+						targetObject = targetObject[propChain[y]];
 					}
-					
+					if (propChain[y].indexOf("]") != -1) propChain[y] = propChain[y].substr(0, propChain[y].indexOf("]") );
 					targetProperty=propChain[y];
 				}					
-				
 				_targetObjects.push(targetObject);
 				_targetProperties.push(targetProperty);
-				if (targetObject==null)
 				_originalValues.push(targetObject[targetProperty]);
 			}
 
