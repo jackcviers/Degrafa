@@ -32,6 +32,7 @@ package com.degrafa.geometry.repeaters
 	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
+	import mx.graphics.IFill;
 
 	//[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry {
@@ -39,7 +40,7 @@ package com.degrafa.geometry.repeaters
 		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		private var _isDrawing:Boolean=false;
-		
+	
 		public function GeometryRepeater(){
 			super();
 		}
@@ -101,19 +102,23 @@ package com.degrafa.geometry.repeaters
 		* geometry object or it's child objects.
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			if(_isDrawing) return;
+		//	trace("Geometry Repeater: " + event.property + " has changed");
+			if(_isDrawing) {
+				this.invalidated=true;
+				return;
+			} 
 			// getting here means a modifier has changed after treating the items that changed we need to dispatch
 			// so that it works it's way up to start the draw cycle.
 			if (!parent){
                 dispatchEvent(event)
                 draw(null,null);
-            }
+            } 
             else{
                 dispatchEvent(event)
             }
 		}
 		
-		
+
 		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
 		override public function get bounds():Rectangle {
 			return _bounds
@@ -123,7 +128,7 @@ package com.degrafa.geometry.repeaters
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
 			
 			if(!this.isInitialized){return;}
-			
+	//		trace("GeometryRepeater draw()");
 			_isDrawing=true;
 			
 			var t:Number=getTimer();
@@ -134,9 +139,11 @@ package com.degrafa.geometry.repeaters
 
 			
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
+
 			for (var i:int=0; i<_count; i++) {
 				
 				//Apply our modifiers
+
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
 					DegrafaObject(modifier).parent=this;
 					DegrafaObject(modifier).suppressEventProcessing=true;
@@ -182,7 +189,12 @@ package com.degrafa.geometry.repeaters
 			
 			_isDrawing=false;
 			
-			trace("elapsed draw time: " + String(getTimer()-t));
+			this.invalidated=false;
+
+			//See if we have been invalidated while drawing
+		//	if (this.invalidated) draw(graphics,rc);
+			
+		//	trace("elapsed draw time: " + String(getTimer()-t));
 		}
 		
 		/**
@@ -190,8 +202,10 @@ package com.degrafa.geometry.repeaters
 		 * as it would put us in an endless loop with the draw function
 		 */
 	    override public function dispatchEvent(evt:Event):Boolean{
+	//    	trace("GeometryRepeater: " + evt.type);
 	    	if(suppressEventProcessing || _isDrawing){
 	        	evt.stopImmediatePropagation();
+	        	this.invalidated=true;
 	     		return false;
 	     	}
 	     	
@@ -207,7 +221,7 @@ package com.degrafa.geometry.repeaters
 					_bounds.union(Geometry(geometry[i]).bounds);
 			}
 
-			trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
+			//trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
 		
 	}

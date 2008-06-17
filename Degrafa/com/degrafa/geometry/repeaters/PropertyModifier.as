@@ -144,14 +144,14 @@ package com.degrafa.geometry.repeaters
 			
 			var tempOffset:Object;
 			
-			var bounds:Rectangle=new Rectangle();
+			var bounds:Rectangle=new Rectangle();    
 			
 			if (_offset is Array) {
 				tempOffset = offset[_iteration % offset.length];
 				//trace(tempOffset);
 			}
 			else if (_offset is Function ) {
-				tempOffset=_offset(_iteration);
+				tempOffset=_offset(_iteration,_targetObjects[i][_targetProperties[i]] );
 			}
 			else {
 				tempOffset=Number(_offset);
@@ -159,12 +159,11 @@ package com.degrafa.geometry.repeaters
 
 			if (_offset!=null) {
 				for (var i:int=0;i<_targetObjects.length;i++) {
-					
-					if (_offsetOperator==PropertyModifier.OFFSET_ADD)
+					if (_offsetOperator==PropertyModifier.OFFSET_ADD && _iteration>0)
 						_targetObjects[i][_targetProperties[i]]+=Number(tempOffset);
-					else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT)
+					else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT && _iteration>0)
 						_targetObjects[i][_targetProperties[i]]-=Number(tempOffset);
-					else
+					else if (_offsetOperator != PropertyModifier.OFFSET_ADD && _offsetOperator != PropertyModifier.OFFSET_SUBTRACT)
 						_targetObjects[i][_targetProperties[i]]=tempOffset;
 				}
 			}
@@ -225,8 +224,10 @@ package com.degrafa.geometry.repeaters
 					
 					targetProperty=propChain[y];
 				}					
+				
 				_targetObjects.push(targetObject);
 				_targetProperties.push(targetProperty);
+				if (targetObject==null)
 				_originalValues.push(targetObject[targetProperty]);
 			}
 
