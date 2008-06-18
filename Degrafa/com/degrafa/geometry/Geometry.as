@@ -30,18 +30,17 @@ package com.degrafa.geometry{
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.decorators.IGlobalDecorator;
 	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.states.State;
+	import com.degrafa.states.StateManager;
 	import com.degrafa.transform.ITransform;
-	import flash.geom.Matrix;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
+	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
 	import mx.core.IStateClient;
-	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
-	import mx.events.StateChangeEvent;
-	import com.degrafa.states.State;
 	
 	[DefaultProperty("geometry")]
 	[Bindable(event="propertyChange")]
@@ -58,14 +57,53 @@ package com.degrafa.geometry{
 		
 		/**
 		* Specifies whether this object is to be re calculated 
+		* on the next cycle. Only property updates which affect the 
+		* computation of this object set this property
+		**/
+		private var _invalidated:Boolean;
+		public function get invalidated():Boolean{
+			return _invalidated;
+		}
+		public function set invalidated(value:Boolean):void{
+			_invalidated = value;
+		}
+		
+		public function get isInvalidated():Boolean{
+			return _invalidated;
+		} 
+		
+		/**
+		* Specifies whether the bounds of this object is to be re calculated 
 		* on the next cycle.
 		**/
-		protected var invalidated:Boolean;
-		public function get isInvalidated():Boolean{
-			
-			return invalidated;
-			
+		private var _boundsInvalidated:Boolean;
+		public function get boundsInvalidated():Boolean{
+			return _boundsInvalidated;
+		}
+		public function set boundsInvalidated(value:Boolean):void{
+			_boundsInvalidated = true;
+		}
+		
+		public function get isBoundsInvalidated():Boolean{
+			return _boundsInvalidated;
 		} 
+		
+		/**
+		* Specifies whether the layout of this object is to be re calculated 
+		* on the next cycle.
+		**/
+		protected var _layoutInvalidated:Boolean;
+		public function get layoutInvalidated():Boolean{
+			return _layoutInvalidated;
+		}
+		public function set layoutInvalidated(value:Boolean):void{
+			_layoutInvalidated = true;
+		}
+		
+		public function get isLayoutInvalidated():Boolean{
+			return _layoutInvalidated;
+		} 
+		
 				
 		private var _data:String;
 		/**
@@ -583,213 +621,359 @@ package com.degrafa.geometry{
          
   		}		
   		
-  		
   		/**********************************************************
-  		* *********************************************************
-  		* Below state code will be moved out and cleaned up.
-  		**/
+  		* Layout related.
+  		**********************************************************/
+  		private var _x:Number;
+		/**
+		* Doc
+		**/
+		public function get x():Number {
+			return _x;
+		}
+		public function set x(value:Number):void {
+			_x = value;
+		}
+		
+		private var _y:Number;
+		/**
+		* Doc
+		**/
+		public function get y():Number {
+			return _y;
+		}
+		public function set y(value:Number):void {
+			_y = value;
+		}
+  		
+  		private var _width:Number;
+		/**
+		* Doc
+		**/
+		public function get width():Number {
+			return _width;
+		}
+		public function set width(value:Number):void {
+			_width = value;
+		}
+  		
+  		private var _percentWidth:Number;
+		/**
+		 * When set, the width of the layout will be
+		 * set as the value of this property multiplied
+		 * by the containing width.
+		 * A value of 0 represents 0% and 1 represents 100%.
+		 */
+		public function get percentWidth():Number {
+			return _percentWidth;
+		}
+		/** */
+		public function set percentWidth(value:Number):void {
+			_percentWidth = value;
+		}
+
+
+  		private var _height:Number;
+		/**
+		* Doc
+		**/
+		public function get height():Number {
+			return _height;
+		}
+		public function set height(value:Number):void {
+			_height = value;
+		}
+		
+		private var _percentHeight:Number;
+		/**
+		 * When set, the height of the layout will be
+		 * set as the value of this property multiplied
+		 * by the parent height.
+		 * A value of 0 represents 0% and 1 represents 100%.
+		 */
+		public function get percentHeight():Number {
+			return _percentHeight;
+		}
+		/** */
+		public function set percentHeight(value:Number):void {
+			_percentHeight = value;
+		}
+		
+  		private var _top:Number;
+		/**
+		* Doc
+		**/
+		public function get top():Number {
+			return _top;
+		}
+		public function set top(value:Number):void {
+			_top = value;
+		}
+
+		private var _right:Number;
+		/**
+		* Doc
+		**/
+		public function get right():Number {
+			return _right;
+		}
+		public function set right(value:Number):void {
+			_right = value;
+		}
+  		
+  		private var _bottom:Number;
+		/**
+		* Doc
+		**/
+		public function get bottom():Number {
+			return _bottom;
+		}
+		public function set bottom(value:Number):void {
+			_bottom = value;
+		}
+  		
+  		private var _left:Number;
+		/**
+		* Doc
+		**/
+		public function get left():Number {
+			return _left;
+		}
+		public function set left(value:Number):void {
+			_left = value;
+		}
+		
+		private var _horizontalCenter:Number;
+		/**
+		 * If set and left or right are not set then the resulting 
+		 * geometry will be centered horizontally offset by the value. 
+		 */
+		public function get horizontalCenter():Number {
+			return _horizontalCenter;
+		}
+		public function set horizontalCenter(value:Number):void {
+			_horizontalCenter = value;
+		}
+		
+		private var _verticalCenter:Number;
+		/**
+		 * If set and top or bottom are not set then the resulting 
+		 * geometry will be centered vertically offset by the value. 
+		 */
+		public function get verticalCenter():Number {
+			return _verticalCenter;
+		}
+		public function set verticalCenter(value:Number):void {
+			_verticalCenter = value;
+		}
+		
+
+		private var _maintainAspectRatio:Boolean;
+		/**
+		 * If true the drawn result of the geometry 
+		 * will maintain an aspect ratio relative to the ratio
+		 * of the precalculated bounds width and height.
+		 */
+		public function get maintainAspectRatio():Boolean {
+			return _maintainAspectRatio;
+		}
+		public function set maintainAspectRatio(value:Boolean):void {
+			_maintainAspectRatio = value;
+		}
+
+
+		private var _layoutRectangle:Rectangle = new Rectangle();
+		/**
+		* The resulting calculated rectangle from which to 
+		* layout/modify the geometry command stack items.
+		**/
+		public function get layoutRectangle():Rectangle {
+			return _layoutRectangle.clone();
+		}
+		public function set layoutRectangle(value:Rectangle):void {
+			_layoutRectangle = value;
+		}
+		
+		//based on the layout settings calculates a 
+		//rectangle object from which to adjust the 
+		//drawing commands when compared to the calculated 
+		//bounds. 
+		private function calculateLayoutRectangle():void{
+			
+			if (!isLayoutInvalidated){return;}
+			
+			//either the current target rectangle or the 
+			//parent geometry rectangle.
+			//(NOTE :: needs to be set before all this will work)
+			var container:Rectangle;
+			
+			//bring the layout rectangle local;
+			var _rect:Rectangle = layoutRectangle;
+			
+			// reusable value
+			var currValue:Number;
+			
+			// horizontal placement
+			var noLeft:Boolean = isNaN(_left);
+			var noRight:Boolean = isNaN(_right);
+			var noHorizontalCenter:Boolean = isNaN(_horizontalCenter);
+			var alignedLeft:Boolean = !Boolean(noLeft);
+			var alignedRight:Boolean = !Boolean(noRight);
+			
+			if (container){
+				if (!alignedLeft && !alignedRight) {
+					if (noHorizontalCenter) { 
+						// normal
+						_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+						_rect.x = _x + container.left;
+					}else{ 
+						// centered
+						_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+						_rect.x = _horizontalCenter - _rect.width/2 + container.left + container.width/2;
+					}
+					
+				}else if (!alignedRight) { 
+					// left
+					_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+					_rect.x = container.left + _left;
+				}else if (!alignedLeft) { 
+					// right
+					_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+					_rect.x = container.right - _right - _rect.width;
+				}else{ 
+					// right and left (boxed)
+					_rect.right = container.right - _right;
+					_rect.left = container.left + _left;
+				}
+			}
+
+			// vertical placement
+			var noTop:Boolean = isNaN(_top);
+			var noBottom:Boolean = isNaN(_bottom);
+			var noVerticalCenter:Boolean = isNaN(_verticalCenter);
+			var alignedTop:Boolean = !Boolean(noTop);
+			var alignedBottom:Boolean = !Boolean(noBottom);
+			
+			if (container){
+				if (!alignedTop && !alignedBottom) {
+					
+					if (noVerticalCenter) { 
+						// normal
+						_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+						_rect.y = _y + container.top;
+						
+					}else{ 
+						// centered
+						_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+						_rect.y = _verticalCenter - _rect.height/2 + container.top + container.height/2;
+					}
+					
+				}else if (!alignedBottom) { 
+					// top
+					_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+					_rect.y = container.top + _top;
+					
+				}else if (!alignedTop) { 
+					// bottom
+					_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+					_rect.y = container.bottom - _bottom - _rect.height;
+					
+				}else{ 
+					// top and bottom (boxed)
+					_rect.bottom = container.bottom - _bottom;
+					_rect.top = container.top + _top;
+				}
+			}
+
+			// maintaining aspect if applicable; use width and height for aspect
+			// only apply if one dimension is static and the other dynamic
+			// maintaining aspect has highest priority so it is evaluated last
+			if (_maintainAspectRatio && _height && _width) {
+								
+				var sizeRatio:Number = _height/_width;
+				var rectRatio:Number = _rect.height/_rect.width;
+				
+				if (sizeRatio > rectRatio) { 
+					// width
+					currValue = _rect.height/sizeRatio;
+					
+					if (!alignedLeft) {
+						if (alignedRight) { 
+							// right 
+							_rect.x += _rect.width - currValue;
+						}else if (!(noHorizontalCenter)) { 
+							// centered
+							_rect.x += (_rect.width - currValue)/2;
+						}
+					}else if (alignedLeft && alignedRight) { 
+						// boxed
+						_rect.x += (_rect.width - currValue)/2;
+					}
+					_rect.width = currValue;
+					
+				}else if (sizeRatio < rectRatio) { 
+					// height
+					currValue = _rect.width * sizeRatio;
+					
+					if (!alignedTop) {
+						if (alignedBottom) { 
+							// bottom 
+							_rect.y += _rect.height - currValue;
+						}else if (!(noVerticalCenter)) { 
+							// centered
+							_rect.y += (_rect.height - currValue)/2;
+						}
+					}else if (alignedTop && alignedBottom) { 
+						// boxed
+						_rect.y += (_rect.height - currValue)/2;
+					}
+					_rect.height = currValue;
+				}
+			}
+			
+			layoutRectangle = _rect;
+			
+		}
+		
+		
+  		/**********************************************************
+  		* State related.
+  		**********************************************************/
   		
 	    private var _currentState:String;
-	    private var requestedCurrentState:String;
-	    private var _currentStateChanged:Boolean;
-	
+	   
 	    [Bindable("currentStateChange")]
-	
 	    public function get currentState():String
 	    {
-	        return _currentStateChanged ? requestedCurrentState : _currentState;
+	        return "";//stateManager.currentState;
 	    }
 	    public function set currentState(value:String):void
 	    {
-	        setCurrentState(value);
+	        stateManager.currentState = value;
 	    }
-	
+		
+		private var stateManager:StateManager;
+		
+		private var _states:Array= [];
 	    [Inspectable(arrayType="com.degrafa.states.State")]
 	    [ArrayElementType("com.degrafa.states.State")]
-	
-	    public var states:Array= [];
-	    public function setCurrentState(stateName:String):void{
-        
-	        if (stateName != currentState && !(isBaseState(stateName) && isBaseState(currentState))){
-	            requestedCurrentState = stateName;
-	        
-	            if (isInitialized)
-	            {
-	                commitCurrentState();
-	            }
-	            else
-	            {
-	                _currentStateChanged = true;
-	            }
-	        }
-    	}
-	    private function isBaseState(stateName:String):Boolean{
-	    	return !stateName || stateName == "";
-    	}
-
-	    private function commitCurrentState():void{
-        
-	        var commonBaseState:String = findCommonBaseState(_currentState, requestedCurrentState);
-	        var event:StateChangeEvent;
-	        var oldState:String = _currentState ? _currentState : "";
-	        var destination:State = getState(requestedCurrentState);
-	       
-	        // Initialize the state we are going to.
-	        initializeState(requestedCurrentState);
-	        
-	        // Dispatch currentStateChanging event
-	        event = new StateChangeEvent(StateChangeEvent.CURRENT_STATE_CHANGING);
-	        event.oldState = oldState;
-	        event.newState = requestedCurrentState ? requestedCurrentState : "";
-	        dispatchEvent(event);
-	
-	        // If we're leaving the base state, send an exitState event
-	        if (isBaseState(_currentState))
-	            dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
-	
-	        // Remove the existing state
-	        removeState(_currentState, commonBaseState);
-	        _currentState = requestedCurrentState;
-	
-	        // If we're going back to the base state, dispatch an
-	        // enter state event, otherwise apply the state.
-	        if (isBaseState(currentState))
-	            dispatchEvent(new FlexEvent(FlexEvent.ENTER_STATE));
-	        else
-	            applyState(_currentState, commonBaseState);
-	
-	        // Dispatch currentStateChange
-	        event = new StateChangeEvent(StateChangeEvent.CURRENT_STATE_CHANGE);
-	        event.oldState = oldState;
-	        event.newState = _currentState ? _currentState : "";
-	        dispatchEvent(event);
-	
+	    public function get states():Array{
+	    	return _states;
 	    }
-
-	    private function getState(stateName:String):State{
-	        if (!states || isBaseState(stateName))
-	            return null;
-	
-	        for (var i:int = 0; i < states.length; i++)
-	        {
-	            if (states[i].name == stateName)
-	                return states[i];
-	        }
-	        return null;
+	    public function set states(items:Array):void{
+	    	
+	    	_states = items;
+	    	
+	    	if(items){
+	    		if(!stateManager){
+	    			stateManager = new StateManager(this)
+	    		}
+	    	}
+	    	else{
+	    		stateManager = null;	
+	    	}
 	    }
-	
-	    private function findCommonBaseState(state1:String, state2:String):String{
-	        var firstState:State = getState(state1);
-	        var secondState:State = getState(state2);
-	
-	        // Quick exit if either state is the base state
-	        if (!firstState || !secondState)
-	            return "";
-	
-	        // Quick exit if both states are not based on other states
-	        if (isBaseState(firstState.basedOn) && isBaseState(secondState.basedOn))
-	            return "";
-	
-	        // Get the base states for each state and walk from the top
-	        // down until we find the deepest common base state.
-	        var firstBaseStates:Array = getBaseStates(firstState);
-	        var secondBaseStates:Array = getBaseStates(secondState);
-	        var commonBase:String = "";
-	        
-	        while (firstBaseStates[firstBaseStates.length - 1] ==
-	               secondBaseStates[secondBaseStates.length - 1])
-	        {
-	            commonBase = firstBaseStates.pop();
-	            secondBaseStates.pop();
-	
-	            if (!firstBaseStates.length || !secondBaseStates.length)
-	                break;
-	        }
-	
-	        // Finally, check to see if one of the states is directly based on the other.
-	        if (firstBaseStates.length && 
-	            firstBaseStates[firstBaseStates.length - 1] == secondState.name)
-	        {
-	            commonBase = secondState.name;
-	        }
-	        else if (secondBaseStates.length && 
-	                 secondBaseStates[secondBaseStates.length - 1] == firstState.name)
-	        {
-	            commonBase = firstState.name;
-	        }
-	        
-	        return commonBase;
-	    }
-	
-	    private function getBaseStates(state:State):Array{
-	        var baseStates:Array = [];
-	        
-	        // Push each basedOn name
-	        while (state && state.basedOn)
-	        {
-	            baseStates.push(state.basedOn);
-	            state = getState(state.basedOn);
-	        }
-	
-	        return baseStates;
-	    }
-	
-	    private function removeState(stateName:String, lastState:String):void{
-	        var state:State = getState(stateName);
-	
-	        if (stateName == lastState)
-	            return;
-	            
-	        // Remove existing state overrides.
-	        // This must be done in reverse order
-	        if (state)
-	        {
-	            // Dispatch the "exitState" event
-	           // state.dispatchExitState();
-	
-	            var overrides:Array = state.overrides;
-	
-	            for (var i:int = overrides.length; i; i--)
-	                overrides[i-1].remove(this);
-	
-	            // Remove any basedOn deltas last
-	            if (state.basedOn != lastState)
-	                removeState(state.basedOn, lastState);
-	        }
-	    }
-
-	    private function applyState(stateName:String, lastState:String):void{
-	        var state:State = getState(stateName);
-	
-	        if (stateName == lastState)
-	            return;
-	            
-	        if (state)
-	        {
-	            // Apply "basedOn" overrides first
-	            if (state.basedOn != lastState)
-	                applyState(state.basedOn, lastState);
-	
-	            // Apply new state overrides
-	            var overrides:Array = state.overrides;
-	
-	            for (var i:int = 0; i < overrides.length; i++)
-	                overrides[i].apply(this);
-	
-	        }
-	    }
-
-    
-	    private function initializeState(stateName:String):void{
-	        var state:State = getState(stateName);
-	        
-	        while (state)
-	        {
-	            //state.initialize();
-	            state = getState(state.basedOn);
-	        }
-	    }
-    
+	 
    	
   	}
 }

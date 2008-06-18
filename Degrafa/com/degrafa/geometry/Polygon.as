@@ -168,11 +168,11 @@ package com.degrafa.geometry{
 		* The x-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get x():Number{
+		override public function get x():Number{
 			if(!_x){return 0;}
 			return _x;
 		}
-		public function set x(value:Number):void{
+		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated = true;
@@ -185,11 +185,11 @@ package com.degrafa.geometry{
 		* The y-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get y():Number{
+		override public function get y():Number{
 			if(!_y){return 0;}
 			return _y;
 		}
-		public function set y(value:Number):void{
+		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated = true;

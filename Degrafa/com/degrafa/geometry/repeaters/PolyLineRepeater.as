@@ -170,10 +170,10 @@ package com.degrafa.geometry.repeaters{
 		* The x-coordinate of the upper left point to begin drawing from of the first polygon. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get x():Number{
+		override public function get x():Number{
 			return _x;
 		}
-		public function set x(value:Number):void{
+		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated=true;
@@ -185,10 +185,10 @@ package com.degrafa.geometry.repeaters{
 		* The y-coordinate of the upper left point to begin drawing from of the first polygon. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get y():Number{
+		override public function get y():Number{
 			return _y;
 		}
-		public function set y(value:Number):void{
+		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated=true;

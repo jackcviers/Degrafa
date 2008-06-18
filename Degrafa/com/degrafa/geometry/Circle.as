@@ -199,7 +199,7 @@ package com.degrafa.geometry{
 			    for (i; i<accuracy; ++i) {
 			        controlAngle = anchorAngle+span;
 			        anchorAngle = controlAngle+span;
-			        
+			    
 			        commandStack.addCurveTo(
 			        centerX + Math.cos(controlAngle)*controlRadius,
 			        centerY + Math.sin(controlAngle)*controlRadius,
@@ -212,6 +212,9 @@ package com.degrafa.geometry{
 			}
 			
 		}
+		
+		
+		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
