@@ -98,7 +98,7 @@ package com.degrafa.geometry.command{
         		cmdSource.length = 0;
         	}
         	
-        	endDraw(graphics);
+        	//endDraw(graphics);
 		}
 
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
@@ -157,8 +157,8 @@ package com.degrafa.geometry.command{
         			
         			//recurse if required
         			case CommandStackItem.COMMAND_STACK:
-        				renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
-        		
+        				//renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
+        				item.commandStack.draw(graphics,rc);
         		}
         		
         		updatePointer(item);
@@ -167,7 +167,7 @@ package com.degrafa.geometry.command{
 				
 		}
 		
-		protected function endDraw(graphics:Graphics):void{
+		/*protected function endDraw(graphics:Graphics):void{
 			if (owner.fill){ 
 	        	owner.fill.end(graphics);  
 	        }
@@ -178,7 +178,7 @@ package com.degrafa.geometry.command{
 					geometryItem.draw(graphics,null);
 				}
 			}
-	    }
+	    }*/
 		
 		//create and add move to item
 		public function addMoveTo(x:Number,y:Number):void{
@@ -232,13 +232,32 @@ package com.degrafa.geometry.command{
 		//add an already created item		
 		public function addItem(value:CommandStackItem):void{
 			
-			value.originX=currentPointX;
-			value.originY=currentPointY;
-			currentPointX =value.end.x;
-			currentPointY =value.end.y;
-					
-			source.push(value);
+			//we have to set the origin and init the points as this is not
+			//always done when the iteam is created.
+			if(value.type == CommandStackItem.COMMAND_STACK){
+				//if command stack then set the first items origin
+				var firstSegment:CommandStackItem =value.commandStack.firstSegmentWithLength;
+				firstSegment.originX=currentPointX;
+				firstSegment.originY=currentPointY;
+				firstSegment.initPoints();
+				
+				//set current to last command stack item end point
+				
+				var lastSegment:CommandStackItem = value.commandStack.lastSegmentWithLength;
+				currentPointX =lastSegment.end.x;
+				currentPointY =lastSegment.end.y;
 			
+			}
+			else{
+				value.originX=currentPointX;
+				value.originY=currentPointY;
+				value.initPoints();
+				currentPointX =value.end.x;
+				currentPointY =value.end.y;
+			}
+			
+			source.push(value);
+						
 			if(value.type != CommandStackItem.COMMAND_STACK){
 				lengthIsValid = false;
 			}
@@ -274,7 +293,7 @@ package com.degrafa.geometry.command{
 		/**
 		* Returns the length of the combined path elements.
 		**/
-		public function pathLength():Number{
+		public function get pathLength():Number{
 			if(!lengthIsValid){
 				lengthIsValid = true;
 				for each (var item:CommandStackItem in source){
@@ -284,37 +303,76 @@ package com.degrafa.geometry.command{
 			return _pathLength;
 		}
 		
+		//walk from the start to get the first item with length
+		public function get firstSegmentWithLength():CommandStackItem{
+			
+			for each (var item:CommandStackItem in source){
+				switch(item.type){
+					
+					case 1:
+					case 2:
+						return item;
+					case 4:
+						//recurse todo
+						return item.commandStack.firstSegmentWithLength;
+				}
+			}
+			
+			return source[0];
+		}
+		
+		//walk the source backwards to get the last item that has length
+		public function get lastSegmentWithLength():CommandStackItem{
+			
+			var i:int = source.length-1;
+			while(i>0){
+				if(source[i].type == 1 || source[i].type == 2){
+					return source[i];
+				}
+				
+				if(source[i].type == 4){
+					//recurse todo
+					return source[i].commandStack.lastSegmentWithLength;
+				}
+				
+				i--
+			}
+			
+			return source[length-1];
+		}
+		
+		
 		/**
 		* Returns the point at t(0-1) on the path.
 		**/
 		public function pathPointAt(t:Number):Point {
 			t = cleant(t);
+			
+			var curLength:Number = 0;
+			
 			if (t == 0){
-				return CommandStackItem(source[0]).segmentPointAt(t);
-				
-			}else if (t == 1){
-				var last:Number = source.length - 1;
-				return source[last].segmentPointAt(t);
+				var firstSegment:CommandStackItem =firstSegmentWithLength;
+				curLength = firstSegment.segmentLength;
+				return firstSegment.segmentPointAt(t);
+			}
+			else if (t == 1){
+				return lastSegmentWithLength.segmentPointAt(t);
 			}
 			
-			var tLength:Number = t*pathLength();
-			var curLength:Number = 0;
+			var tLength:Number = t*pathLength;
 			var lastLength:Number = 0;
-			var seg:CommandStackItem;
+			var item:CommandStackItem;
 			var n:Number = source.length;
-			var i:Number;
 			
-			for (i=0; i<n; i++){
-				seg = source[i];
-				if (seg.type != 0){
-					curLength += seg.segmentLength;
+			for each (item in source){
+				if (item.type != 0){
+					curLength += item.segmentLength;
 				}
 				else{
 					continue;
 				}
 				if (tLength <= curLength){
-					trace(seg.segmentPointAt((tLength - lastLength)/seg.segmentLength));
-					return seg.segmentPointAt((tLength - lastLength)/seg.segmentLength);
+					return item.segmentPointAt((tLength - lastLength)/item.segmentLength);
 				}
 				lastLength = curLength;
 			}
@@ -329,25 +387,33 @@ package com.degrafa.geometry.command{
 		public function pathAngleAt(t:Number):Number {
 			t = cleant(t);
 			
-			var tLength:Number = t*pathLength();
 			var curLength:Number = 0;
-			var lastLength:Number = 0;
-			var seg:CommandStackItem;
-			var n:Number = source.length;
-			var i:Number;
 			
-			for (i=0; i<n; i++){
-				seg = source[i];
-				
-				if (seg.type != 0){
-					curLength += seg.segmentLength;
+			if (t == 0){
+				var firstSegment:CommandStackItem =firstSegmentWithLength;
+				curLength = firstSegment.segmentLength;
+				return firstSegment.segmentAngleAt(t);
+			}
+			else if (t == 1){
+				return lastSegmentWithLength.segmentAngleAt(t);
+			}
+			
+			var tLength:Number = t*pathLength;
+			var lastLength:Number = 0;
+			var item:CommandStackItem;
+			var n:Number = source.length;
+			
+			for each (item in source){
+								
+				if (item.type != 0){
+					curLength += item.segmentLength;
 				}
 				else{
 					continue;
 				}
 				
 				if (tLength <= curLength){
-					return seg.segmentAngleAt((tLength - lastLength)/seg.segmentLength);
+					return item.segmentAngleAt((tLength - lastLength)/item.segmentLength);
 				}
 				lastLength = curLength;
 			}

@@ -61,7 +61,7 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
-		private function initPoints():void{
+		public function initPoints():void{
 			start.x = originX;
 			start.y = originY;
 			
@@ -70,6 +70,7 @@ package com.degrafa.geometry.command{
 			
 			end.x = (type==1 || type==0)? x:x1;
 			end.y = (type==1 || type==0)? y:y1;
+						
 		}
 		
 		public var type:int;
@@ -180,17 +181,18 @@ package com.degrafa.geometry.command{
 		public function get segmentLength():Number{
 			if(!_segmentLength){
 				switch(type){
+					case CommandStackItem.MOVE_TO:
+						_segmentLength =0;
+						break;		
 					case CommandStackItem.LINE_TO:
-						_segmentLength =lineLength(originX,originY,x,y);
+						_segmentLength =lineLength(start,end);
 						break;
 					case CommandStackItem.CURVE_TO:
 						_segmentLength =curveLength();
 						break;
-					
 					case CommandStackItem.COMMAND_STACK:
-						_segmentLength =commandStack.pathLength();
+						_segmentLength =commandStack.pathLength;
 						break;
-					
 					default:
 						_segmentLength =0;
 						break;		
@@ -206,13 +208,14 @@ package com.degrafa.geometry.command{
 		public function segmentPointAt(t:Number):Point{
 			
 			switch(type){
+				case CommandStackItem.MOVE_TO:
+					return start.clone();
 				case CommandStackItem.LINE_TO:
-					return pointAt(t,originX,originY,x,y);
+					return linePointAt(t,start,end);
 				case CommandStackItem.CURVE_TO:
 					return curvePointAt(t);
 				case CommandStackItem.COMMAND_STACK:
 					return commandStack.pathPointAt(t);
-					
 				default:
 					return null;		
 			}
@@ -224,90 +227,104 @@ package com.degrafa.geometry.command{
 		public function segmentAngleAt(t:Number):Number{
 			
 			switch(type){
+				case CommandStackItem.MOVE_TO:
+					return 0;
 				case CommandStackItem.LINE_TO:
-					return angle(originX,originY,x,y);
+					return lineAngleAt(t);
 				case CommandStackItem.CURVE_TO:
 					return curveAngleAt(t);
 				case CommandStackItem.COMMAND_STACK:
 					return commandStack.pathAngleAt(t);
-					
 				default:
 					return 0;		
 			}
 			
 		}
 		
-		
 		/**
-		* Returns the length of a line.
+		* Returns the point on the line at t (0-1) of a line.
 		**/
-		private function lineLength(x:Number,y:Number,x1:Number,y1:Number):Number {
-			var dx:Number = x - x1;
-			var dy:Number = y - y1;
-			return Math.sqrt(dx*dx + dy*dy);
+		private function linePointAt(t:Number, startPt:Point = null, endPt:Point = null):Point {
+			if (!startPt) startPt = start;
+			if (!endPt) endPt = end;
+			var dx:Number = endPt.x - startPt.x;
+			var dy:Number = endPt.y - startPt.y;
+			return new Point(startPt.x + dx*t, startPt.y + dy*t);
 		}
 
 		/**
+		* Returns the angle between start and end point.
+		**/
+		private function lineAngleAt(t:Number, startPt:Point = null, endPt:Point = null):Number {
+			if (!startPt) startPt = start;
+			if (!endPt) endPt = end;
+			return Math.atan2(endPt.y - startPt.y, endPt.x - startPt.x);
+		}
+
+		/**
+		* Returns the length of a line.
+		**/
+		private function lineLength(startPt:Point = null, endPt:Point = null):Number {
+			if (!startPt) startPt = start;
+			if (!endPt) endPt = end;
+			var dx:Number = endPt.x - startPt.x;
+			var dy:Number = endPt.y - startPt.y;
+			return Math.sqrt(dx*dx + dy*dy);
+		}
+		
+		
+		/**
 		* Returns the length of a quadratic curve
 		**/
-		private function curveLength(accuracy:Number=5):Number {
-						
-			var dx:Number = x1 - originX;
-			var dy:Number = y1 - originY;
-			var cx:Number = (cx - originX)/dx;
-			var cy:Number = (cy - originY)/dy;
+		private function curveLength(curveAccuracy:int=5,startPt:Point = null, controlPt:Point = null, endPt:Point = null):Number {
+		
+			if (!startPt) startPt = start;
+			if (!controlPt) controlPt = control;
+			if (!endPt) endPt = end;
+
+			var dx:Number = endPt.x - startPt.x;
+			var dy:Number = endPt.y - startPt.y;
+			var cx:Number = (dx == 0) ? 0 : (controlPt.x - startPt.x)/dx;
+			var cy:Number = (dy == 0) ? 0 : (controlPt.y - startPt.y)/dy;
 			var f1:Number;
 			var f2:Number;
 			var t:Number;
 			var d:Number = 0;
-			var p:Point = new Point(originX,originY);
+			var p:Point = startPt;
 			var np:Point;
-			var i:Number;
-			for (i=1; i<accuracy; i++){
-				t = i/accuracy;
+			var i:int;
+			
+			for (i=1; i<curveAccuracy; i++){
+				t = i/curveAccuracy;
 				f1 = 2*t*(1 - t);
 				f2 = t*t;
-				np = new Point(originX + dx*(f1*cx + f2), originY + dy*(f1*cy + f2));
-				d += lineLength(p.x,p.y,np.x,np.y);
+				np = new Point(startPt.x + dx*(f1*cx + f2), startPt.y + dy*(f1*cy + f2));
+				d += lineLength(p, np);
 				p = np;
 			}
-			return d + lineLength(p.x,p.y, x1,y1);
+			
+			return d + lineLength(p, endPt);
+			
 		}
-
+		
 		/**
-		* Returns the point on the line at t (0-1) of a line.
+		* Returns the point on a curve at t (0-1) of a curve.
 		**/
-		private function pointAt(t:Number, x:Number,y:Number,x1:Number,y1:Number):Point {
-			var dx:Number = x1 - x;
-			var dy:Number = y1 - y;
-			return new Point(x + dx*t, y + dy*t);
-		}
-	
-	
-		/**
-		* Returns the point on a quadratic curve at t (0-1) of a curve.
-		**/
-		private function curvePointAt(t:Number):Point {
-			var p1:Point = Point.interpolate(control, start, t);
+		private function curvePointAt(t:Number, startPt:Point = null, endPt:Point = null):Point {
+			var p1:Point = Point.interpolate(control,start, t);
 			var p2:Point = Point.interpolate(end, control, t);
 			return Point.interpolate(p2, p1, t);
 		}
 		
 		/**
-		* returns the angle at point t (0-1) on a curve
+		* Returns the angle of a point at t (0-1) a curve
 		**/
-		private function curveAngleAt(t:Number):Number {
-			var startPoint:Point = pointAt(t, start.x,start.y, control.x,control.y);
-			var endPoint:Point = pointAt(t, control.x,control.y, end.x,end.y);
-			return angle(startPoint.x,startPoint.y, endPoint.x,endPoint.y);
+		private function curveAngleAt(t:Number, startPt:Point = null, endPt:Point = null):Number {
+			var startPt:Point = linePointAt(t,start, control);
+			var endPt:Point = linePointAt(t, control, end);
+			return lineAngleAt(t, startPt, endPt);
 		}
-
-		/**
-		* Returns the angle between 2 points.
-		**/
-		private function angle(x:Number,y:Number, x1:Number,y1:Number):Number {
-			return Math.atan2(y1 - y, x1 - x);
-		}
+		
 		
 		/**
 		* An object to derive this objects properties from. When specified this 
