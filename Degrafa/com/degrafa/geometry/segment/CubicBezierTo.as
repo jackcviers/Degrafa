@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.segment{
 	
-	import flash.geom.Point;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.geometry.utilities.GeometryUtils;
@@ -299,12 +298,14 @@ package com.degrafa.geometry.segment{
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 			
+				var isNewItem:Boolean;
 				
 				//add for the first run
 				if(!_commandStackItem){			
 					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
 					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
-					commandStack.addItem(_commandStackItem);
+					
+					isNewItem =true;
 				}
 				
 				//clear the array in this case as it's a complex item
@@ -332,6 +333,11 @@ package com.degrafa.geometry.segment{
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;
 				_commandStackItem.end.y = nlpy;
+				
+				//update the stack being built
+				if(isNewItem){
+					commandStack.addItem(_commandStackItem);
+				}
 				
 				//update this segment's point references
 				this.lastPoint.x = lastPoint.x;

@@ -337,42 +337,49 @@ package com.degrafa.geometry.segment{
 			//test if anything has changed and only recalculate if something has
 			if(invalidated){
 			
-			//edge case: if either of the radii are zero, it's a straight line (SVG implementation notes)
-			if (_rx == 0 || _ry == 0) {
-				if (!_commandStackItem || _commandStackItem.type != CommandStackItem.LINE_TO)
-				{
-					_commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO, nlpx, nlpy);
-				} else {
-					_commandStackItem.x = nlpx;
-					_commandStackItem.y = nlpy;
+				var isNewItem:Boolean;
+				
+				//edge case: if either of the radii are zero, it's a straight line (SVG implementation notes)
+				if (_rx == 0 || _ry == 0) {
+					if (!_commandStackItem || _commandStackItem.type != CommandStackItem.LINE_TO)
+					{
+						_commandStackItem = new CommandStackItem(CommandStackItem.LINE_TO, nlpx, nlpy);
+					} else {
+						_commandStackItem.x = nlpx;
+						_commandStackItem.y = nlpy;
+					}
+				} else {	
+					
+				if(!_commandStackItem){
+					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
+					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
+					
+					isNewItem = true;
+				}	
+			
+				var computedArc:Object = ArcUtils.computeSvgArc(_rx,_ry,xAxisRotation,Boolean(_largeArcFlag),
+				Boolean(_sweepFlag), nlpx, nlpy , lastPoint.x, lastPoint.y);
+		        
+		        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
+		        computedArc.arc,computedArc.radius,computedArc.yRadius,
+		        computedArc.xAxisRotation,_commandStackItem.commandStack);
 				}
-			} else {	
-			if(!_commandStackItem){
-				_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
-				NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
-			}	
-			
-			var computedArc:Object = ArcUtils.computeSvgArc(_rx,_ry,xAxisRotation,Boolean(_largeArcFlag),
-			Boolean(_sweepFlag), nlpx, nlpy , lastPoint.x, lastPoint.y);
-	        
-	        ArcUtils.drawArc(computedArc.x,computedArc.y,computedArc.startAngle,
-	        computedArc.arc,computedArc.radius,computedArc.yRadius,
-	        computedArc.xAxisRotation,_commandStackItem.commandStack);
-			}
-			//add the move to at the start of this stack
-			//_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
-			
-			//update the stack being built
-			commandStack.addItem(_commandStackItem);
-			
-			//update this segment's point references
-			this.lastPoint.x = lastPoint.x;
-			this.lastPoint.y = lastPoint.y;
+				//add the move to at the start of this stack
+				//_commandStackItem.commandStack.source.unshift(new CommandStackItem(CommandStackItem.MOVE_TO,computedArc.x,computedArc.y));
+				
+				//update the stack being built
+				if(isNewItem){
+					commandStack.addItem(_commandStackItem);
+				}
+				
+				//update this segment's point references
+				this.lastPoint.x = lastPoint.x;
+				this.lastPoint.y = lastPoint.y;
 			}
 			
 			//update the buildFlashCommandStack Point tracking reference
-        		lastPoint.x = nlpx;
-				lastPoint.y = nlpy;
+        	lastPoint.x = nlpx;
+			lastPoint.y = nlpy;
 			
 			//pre calculate the bounds for this segment
 			preDraw();
