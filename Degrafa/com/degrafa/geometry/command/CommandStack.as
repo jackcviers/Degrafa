@@ -49,7 +49,6 @@ package com.degrafa.geometry.command{
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
-			
 			this.owner = geometry;
 		}
 		
@@ -59,6 +58,7 @@ package com.degrafa.geometry.command{
 			if(source.length==0){return;}
 	
 			var requester:Geometry = owner;
+
 			//establish a transform context if there are ancestral transforms
 			while (requester.parent)
 				{
@@ -157,8 +157,9 @@ package com.degrafa.geometry.command{
         			
         			//recurse if required
         			case CommandStackItem.COMMAND_STACK:
-        				//renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
-        				item.commandStack.draw(graphics,rc);
+        				renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
+						//trace('rest')
+        				//item.commandStack.draw(graphics,rc);
         		}
         		
         		updatePointer(item);
