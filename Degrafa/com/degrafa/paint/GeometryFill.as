@@ -409,9 +409,13 @@ package com.degrafa.paint{
 				target.draw(shape.graphics, target.bounds);
 				//getRect here returns the same as Degrafa Geom....but we'll use getBounds to include stroke widths
 				sourceBounds = shape.getBounds(shape);
-				bitmapData = new BitmapData(sourceBounds.width, sourceBounds.height, true, 0);
-				bitmapData.draw(shape,new Matrix(1,0,0,1,-sourceBounds.x,-sourceBounds.y));
 				
+				//Greg, I put this in here when the sourceBounds had a 0 height/width which causes a bad bitmapData error... 
+				if (sourceBounds.width>0 && sourceBounds.height>0) {
+					bitmapData = new BitmapData(sourceBounds.width, sourceBounds.height, true, 0);
+					bitmapData.draw(shape,new Matrix(1,0,0,1,-sourceBounds.x,-sourceBounds.y));
+				}
+	
 			}
 			
 		}
