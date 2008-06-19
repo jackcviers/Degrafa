@@ -24,6 +24,7 @@
 	<component id="DegrafaSkinManipulator" class="com.degrafa.core.manipulators.DegrafaSkinManipulator"/>
 	
 	<!--paint-->
+	<component id="GeometryFill" class="com.degrafa.paint.GeometryFill"/>
 	<component id="BitmapFill" class="com.degrafa.paint.BitmapFill"/>
 	<component id="BlendFill" class="com.degrafa.paint.BlendFill"/>
 	<component id="ComplexFill" class="com.degrafa.paint.ComplexFill"/>

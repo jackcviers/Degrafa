@@ -76,7 +76,7 @@ package com.degrafa.transform{
 				//re-use the matrix instead of creating a new Matrix instance to begin from an identity matrix
 				_transformMatrix.identity();
 			
-			if (_scaleX || _scaleY) _transformMatrix.scale(_scaleX, _scaleY);
+			if (_scaleX!=1 || _scaleY!=1) _transformMatrix.scale(_scaleX, _scaleY);
 			if (_skewX || _skewY)
 				{
 					var skewMat:Matrix = new Matrix();
@@ -87,7 +87,7 @@ package com.degrafa.transform{
 					_transformMatrix.concat(skewMat);
 				}
 			 if (_angle) _transformMatrix.rotate(_angle * Math.PI / 180);
-			
+		
 		     if (_tx ||_ty)	_transformMatrix.translate(_tx, _ty);
 			}
 			invalidated = false;

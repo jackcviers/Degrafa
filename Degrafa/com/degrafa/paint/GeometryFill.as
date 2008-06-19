@@ -40,10 +40,7 @@ package com.degrafa.paint{
 	import flash.geom.Rectangle;
 	
 	import flash.utils.getDefinitionByName;
-		import mx.events.PropertyChangeEvent;
-	import com.degrafa.utilities.external.ExternalBitmapData;
-	import com.degrafa.utilities.external.ExternalDataAsset;
-	import com.degrafa.utilities.external.LoadingLocation;
+	import mx.events.PropertyChangeEvent;
 	import flash.utils.setTimeout;
 	
 	[DefaultProperty("source")]
@@ -58,7 +55,7 @@ package com.degrafa.paint{
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
-	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend{
+	public class GeometryFill extends DegrafaObject implements IGraphicsFill, IBlend{
 		
 		// static constants
 		public static const NONE:String = "none";
@@ -67,17 +64,15 @@ package com.degrafa.paint{
 		public static const STRETCH:String = "stretch";
 		
 		// private variables
-		private var sprite:Sprite;
-		private var target:DisplayObject;
+		private var shape:Shape;
+		private var target:IGeometryComposition;
 		private var bitmapData:BitmapData;
-		private var _externalBitmapData:ExternalBitmapData;
-		private var _loadingLocation:LoadingLocation;
+
 		
 		
-		public function BitmapFill(source:Object = null,loc:LoadingLocation=null){
-			this._loadingLocation = loc;
-			this.source = source;
-			
+		public function GeometryFill(source:IGeometryComposition = null){
+			if (source) this.source = source;
+			shape = new Shape();
 		}
 		
 		private var _blendMode:String="normal";
@@ -101,9 +96,9 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		* The horizontal origin for the bitmap fill.
-		* The bitmap fill is offset so that this point appears at the origin.
-		* Scaling and rotation of the bitmap are performed around this point.
+		* The horizontal origin for the Geometry fill.
+		* The Geometry fill is offset so that this point appears at the origin.
+		* Scaling and rotation of the GeometryFill are performed around this point.
 		* @default 0
 		*/
 		private var _originX:Number = 0;
@@ -128,8 +123,8 @@ package com.degrafa.paint{
 		
 		
 		/**
-		* The vertical origin for the bitmap fill.
-		* The bitmap fill is offset so that this point appears at the origin.
+		* The vertical origin for the Geometry fill.
+		* The Geometry fill is offset so that this point appears at the origin.
 		* Scaling and rotation of the bitmap are performed around this point.
 		* @default 0
 		*/
@@ -154,7 +149,7 @@ package com.degrafa.paint{
 		
 		
 		/**
-		* How far the bitmap is horizontally offset from the origin.
+		* How far the Geometry is horizontally offset from the origin.
 		* This adjustment is performed after rotation and scaling.
 		* @default 0
 		*/
@@ -190,7 +185,7 @@ package com.degrafa.paint{
 		
 		
 		/**
-		 * How far the bitmap is vertically offset from the origin.
+		 * How far the Geometry is vertically offset from the origin.
 		 * This adjustment is performed after rotation and scaling.
 		 * @default 0
 		 */
@@ -225,7 +220,7 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		 * How the bitmap repeats horizontally.
+		 * How the Geometry repeats horizontally.
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
@@ -252,7 +247,7 @@ package com.degrafa.paint{
 		
 		
 		/**
-		 * How the bitmap repeats vertically.
+		 * How the Geometry repeats vertically.
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
@@ -278,7 +273,7 @@ package com.degrafa.paint{
 		
 		
 		/**
-		* The number of degrees to rotate the bitmap.
+		* The number of degrees to rotate the Geometry.
 		* Valid values range from 0.0 to 360.0.
 		* @default 0
 		*/
@@ -305,8 +300,8 @@ package com.degrafa.paint{
 		
 		
 		/**
-		 * The percent to horizontally scale the bitmap when filling, from 0.0 to 1.0.
-		 * If 1.0, the bitmap is filled at its natural size.
+		 * The percent to horizontally scale the Geometry when filling, from 0.0 to 1.0.
+		 * If 1.0, the Geometry is filled at its natural size.
 		 * @default 1.0
 		 */
 	 	private var _scaleX:Number = 1;
@@ -331,8 +326,8 @@ package com.degrafa.paint{
 		
 		
 		/**
-		 * The percent to vertically scale the bitmap when filling, from 0.0 to 1.0.
-		 * If 1.0, the bitmap is filled at its natural size.
+		 * The percent to vertically scale the Geometry when filling, from 0.0 to 1.0.
+		 * If 1.0, the Geometry is filled at its natural size.
 		 * @default 1.0
 		 */
 		private var _scaleY:Number = 1;
@@ -380,137 +375,73 @@ package com.degrafa.paint{
 			}
 			
 		}
-		
-		//EXTERNAL BITMAP SUPPORT
-	
 		/**
-		 * handles the ready state for an ExternalBitmapData as the source of a BitmapFill
-		 * @param	evt an ExternalDataAsset.STATUS_READY event
+		 * listener to handle the property changes from the source geometry
+		 * @param	event
 		 */
-		private function externalBitmapHandler(evt:Event):void {
-	//TODO: consider passing all ExternalBitmapData events through here and redispatching from BitmapFill		
-			switch(evt.type)
-			{
-			case ExternalDataAsset.STATUS_READY:
-				var oldValue:Object = bitmapData;
-				bitmapData = evt.target.content;
-				initChange("source", oldValue, bitmapData, this);
-			break;
-			}
-		}
-		/**
-		 * Optional loadingLocation reference. Only relevant when a subsequent source assignment is made as 
-		 * a url string. Using a LoadingLocation simplifies management of loading from external domains
-		 * and is required if a crossdomain policy file is not in the default location (web root) and with the default name (crossdomain.xml)
-		 * In actionscript, a loadingLocation assignment MUST precede a change in the url assigned to the source property
-		 * If a LoadingLocation is being used, the url assigned to the source property MUST be relative to the base path
-		 * defined in the LoadingLocation, otherwise loading will fail.
-		 * If a LoadingLocation is NOT used and the source property assignment is an external domain url, then the crossdomain permissions
-		 * must exist in the default location and with the default name crossdomain.xml, otherwise loading will fail.
-		*/
-		public function get loadingLocation():LoadingLocation { return _loadingLocation; }
-		
-		public function set loadingLocation(value:LoadingLocation):void 
+		private function geomListener(event:Event):void
 		{
-			if (value) 	_loadingLocation = value;
-		} 
-		
-		
-		/**
-		 * The source used for the bitmap fill.
-		 * The fill can render from various graphical sources, including the following: 
-		 * A Bitmap or BitmapData instance. 
-		 * A class representing a subclass of DisplayObject. The BitmapFill instantiates the class and creates a bitmap rendering of it. 
-		 * An instance of a DisplayObject. The BitmapFill copies it into a Bitmap for filling. 
-		 * The name of a subclass of DisplayObject. The BitmapFill loads the class, instantiates it, and creates a bitmap rendering of it.
-		 * An instance of an ExternalBitmapData to be loaded at runtime.
-		 * A url string to either as a relative url (local domain or with a LoadingLocation) or absolute with no LoadingLocation (see loadingLocation property)
-		 **/
-		public function get source():Object { return bitmapData; }
-		public function set source(value:Object):void {
-			//_source = value;
-					
 			var oldValue:Object = bitmapData;
-			
-			target = null;
-			bitmapData = null;
-			
-			if (!value) {
-				return;
-			}
-			if (_externalBitmapData) {
-				_externalBitmapData.removeEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler);
-				_externalBitmapData = null;
-			}
-			if (value is ExternalBitmapData) {
-				_externalBitmapData = value as ExternalBitmapData;
-				if (value.content) {		
-					value = value.content;
-				} else {
-					value.addEventListener(ExternalDataAsset.STATUS_READY,externalBitmapHandler)
-				return;
-				}
-			}
-			
-			if (value is BitmapData)
-			{
-				bitmapData = value as BitmapData;
-				initChange("source", oldValue, bitmapData, this);
-				return;
-			}
-			
-			//var sprite:DisplayObject;
-			if (value is Class)
-			{
-				//var cls:Class = value as Class;
-				target = new value();
-				//if(target is Bitmap) {
-					sprite = new Sprite();
-					sprite.addChild(target);
-				//}
-			}
-			else if (value is Bitmap)
-			{
-				bitmapData = value.bitmapData;
-				target = value as Bitmap;
-			}
-			else if (value is DisplayObject)
-			{
-				target = value as DisplayObject;
-			}
-			else if (value is String)
-			{
-				//is it a class name or an external url?
-				try {
-					var cls:Class = Class(getDefinitionByName(value as String));	
-				} catch (e:Error)
-				{
-					//if its not a class name, assume url string for an ExternalBitmapData
-					//and wait for isInitialized to check/access loadingLocation mxml assignment
-					if (!isInitialized) {
-						setTimeout(
-							function():void
-							{source = value },1);
-					} else {
-						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
-					}
-					return;
-				}
-				target = new cls();
-			}
-			else
-			{
-				initChange("source", oldValue, null, this);
-				return;
-			}
-				
-			if(bitmapData == null && target != null)
-			{
-				bitmapData = new BitmapData(target.width, target.height, true, 0);
-				bitmapData.draw(target);
-			}
+			preRender();
 			
 			initChange("source", oldValue, bitmapData, this);
+			//clear the old bitmapdata from memory
+			if (oldValue) oldValue.dispose();
+		}
+		
+		private function preRender():void
+		{
+			
+			bitmapData = null;
+			
+			//target should never be null at this point..
+			if(target != null)
+			{
+				var sourceBounds:Rectangle = target.bounds;
+				
+				if (!sourceBounds) {
+					//seems to happen with GeometryComposition, force a preDraw:
+					target.preDraw();
+					sourceBounds = target.bounds;
+				}
+				//above code is now potentially redundant, using the display object for bounds...
+				shape.graphics.clear();
+				target.draw(shape.graphics, target.bounds);
+				//getRect here returns the same as Degrafa Geom....but we'll use getBounds to include stroke widths
+				sourceBounds = shape.getBounds(shape);
+				bitmapData = new BitmapData(sourceBounds.width, sourceBounds.height, true, 0);
+				bitmapData.draw(shape,new Matrix(1,0,0,1,-sourceBounds.x,-sourceBounds.y));
+				
+			}
+			
+		}
+		
+		/**
+		 * The source used for the Geometry fill.
+		 * An IGeometryComposition object
+		 **/
+		public function get source():IGeometryComposition { return target; }
+		public function set source(value:IGeometryComposition):void {
+
+			//no change
+			if (target == value) return;
+			//no value
+			if (!value) {
+				return;
+			}	
+			var oldValue:Object = bitmapData;
+			//remove old listener
+			if (target) {
+				(target as DegrafaObject).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, geomListener);
+			}
+			target = value;
+			//add new listener
+			(target as DegrafaObject).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, geomListener);
+			preRender();
+			
+			initChange("source", oldValue, bitmapData, this);
+			//clear the old bitmapdata from memory
+			if (oldValue) oldValue.dispose();
 		}
 		
 		
@@ -522,11 +453,11 @@ package com.degrafa.paint{
 		}
 		
 		public function begin(graphics:Graphics, rectangle:Rectangle):void {
-			
+		
 			if(!bitmapData) {
 				return;
 			}
-			
+		
 			// todo: optimize all this with cacheing
 			var template:BitmapData = bitmapData;
 			
@@ -543,15 +474,15 @@ package com.degrafa.paint{
 				var stretchX:Number = repeatX == STRETCH ? rectangle.width : template.width;
 				var stretchY:Number = repeatY == STRETCH ? rectangle.height : template.height;
 				if(target) {
-					target.width = stretchX;
-					target.height = stretchY;
+				//	target.width = stretchX;
+				//	target.height = stretchY;
 					template = new BitmapData(stretchX, stretchY, true, 0);
 					// use sprite to render 9-slice Bitmap
-					if(sprite) { 
-						template.draw(sprite);
-					} else {
-						template.draw(target);
-					}
+					if(shape) { 
+						template.draw(shape);
+					} //else {
+					//	template.draw(target);
+					//}
 				} else {
 					matrix.scale(stretchX/template.width, stretchY/template.height);
 				}
@@ -574,7 +505,9 @@ package com.degrafa.paint{
 			if(repeatY == BitmapFill.NONE || repeatY == BitmapFill.REPEAT) {
 				positionY = _offsetY.relativeTo(rectangle.height-template.height)
 			}
-				
+
+			
+			
 			// deal with repeating (or no-repeating rather)
 			if(repeatX == BitmapFill.NONE || repeatY == BitmapFill.NONE) {
 				var area:Rectangle = new Rectangle(1, 1, rectangle.width, rectangle.height);
@@ -617,10 +550,7 @@ package com.degrafa.paint{
 			matrix.scale(_scaleX, _scaleY);
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
-		//	matrix.scale(_scaleX*(_transform?_transform.scaleX:0),_scaleY*(_transform?_transform.scaleY:0));
-		//	matrix.rotate(_rotation+(_transform?_transform.angle *Math.PI/180:0));
-		//	matrix.translate(positionX+(_transform?_transform.x :0), positionY+(_transform?_transform.y :0));
-		
+
 			
 			var transformRequest:ITransform;
 			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
@@ -628,7 +558,7 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-			graphics.beginBitmapFill(template, matrix, repeat, smooth);
+			graphics.beginBitmapFill(template, matrix, repeat, true);
 		}
 		
 		public function end(graphics:Graphics):void {

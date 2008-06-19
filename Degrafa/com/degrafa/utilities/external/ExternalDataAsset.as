@@ -95,7 +95,7 @@ package com.degrafa.utilities.external {
 		 */
 		protected static function getUniqueInstance(url:String = null, loc:LoadingLocation = null,clazz:Class=null):ExternalDataAsset
 		{
-		//	if (clazz.prototype== ExternalDataAsset) {
+
 			if (!_uniqueInstances[clazz]) _uniqueInstances[clazz] = new Dictionary();
 			if (url && _uniqueInstances[clazz][url] && _uniqueInstances[clazz][url].loadingLocation === loc)
 			{
@@ -107,7 +107,7 @@ package com.degrafa.utilities.external {
 				 if (loc) _uniqueInstances[clazz][url].loadingLocation = loc;
 				 return _uniqueInstances[clazz][url];
 			}
-		//	} else return null;
+
 		}
 		
 		
