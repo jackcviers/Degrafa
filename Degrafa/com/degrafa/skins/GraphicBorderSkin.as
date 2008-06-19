@@ -35,7 +35,6 @@ package com.degrafa.skins
 	import flash.events.Event;
 	import flash.geom.Rectangle;
 	
-	
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
 	import mx.skins.Border;
@@ -265,8 +264,19 @@ package com.degrafa.skins
 					if(geometryItem.state =="" || geometryItem.state ==null){
 						geometryItem.draw(this.graphics,null);
 					} 
-					else if(geometryItem.state == name){
-						geometryItem.draw(this.graphics,null);	
+					else {
+						var possibleStates:Array=geometryItem.state.split(" ");
+						if (possibleStates.length>0) {
+							for (var i:int=0;i<possibleStates.length;i++) {
+								if (name==possibleStates[i]) {
+									geometryItem.draw(this.graphics,null);	
+									break;
+								}
+							}
+						}
+						else if (geometryItem.state == name) {
+							geometryItem.draw(this.graphics,null);	
+						}
 					}
 				}			
 			}
