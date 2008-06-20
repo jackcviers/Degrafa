@@ -21,27 +21,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
+	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.Measure;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
-	import flash.display.Bitmap;
+	
 	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Shape;
-	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
-	import flash.utils.getDefinitionByName;
 	import mx.events.PropertyChangeEvent;
-	import flash.utils.setTimeout;
 	
 	[DefaultProperty("source")]
 	[Bindable(event="propertyChange")]
@@ -67,8 +63,11 @@ package com.degrafa.paint{
 		private var shape:Shape;
 		private var target:IGeometryComposition;
 		private var bitmapData:BitmapData;
-
 		
+		//When true this clears the bitmapData each time a source property changes
+		//In some cases we don't want this to happen when a fill is being reused over again.
+		public var disposeOnChange:Boolean=true;
+
 		
 		public function GeometryFill(source:IGeometryComposition = null){
 			if (source) this.source = source;
@@ -381,12 +380,15 @@ package com.degrafa.paint{
 		 */
 		private function geomListener(event:Event):void
 		{
-			var oldValue:Object = bitmapData;
-			preRender();
 			
-			initChange("source", oldValue, bitmapData, this);
-			//clear the old bitmapdata from memory
-			if (oldValue) oldValue.dispose();
+				var oldValue:Object = bitmapData;
+				preRender();
+				
+				initChange("source", oldValue, bitmapData, this);
+				
+				//clear the old bitmapdata from memory
+				if (oldValue && disposeOnChange) oldValue.dispose();
+			
 		}
 		
 		private function preRender():void
