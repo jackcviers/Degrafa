@@ -15,6 +15,7 @@ package com.degrafa.utilities{
 	import com.degrafa.core.*
 	import com.degrafa.core.collections.*
 	import com.degrafa.paint.*
+	import com.degrafa.repeaters.*
 	import com.degrafa.skins.*
 	import com.degrafa.transform.*
 	import com.degrafa.utilities.external.*
@@ -108,7 +109,6 @@ package com.degrafa.utilities{
 							LineRepeater:LineRepeater,
 							PolygonRepeater:PolygonRepeater,
 							PolyLineRepeater:PolyLineRepeater,
-							PropertyModifier:PropertyModifier,
 							QuadraticBezierRepeater:QuadraticBezierRepeater,
 							RegularRectangleRepeater:RegularRectangleRepeater,
 							RoundedRectangleComplexRepeater:RoundedRectangleComplexRepeater,
@@ -126,6 +126,10 @@ package com.degrafa.utilities{
 						RadialGradientStroke:RadialGradientStroke,
 						SolidFill:SolidFill,
 						SolidStroke:SolidStroke
+					},
+					repeaters: {
+						GeometryRepeater:GeometryRepeater,
+						PropertyModifier:PropertyModifier
 					},
 					skins: {
 						CSSSkin:CSSSkin,

@@ -111,6 +111,7 @@ package com.degrafa{
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
 			dispatchEvent(event);
+		//	trace("propertyChange: " + event.property + " " + event.source);
 		}
 		
 		

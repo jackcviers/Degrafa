@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
-	import com.degrafa.geometry.repeaters.IRepeaterModifier;
+	import com.degrafa.repeaters.IRepeaterModifier;
 	
 	
 	/**

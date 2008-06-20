@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.geometry.repeaters
+package com.degrafa.repeaters
 {
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.DegrafaObject;
