@@ -169,8 +169,7 @@ package com.degrafa{
 			var boundsRect:Rectangle = new Rectangle();
 			
  			if (geometry){
-				for each (var geometryItem:IGeometryComposition in geometry)
-				{
+				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.preDraw();
 					boundsRect = boundsRect.union(geometryItem.bounds);
 				}
@@ -183,21 +182,18 @@ package com.degrafa{
 		/**
 		* @inheritDoc 
 		**/
-		override public function preDraw():void
-		{
+		override public function preDraw():void{
+			
 			if(!invalidated){
 				//verify
 				if (geometry){
-				for each (var geometryItem:IGeometryComposition in geometry)
-				{
-		
-				if ((geometryItem as Geometry).invalidated)
-					{
-					invalidated = true;
-					break;
+					for each (var geometryItem:IGeometryComposition in geometry){
+						if ((geometryItem as Geometry).invalidated){
+							invalidated = true;
+							break;
+						}
 					}
 				}
-			}
 			}
 			if (invalidated) {
 				calcBounds();

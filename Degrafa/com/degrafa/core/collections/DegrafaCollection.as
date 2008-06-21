@@ -421,8 +421,11 @@ package com.degrafa.core.collections{
 			 
 			 //type check item(s)
 			checkValidTypes(args);
-				
-			for (var i:int = 0; i<args.length;i++){
+			
+			var i:int=0;	
+			var len:int=args.length;
+			
+			for (i; i<len;i++){
 				addListener(args[i]);
 				items.push(args[i]);
 			}	
@@ -514,8 +517,11 @@ package com.degrafa.core.collections{
 				
 			//type check item(s)
 			checkValidTypes(values);
+			
+			var i:int=0;	
+			var len:int=values.length;
 				
-			for (var i:int= 0; i<values.length;i++){
+			for (i; i<len;i++){
 				addListener(values[i]);
 			}
 						 
@@ -531,7 +537,8 @@ package com.degrafa.core.collections{
 			}
 			
 			if(returnArray){
-			 	for (i= 0; i<returnArray.length;i++){
+				len=returnArray.length;
+			 	for (i= 0; i<len;i++){
 			 		removeListener(returnArray[i]);
 				}	
 			}
@@ -553,8 +560,11 @@ package com.degrafa.core.collections{
 			checkValidTypes(args);
 			
 			var oldValue:Array = _items;
+			
+			var i:int=0;	
+			var len:int=args.length;
 				
-			for (var i:int = 0; i<args.length;i++){
+			for (i; i<len;i++){
 				addListener(args[i]);
 				items.unshift(args[i]);
 			}	

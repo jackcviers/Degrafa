@@ -70,11 +70,12 @@ package com.degrafa.core{
 		public function set suppressEventProcessing(value:Boolean):void{
 			if(_suppressEventProcessing==true && value==false){
 				_suppressEventProcessing=value;
-				initChange("surpressEventProcessing",false,true,this);
+				initChange("suppressEventProcessing",false,true,this);
 			}
 			else{
 				_suppressEventProcessing=value;	
 			}
+			
 		}
 		
 		/**

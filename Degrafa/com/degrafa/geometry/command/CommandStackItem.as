@@ -39,17 +39,16 @@ package com.degrafa.geometry.command{
 		private static var isRegistered:Boolean = false;
 		
 		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,originX:Number=NaN,originY:Number=NaN,commandStack:CommandStack=null){
-			this.type = type;
 			
-			this.x=x;
-			this.y=y;
-			this.x1=x1;
-			this.y1=y1;
-			this.cx=cx;
-			this.cy=cy;
+			this.type = type;
+			_x=x;
+			_y=y;
+			_x1=x1;
+			_y1=y1;
+			_cx=cx;
+			_cy=cy;
 			this.originX=originX;
 			this.originY=originY;
-			
 			this.commandStack = commandStack;
 			
 			initPoints();
@@ -65,12 +64,13 @@ package com.degrafa.geometry.command{
 			start.x = originX;
 			start.y = originY;
 			
-			control.x = (cx)? cx:0;
-			control.y = (cy)? cy:0;
+			control.x = (_cx)? _cx:0;
+			control.y = (_cy)? _cy:0;
 			
-			end.x = (type==1 || type==0)? x:x1;
-			end.y = (type==1 || type==0)? y:y1;
-						
+			end.x = (type==1 || type==0)? _x:_x1;
+			end.y = (type==1 || type==0)? _y:_y1;
+			
+			invalidated=true;			
 		}
 		
 		public var type:int;
@@ -334,13 +334,13 @@ package com.degrafa.geometry.command{
 		{
 			if (!type){type=value.type;}
 			
-			if (!x){x=value.x;}
-			if (!y){y=value.y;}
+			if (!x){_x=value.x;}
+			if (!y){_y=value.y;}
 			
-			if (!x1){x1=value.x1;}
-			if (!y1){y1=value.y1;}
-			if (!cx){cx=value.cx;}
-			if (!cy){cy=value.cy;}
+			if (!x1){_x1=value.x1;}
+			if (!y1){_y1=value.y1;}
+			if (!cx){_cx=value.cx;}
+			if (!cy){_cy=value.cy;}
 			
 			if (!originX){originX=value.originX;}
 			if (!originY){originY=value.originY;}

@@ -31,7 +31,7 @@ package com.degrafa.geometry.command{
 	import flash.display.Graphics;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
+	import flash.net.registerClassAlias;
 	public class CommandStack{
 		
 		public var source:Array = [];
@@ -47,16 +47,26 @@ package com.degrafa.geometry.command{
 		
 		public var owner:Geometry;
 		
+		private static var isRegistered:Boolean = false;
+		
 		public function CommandStack(geometry:Geometry = null){
 			super();
 			this.owner = geometry;
+			
+			if(!isRegistered){
+				registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);
+				isRegistered = true;
+			}
+			
 		}
 		
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			//exit if no command stack
 			if(source.length==0){return;}
-	
+			
+			trace("DRAWING::" + this.owner);
+			
 			var requester:Geometry = owner;
 
 			//establish a transform context if there are ancestral transforms
@@ -98,7 +108,6 @@ package com.degrafa.geometry.command{
         		cmdSource.length = 0;
         	}
         	
-        	//endDraw(graphics);
 		}
 
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
@@ -119,67 +128,57 @@ package com.degrafa.geometry.command{
 			while(cursor.moveNext()){	   			
 	   			
 	   			item = cursor.current;
-					
-				switch(item.type){
-					
-        			case CommandStackItem.MOVE_TO:
-					    if (trans)
-					    {
-							transXY.x = item.x; transXY.y = item.y;
-							transXY = transMatrix.transformPoint(transXY);
-							graphics.moveTo(transXY.x,transXY.y);
-						} else graphics.moveTo(item.x,item.y);
-        				break;
-        			
-        			case CommandStackItem.LINE_TO:
-        				 if (trans)
-					    {
-							transXY.x = item.x; transXY.y = item.y;
-							transXY = transMatrix.transformPoint(transXY);
-							graphics.lineTo(transXY.x,transXY.y);
-						} else graphics.lineTo(item.x,item.y);
-        				break;
-        			
-        			case CommandStackItem.CURVE_TO:
-        				 if (trans)
-					    {
-							transXY.x = item.x1; transXY.y = item.y1;
-							transCP.x = item.cx; transCP.y = item.cy;
-							transXY = transMatrix.transformPoint(transXY);
-							transCP = transMatrix.transformPoint(transCP);
-							graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
-						} else graphics.curveTo(item.cx,item.cy,item.x1,item.y1);
-        				break;
-        				
-        			case CommandStackItem.DELEGATE_TO:
-        				item.delegate(graphics,rc,this);
-        				break;
-        			
-        			//recurse if required
-        			case CommandStackItem.COMMAND_STACK:
-        				renderCommandStack(graphics,rc,new DegrafaCursor(item.commandStack.source))
-						//trace('rest')
-        				//item.commandStack.draw(graphics,rc);
-        		}
-        		
+	   			
+				with(item){	
+					switch(type){
+						
+	        			case CommandStackItem.MOVE_TO:
+						    if (trans){
+						    	
+								transXY.x = x; transXY.y = y;
+								transXY = transMatrix.transformPoint(transXY);
+								
+								graphics.moveTo(transXY.x,transXY.y);
+							} else graphics.moveTo(x,y);
+	        				break;
+	        			
+	        			case CommandStackItem.LINE_TO:
+	        				 if (trans)
+						    {
+								transXY.x = x; transXY.y = y;
+								transXY = transMatrix.transformPoint(transXY);
+								graphics.lineTo(transXY.x,transXY.y);
+							} else graphics.lineTo(x,y);
+	        				break;
+	        			
+	        			case CommandStackItem.CURVE_TO:
+	        				 if (trans)
+						    {
+								transXY.x = x1; transXY.y = y1;
+								transCP.x = cx; transCP.y = cy;
+								transXY = transMatrix.transformPoint(transXY);
+								transCP = transMatrix.transformPoint(transCP);
+								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
+							} else graphics.curveTo(cx,cy,x1,y1);
+	        				break;
+	        				
+	        			case CommandStackItem.DELEGATE_TO:
+	        				item.delegate(graphics,rc,this);
+	        				break;
+	        			
+	        			//recurse if required
+	        			case CommandStackItem.COMMAND_STACK:
+	        				renderCommandStack(graphics,rc,new DegrafaCursor(commandStack.source))
+							//trace('rest')
+	        				//item.commandStack.draw(graphics,rc);
+	        		}
+    			}
+    
         		updatePointer(item);
         	}
 			
 				
 		}
-		
-		/*protected function endDraw(graphics:Graphics):void{
-			if (owner.fill){ 
-	        	owner.fill.end(graphics);  
-	        }
-	        
-	        //draw children
-	        if (owner.geometry){
-				for each (var geometryItem:IGeometryComposition in owner){
-					geometryItem.draw(graphics,null);
-				}
-			}
-	    }*/
 		
 		//create and add move to item
 		public function addMoveTo(x:Number,y:Number):void{
@@ -297,7 +296,9 @@ package com.degrafa.geometry.command{
 		public function get pathLength():Number{
 			if(!lengthIsValid){
 				lengthIsValid = true;
-				for each (var item:CommandStackItem in source){
+				var item:CommandStackItem;
+				
+				for each (item in source){
 					_pathLength += item.segmentLength;
 				}
 			}
@@ -307,7 +308,9 @@ package com.degrafa.geometry.command{
 		//walk from the start to get the first item with length
 		public function get firstSegmentWithLength():CommandStackItem{
 			
-			for each (var item:CommandStackItem in source){
+			var item:CommandStackItem;
+			
+			for each (item in source){
 				switch(item.type){
 					
 					case 1:
@@ -366,15 +369,19 @@ package com.degrafa.geometry.command{
 			var n:Number = source.length;
 			
 			for each (item in source){
-				if (item.type != 0){
-					curLength += item.segmentLength;
+				
+				with(item){
+					if (type != 0){
+						curLength += segmentLength;
+					}
+					else{
+						continue;
+					}
+					if (tLength <= curLength){
+						return segmentPointAt((tLength - lastLength)/segmentLength);
+					}
 				}
-				else{
-					continue;
-				}
-				if (tLength <= curLength){
-					return item.segmentPointAt((tLength - lastLength)/item.segmentLength);
-				}
+				
 				lastLength = curLength;
 			}
 			
@@ -405,17 +412,19 @@ package com.degrafa.geometry.command{
 			var n:Number = source.length;
 			
 			for each (item in source){
-								
-				if (item.type != 0){
-					curLength += item.segmentLength;
-				}
-				else{
-					continue;
+				with(item){				
+					if (type != 0){
+						curLength += segmentLength;
+					}
+					else{
+						continue;
+					}
+					
+					if (tLength <= curLength){
+						return segmentAngleAt((tLength - lastLength)/segmentLength);
+					}
 				}
 				
-				if (tLength <= curLength){
-					return item.segmentAngleAt((tLength - lastLength)/item.segmentLength);
-				}
 				lastLength = curLength;
 			}
 			return 0;
