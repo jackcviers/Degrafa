@@ -41,15 +41,14 @@ package com.degrafa.geometry.command{
 		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,originX:Number=NaN,originY:Number=NaN,commandStack:CommandStack=null){
 			
 			this.type = type;
-			this.x=x;
-			this.y=y;
-			this.x1=x1;
-			this.y1=y1;
-			this.cx=cx;
-			this.cy=cy;
+			_x=x;
+			_y=y;
+			_x1=x1;
+			_y1=y1;
+			_cx=cx;
+			_cy=cy;
 			this.originX=originX;
 			this.originY=originY;
-			
 			this.commandStack = commandStack;
 			
 			initPoints();
@@ -62,16 +61,16 @@ package com.degrafa.geometry.command{
 		}
 		
 		public function initPoints():void{
-			
 			start.x = originX;
 			start.y = originY;
-				
+			
 			control.x = (_cx)? _cx:0;
 			control.y = (_cy)? _cy:0;
 			
 			end.x = (type==1 || type==0)? _x:_x1;
 			end.y = (type==1 || type==0)? _y:_y1;
-						
+			
+			invalidated=true;			
 		}
 		
 		public var type:int;
@@ -79,35 +78,6 @@ package com.degrafa.geometry.command{
 		public var reference:String;
 		
 		public var invalidated:Boolean;
-		
-		/**
-		 * x value before a change to the drawing position
-		 */		
-		private var _originX:Number;
-		public function get originX():Number{
-			return _originX;
-		}
-		public function set originX(value:Number):void{
-			if(_originX != value){
-				_originX = start.x = value;
-				invalidated = true;
-			}
-		}
-		
-		/**
-		 * y value before a change to the drawing position
-		 */	
-		private var _originY:Number;
-		public function get originY():Number{
-			return _originY;
-		}
-		public function set originY(value:Number):void{
-			if(_originY != value){
-				_originY = start.y = value;
-				invalidated = true;
-			}
-		}
-		
 		
 		/**
 		 * x coordinate for a LINE_TO or MOVE_TO
@@ -118,7 +88,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set x(value:Number):void{
 			if(_x != value){
-				_x = end.x = value;
+				_x = value;
 				invalidated = true;
 			}
 		}
@@ -131,7 +101,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set y(value:Number):void{
 			if(_y != value){
-				_y = end.y =value;
+				_y = value;
 				invalidated = true;
 			}
 		}
@@ -144,7 +114,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set x1(value:Number):void{
 			if(_x1 != value){
-				_x1 = end.x = value;
+				_x1 = value;
 				invalidated = true;
 			}
 		}
@@ -157,7 +127,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set y1(value:Number):void{
 			if(_y1 != value){
-				_y1 = end.y = value;
+				_y1 = value;
 				invalidated = true;
 			}
 		}
@@ -170,7 +140,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set cx(value:Number):void{
 			if(_cx != value){
-				_cx = control.x = value;
+				_cx = value;
 				invalidated = true;
 			}
 		}
@@ -183,11 +153,20 @@ package com.degrafa.geometry.command{
 		}
 		public function set cy(value:Number):void{
 			if(_cy != value){
-				_cy = control.y = value;
+				_cy = value;
 				invalidated = true;
 			}
 		}
 		
+		/**
+		 * x value before a change to the drawing position
+		 */		
+		public var originX:Number;
+		/**
+		 * y value before a change to the drawing position
+		 */	
+		public var originY:Number;
+				
 		/**
 		 * Function to be called during the draw loop 
 		 */		
@@ -200,7 +179,7 @@ package com.degrafa.geometry.command{
 		**/
 		private var _segmentLength:Number=0;
 		public function get segmentLength():Number{
-			if(invalidated){
+			if(!_segmentLength){
 				switch(type){
 					case CommandStackItem.MOVE_TO:
 						_segmentLength =0;
