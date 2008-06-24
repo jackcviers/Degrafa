@@ -23,6 +23,7 @@ package com.degrafa{
 	
 	import com.degrafa.core.collections.FillCollection;
 	import com.degrafa.core.collections.StrokeCollection;
+	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.Graphics;
@@ -171,7 +172,9 @@ package com.degrafa{
  			if (geometry){
 				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.preDraw();
+					if (geometryItem.bounds)
 					boundsRect = boundsRect.union(geometryItem.bounds);
+					else trace('unable to combine GeometryComposition calcBounds for:' + (geometryItem as DegrafaObject).id);
 				}
 			}
 			
