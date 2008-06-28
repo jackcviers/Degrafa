@@ -140,46 +140,63 @@ package com.degrafa.transform{
 				var oldValue:String=_registrationPoint;
 				_registrationPoint = value;
 			}
-			
 		}
 		
+		/**
+		 * Detetermines the transformation registration point based on this transform's settings for an arbitrary Rectangle. Exposed primarily for
+		 * use in Fills. This method returns a point where 0,0 as centerX,centerY (default for a Transform) is the center of the rectangle, because Fill transforms default to the center
+		 * of the Fill target's bounds for their registration Point.
+		 * @param	rectangle
+		 * @return  a Point representing the registration point settings for this transform, expressed in the context of the rectangle argument
+		 */
+		public function getRegPointForRectangle(rectangle:Rectangle):Point
+		{
+			var fillRegPoint:Point;
+			if (_registrationPoint) fillRegPoint= getRegistrationPoint(null, rectangle);
+			else
+			{
+				//use the centerpoint of the rectangle as the 'origin' in this case (best for fills)
+				fillRegPoint = new Point(rectangle.x+rectangle.width/2+_centerX ,rectangle.y+rectangle.height/2+ _centerY);
+			}
+			return fillRegPoint;
+		}
 		
 		
 		/**
 		* Calculates the translation offset based on the set registration point.
 		**/
-		protected function getRegistrationPoint(value:IGeometryComposition):Point{
+		protected function getRegistrationPoint(value:IGeometryComposition,rectangle:Rectangle=null):Point{
 			
 			var regPoint:Point;
-		
+			if (value) rectangle = value.bounds;
 			switch(_registrationPoint){
 				
 				case "topLeft":
-					regPoint = value.bounds.topLeft;
+					regPoint = rectangle.topLeft;
 					break;
 				case "centerLeft":
-					regPoint = new Point(value.bounds.left,value.bounds.y+value.bounds.height/2);
+					regPoint = new Point(rectangle.left,rectangle.y+rectangle.height/2);
 					break;
 				case "bottomLeft":
-					regPoint = new Point(value.bounds.left,value.bounds.bottom);
+					regPoint = new Point(rectangle.left,rectangle.bottom);
 					break;
 				case "centerTop":
-					regPoint = new Point(value.bounds.x+value.bounds.width/2,value.bounds.y);
+					regPoint = new Point(rectangle.x+rectangle.width/2,rectangle.y);
 					break;
 				case "center":
-					regPoint = new Point(value.bounds.x+value.bounds.width/2,value.bounds.y+value.bounds.height/2);
+					regPoint = new Point(rectangle.x+rectangle.width/2,rectangle.y+rectangle.height/2);
 					break;
 				case "centerBottom":
-					regPoint = new Point(value.bounds.x+value.bounds.width/2,value.bounds.bottom);
+					regPoint = new Point(rectangle.x+rectangle.width/2,rectangle.bottom);
 					break;
 				case "topRight":
-					regPoint = new Point(value.bounds.right,value.bounds.top);
+					regPoint = new Point(rectangle.right,rectangle.top);
 					break;
 				case "centerRight":
-					regPoint = new Point(value.bounds.right,value.bounds.y+value.bounds.height/2);
+					regPoint = new Point(rectangle.right,rectangle.y+rectangle.height/2);
 					break;
 				case "bottomRight":
-					regPoint = value.bounds.bottomRight;
+					regPoint = rectangle.bottomRight;
 					break;
 			}
 			return regPoint;

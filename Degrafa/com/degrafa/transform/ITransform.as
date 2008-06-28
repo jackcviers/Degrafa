@@ -26,6 +26,7 @@ package com.degrafa.transform{
 	
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	/**
 	* ITransform is the base interface for transform.
 	**/ 
@@ -36,6 +37,7 @@ package com.degrafa.transform{
 		function get transformMatrix():Matrix;
 		function getRegPoint(value:IGeometryComposition):Point;
 		function getTransformFor(value:IGeometryComposition):Matrix;
+		function getRegPointForRectangle(rectangle:Rectangle):Point
 		function get registrationPoint():String;
 		function set registrationPoint(value:String):void
 		//getters are always available on all subclasses
