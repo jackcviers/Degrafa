@@ -280,9 +280,16 @@ package com.degrafa.geometry{
 							lpX = x;
 							lpY = y;
 						} else {
+							if (type == CommandStackItem.LINE_TO) {
+							_bounds = _bounds.union(new Rectangle(Math.min(lpX, x), Math.min(lpY,y), Math.abs(lpX- x), Math.abs(lpY- y)));
+							lpX = x;
+							lpY = y;
+						}
+						else {
 							_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX,lpY, cx, cy, x1, y1));
 							lpX = x1;
 							lpY = y1;
+						}
 						}
 					}
 			}
