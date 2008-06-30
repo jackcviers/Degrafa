@@ -242,9 +242,16 @@ package com.degrafa.geometry.segment{
 			for each(item in _commandStackItem.commandStack.source){
 				with(item)
 					{
+						if (type == CommandStackItem.LINE_TO) {
+							_bounds = _bounds.union(new Rectangle(Math.min(lpX?lpX:lastPoint.x, x), Math.min(lpY?lpY:lastPoint.y), Math.abs(lpX?lpX:lastPoint.x - x), Math.abs(lpY?lpY:lastPoint.y - y)));
+							lpX = x;
+							lpY = y;
+						}
+						else {
 						_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX?lpX:lastPoint.x, lpY?lpY:lastPoint.y, cx, cy, x1, y1));
 						lpX = x1;
 						lpY = y1;
+						}
 					}
 			}
 			//adjustment for horizontal and vertical lines
@@ -328,7 +335,7 @@ package com.degrafa.geometry.segment{
 						nlpx,nlpy,
 						1,_commandStackItem.commandStack);
 				}
-
+				if (!_commandStackItem.commandStack.length) trace('err')
 				
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;
