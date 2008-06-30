@@ -388,7 +388,7 @@ package com.degrafa.geometry.utilities{
 		private static var dy:Number;
 		private static var dx1:Number;
 		private static var dx2:Number;
-		private static var _test:Boolean;
+
 		/**
 		* CubicToQuadratic
 		* <p>Approximates a cubic bezier with as many quadratic bezier segments (n) as required 
