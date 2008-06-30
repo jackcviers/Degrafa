@@ -608,23 +608,28 @@ package com.degrafa.paint{
 			}
 			
 			matrix.translate( -_originX, -_originY);
-			if (_transform) {
-				var temp:Matrix = _transform.transformMatrix.clone();
-				temp.translate(-template.width/2,-template.height/2)
-				matrix.concat(temp);
-				
-			}
+
 			matrix.scale(_scaleX, _scaleY);
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
-		//	matrix.scale(_scaleX*(_transform?_transform.scaleX:0),_scaleY*(_transform?_transform.scaleY:0));
-		//	matrix.rotate(_rotation+(_transform?_transform.angle *Math.PI/180:0));
-		//	matrix.translate(positionX+(_transform?_transform.x :0), positionY+(_transform?_transform.y :0));
-		
 			
+			var regPoint:Point;
 			var transformRequest:ITransform;
-			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
-				matrix.concat(transformRequest.getTransformFor(_requester));
+			var tempmat:Matrix;
+		
+			if (_transform && ! _transform.isIdentity) {
+				
+					tempmat= new Matrix();
+					regPoint = _transform.getRegPointForRectangle(rectangle);
+					tempmat.translate(-regPoint.x,-regPoint.y);
+					tempmat.concat(_transform.transformMatrix);
+					tempmat.translate( regPoint.x,regPoint.y);
+					matrix.concat(tempmat);
+				} 
+			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+				
+				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+				else matrix.concat((_requester as Geometry).transformContext);
 				//remove the requester reference
 				_requester = null;
 			}

@@ -249,7 +249,16 @@ package com.degrafa.paint{
 				processEntries(rc.width * xp + rc.height * yp);
 				
 			}
-		
+
+			if (_transform && ! _transform.isIdentity) {
+					var regPoint:Point;
+					var tempmat:Matrix = new Matrix();
+					regPoint = _transform.getRegPointForRectangle(rc);
+					tempmat.translate(-regPoint.x,-regPoint.y);
+					tempmat.concat(_transform.transformMatrix);
+					tempmat.translate( regPoint.x,regPoint.y);
+					matrix.concat(tempmat);
+				}
 			var transformRequest:ITransform;
 			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
 				
@@ -258,13 +267,7 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-			if (_transform)
-			{
-				//this fill's transform:ignore the registration point /center point settings etc - use the center of the gradient box.
-				matrix.translate(-(rc.x+rc.width/2),-(rc.y+rc.height/2))
-				matrix.concat(_transform.transformMatrix);
-				matrix.translate((rc.x+rc.width/2),(rc.y+rc.height/2))
-			}
+	
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}
