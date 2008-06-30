@@ -383,10 +383,12 @@ package com.degrafa.geometry.utilities{
 		private static var sy:Number;
 		private static var m1:Number;
 		private static var m2:Number;
+		private static var m3:Number;
 		private static var dx:Number;
 		private static var dy:Number;
 		private static var dx1:Number;
 		private static var dx2:Number;
+		private static var _test:Boolean;
 		/**
 		* CubicToQuadratic
 		* <p>Approximates a cubic bezier with as many quadratic bezier segments (n) as required 
@@ -408,40 +410,72 @@ package com.degrafa.geometry.utilities{
 			// find intersection between bezier arms (intersection point calculated as coords sx,xy)
 			dx1= c1x - p1x;
 			dx2 = c2x - p2x;
+	
 			if (p1y == p2y && c1y == p2y && c2y == p2y)
 			{
+				if (!dx1 && !dx2 && p1x == p2x) {
+					//unrendered point
+					return;
+				}
+				//todo: consider the possible case where the control points extend beyond the anchor points...
 				//horizontal line: store it as a curveTo anyway (for now)
-				commandStack.addCurveTo(p2x, p2y,p2x, p2y);
+				commandStack.addLineTo(p2x, p2y);
 				return;
 			}
 			if (!dx1 && !dx2 && p1x==p2x)
 			{
+			//todo: consider the possible case where the control points extend beyond the anchor points...
 				//vertical line: store it as a curveTo anyway (for now)
-				commandStack.addCurveTo(p2x, p2y,p2x, p2y);
+				commandStack.addLineTo(p2x, p2y);
 				return;
-
 			}
-			else if (!dx1){
+			
+			if (!dx1){
 				sx=p1x;
 				sy=((c2y - p2y) / dx2) * (p1x - p2x) + p2y;
 			} 
 			else if (!dx2){
 				sx=p2x;
 				sy=((c1y - p1y) / dx1) * (p2x - p1x) + p1y;
+			} else
+			{
 
-			} else{
 				m1 = (c1y - p1y) / dx1;
 				m2 = (c2y - p2y) / dx2;
-				
-				sx = (-m2 * p2x + p2y + m1 * p1x - p1y) / (m1 - m2);
-				sy = m1 * (sx - p1x) + p1y;
+				//fix for issue #44 in issues queue: check the slope is not straight or bezier arms are not parallel	
+				if (Math.abs(m1) == Math.abs(m2))
+				{
+					m3 = ((p2y - p1y) / (p2x - p1x));
+					if (m1+m2==0 && m3 == m1) { //we have a straight line only
+						//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
+						commandStack.addLineTo(p2x, p2y);
+						return;
+					}
+					else { //parallel bezier arms
+						if (m1 - m2 == 0)
+						{ //then the denominator is invalid
+							//this approach seems to work:
+							//Unresearched, so need to verify it, but it appears to work on (limited) test data
+							//dev note: if this is inadequate, the other option might be to force the split, setting a flag for the >k check below
+							sx = (c1x + c2x) / 2;
+							sy = (c1y + c2y) / 2;
+						} else {
+							//regular calculation is ok
+							sx = (-m2 * p2x + p2y + m1 * p1x - p1y) / (m1 - m2);
+							sy = m1 * (p1x + p1y);
+						}
+					}
+				} 
+				else {
+					sx = ( -m2 * p2x + p2y + m1 * p1x - p1y) / (m1 - m2);
+					sy = m1 * (sx - p1x) + p1y;
+				}
 			}
 			// find distance between the midpoints
 			dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
 			dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
-			
 			// split curve if the quadratic isn't close enough
-			if (dx * dx + dy * dy > k)
+			if ( dx * dx + dy * dy > k)
 			{
 				//dev note:these cannot be static external variables for performance gain, as they are required to maintain previous values on return from recusive execution
 				var p01x:Number = (p1x + c1x) * half;
