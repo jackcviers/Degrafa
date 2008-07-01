@@ -93,6 +93,7 @@ package com.degrafa.geometry{
 		**/	
 		override public function set data(value:String):void{
 			if(super.data != value){
+				
 				super.data = value;
 				
 				/**
@@ -129,52 +130,116 @@ package com.degrafa.geometry{
 							if (!isNaN(Number(pathDataArray[i+1]))){
 								while (!isNaN(Number(pathDataArray[i+1]))){
 									segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2]));
-									i+=2;
+									i += 2;
 								}
 							}
 							break;
 								
 						case "l":
 							segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2],null,"relative"));
-							i+=2;
+							i += 2;
+							//if the next item in the array is a number 
+							//assume that the line is a continued array
+							//so create a new line segment for each point 
+							//pair until we get to another item
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2],null,"relative"));
+									i += 2;
+								}
+							}
 							break;
 						case "h":
 							segmentStack.push(new HorizontalLineTo(pathDataArray[i+1],null,"relative"));
-							i+=1;
+							i += 1;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new HorizontalLineTo(pathDataArray[i+1],null,"relative"));
+									i += 1;
+								}
+							}
 							break;
 						case "H":
 							segmentStack.push(new HorizontalLineTo(pathDataArray[i+1]));
-							i+=1;
+							i += 1;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new HorizontalLineTo(pathDataArray[i+1]));
+									i += 1;
+								}
+							}
 							break;
 						case "v":
 							segmentStack.push(new VerticalLineTo(pathDataArray[i+1],null,"relative"));
-							i+=1;
+							i += 1;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new VerticalLineTo(pathDataArray[i+1],null,"relative"));
+									i += 1;
+								}
+							}
 							break;
 						case "V":
 							segmentStack.push(new VerticalLineTo(pathDataArray[i+1]));
-							i+=1;
+							i += 1;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new VerticalLineTo(pathDataArray[i+1]));
+									i += 1;
+								}
+							}
 							break;
 						case "q":
 							segmentStack.push(new QuadraticBezierTo(pathDataArray[i+1],
 							pathDataArray[i+2], pathDataArray[i+3],
 							pathDataArray[i + 4], null, "relative"));
 							i += 4;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new QuadraticBezierTo(pathDataArray[i+1],
+									pathDataArray[i+2], pathDataArray[i+3],
+									pathDataArray[i + 4], null, "relative"));
+									i += 4;
+								}
+							}
 							break;
 						case "Q":
 							segmentStack.push(new QuadraticBezierTo(pathDataArray[i+1], 
 							pathDataArray[i+2], pathDataArray[i+3], 
 							pathDataArray[i+4]));
 							i += 4;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new QuadraticBezierTo(pathDataArray[i+1],
+									pathDataArray[i+2], pathDataArray[i+3],
+									pathDataArray[i + 4]));
+									i += 4;
+								}
+							}
 							break;		
 						case "t":
 							segmentStack.push(new QuadraticBezierTo(0, 0,
 							pathDataArray[i+1], pathDataArray[i+2],null,"relative",true))
 							i += 2;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new QuadraticBezierTo(0, 0,
+									pathDataArray[i+1], pathDataArray[i+2],null,"relative",true))
+									i += 2;
+								}
+							}
 							break;
 						case "T":
 							segmentStack.push(new QuadraticBezierTo(0,0,
 							pathDataArray[i+1], pathDataArray[i+2],null,"absolute",true))
 							i += 2;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new QuadraticBezierTo(0,0,
+									pathDataArray[i+1], pathDataArray[i+2],null,"absolute",true))
+									i += 2;
+								}
+							}
 							break;
 						case "c":
 							segmentStack.push(new CubicBezierTo(
@@ -182,24 +247,58 @@ package com.degrafa.geometry{
 							pathDataArray[i+3],pathDataArray[i+4],
 							pathDataArray[i+5],pathDataArray[i+6],null,"relative"))
 							i += 6;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new CubicBezierTo(
+									pathDataArray[i+1],pathDataArray[i+2],
+									pathDataArray[i+3],pathDataArray[i+4],
+									pathDataArray[i+5],pathDataArray[i+6],null,"relative"))
+									i += 6;
+								}
+							}
 							break;
 						case "C":
 							segmentStack.push(new CubicBezierTo(
 							pathDataArray[i+1],pathDataArray[i+2],pathDataArray[i+3],
 							pathDataArray[i+4],pathDataArray[i+5],pathDataArray[i+6]))
 							i += 6;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new CubicBezierTo(
+									pathDataArray[i+1],pathDataArray[i+2],
+									pathDataArray[i+3],pathDataArray[i+4],
+									pathDataArray[i+5],pathDataArray[i+6]))
+									i += 6;
+								}
+							}
 							break;
 						case "s":
 							segmentStack.push(new CubicBezierTo(
 							0,0,pathDataArray[i+1],pathDataArray[i+2],
 							pathDataArray[i+3],pathDataArray[i+4],null,"relative",true))
 							i += 4;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new CubicBezierTo(
+									0,0,pathDataArray[i+1],pathDataArray[i+2],
+									pathDataArray[i+3],pathDataArray[i+4],null,"relative",true))
+									i += 4;
+								}
+							}
 							break;
 						case "S":
 							segmentStack.push(new CubicBezierTo(
 							0,0,pathDataArray[i+1],pathDataArray[i+2],
 							pathDataArray[i+3],pathDataArray[i+4],null,"absolute",true))
 							i += 4;
+							if (!isNaN(Number(pathDataArray[i+1]))){
+								while (!isNaN(Number(pathDataArray[i+1]))){
+									segmentStack.push(new CubicBezierTo(
+									0,0,pathDataArray[i+1],pathDataArray[i+2],
+									pathDataArray[i+3],pathDataArray[i+4],null,"absolute",true))
+									i += 4;
+								}
+							}
 							break;
 						case "a":
 							segmentStack.push(new EllipticalArcTo(
@@ -234,7 +333,7 @@ package com.degrafa.geometry{
 							if (!isNaN(Number(pathDataArray[i+1]))){
 								while (!isNaN(Number(pathDataArray[i+1]))){
 									segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2],null,"relative"));
-									i+=2;
+									i += 2;
 								}
 							}
 							break;
@@ -249,7 +348,7 @@ package com.degrafa.geometry{
 							if (!isNaN(Number(pathDataArray[i+1]))){
 								while (!isNaN(Number(pathDataArray[i+1]))){
 									segmentStack.push(new LineTo(pathDataArray[i+1],pathDataArray[i+2]));
-									i+=2;
+									i += 2;
 								}
 							}
 							break;
@@ -257,10 +356,13 @@ package com.degrafa.geometry{
 						case "Z":
 							segmentStack.push(new ClosePath());
 							break;
+						default:
+
+						break;
 					}
 				}
 			
-			trace('path data parsing:'+ ((getTimer()-start)))
+		//trace('path data parsing:'+ ((getTimer()-start)))
 				segments = segmentStack;
 				invalidated = true;
 				
@@ -272,31 +374,32 @@ package com.degrafa.geometry{
 		* Converts the path data string value to an array of workable items
 		**/
 		private function PathDataToArray(value:String):Array{
-			
-			var stringToParse:String = value;
-			stringToParse = stringToParse.replace(/[MmLlCcQqZzAaSsHhVvTt \- \t \n \f \s]/g,getReplaceValue);
-			stringToParse = stringToParse.replace(/,,,/g,",");
-			stringToParse = stringToParse.replace(/,,/g,",");
-			
-			return stringToParse.split(",");
-			
+					value=value.replace(/[\s]+|\-|[MmLlCcQqZzAaSsHhVvTt]/g,getReplaceValue)
+					value=value.replace(/,{2,}/g,",")
+				return value.split(",");
 		}
 		
 		/**
 		* Helper function used when parsing the path data string
 		**/
 		private function getReplaceValue(matchedSubstring:String,itemIndex:Number,theString:String):String{	
-			if (itemIndex==0){
+			if (!itemIndex)
+			{
 				return matchedSubstring + ",";														
 			}
 			
-			switch (matchedSubstring.toUpperCase()){
+			switch (matchedSubstring.charAt(0)){
 				case " ":
+				case ",":
+				case "\t":
+				case "\n":
+				case "\r":
+				case "\f":
 					return ",";
 					break;
 				case "-":
 					return "," + matchedSubstring;
-					break;
+					break;				
 				default:
 					return "," + matchedSubstring + ",";	
 					break	
@@ -371,7 +474,7 @@ package com.degrafa.geometry{
 			//which case we need to mirror the last used control point (s,S,t,T)
 			var lastControlPoint:Point=lastPoint.clone();
 			
-	//	var s:uint=getTimer()	
+		var s:uint=getTimer()	
 		var curSegment:Object;
 
 			for each(curSegment in _segments.items)
