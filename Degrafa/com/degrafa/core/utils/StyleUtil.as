@@ -210,7 +210,8 @@ package com.degrafa.core.utils{
 					
 					var alpha:Measure = resolveMeasureFromString(split[i]);
 					if(alpha != null) {
-						entry.alpha = Number(alpha);
+						entry.alpha = Number(alpha)/100;
+						i++;
 					}
 					
 					// this should be optimized better
