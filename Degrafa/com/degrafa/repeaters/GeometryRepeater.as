@@ -64,8 +64,8 @@ package com.degrafa.repeaters
 		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
 		**/
 		private var _modifiers:RepeaterModifierCollection;
-		[Inspectable(category="General", arrayType="com.degrafa.geometry.repeaters.IRepeaterModifier")]
-		[ArrayElementType("com.degrafa.geometry.repeaters.IRepeaterModifier")]
+		[Inspectable(category="General", arrayType="com.degrafa.repeaters.IRepeaterModifier")]
+		[ArrayElementType("com.degrafa.repeaters.IRepeaterModifier")]
 		public function get modifiers():Array{
 			initModifiersCollection();
 			return _modifiers.items;
