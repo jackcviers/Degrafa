@@ -224,7 +224,7 @@ package com.degrafa{
 			
 			if(_suppressEventProcessing==true && value==false){
 				_suppressEventProcessing=value;
-				initChange("surpressEventProcessing",false,true,this);
+				initChange("suppressEventProcessing",false,true,this);
 			}
 			else{
 				_suppressEventProcessing=value;	
