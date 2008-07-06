@@ -22,6 +22,7 @@
 package com.degrafa.geometry.stencil{
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.core.utils.CloneUtil;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.geometry.Path;
 	import com.degrafa.geometry.Polygon;
@@ -243,8 +244,8 @@ package com.degrafa.geometry.stencil{
 			
 			for each (item in commandStack.source){
 				switch(item.type){
-					case 0:
-					case 1:
+					case CommandStackItem.MOVE_TO:
+					case CommandStackItem.LINE_TO:
 						maxPoint.x =Math.max(maxPoint.x,item.x);
 						maxPoint.y =Math.max(maxPoint.y,item.y);
 						
@@ -255,38 +256,30 @@ package com.degrafa.geometry.stencil{
 						lastX=item.x;
 						lastY=item.y;
 						break;
-					case 2:	
+					case CommandStackItem.CURVE_TO:	
 																	
 						bezierRect = GeometryUtils.bezierBounds(lastX,lastY,
 						item.cx,item.cy,item.x1,item.y1);
+												
+						//now take our bounds into account
+						maxPoint.x =Math.max(maxPoint.x,bezierRect.x);
+						maxPoint.y =Math.max(maxPoint.y,bezierRect.y);
 						
-						if(isNaN(bezierRect.x) || isNaN(bezierRect.y)){
-							//Dead curve. Not sure what to call it but the 
-							//current algorithm hates when the cx and cy 
-							//are the same and the x1 and y1 are the same
-							//results in a NaN value.
-						}
-						else{
-							//now take our bounds into account
-							maxPoint.x =Math.max(maxPoint.x,bezierRect.x);
-							maxPoint.y =Math.max(maxPoint.y,bezierRect.y);
-							
-							maxPoint.x =Math.max(maxPoint.x,bezierRect.x+bezierRect.width);
-							maxPoint.y =Math.max(maxPoint.y,bezierRect.y+bezierRect.height);
-							
-							minPoint.x =Math.min(minPoint.x,bezierRect.x);
-							minPoint.y =Math.min(minPoint.y,bezierRect.y);
-							
-							minPoint.x =Math.min(minPoint.x,bezierRect.x+bezierRect.width);
-							minPoint.y =Math.min(minPoint.y,bezierRect.y+bezierRect.height);
-						}
+						maxPoint.x =Math.max(maxPoint.x,bezierRect.x+bezierRect.width);
+						maxPoint.y =Math.max(maxPoint.y,bezierRect.y+bezierRect.height);
 						
+						minPoint.x =Math.min(minPoint.x,bezierRect.x);
+						minPoint.y =Math.min(minPoint.y,bezierRect.y);
+						
+						minPoint.x =Math.min(minPoint.x,bezierRect.x+bezierRect.width);
+						minPoint.y =Math.min(minPoint.y,bezierRect.y+bezierRect.height);
+												
 						//store for next iteration
 						lastX=item.x1;
 						lastY=item.y1;
 						break;
 						
-					case 4:
+					case CommandStackItem.COMMAND_STACK:
 						//recurse
 						getCommandStackMinMax(item.commandStack,maxPoint,minPoint,lastX,lastY);
 						break;
@@ -297,15 +290,24 @@ package com.degrafa.geometry.stencil{
 		
 		
 		//loops through the given command stack applying the offset
-		private function applyOffsetToCommandStack(commandStack:CommandStack,xMultiplier:Number,yMultiplier:Number,minPoint:Point):void{
+		private function applyOffsetToCommandStack(commandStack:CommandStack,xMultiplier:Number,yMultiplier:Number,minPoint:Point,lastPoint:Point=null):void{
 			
 			var item:CommandStackItem;
 			
+			//keep last point for recursion and setting the origin
+			if(!lastPoint){
+				lastPoint=minPoint.clone();
+			}
+			
 			//multiply the axis by the difference
 			for each (item in commandStack.source){
+				
+				item.originX = lastPoint.x;
+				item.originY = lastPoint.y;
+				
 				switch(item.type){
-					case 0:
-					case 1:
+					case CommandStackItem.MOVE_TO:
+					case CommandStackItem.LINE_TO:
 						if(item.x!=0){
 							item.x = (item.x-minPoint.x) * xMultiplier;
 						}
@@ -316,8 +318,12 @@ package com.degrafa.geometry.stencil{
 						//offset according to x and y
 						item.x += x;
 						item.y += y;
+						
+						lastPoint.x=item.x;
+						lastPoint.y=item.y;
+						
 						break;
-					case 2:	
+					case CommandStackItem.CURVE_TO:	
 						if(item.cx!=0){
 							item.cx = (item.cx-minPoint.x) * xMultiplier;
 						} 
@@ -338,12 +344,25 @@ package com.degrafa.geometry.stencil{
 						item.x1 += x;
 						item.y1 += y;
 						
+						lastPoint.x=item.x1;
+						lastPoint.y=item.y1;
+						
 						break;
-					case 4:
+					case CommandStackItem.COMMAND_STACK:
 						//recurse
-						applyOffsetToCommandStack(item.commandStack,xMultiplier,yMultiplier,minPoint);
+						applyOffsetToCommandStack(item.commandStack,xMultiplier,yMultiplier,minPoint,lastPoint);
+						
 						break;	
 				}
+				
+				//re init the internal points
+				if(item.type != CommandStackItem.COMMAND_STACK){
+					item.initPoints();
+				}
+				else{
+					item.commandStack.lengthIsValid =false;
+				}
+			
 			}
 		}
 		
@@ -366,12 +385,15 @@ package com.degrafa.geometry.stencil{
 			if(invalidated){
 				
 				_bounds = new Rectangle(x,y,width,height);
-				
+												
 				//set the right command stack
-				commandStack = itemDataDictionary[type].originalCommandStack;
+				commandStack =  CloneUtil.clone(CommandStack(itemDataDictionary[type].originalCommandStack),com.degrafa.geometry.command.CommandStack);
+				commandStack.owner = this;
 				
 				//resize
 				calculateRatios();
+				
+				commandStack.lengthIsValid=false;
 				
 				invalidated = false;
 			}
@@ -391,7 +413,7 @@ package com.degrafa.geometry.stencil{
 			
 			//re init if required
 		 	preDraw();
-		 	
+		 			 	
 			super.draw(graphics,(rc)? rc:_bounds);
 	 	}
 		
