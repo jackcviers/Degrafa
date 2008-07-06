@@ -43,7 +43,7 @@ package com.degrafa.geometry.command{
 		private var currentPointX:Number=0;
 		private var currentPointY:Number=0;
 		
-		private var lengthIsValid:Boolean;
+		public var lengthIsValid:Boolean;
 		
 		public var owner:Geometry;
 		
@@ -64,9 +64,7 @@ package com.degrafa.geometry.command{
 			
 			//exit if no command stack
 			if(source.length==0){return;}
-			
-			trace("DRAWING::" + this.owner);
-			
+						
 			var requester:Geometry = owner;
 
 			//establish a transform context if there are ancestral transforms
@@ -134,32 +132,40 @@ package com.degrafa.geometry.command{
 						
 	        			case CommandStackItem.MOVE_TO:
 						    if (trans){
-						    	
-								transXY.x = x; transXY.y = y;
+						    	transXY.x = x; transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								
 								graphics.moveTo(transXY.x,transXY.y);
-							} else graphics.moveTo(x,y);
+							} 
+							else {
+								graphics.moveTo(x,y);
+							}
+							
 	        				break;
 	        			
 	        			case CommandStackItem.LINE_TO:
-	        				 if (trans)
-						    {
+	        				if (trans){
 								transXY.x = x; transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
 								graphics.lineTo(transXY.x,transXY.y);
-							} else graphics.lineTo(x,y);
+							} 
+							else{
+								graphics.lineTo(x,y);
+							} 
+							
 	        				break;
 	        			
 	        			case CommandStackItem.CURVE_TO:
-	        				 if (trans)
-						    {
+	        				if (trans){
 								transXY.x = x1; transXY.y = y1;
 								transCP.x = cx; transCP.y = cy;
 								transXY = transMatrix.transformPoint(transXY);
 								transCP = transMatrix.transformPoint(transCP);
 								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
-							} else graphics.curveTo(cx,cy,x1,y1);
+							} 
+							else{
+								graphics.curveTo(cx,cy,x1,y1);
+							} 
+							
 	        				break;
 	        				
 	        			case CommandStackItem.DELEGATE_TO:
@@ -169,9 +175,7 @@ package com.degrafa.geometry.command{
 	        			//recurse if required
 	        			case CommandStackItem.COMMAND_STACK:
 	        				renderCommandStack(graphics,rc,new DegrafaCursor(commandStack.source))
-							//trace('rest')
-	        				//item.commandStack.draw(graphics,rc);
-	        		}
+					}
     			}
     
         		updatePointer(item);
@@ -221,8 +225,6 @@ package com.degrafa.geometry.command{
 			source.push(new CommandStackItem(CommandStackItem.COMMAND_STACK,
 			NaN,NaN,NaN,NaN,NaN,NaN,currentPointX,currentPointY,commandStack));
 			
-			//currentPointX =x;
-			//currentPointY =y;
 		}
 		
 		public function getItem(index:int):CommandStackItem{

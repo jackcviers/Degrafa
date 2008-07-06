@@ -179,7 +179,7 @@ package com.degrafa.geometry.command{
 		**/
 		private var _segmentLength:Number=0;
 		public function get segmentLength():Number{
-			if(!_segmentLength){
+			if(!_segmentLength || invalidated){
 				switch(type){
 					case CommandStackItem.MOVE_TO:
 						_segmentLength =0;
