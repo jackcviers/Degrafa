@@ -86,7 +86,7 @@ package com.degrafa.utilities.swf.fonts
 				glyph.index = i;
 
 				if (excludeEmptyGlyphs && ((glyph.shapeOffset + 2) == glyph.shapeOffsetEnd)) {
-					trace('empty glyph skipped...');
+					//trace('empty glyph skipped...');
 				}
 				else {
 					_glyphs[glyph.codePoint] = glyph;				

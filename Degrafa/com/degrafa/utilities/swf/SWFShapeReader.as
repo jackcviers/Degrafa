@@ -1,8 +1,8 @@
 package com.degrafa.utilities.swf
 {
 	import com.degrafa.utilities.SWFReader;
-	import com.degrafa.utilities.swf.fonts.FontGlyph;
 	
+	import flash.geom.Point;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
@@ -19,15 +19,23 @@ package com.degrafa.utilities.swf
 		
 		public var path:String;
 		
+		public var drawCommands:Array=[];
+		
+		private var lastMovePoint:Point= new Point(0,0);
+		private var hasMove:Boolean;
+		
 		private var x:Number;
 		private var y:Number;
 		
 		private var xx:Number;
 		private var yy:Number;
 		
-		public function readShape(start:uint, end:uint, bytes:ByteArray):void {
+		public static var RETURN_TYPE_PATH:int =0;
+		public static var RETURN_TYPE_DRAW_COMMAND_ARRAY:int =1;
+		
+		public function readShape(start:uint, end:uint, bytes:ByteArray,returnType:int=0):void {
 			
-			trace('{ShapeReader.readShape} start = ' + start + '; end = ' + end);
+			//trace('{ShapeReader.readShape} start = ' + start + '; end = ' + end);
 		
 			var bits:uint;
 			
@@ -48,16 +56,26 @@ package com.degrafa.utilities.swf
 //			numFillBits = 0;
 //			numLineBits = 1;	
 						
-			trace('fill bits: ' + numFillBits + ', line bits: ' + numLineBits);
+			//trace('fill bits: ' + numFillBits + ', line bits: ' + numLineBits);
 	
-			path = "";
-	
-				readShapeRecords(bytes);
+			if(returnType==RETURN_TYPE_PATH){
+				path = "";
+		
+					readShapeRecords(bytes);
+					
+				path += "Z";
+			}
+			else if (returnType==RETURN_TYPE_DRAW_COMMAND_ARRAY){
+				drawCommands.length=0;
+				readShapeRecords(bytes,returnType);
 				
-			path += "Z";
+				//close the path
+				drawCommands.push({type:1,x:lastMovePoint.x,y:lastMovePoint.y});
+				
+			}
 		}
 		
-		public function readShapeRecords(bytes:ByteArray):Array {
+		public function readShapeRecords(bytes:ByteArray,returnType:int=0):Array {
 			
 			var records:Array = [];
 			var record:Object;
@@ -65,7 +83,7 @@ package com.degrafa.utilities.swf
 			xx = yy = x = y = Number.NaN;
 			
 			do {
-				record = readOneShapeRecord(bytes);
+				record = readOneShapeRecord(bytes,returnType);
 				if (record) {
 					records.push(record); 
 				}
@@ -75,7 +93,7 @@ package com.degrafa.utilities.swf
 			return records;
 		}
 		
-		private function readOneShapeRecord(bytes:ByteArray):Object {
+		private function readOneShapeRecord(bytes:ByteArray,returnType:int=0):Object {
 			
 			var record:Object = new Object();
 			
@@ -150,11 +168,21 @@ package com.degrafa.utilities.swf
 							xx = moveDeltaX;
 							yy = moveDeltaY;
 						}
-
-						path += "M" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);	
-
 						
-						trace('SSCR' + numBits + '\t' + moveDeltaX +  '\t' + moveDeltaY + '\t\t\t\t\t\t' + xx + '\t' + yy);
+						if(returnType==RETURN_TYPE_PATH){
+							path += "M" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);	
+						}
+						else{	
+							
+							//set the current point to close to
+							lastMovePoint.x = (Math.abs(x) < 0.0001 ? 0 : x);
+							lastMovePoint.y = (Math.abs(y) < 0.0001 ? 0 : y);
+							
+							//finally add the move	
+							drawCommands.push({type:0, x:(Math.abs(x) < 0.0001 ? 0 : x),y:(Math.abs(y) < 0.0001 ? 0 : y)});
+						}
+						
+						//trace('SSCR' + numBits + '\t' + moveDeltaX +  '\t' + moveDeltaY + '\t\t\t\t\t\t' + xx + '\t' + yy);
 								
 					}
 					
@@ -212,12 +240,18 @@ package com.degrafa.utilities.swf
 					xx += moveDeltaX;
 					yy += moveDeltaY;
 
-					trace('SER\t' + moveDeltaX + '\t' + moveDeltaY + '\t\t\t\t\t\t' + xx + '\t' + yy);
+					//trace('SER\t' + moveDeltaX + '\t' + moveDeltaY + '\t\t\t\t\t\t' + xx + '\t' + yy);
 				
 					x += moveDeltaX / 20;
 					y += moveDeltaY / 20 + fontBaseline;
-											
-					path += "L" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);	
+					
+					if(returnType==RETURN_TYPE_PATH){						
+						path += "L" + (Math.abs(x) < 0.0001 ? 0 : x) + "," + (Math.abs(y) < 0.0001 ? 0 : y);
+					}
+					else{
+						drawCommands.push({type:1, x:(Math.abs(x) < 0.0001 ? 0 : x),y:(Math.abs(y) < 0.0001 ? 0 : y)});
+					}
+						
 					
 				}
 				else {					// It's a curved edge
@@ -238,9 +272,16 @@ package com.degrafa.utilities.swf
 					xx += controlDeltaX + anchorDeltaX;
 					yy += controlDeltaY + anchorDeltaY;
 					
-					path += "Q" + (Math.abs(cx) < 0.0001 ? 0 : cx) + "," + (Math.abs(cy) < 0.0001 ? 0 : cy) + "," + (Math.abs(ax) < 0.0001 ? 0 : ax) + "," + (Math.abs(ay) < 0.0001 ? 0 : ay);	
-
-					trace('CER\t' + controlDeltaX + '\t' + controlDeltaY +'\t' + anchorDeltaX + '\t' + anchorDeltaY + '\t\t\t\t' + xx + '\t' + yy);
+					if(returnType==RETURN_TYPE_PATH){
+						path += "Q" + (Math.abs(cx) < 0.0001 ? 0 : cx) + "," + (Math.abs(cy) < 0.0001 ? 0 : cy) + "," + (Math.abs(ax) < 0.0001 ? 0 : ax) + "," + (Math.abs(ay) < 0.0001 ? 0 : ay);	
+					}
+					else{
+						drawCommands.push({type:2, cx:(Math.abs(cx) < 0.0001 ? 0 : cx),
+						cy:(Math.abs(cy) < 0.0001 ? 0 : cy),
+						x1:(Math.abs(ax) < 0.0001 ? 0 : ax),
+						y1:(Math.abs(ay) < 0.0001 ? 0 : ay)});
+					}
+					//trace('CER\t' + controlDeltaX + '\t' + controlDeltaY +'\t' + anchorDeltaX + '\t' + anchorDeltaY + '\t\t\t\t' + xx + '\t' + yy);
 
 					
 				}
@@ -303,7 +344,7 @@ package com.degrafa.utilities.swf
 				case 0x43:		// Non-Smoothed Clipped Bitmap
 					break;
 				default:
-					trace('Invalid Fill Style...');
+					//trace('Invalid Fill Style...');
 					break;
 			}
 			

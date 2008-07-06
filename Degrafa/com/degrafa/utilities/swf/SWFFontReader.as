@@ -68,17 +68,17 @@ package com.degrafa.utilities.swf
 		}
 		
 		private function parseFont(tag:SWFTag):void {
-			trace('{FontReader.parseFont} Not implemented.');
+			//trace('{FontReader.parseFont} Not implemented.');
 		
 		}
 		
 		private function parseFont2(tag:SWFTag):void {
-			trace('{FontReader.parseFont2} Not implemented.');			
+			//trace('{FontReader.parseFont2} Not implemented.');			
 		}
 		
 		private function parseFont3(tag:SWFTag):void {
 			
-			trace('{FontReader.parseFont3}');
+			//trace('{FontReader.parseFont3}');
 			
 			var fs:FontSet = new FontSet();
 			var bytes:ByteArray = tag.bytes;
@@ -133,19 +133,19 @@ package com.degrafa.utilities.swf
 		}
 		
 		private function parseFontInfo(tag:SWFTag):void {
-			trace('{FontReader.parseFontInfo} Not implemented.');			
+			//trace('{FontReader.parseFontInfo} Not implemented.');			
 		}
 
 		private function parseFontInfo2(tag:SWFTag):void {
-			trace('{FontReader.parseFontInfo2} Not implemented.');			
+			//trace('{FontReader.parseFontInfo2} Not implemented.');			
 		}
 		
 		private function parseFontAlignZones(tag:SWFTag):void {
-			trace('{FontReader.parseFontAlignZones} Not implemented.');			
+			//trace('{FontReader.parseFontAlignZones} Not implemented.');			
 		}
 		
 		private function parseFontName(tag:SWFTag):void {	
-			trace('{FontReader.parseFontName} Not implemented.');			
+			//trace('{FontReader.parseFontName} Not implemented.');			
 			
 			/*	
 			var fn:FontName = new FontName();
