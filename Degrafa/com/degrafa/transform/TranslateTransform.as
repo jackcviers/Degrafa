@@ -43,15 +43,15 @@ package com.degrafa.transform{
 
 		public function TranslateTransform(){
 			super();
-			
+			//set registration Point topLeft. Its irrelevant to Translate, but does need to be defined 
 		}
 		
 		//setting these has no effect on TranslateTransform
-		override public function get centerX():Number{return NaN;}
+	//	override public function get centerX():Number{return NaN;}
 		override public function set centerX(value:Number):void{}
-		override public function get centerY():Number{return NaN;}
+	//	override public function get centerY():Number{return NaN;}
 		override public function set centerY(value:Number):void{}
-		override public function get registrationPoint():String{return "topLeft";}
+	//	override public function get registrationPoint():String{return "topLeft";}
 		override public function set registrationPoint(value:String):void{}
 		
 		

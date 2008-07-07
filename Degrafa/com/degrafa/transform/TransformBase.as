@@ -237,7 +237,7 @@ package com.degrafa.transform{
 		 */
 		public function getTransformFor(value:IGeometryComposition):Matrix
 		{
-			var offset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
+			var offset:Point = (_registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
 			//first check for a transform history...
 			//this relies on the nested update sequence from parent to children to work in 
 			//a stable way.
@@ -279,7 +279,7 @@ package com.degrafa.transform{
 		 */
 		public function getRegPoint(value:IGeometryComposition):Point
 		{
-			if (registrationPoint) return getRegistrationPoint(value);
+			if (_registrationPoint) return getRegistrationPoint(value);
 			else return new Point(_centerX, _centerY);
 		}
 		/**
