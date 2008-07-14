@@ -28,6 +28,8 @@ package com.degrafa.paint{
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
+	import mx.events.PropertyChangeEventKind;
+	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -44,10 +46,11 @@ package com.degrafa.paint{
 	import com.degrafa.utilities.external.ExternalBitmapData;
 	import com.degrafa.utilities.external.ExternalDataAsset;
 	import com.degrafa.utilities.external.LoadingLocation;
+	import com.degrafa.utilities.external.ExternalDataPropertyChangeEvent;
 	import flash.utils.setTimeout;
 	
 	[DefaultProperty("source")]
-	[Bindable(event="propertyChange")]
+	
 	
 	//--------------------------------------
 	//  Other metadata
@@ -82,6 +85,7 @@ package com.degrafa.paint{
 		
 		private var _blendMode:String="normal";
 		[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
+		[Bindable(event="propertyChange")]
 		public function get blendMode():String { 
 			return _blendMode; 
 		}
@@ -107,6 +111,7 @@ package com.degrafa.paint{
 		* @default 0
 		*/
 		private var _originX:Number = 0;
+		[Bindable(event="propertyChange")]
 		public function get originX():Number { 
 			return _originX; 
 		}
@@ -134,6 +139,7 @@ package com.degrafa.paint{
 		* @default 0
 		*/
 		private var _originY:Number = 0;
+		[Bindable(event="propertyChange")]
 		public function get originY():Number { 
 			return _originY; 
 		}
@@ -144,12 +150,10 @@ package com.degrafa.paint{
 				var oldValue:Number=_originY;
 				
 				_originY = value;
-				
+	
 				//call local helper to dispatch event	
 				initChange("originY",oldValue,_originY,this);
-				
 			}
-			
 		}
 		
 		
@@ -159,6 +163,7 @@ package com.degrafa.paint{
 		* @default 0
 		*/
 		private var _offsetX:Measure = new Measure();
+		[Bindable(event="propertyChange")]
 		public function get offsetX():Number { 
 			return _offsetX.value; 
 		}
@@ -181,6 +186,7 @@ package com.degrafa.paint{
 		/**
 		 * The unit of measure corresponding to offsetX.
 		 */
+		[Bindable(event="propertyChange")]
 		public function get offsetXUnit():String { return _offsetX.unit; }
 		public function set offsetXUnit(value:String):void {
 			if(_offsetX.unit != value) {
@@ -195,6 +201,7 @@ package com.degrafa.paint{
 		 * @default 0
 		 */
 		private var _offsetY:Measure = new Measure();
+		[Bindable(event="propertyChange")]
 		public function get offsetY():Number { 
 			return _offsetY.value; 
 		}
@@ -218,6 +225,7 @@ package com.degrafa.paint{
 		 * The unit of measure corresponding to offsetY.
 		 */
 		public function get offsetYUnit():String { return _offsetY.unit; }
+		[Bindable(event="propertyChange")]
 		public function set offsetYUnit(value:String):void {
 			if(_offsetY.unit != value) {
 				initChange("offsetYUnit", _offsetY.unit, _offsetY.unit = value, this);
@@ -231,7 +239,7 @@ package com.degrafa.paint{
 		 */
 		private var _repeatX:String = "repeat";
 		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
-		
+		[Bindable(event="propertyChange")]
 		public function get repeatX():String{ 
 			return _repeatX;
 		}
@@ -257,7 +265,8 @@ package com.degrafa.paint{
 		 * @default "repeat"
 		 */
 		private var _repeatY:String = "repeat";
-		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
+		[Inspectable(category = "General", enumeration = "none,repeat,space,stretch")]
+		[Bindable(event="propertyChange")]
 		public function get repeatY():String{ 
 			return _repeatY; 
 		}
@@ -283,7 +292,7 @@ package com.degrafa.paint{
 		* @default 0
 		*/
 		private var _rotation:Number = 0;
-		
+		[Bindable(event="propertyChange")]
 		public function get rotation():Number {
 			return _rotation;
 		}
@@ -310,6 +319,7 @@ package com.degrafa.paint{
 		 * @default 1.0
 		 */
 	 	private var _scaleX:Number = 1;
+		[Bindable(event="propertyChange")]
 		public function get scaleX():Number {
 			return _scaleX; 
 		}
@@ -336,6 +346,7 @@ package com.degrafa.paint{
 		 * @default 1.0
 		 */
 		private var _scaleY:Number = 1;
+		[Bindable(event="propertyChange")]
 		public function get scaleY():Number { 
 			return _scaleY; 
 		}
@@ -361,7 +372,8 @@ package com.degrafa.paint{
 		 * @default false
 		 */
 		private var _smooth:Boolean = false; 
-		[Inspectable(category="General", enumeration="true,false")]
+		[Inspectable(category = "General", enumeration = "true,false")]
+		[Bindable(event="propertyChange")]
 		public function get smooth():Boolean{
 			return _smooth; 
 		}
@@ -382,7 +394,26 @@ package com.degrafa.paint{
 		}
 		
 		//EXTERNAL BITMAP SUPPORT
-	
+		/**
+		 * A support property for binding to in the event of an external loading wait.
+		 * permits a simple binding to indicate that the wait is over
+		 */
+		private var _waiting:Boolean;
+		[Bindable("externalDataPropertyChange")] 
+		public function get waiting():Boolean
+		{
+			return (_waiting==true);
+		}
+		public function set waiting(val:Boolean):void
+		{
+		  if (val != _waiting  )
+		  {
+			_waiting = val; 
+			//support binding, but don't use propertyChange to avoid Degrafa redraws for no good reason
+			dispatchEvent(new ExternalDataPropertyChangeEvent(ExternalDataPropertyChangeEvent.EXTERNAL_DATA_PROPERTY_CHANGE, false, false, PropertyChangeEventKind.UPDATE , "waiting", !_waiting, _waiting, this))
+		  }
+		}
+		
 		/**
 		 * handles the ready state for an ExternalBitmapData as the source of a BitmapFill
 		 * @param	evt an ExternalDataAsset.STATUS_READY event
@@ -395,6 +426,7 @@ package com.degrafa.paint{
 				var oldValue:Object = bitmapData;
 				bitmapData = evt.target.content;
 				initChange("source", oldValue, bitmapData, this);
+				waiting = false;
 			break;
 			}
 		}
@@ -426,28 +458,35 @@ package com.degrafa.paint{
 		 * An instance of an ExternalBitmapData to be loaded at runtime.
 		 * A url string to either as a relative url (local domain or with a LoadingLocation) or absolute with no LoadingLocation (see loadingLocation property)
 		 **/
+		[Bindable(event="propertyChange")]
 		public function get source():Object { return bitmapData; }
 		public function set source(value:Object):void {
-			//_source = value;
-					
+
 			var oldValue:Object = bitmapData;
 			
 			target = null;
-			bitmapData = null;
 			
-			if (!value) {
-				return;
-			}
 			if (_externalBitmapData) {
 				_externalBitmapData.removeEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler);
 				_externalBitmapData = null;
 			}
+			
+			if (!value) {
+				//set to null ?
+				//todo: evaluate bitmapdata GC handling...*tricky* if fill is used outside defrafa geometry targets		
+				//	if (bitmapData) bitmapData.dispose();
+				bitmapData = null;
+				if (oldValue!=null)	initChange("source", oldValue, null, this);
+				return;
+			}
+			
 			if (value is ExternalBitmapData) {
 				_externalBitmapData = value as ExternalBitmapData;
 				if (value.content) {		
 					value = value.content;
 				} else {
-					value.addEventListener(ExternalDataAsset.STATUS_READY,externalBitmapHandler)
+					value.addEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler)
+					waiting = true;
 				return;
 				}
 			}
@@ -490,7 +529,8 @@ package com.degrafa.paint{
 					if (!isInitialized) {
 						setTimeout(
 							function():void
-							{source = value },1);
+							{source = value }, 1);
+							
 					} else {
 						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
 					}
@@ -500,11 +540,17 @@ package com.degrafa.paint{
 			}
 			else
 			{
-				initChange("source", oldValue, null, this);
+				trace('assuming null assignment for BitmapFill, unrecognized source assignment of:'+value)
+				//option:
+				//source = null;
+				//or:
+				bitmapData = null;
+				if (oldValue!=null)	initChange("source", oldValue, null, this);
 				return;
 			}
 				
-			if(bitmapData == null && target != null)
+		//original:	if (bitmapData == null && target != null)
+			if( target != null)
 			{
 				bitmapData = new BitmapData(target.width, target.height, true, 0);
 				bitmapData.draw(target);
@@ -645,6 +691,7 @@ package com.degrafa.paint{
 		* Defines the transform object that will be used for 
 		* altering this bitmapfill object.
 		**/
+		[Bindable(event="propertyChange")]
 		public function get transform():ITransform{
 			return _transform;
 		}
@@ -671,8 +718,10 @@ package com.degrafa.paint{
 			
 		}
 		
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+		private function propertyChangeHandler(event:PropertyChangeEvent):void
+		{
 			dispatchEvent(event);
 		}
+
 	}
 }
