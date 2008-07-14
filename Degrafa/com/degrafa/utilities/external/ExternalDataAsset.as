@@ -20,6 +20,8 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.utilities.external {
+	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.IDegrafaObject;
 	import flash.events.EventDispatcher
 	import flash.display.BitmapData;
 	import flash.display.Loader;
@@ -45,8 +47,8 @@ package com.degrafa.utilities.external {
 	* The data content provided by an ExternalDataAsset will only be available once the asset from the external url has 
 	* loaded.
 	*/
-	public class ExternalDataAsset extends EventDispatcher {
-		private var _url:String; 
+	public class ExternalDataAsset extends DegrafaObject implements IDegrafaObject{
+		protected var _url:String; 
 		//type as identified by mime type
 		private var _mimeType:String ;
 		//status before and during loading
@@ -72,6 +74,7 @@ package com.degrafa.utilities.external {
 		public static const STATUS_IDENTIFIED:String =		'itemIdentified';
 		public static const STATUS_LOAD_ERROR:String = 		'itemLoadError';
 		public static const STATUS_SECURITY_ERROR:String = 	'itemSecurityError';
+		public static const STATUS_DATA_ERROR:String = 		'itemDataError';
 		
 		//static type constants for identified mime type of loaded content
 		public static const TYPE_UNKNOWN:String = 		'unknown';
@@ -126,7 +129,7 @@ package com.degrafa.utilities.external {
 			{
 				_url = url;
 			}
-			if (!_loader) _loader = Loader;
+			//if (!_loader) _loader = Loader;
 			_loader  = new loader();
 			_mimeType = ExternalDataAsset.TYPE_UNKNOWN;
 			_status = ExternalDataAsset.STATUS_WAITING;
@@ -158,6 +161,7 @@ package com.degrafa.utilities.external {
 		    else
 		    {
 				(_loader as URLLoader).load(new URLRequest(loadFrom));
+			//	trace('requested')
 			}
 			_status = ExternalDataAsset.STATUS_REQUESTED;
 			dispatchEvent(new Event(ExternalDataAsset.STATUS_REQUESTED));
@@ -220,11 +224,13 @@ package com.degrafa.utilities.external {
 		 * to prevent swf loading. E.g. The ExternalBitmapData subclass is intended for bitmap loading only.
 		 */
 		private function checkContentType():void {
+			if (_loader is URLLoader) return;
 			if (_mimeType == ExternalDataAsset.TYPE_UNKNOWN && _loader.contentLoaderInfo.contentType != null) {
 				_mimeType = _loader.contentLoaderInfo.contentType;
 				//this contentType property did not seem to be available until after the last progress event in testing
 				dispatchEvent(new Event(ExternalDataAsset.STATUS_IDENTIFIED));
 			}
+			
 		}
 		
 		/**
@@ -356,7 +362,7 @@ package com.degrafa.utilities.external {
 		 * resets the status to waiting prior to load, stopping any current load in progress.
 		 * @return Boolean value of true if status was anything other than waiting when called, otherwise false
 		 */
-		private function reset():Boolean {
+		protected function reset():Boolean {
 			if (!(_status == ExternalDataAsset.STATUS_WAITING || _status == ExternalDataAsset.STATUS_READY)) {
 				//cancel any load in progress:
 				removeListeners();
