@@ -291,7 +291,7 @@ package com.degrafa.geometry{
 				
 				_stroke = value;
 				
-				if(enableEvents){	
+				if(enableEvents && _stroke){	
 					_stroke.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
 				
