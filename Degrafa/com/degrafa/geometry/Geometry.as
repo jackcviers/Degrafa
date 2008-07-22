@@ -450,7 +450,7 @@ package com.degrafa.geometry{
 	        	_stroke.apply(graphics,(rc)? rc:null);
 	        }
 			else{
-				graphics.lineStyle(0, 0xFFFFFF, 0);
+				graphics.lineStyle();
 			}
 			
 		}
