@@ -84,7 +84,7 @@ package com.degrafa.geometry{
 				if (tempArray.length == 3){
 					_x=tempArray[0];
 					_y=tempArray[1];
-					_y1=tempArray[3];
+					_y1=tempArray[2];
 				}	
 				
 				invalidated = true;
