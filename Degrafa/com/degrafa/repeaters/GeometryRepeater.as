@@ -139,7 +139,7 @@ package com.degrafa.repeaters
 			
 			var t:Number=getTimer();
 			
-			var isSuppressed=suppressEventProcessing;
+			var isSuppressed:Boolean=suppressEventProcessing;
 			
 			suppressEventProcessing=true;
 			//Clone source geometery to reset it
