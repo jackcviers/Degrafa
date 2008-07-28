@@ -53,7 +53,7 @@ package com.degrafa.paint{
 	//  Other metadata
 	//--------------------------------------
 	
-	[IconFile("GeometryFill.png")]
+	//[IconFile("GeometryFill.png")]
 	
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
