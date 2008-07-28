@@ -95,4 +95,10 @@
 	<!--runtime bitmaps-->
 	<component id="LoadingLocation" class="com.degrafa.utilities.external.LoadingLocation" />
 	
+	
+	<!--states-->
+	<component id="State" class="com.degrafa.states.State"/>
+	<component id="SetProperty" class="com.degrafa.states.SetProperty"/>
+	
+	
 </componentPackage>    
