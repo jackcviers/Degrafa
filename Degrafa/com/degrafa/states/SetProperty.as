@@ -2,7 +2,7 @@ package com.degrafa.states{
 
 import com.degrafa.geometry.Geometry;
 
-public class SetProperty{
+public class SetProperty implements IOverride{
 
     public function SetProperty(target:Object = null, name:String = null,value:* = undefined){
         this.target = target;
