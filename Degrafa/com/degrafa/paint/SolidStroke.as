@@ -263,8 +263,15 @@ package com.degrafa.paint{
 			if(!_scaleMode){_scaleMode="normal";}
 			if(!_weight){_weight=1;}
 			
-			graphics.lineStyle(weight,color as uint,alpha,pixelHinting,
+			//performance gain by not setting the last 3 arguments if 
+			//they are already the default flash values
+			if(caps=="round" && joints=="round" && miterLimit==3){
+				graphics.lineStyle(weight,color as uint,alpha, pixelHinting,scaleMode);
+			}
+			else{
+				graphics.lineStyle(weight,color as uint,alpha,pixelHinting,
 					scaleMode, caps, joints,miterLimit);
+			}
 					
 		}
 		

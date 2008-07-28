@@ -231,7 +231,16 @@ package com.degrafa.paint {
 				matrix.concat(super._transform.transformMatrix);
 				matrix.translate((rc.x+rc.width/2),(rc.y+rc.height/2))
 			}
-			graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
+			
+			//performance gain by not setting the last 3 arguments if 
+			//they are already the default flash values
+			if(caps=="round" && joints=="round" && miterLimit==3){
+				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode);
+			}
+			else{
+				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
+			}
+			
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}
