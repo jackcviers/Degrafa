@@ -301,10 +301,6 @@ package com.degrafa.geometry.stencil{
 			
 			//multiply the axis by the difference
 			for each (item in commandStack.source){
-				
-				item.originX = lastPoint.x;
-				item.originY = lastPoint.y;
-				
 				switch(item.type){
 					case CommandStackItem.MOVE_TO:
 					case CommandStackItem.LINE_TO:
@@ -351,18 +347,9 @@ package com.degrafa.geometry.stencil{
 					case CommandStackItem.COMMAND_STACK:
 						//recurse
 						applyOffsetToCommandStack(item.commandStack,xMultiplier,yMultiplier,minPoint,lastPoint);
-						
 						break;	
 				}
-				
-				//re init the internal points
-				if(item.type != CommandStackItem.COMMAND_STACK){
-					item.initPoints();
-				}
-				else{
-					item.commandStack.lengthIsValid =false;
-				}
-			
+							
 			}
 		}
 		
@@ -392,8 +379,6 @@ package com.degrafa.geometry.stencil{
 				
 				//resize
 				calculateRatios();
-				
-				commandStack.lengthIsValid=false;
 				
 				invalidated = false;
 			}

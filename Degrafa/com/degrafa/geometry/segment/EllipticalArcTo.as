@@ -352,7 +352,7 @@ package com.degrafa.geometry.segment{
 					
 				if(!_commandStackItem){
 					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
-					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
+					NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
 					
 					isNewItem = true;
 				}	

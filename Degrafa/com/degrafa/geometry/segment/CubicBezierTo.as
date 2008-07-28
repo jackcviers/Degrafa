@@ -310,7 +310,7 @@ package com.degrafa.geometry.segment{
 				//add for the first run
 				if(!_commandStackItem){			
 					_commandStackItem = new CommandStackItem(CommandStackItem.COMMAND_STACK,
-					NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
+					NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack());
 					
 					isNewItem =true;
 				}

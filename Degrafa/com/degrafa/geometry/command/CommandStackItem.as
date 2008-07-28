@@ -31,14 +31,16 @@ package com.degrafa.geometry.command{
 		public static const CURVE_TO:int=2;
 		public static const DELEGATE_TO:int=3;
 		public static const COMMAND_STACK:int=4;
+						
+		public var type:int;
+		public var id:String;
+		public var reference:String;
 		
-		public var start:Point = new Point();
-		public var control:Point = new Point();
-		public var end:Point = new Point();
+		public var invalidated:Boolean;
 		
 		private static var isRegistered:Boolean = false;
 		
-		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,originX:Number=NaN,originY:Number=NaN,commandStack:CommandStack=null){
+		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,commandStack:CommandStack=null){
 			
 			this.type = type;
 			_x=x;
@@ -47,12 +49,11 @@ package com.degrafa.geometry.command{
 			_y1=y1;
 			_cx=cx;
 			_cy=cy;
-			this.originX=originX;
-			this.originY=originY;
-			this.commandStack = commandStack;
 			
-			initPoints();
-			
+			if(commandStack){			
+				this.commandStack = commandStack;
+			}
+						
 			if(!isRegistered){
 				registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
 				registerClassAlias("flash.geom.Point", Point);
@@ -60,24 +61,127 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
-		public function initPoints():void{
-			start.x = originX;
-			start.y = originY;
-			
-			control.x = (_cx)? _cx:0;
-			control.y = (_cy)? _cy:0;
-			
-			end.x = (type==1 || type==0)? _x:_x1;
-			end.y = (type==1 || type==0)? _y:_y1;
-			
-			invalidated=true;			
+		/**
+		* A reference to the previouse item in the parent command stack.
+		*/		
+		private var _previous:CommandStackItem;
+		public function get previous():CommandStackItem{
+			return _previous;
+		}
+		public function set previous(value:CommandStackItem):void{
+			if(_previous != value){
+				_previous = value;
+				
+				//on set if this is a command stack then forward to the first item			
+				if(type==CommandStackItem.COMMAND_STACK){
+					CommandStackItem(commandStack.source[0]).previous = value;
+				}
+			}
 		}
 		
-		public var type:int;
-		public var id:String;
-		public var reference:String;
+		/**
+		* A reference to the next item in the parent command stack.
+		*/		
+		private var _next:CommandStackItem;
+		public function get next():CommandStackItem{
+			return _next;
+		}
+		public function set next(value:CommandStackItem):void{
+			if(_next != value){
+				_next = value;
+				
+				//on set if this is a command stack then forward to the last item			
+				if(type==CommandStackItem.COMMAND_STACK){
+					CommandStackItem(commandStack.source[commandStack.source.length-1]).next = value;
+				}
+				
+			}
+		}
 		
-		public var invalidated:Boolean;
+		/**
+		* Return the start point as a point object. This is considered to be
+		* the previous segments end point. You can only get the start point 
+		* you can not set it.
+		**/
+		public function get start():Point{
+			if(_previous){
+				return _previous.end.clone();
+			}
+			else{
+				return new Point(0,0);
+			}
+			
+			//TODO add case if the last item is a command stack type
+			//unless decided to add the proper item in the case of 
+			//command stack.
+		
+		
+		}
+		
+		/**
+		* Return the control point as a point object
+		**/
+		public function get control():Point{
+			return new Point(cx,cy);
+		}
+		/**
+		* Set the control point to the point value passed.
+		**/
+		public function set control(value:Point):void{
+			cx = value.x;
+			cy = value.y;
+		}
+		
+		/**
+		* Return the end point as a point object
+		**/
+		public function get end():Point{
+			return new Point((type==1 || type==0)? _x:_x1,(type==1 || type==0)? _y:_y1);
+		}
+		
+		/**
+		* Set the end point to the point value passed.
+		**/
+		public function set end(value:Point):void{
+			if (type==1 || type==0){
+				x=value.x;
+				y=value.y;
+			}
+			else{
+				x1=value.x;
+				y1=value.y;
+			}
+		}
+		
+		/**
+		* Function to be called during the render loop when 
+		* this item is encountered .
+		*/		
+		private var _delegate:Function;
+		public function get delegate():Function{
+			return _delegate;
+		}
+		public function set delegate(value:Function):void{
+			if(_delegate != value){
+				_delegate = value;
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* A nested command stack in the case of a command stack type
+		**/
+		private var _commandStack:CommandStack;
+		public function get commandStack():CommandStack{
+			return _commandStack;
+		}
+		public function set commandStack(value:CommandStack):void{
+			if(_commandStack != value){
+				_commandStack = value;
+				invalidated = true;
+			}
+		}
+		
 		
 		/**
 		 * x coordinate for a LINE_TO or MOVE_TO
@@ -157,22 +261,6 @@ package com.degrafa.geometry.command{
 				invalidated = true;
 			}
 		}
-		
-		/**
-		 * x value before a change to the drawing position
-		 */		
-		public var originX:Number;
-		/**
-		 * y value before a change to the drawing position
-		 */	
-		public var originY:Number;
-				
-		/**
-		 * Function to be called during the draw loop 
-		 */		
-		public var delegate:Function;
-		
-		public var commandStack:CommandStack;
 				
 		/**
 		* Returns the length of the this segment
@@ -341,10 +429,7 @@ package com.degrafa.geometry.command{
 			if (!y1){_y1=value.y1;}
 			if (!cx){_cx=value.cx;}
 			if (!cy){_cy=value.cy;}
-			
-			if (!originX){originX=value.originX;}
-			if (!originY){originY=value.originY;}
-			
+						
 			if (!reference){reference=value.reference;}
 			
 			invalidated = true;

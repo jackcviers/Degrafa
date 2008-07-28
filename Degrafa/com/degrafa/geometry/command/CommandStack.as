@@ -21,27 +21,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.command{
 	
-	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.DegrafaCursor;
-	import com.degrafa.core.utils.CloneUtil;
-	import com.degrafa.decorators.IDrawDecorator;
 	import com.degrafa.geometry.Geometry;
-	import flash.geom.Matrix;
 	
 	import flash.display.Graphics;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	public class CommandStack{
 		
+		//TODO this has to be made private now and all access controlled through the command
+		//stack otherwise we can loose previous and next references
 		public var source:Array = [];
-		public var cmdSource:Array;
-		public var pointer:Point = new Point(0,0);
-		
-		//used to store the origin at creation time as items are added
-		//and used to set the origin in the items as they are created
-		private var currentPointX:Number=0;
-		private var currentPointY:Number=0;
 		
 		public var lengthIsValid:Boolean;
 		
@@ -60,6 +52,9 @@ package com.degrafa.geometry.command{
 			
 		}
 		
+		/**
+		* Initiates the render phase.
+		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			//exit if no command stack
@@ -68,15 +63,14 @@ package com.degrafa.geometry.command{
 			var requester:Geometry = owner;
 
 			//establish a transform context if there are ancestral transforms
-			while (requester.parent)
-				{
-					//assign a transformContext based on the closest ancestral transform
-					requester = (requester.parent as Geometry);
-					if (requester.transform) {
-						owner.transformContext = requester.transform.getTransformFor(requester);
-						break;
-					}
+			while (requester.parent){
+				//assign a transformContext based on the closest ancestral transform
+				requester = (requester.parent as Geometry);
+				if (requester.transform) {
+					owner.transformContext = requester.transform.getTransformFor(requester);
+					break;
 				}
+			}
 
 						
 			//setup the stroke
@@ -85,6 +79,8 @@ package com.degrafa.geometry.command{
 			//setup the fill
 			owner.initFill(graphics,rc);
 			
+			//TODO decorations will work differently
+			/*
 			if(owner.decorators.length !=0){
 				cmdSource = CloneUtil.clone(source)
 				_cursor = new DegrafaCursor(cmdSource);
@@ -98,20 +94,25 @@ package com.degrafa.geometry.command{
 			}
 			else{
 				_cursor = new DegrafaCursor(source);	
-			}
+			}*/
 			
-			renderCommandStack(graphics,rc,_cursor);
+			_cursor = new DegrafaCursor(source);
+			renderCommandStack(graphics,rc,_cursor);  
 			        	
-        	if(owner.decorators.length !=0){
+        	/*if(owner.decorators.length !=0){
         		cmdSource.length = 0;
-        	}
+        	}*/
         	
 		}
-
+		
+		
+		/**
+		* Principle render loop. Use delgates to override specific items
+		* while the render loop is processing.
+		**/
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 		
 			var item:CommandStackItem;
-			
 			
 			var trans:Boolean =  (owner.transformContext ||(owner.transform && !owner.transform.isIdentity));
 			
@@ -178,104 +179,155 @@ package com.degrafa.geometry.command{
 					}
     			}
     
-        		updatePointer(item);
         	}
-			
+		}
 				
+		/**
+		* Updates the item with the correct previous and next reference
+		**/
+		private function updateItemRelations(item:CommandStackItem,index:int):void{
+			
+			item.previous = (index>0)? source[index-1]:null;
+			
+			if(item.previous){
+				if(item.previous.type == CommandStackItem.COMMAND_STACK){
+					item.previous = item.previous.commandStack.lastNonCommandStackItem;
+				}
+			
+				item.previous.next = (item.type == CommandStackItem.COMMAND_STACK)? item.commandStack.firstNonCommandStackItem:item;
+			}
+			
 		}
 		
-		//create and add move to item
+		/**
+		* get the last none commandstack type (CommandStackItem.COMMAND_STACK)
+		* item in this command stack.
+		**/
+		public function get lastNonCommandStackItem():CommandStackItem{
+			var i:int = source.length-1;
+			while(i>0){
+				if(source[i].type != 4){
+					return source[i];
+				}
+				else{
+					return CommandStackItem(source[i]).commandStack.lastNonCommandStackItem;
+				}
+				i--
+			}
+			return source[0];
+		}
+		
+		/**
+		* Get the first none commandstack type (CommandStackItem.COMMAND_STACK)
+		* item in this command stack.
+		**/
+		public function get firstNonCommandStackItem():CommandStackItem{
+			
+			var i:int = source.length-1;
+			while(i<source.length-1){
+				
+				if(source[i].type != 4){
+					return source[i];
+				}
+				else{
+					return CommandStackItem(source[i]).commandStack.firstNonCommandStackItem;
+				}
+				
+				i++
+			}
+			
+			return null;
+		}
+		
+		
+		/**
+		* Adds a new MOVE_TO type item to be processed.
+		**/	
 		public function addMoveTo(x:Number,y:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
-			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
+			var itemIndex:int = source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
+			x,y,NaN,NaN,NaN,NaN))-1;
 			
-			currentPointX =x;
-			currentPointY =y;
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
+			
 		}
 		
-		//create and add line to item
+		/**
+		* Adds a new LINE_TO type item to be processed.
+		**/	
 		public function addLineTo(x:Number,y:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.LINE_TO,
-			x,y,NaN,NaN,NaN,NaN,currentPointX,currentPointY));
+			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.LINE_TO,
+			x,y,NaN,NaN,NaN,NaN))-1;
 			
-			currentPointX =x;
-			currentPointY =y;
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
 			
 			lengthIsValid = false;
 		}
 		
-		//create and add curve to item
+		/**
+		* Adds a new CURVE_TO type item to be processed.
+		**/	
 		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
-			source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
-			NaN,NaN,x1,y1,cx,cy,currentPointX,currentPointY));
+			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
+			NaN,NaN,x1,y1,cx,cy))-1;
 			
-			currentPointX =x1;
-			currentPointY =y1;
-		
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
+			
 			lengthIsValid = false;
 		}
 		
-		//create and add delegate function item
+		/**
+		* Adds a new DELEGATE_TO type item to be processed.
+		**/	
 		public function addDelegate(delegate:Function):void{
-			source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO));
-		}
-		
-		//create and add command stack item
-		public function addCommandStack(commandStack:CommandStack):void{
-			source.push(new CommandStackItem(CommandStackItem.COMMAND_STACK,
-			NaN,NaN,NaN,NaN,NaN,NaN,currentPointX,currentPointY,commandStack));
+			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO))-1;
 			
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
 		}
 		
-		public function getItem(index:int):CommandStackItem{
-			return source[index];
+		/**
+		* Adds a new COMMAND_STACK type item to be processed.
+		**/	
+		public function addCommandStack(commandStack:CommandStack):void{
+			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.COMMAND_STACK,
+			NaN,NaN,NaN,NaN,NaN,NaN,commandStack))-1;
+			
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
 		}
 		
-		//add an already created item		
+		/**
+		* Adds a new command stack item to be processed.
+		**/		
 		public function addItem(value:CommandStackItem):void{
 			
-			//we have to set the origin and init the points as this is not
-			//always done when the iteam is created.
-			if(value.type == CommandStackItem.COMMAND_STACK){
-				//if command stack then set the first items origin
-				var firstSegment:CommandStackItem =value.commandStack.firstSegmentWithLength;
-				firstSegment.originX=currentPointX;
-				firstSegment.originY=currentPointY;
-				firstSegment.initPoints();
-				
-				//set current to last command stack item end point
-				
-				var lastSegment:CommandStackItem = value.commandStack.lastSegmentWithLength;
-				currentPointX =lastSegment.end.x;
-				currentPointY =lastSegment.end.y;
+			var itemIndex:int =source.push(value)-1;
 			
-			}
-			else{
-				value.originX=currentPointX;
-				value.originY=currentPointY;
-				value.initPoints();
-				currentPointX =value.end.x;
-				currentPointY =value.end.y;
-			}
-			
-			source.push(value);
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
 						
 			if(value.type != CommandStackItem.COMMAND_STACK){
 				lengthIsValid = false;
 			}
 			
 		}
-		
-		protected function updatePointer(item:CommandStackItem):void{
-			item.originX = pointer.x;
-			item.originY = pointer.y;
-			
-			pointer.x = item.end.x;
-			pointer.y = item.end.y;
-			
+						
+		private var _currentRenderPoint:Point;
+		/**
+		* Returns the current end point of the item being rendered.
+		**/		
+		public function get currentRenderPoint():Point{
+			return _currentRenderPoint;
 		}
 				
-		protected var _cursor:DegrafaCursor;
+		private var _cursor:DegrafaCursor;
+		/**
+		* Returns a working cursor for this command stack
+		**/
+		//TODO add a cursor dispose.
 		public function get cursor():DegrafaCursor{
 			if(!_cursor)
 				_cursor = new DegrafaCursor(source);
@@ -283,12 +335,22 @@ package com.degrafa.geometry.command{
 			return _cursor;
 		}
 		
+		/**
+		* Retuirn the item at the given index
+		**/
+		public function getItem(index:int):CommandStackItem{
+			return source[index];
+		}
+		
+		/**
+		* The current length of the internal array of command stack items. Setting 
+		* the length to 0 will clear all items in the command stack.
+		**/
 		public function get length():int {
 			return source.length;
 		}
-		
-		public function set length(v:int):void {
-			source.length = v;
+		public function set length(value:int):void{
+			source.length = value;
 		}
 		
 		private var _pathLength:Number=0;
