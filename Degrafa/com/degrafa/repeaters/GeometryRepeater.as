@@ -32,7 +32,6 @@ package com.degrafa.repeaters
 	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
-	import mx.graphics.IFill;
 
 	//[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry {
@@ -41,10 +40,12 @@ package com.degrafa.repeaters
 		private var _bounds:Rectangle;  
 		private var _isDrawing:Boolean=false;
 	
+		[Inspectable]
+		public var renderOnFinalIteration:Boolean=false;
+	
 		public function GeometryRepeater(){
 			super();
 		}
-
 		
 		/**
 		* Denotes how many time object will be repeated
@@ -103,7 +104,7 @@ package com.degrafa.repeaters
 		**/
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
 		//	trace("Geometry Repeater: " + event.property + " has changed");
-			if(_isDrawing) {
+			if(_isDrawing || this.suppressEventProcessing==true) {
 				this.invalidated=true;
 				return;
 			} 
@@ -131,8 +132,15 @@ package com.degrafa.repeaters
 	//		trace("GeometryRepeater draw()");
 			_isDrawing=true;
 			
+			
+			//We need to do this before we reset our objects states
+			calcBounds();
+			
+			
 			var t:Number=getTimer();
-		
+			
+			var isSuppressed=suppressEventProcessing;
+			
 			suppressEventProcessing=true;
 			//Clone source geometery to reset it
 			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
@@ -154,30 +162,33 @@ package com.degrafa.repeaters
 				//Draw out our changed object
 				//super.draw(graphics,rc);
 				
-				if(graphics){
-                    super.draw(graphics,rc);
-                   // super.endDraw(graphics);
-                }
-                else{
-                    
-                    if(graphicsTarget){
-                        for each (var targetItem:Object in graphicsTarget){
-                            if(targetItem){
-                                if(autoClearGraphicsTarget){
-                                    targetItem.graphics.clear();
-                                }
-                                super.draw(targetItem.graphics,null);
-                               // super.endDraw(targetItem.graphics);
-                            }
-                        }
-                    }
-                    
-                }//
+				if ((renderOnFinalIteration==true && (i==_count-1)) || !renderOnFinalIteration) {
+				
+					if(graphics){
+	                    super.draw(graphics,rc);
+	                   // super.endDraw(graphics);
+	                }
+	                else{
+	                    
+	                    if(graphicsTarget){
+	                        for each (var targetItem:Object in graphicsTarget){
+	                            if(targetItem){
+	                            	 
+	                                if(autoClearGraphicsTarget){
+	                                    targetItem.graphics.clear();
+	                                }
+	                                super.draw(targetItem.graphics,rc);
+	                               // super.endDraw(targetItem.graphics);
+	                            }
+	                        }
+	                    }
+	                    
+	                }//
+	  			 }
 				
 			}
 			
-			//We need to do this before we reset our objects states
-			calcBounds();
+		
 			
 			//End modifications (which returns the object to its original state
 			for each (modifier in _modifiers.items) {
@@ -185,7 +196,7 @@ package com.degrafa.repeaters
 				DegrafaObject(modifier).suppressEventProcessing=false;
 			}
 			
-			suppressEventProcessing=false;
+			suppressEventProcessing=isSuppressed;
 			
 			_isDrawing=false;
 			
@@ -212,15 +223,19 @@ package com.degrafa.repeaters
 	     	return eventDispatcher.dispatchEvent(evt);
 	     	
 	    }
+
 		
 		private function calcBounds():void {
-			_bounds=new Rectangle;
+			_bounds=new Rectangle();
+			_bounds.left=this.x;
+			_bounds.top=this.y;
+			_bounds.width=this.width;
+			_bounds.height=this.height;
 			
-			for (var i:int=0;i<geometry.length;i++) {
-				 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
-					_bounds.union(Geometry(geometry[i]).bounds);
-			}
-
+			//for (var i:int=0;i<geometry.length;i++) {
+			//	 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
+			//		_bounds.union(Geometry(geometry[i]).bounds);
+			//}
 			//trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
 		
