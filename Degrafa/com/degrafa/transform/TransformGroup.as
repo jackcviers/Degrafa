@@ -111,6 +111,18 @@ package com.degrafa.transform{
 			return retMatrix;
 		}
 		
+		//some fills can be directly requesting this for compound transforms, need to implement it locally
+		override public function get transformMatrix():Matrix
+		{
+		
+				var retMatrix:Matrix = new Matrix();
+				for each(var matrix:ITransform in transforms)
+				{
+					retMatrix.concat(matrix.transformMatrix);
+				}
+				trace('returning:'+retMatrix)
+				return retMatrix;
+		}
 		
 	}
 }
