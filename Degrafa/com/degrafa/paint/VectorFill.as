@@ -56,8 +56,7 @@ package com.degrafa.paint{
 	//  Other metadata
 	//--------------------------------------
 	
-	//TODO: create icon
-	//[IconFile("VectorFill.png")]
+	[IconFile("VectorFill.png")]
 	
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
