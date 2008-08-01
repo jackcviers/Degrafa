@@ -968,7 +968,8 @@ package com.degrafa.paint{
 		public function begin(graphics:Graphics, rectangle:Rectangle):void {
 
 			if (rectangle && (rectangle.isEmpty() || rectangle.width*rectangle.height<1)) return; //no fill
-			
+			if (_enableSourceClipping && !_clipSourceRect) return ; // empty fill....as clipSource has not yet been assigned.
+
 			if (_requiresRedraw) redraw();
 			
 			var template:BitmapData = bitmapData;
