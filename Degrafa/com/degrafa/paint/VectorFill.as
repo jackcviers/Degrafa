@@ -58,6 +58,7 @@ package com.degrafa.paint{
 	
 	[IconFile("VectorFill.png")]
 	
+	
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
@@ -941,7 +942,8 @@ package com.degrafa.paint{
 			_source = value;
 			//add new listener
 			(_source as DegrafaObject).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, geomListener);
-				
+			_requiresRedraw = true;
+			_requiresPreRender = true;
 			initChange("source", oldValue, bitmapData, this);
 
 		}
