@@ -497,7 +497,6 @@ package com.degrafa.paint{
 				initChange("source", oldValue, bitmapData, this);
 				return;
 			}
-			
 			//var sprite:DisplayObject;
 			if (value is Class)
 			{
@@ -540,7 +539,6 @@ package com.degrafa.paint{
 			}
 			else
 			{
-				trace('assuming null assignment for BitmapFill, unrecognized source assignment of:'+value)
 				//option:
 				//source = null;
 				//or:
@@ -548,12 +546,24 @@ package com.degrafa.paint{
 				if (oldValue!=null)	initChange("source", oldValue, null, this);
 				return;
 			}
-				
-		//original:	if (bitmapData == null && target != null)
+			//original:	if (bitmapData == null && target != null)
 			if( target != null)
 			{
+				//handle displayObjects with zero width and height
+				if (!target.width || !target.height)
+				{
+					//check the bounds and if they're not empty use them.
+					var tempRect:Rectangle = target.getBounds(target);
+					if (!tempRect.isEmpty())
+					{
+						bitmapData = new BitmapData(tempRect.width, tempRect.height, true, 0);
+						bitmapData.draw(target, new Matrix(1, 0, 0, 1, -tempRect.x, -tempRect.y));
+					} else bitmapData = null;
+					
+				} else {
 				bitmapData = new BitmapData(target.width, target.height, true, 0);
 				bitmapData.draw(target);
+				}
 			}
 			
 			initChange("source", oldValue, bitmapData, this);
