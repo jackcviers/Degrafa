@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
@@ -398,6 +399,7 @@ package com.degrafa.geometry{
 					geometryItem.draw(graphics,null);
 				}
 			}
+			dispatchEvent(new DegrafaEvent(DegrafaEvent.RENDER));
 	    }		
 		
 		
