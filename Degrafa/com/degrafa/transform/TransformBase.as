@@ -40,6 +40,67 @@ package com.degrafa.transform{
 		
 		private static var identity:Matrix = new Matrix();
 		
+		//utility methods - perhaps we should separate this into a static utility class 
+		public static function getRenderedBounds(target:IGeometryComposition):Rectangle
+		{
+			var requester:Geometry = (target as Geometry);
+
+			if (requester.transform)
+			{
+				return (requester.transform as TransformBase).getTransformedBoundsFor(target);
+
+			} else {
+			var context:Matrix = requester.transformContext;
+
+			if (!context)
+			{
+				//check the parent hierachy for the closest ancestor with a transform
+				while (requester.parent)
+				{
+					requester = (requester.parent as Geometry);
+					if (requester.transform) {
+						context = requester.transform.getTransformFor(requester);
+						break;
+					}
+				}
+			}
+			if (context)
+			{
+				return transformBounds(requester.bounds, context);
+			} else return requester.bounds.clone();
+			
+			}
+		}
+		
+		/**
+		 * Helper method to apply a matrix to a Rectangle and return a transformed Rectangle
+		 * @param	rect the rectangle to be transformed
+		 * @param	trans the transformation Matrix to be applied
+		 * @return
+		 */
+		public static function transformBounds(rect:Rectangle, trans:Matrix):Rectangle
+		{
+			var tempBounds:Rectangle = rect.clone();
+			var tl:Point = tempBounds.topLeft;
+			var br:Point = tempBounds.bottomRight;
+			var tr:Point;
+			var bl:Point;
+			( tr =tl.clone()).offset(br.x - tl.x, 0);
+			( bl = tl.clone()).offset(0, br.y - tl.y);
+
+			var points:Array = [trans.transformPoint(br),trans.transformPoint(tr),trans.transformPoint(bl)];
+			tempBounds.setEmpty();
+			tempBounds.topLeft = trans.transformPoint(tl);
+			for each(var p:Point in points)
+			{
+				if (tempBounds.x > p.x) tempBounds.x = p.x;
+				if (tempBounds.y > p.y) tempBounds.y = p.y;
+				if (tempBounds.right < p.x) tempBounds.right = p.x;
+				if (tempBounds.bottom < p.y) tempBounds.bottom = p.y;
+			}
+			return tempBounds;
+		}
+		
 		/**
 		* Specifies whether this object's matrix is to be re calculated 
 		* on the next request.
@@ -208,6 +269,8 @@ package com.degrafa.transform{
 		{
 			var requester:Geometry = (value as Geometry);
 			var trans:Matrix = getTransformFor(value);
+			return transformBounds(requester.bounds, trans);
+			/*
 			var tempBounds:Rectangle = requester.bounds.clone();
 			var tl:Point = tempBounds.topLeft;
 			var br:Point = tempBounds.bottomRight;
@@ -226,7 +289,7 @@ package com.degrafa.transform{
 				if (tempBounds.right < p.x) tempBounds.right = p.x;
 				if (tempBounds.bottom < p.y) tempBounds.bottom = p.y;
 			}
-			return tempBounds;
+			return tempBounds;*/
 		}
 		
 		/**
