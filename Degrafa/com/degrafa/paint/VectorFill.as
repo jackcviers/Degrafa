@@ -405,6 +405,8 @@ package com.degrafa.paint{
 		 */
 		//TODO: investigate event dispatching extended filters for Degrafa.
 		private var _filters:FilterCollection;
+		[Inspectable(category="General", arrayType="flash.filters.BitmapFilter")]
+		[ArrayElementType("flash.filters.BitmapFilter")]
 		public function get filters():Array{
 			initFilterCollection();
 			return _filters.items;
@@ -526,8 +528,7 @@ package com.degrafa.paint{
 		
 		/**
 		 * whether the fillrendering bounds are determined by insetting from half the stroke width of the target or not.
-		 * this setting only has effect when used to fill degrafa target geometry and only if the targetSetting of the fill
-		 * is either matchTargetBounds or matchTargetBoundsMaintainAspectRatio, otherwise it is ignored.
+		 * this setting only has effect when used to fill degrafa target geometry otherwise it is ignored.
 		 */
 		private var _insetFromStroke:Boolean;
 		[Inspectable(category="General", enumeration="true,false")]
@@ -632,8 +633,7 @@ package com.degrafa.paint{
 			//ignore any changes here that don't affect the bounds
 			var checkBounds:Rectangle
 			if (event.target is Geometry){
-			//event.target.preDraw(); //double check we have updated bounds <- no longer needed as this is a rendertime event and we are looking for rendered bounds
-			//get the transformed (render) bounds for the clipSource object:
+				//get the transformed (render) bounds for the clipSource object:
 				checkBounds = TransformBase.getRenderedBounds(event.target as IGeometryComposition );
 			} else { //a displayObject is being used
 				//dev note: this is preliminary... an option to use a full GeometryGroup as the clipSource. Untested at this point.
@@ -679,11 +679,10 @@ package com.degrafa.paint{
 		 */
 		protected function geomListener(event:PropertyChangeEvent):void
 		{
-
 			_requiresRedraw = true;
 			_requiresPreRender = true;
 			initChange("source." + event.property , event.oldValue, event.newValue, this);
-			
+		
 		}
 		
 
@@ -696,9 +695,8 @@ package com.degrafa.paint{
 				// as a redraw is not required, just application or removal of the filters and adjustment of sourceBounds
 				shape.graphics.clear();
 				_source.draw(shape.graphics, _source.bounds);				
-				
 				sourceBounds = shape.getBounds(shape);
-	
+
 				//filters, if used, are not included in sourceBounds from the Shape. So we need to add the filter effects to the sourceBounds
 				
 				//dev note: this filter calculation is preliminary and (hopefully) may be able to be done in a more lightweight way:
@@ -748,10 +746,7 @@ package com.degrafa.paint{
 		{
 			while (_disposalQueue.length > _disposalLimit)
 			{
-			//	trace(System.totalMemory  );
-				_disposalQueue.shift().dispose();
-			//	trace('disposing:' + _disposalQueue.length+":"+System.totalMemory );
-				
+				_disposalQueue.shift().dispose();			
 			}
 		}
 		
@@ -765,10 +760,8 @@ package com.degrafa.paint{
 		 * @param   repX repeat count horizontally
 		 * @param   repY repeat count vertically
 		 */
-		private function preRender(xoffset:uint=0,yoffset:uint=0,redrawSource:Boolean=true,targRect:Rectangle=null,clipSource:Rectangle=null,repX:uint=1,repY:uint=1):void
+		private function preRender(xoffset:uint=0,yoffset:uint=0,redrawSource:Boolean=true,targRect:Rectangle=null,clipperRect:Rectangle=null,repX:uint=1,repY:uint=1):void
 		{
-		//	trace('prerendering:'+"["+arguments.join("][")+"]")
-
 			if(_source )
 			{
 				//should only actually redraw if the source geometry has changed
@@ -783,15 +776,11 @@ package com.degrafa.paint{
 				} else {
 					workingRect = sourceBounds.clone();
 				}
-
 				if (!workingRect.isEmpty()) {
 						var newWidth:uint ;
 						var newHeight:uint;
 
-					//round to cover subpixels
-				//	workingRect.width=Math.ceil(workingRect.width+(workingRect.x- (workingRect.x=Math.floor(workingRect.x))));
-				//	workingRect.height=Math.ceil(workingRect.height+(workingRect.y-(workingRect.y=Math.floor(workingRect.y))));
-
+					//move to the 'origin' of the fill capture
 					var transMat:Matrix = new Matrix(1, 0, 0, 1, -(workingRect.x), -(workingRect.y))
 					if (targRect)
 					{
@@ -801,7 +790,6 @@ package com.degrafa.paint{
 								bitmapData = null;
 								return;
 							}
-			
 					//handle scaling bitmapdata
 						var xscaler:Number = targRect.width / workingRect.width;
 						var yscaler:Number = targRect.height / workingRect.height;
@@ -824,9 +812,10 @@ package com.degrafa.paint{
 						
 						} else {
 	
-							transMat.scale(xscaler, yscaler);					
+							transMat.scale(xscaler, yscaler);
 							newWidth = targRect.width+xoffset*2;
 							newHeight = targRect.height + yoffset * 2;
+	
 							var xpadExtra:uint = (repX!=1 && repY==1)?1:0;
 							var ypadExtra:uint = (repY!=1 && repX==1)?1:0;
 							if (newWidth>0 && newHeight>0) {
@@ -837,19 +826,19 @@ package com.degrafa.paint{
 								bitmapData = null;
 								return;
 							}
-							//	trace((newWidth*repX)+"x"+(newHeight*repY))
+
 						}
 										
 					} else { 
-					//	trace("xoffset:"+xoffset+" yoffset:"+yoffset+"::"+((workingRect.width+xoffset*2)*repX)+","+ ((workingRect.height+yoffset*2)*repY))
-					workingBitmapData = new BitmapData((workingRect.width+xoffset*2)*repX, (workingRect.height+yoffset*2)*repY, true, 0);
+
+						workingBitmapData = new BitmapData((workingRect.width+xoffset*2)*repX, (workingRect.height+yoffset*2)*repY, true, 0);
 		
 					
 					if (bitmapData) _disposalQueue.push(bitmapData);
 					} 
 					bitmapData = workingBitmapData;
 				
-					//dev note: consider moving this background fill into the BitmapData instantiation
+					//dev note: move this background fill operation into the BitmapData instantiation
 					if (_enableBackground && _solidFillBackground) {
 						bitmapData.fillRect(bitmapData.rect, uint(_solidFillBackground.alpha * 255 * 0x1000000)+uint(_solidFillBackground.color));
 					}
@@ -857,19 +846,19 @@ package com.degrafa.paint{
 					var tempBmp:BitmapData;
 					if (repX == 1 && repY == 1)
 					{
+		
 						if (!_enableSourceClipping) { 
 							//simple
-							//transMat.translate(xoffset,  yoffset);	
+							
 							tempBmp = new BitmapData(workingRect.width*transMat.a + .5, workingRect.height*transMat.d + .5,true,0);
 					        tempBmp.draw(shape, transMat, null, null, null, true );
-						//	bitmapData.draw(shape, transMat, null, _blendMode, null, true );
 							bitmapData.copyPixels(tempBmp,tempBmp.rect,new Point(xoffset,yoffset),null,null,true)
 			
 						} else 	{
-							//dev note: needs review,couldn't get clipRect to work on the draw command like I wanted, so this approach using a clipped bitmapData to copy from is used for now
-							transMat.tx = -clipSource.x*transMat.a;
-							transMat.ty = -clipSource.y*transMat.d;
-							tempBmp = new BitmapData(clipSource.width*transMat.a + .5, clipSource.height*transMat.d + .5,true,0);
+							transMat.tx = -clipperRect.x * transMat.a;
+							transMat.ty = -clipperRect.y * transMat.d;
+
+							tempBmp = new BitmapData(clipperRect.width*transMat.a + .5, clipperRect.height*transMat.d + .5,true,0);
 							tempBmp.draw(shape, transMat, null, null, null, true );
 						
 							bitmapData.copyPixels(tempBmp,tempBmp.rect,new Point(xoffset,yoffset),null,null,true)
@@ -877,34 +866,47 @@ package com.degrafa.paint{
 					}
 					else {
 						//repeat in one direction
-					//dev note: consider the other way of doing this with a bitmapFill in a temporary displayobject and using the native repeat option on the fill	
 						var i:uint;
 						var j:uint;
 						
 						if (_enableSourceClipping) {
 				
-							transMat.tx = -clipSource.x*transMat.a;
-							transMat.ty = -clipSource.y * transMat.d;
-						
-							//dev note: needs review,couldn't get clipRect to work on the draw command like I wanted, so this approach using a clipped bitmapData to copy from is used for now
-							tempBmp = new BitmapData(clipSource.width*transMat.a + .5, clipSource.height*transMat.d + .5,true,0);
+							transMat.tx = -clipperRect.x*transMat.a;
+							transMat.ty = -clipperRect.y * transMat.d;
+						   
+							tempBmp = new BitmapData(clipperRect.width*transMat.a + .5, clipperRect.height*transMat.d + .5,true,0);
 							tempBmp.draw(shape, transMat, null, null, null, true );
 
 						} 
 
+						transMat.translate(xoffset, yoffset);
+						var orgty:Number = transMat.ty;
+						var orgtx:Number = transMat.tx;
+
 						for (i = 0; i < repX; i++)
 						{
+							if (repX!=1) {
 							transMat.tx = i * (workingRect.width + xoffset * 2) + xoffset - workingRect.x;
-								if (xpadExtra) transMat.tx += xpadExtra;
+							} else transMat.ty = orgtx;
+							if (xpadExtra) {
+								transMat.tx += xpadExtra;
+							}
+
 							for (j = 0; j < repY; j++)
 							{	
-								transMat.ty =  j * (workingRect.height + yoffset*2 )+yoffset-workingRect.y;
-								if (ypadExtra) transMat.ty += ypadExtra;
-							if (!tempBmp)	bitmapData.draw(shape, transMat, null, _blendMode, null, true )
-							else {
+							if (repY!=1) {
+								transMat.ty =  j * (workingRect.height + yoffset * 2 ) + yoffset - workingRect.y;
+								} else transMat.ty = orgty;
+								if (ypadExtra) {
+									transMat.ty += ypadExtra;
+
+								}
+
+							if (!tempBmp)	{
+								bitmapData.draw(shape, transMat, null, _blendMode, null, true )
+							} else {
 								var tpoint:Point = new Point(xoffset+i*(workingRect.width+xoffset*2)+((xpadExtra)?xpadExtra:0), yoffset+j * (workingRect.height + yoffset*2 )+((ypadExtra)?ypadExtra:0));
 								bitmapData.copyPixels(tempBmp, tempBmp.rect, tpoint,null,null,true);
-							
 							}
 							
 							}
@@ -1097,10 +1099,11 @@ package com.degrafa.paint{
 						padY = 0;
 						repY = int(rectangle.height / targetRect.height);
 						repY = repY == 0?1:repY;
+					
 					break;
 					case VectorFill.REPEAT :
 						padY = 0;
-						repY = int(rectangle.height / targetRect.height) + 1;
+						repY = int(rectangle.height / targetRect.height) + 1
 					break;
 					case VectorFill.NONE:
 						if (_repeatX==VectorFill.NONE) repeat = false;
@@ -1114,9 +1117,11 @@ package com.degrafa.paint{
 					padX = 0;
 					padY = 0;
 					repeat = true;
-				}
+				} 
+				
 			if (_requiresPreRender){
 				preRender(padX+renderingPadX,padY+renderingPadY,_requiresRedraw,targetRect,_enableSourceClipping?_clipSourceRect:null,repX,repY)
+				if (bitmapData==null) return;
 				template = bitmapData;
 				
 			}
@@ -1129,17 +1134,15 @@ package com.degrafa.paint{
 			if(repeatY == VectorFill.NONE || repeatY == VectorFill.REPEAT) {
 				positionY = _offsetY.relativeTo(rectangle.height-template.height)
 			}
-
+			//	matrix.translate(-padX-renderingPadX, -padY-renderingPadX);
 			matrix.translate(-padX, -padY);
-			
+		
 			}
 			matrix.translate( -_originX, -_originY);
 
 			matrix.scale(_scaleX, _scaleY);
 			matrix.rotate(_rotation);
 			matrix.translate(positionX, positionY);
-			
-		//	var regPoint:Point;
 			var transformRequest:ITransform;
 			var tempmat:Matrix;
 		
@@ -1159,7 +1162,6 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-	
 			graphics.beginBitmapFill(template, matrix, repeat,_smooth );
 			//reset the forcePrerender flag
 			_requiresPreRender  = false;
