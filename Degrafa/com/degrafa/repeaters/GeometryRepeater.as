@@ -226,16 +226,16 @@ package com.degrafa.repeaters
 
 		
 		private function calcBounds():void {
-			_bounds=new Rectangle();
+			/*_bounds=new Rectangle();
 			_bounds.left=this.x;
 			_bounds.top=this.y;
 			_bounds.width=this.width;
-			_bounds.height=this.height;
+			_bounds.height=this.height;*/
 			
-			//for (var i:int=0;i<geometry.length;i++) {
-			//	 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
-			//		_bounds.union(Geometry(geometry[i]).bounds);
-			//}
+			for (var i:int=0;i<geometry.length;i++) {
+				 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
+					_bounds.union(Geometry(geometry[i]).bounds);
+			}
 			//trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
 		
