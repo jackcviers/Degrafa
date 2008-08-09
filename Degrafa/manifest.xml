@@ -19,7 +19,10 @@
 	<component id="SkewTransform" class="com.degrafa.transform.SkewTransform"/>
 	<component id="TransformGroup" class="com.degrafa.transform.TransformGroup"/>
 	<component id="TranslateTransform" class="com.degrafa.transform.TranslateTransform"/>
-
+	
+	<!--Layout-->
+	<component id="StandardLayout" class="com.degrafa.geometry.layout.StandardLayout"/>
+	
 	<!--core-->
 	<component id="DegrafaSkinManipulator" class="com.degrafa.core.manipulators.DegrafaSkinManipulator"/>
 	

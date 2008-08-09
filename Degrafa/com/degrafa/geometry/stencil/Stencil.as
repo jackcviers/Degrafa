@@ -104,11 +104,11 @@ package com.degrafa.geometry.stencil{
 		* The x-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
+		public function get x():Number{
 			if(!_x){return 0;}
 			return _x;
 		}
-		override public function set x(value:Number):void{
+		public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated = true;
@@ -121,11 +121,11 @@ package com.degrafa.geometry.stencil{
 		* The y-coordinate of the upper left point to begin drawing from. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
+		public function get y():Number{
 			if(!_y){return 0;}
 			return _y;
 		}
-		override public function set y(value:Number):void{
+		public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated = true;
@@ -137,10 +137,10 @@ package com.degrafa.geometry.stencil{
 		* The width of the object. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get width():Number{
+		public function get width():Number{
 			return _width;
 		}
-		override public function set width(value:Number):void{
+		public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
 				invalidated = true;
@@ -152,10 +152,10 @@ package com.degrafa.geometry.stencil{
 		* The height of the object. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get height():Number{
+		public function get height():Number{
 			return _height;
 		}
-		override public function set height(value:Number):void{
+		public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
 				invalidated = true;

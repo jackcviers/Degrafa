@@ -229,10 +229,10 @@ package com.degrafa.geometry.repeaters{
 		* The x-axis coordinate of the upper left point of the first complex rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
+		public function get x():Number{
 			return _x;
 		}
-		override public function set x(value:Number):void{
+		public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated=true;
@@ -244,10 +244,10 @@ package com.degrafa.geometry.repeaters{
 		* The y-axis coordinate of the upper left point of the first complex rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
+		public function get y():Number{
 			return _y;
 		}
-		override public function set y(value:Number):void{
+		public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated=true;
@@ -258,10 +258,10 @@ package com.degrafa.geometry.repeaters{
 		/**
 		* The width of the first complex rounded rectangle.
 		**/
-		override public function get width():Number{
+		public function get width():Number{
 			return _width;
 		}
-		override public function set width(value:Number):void{
+		public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
 				invalidated=true;
@@ -272,10 +272,10 @@ package com.degrafa.geometry.repeaters{
 		/**
 		* The height of the first complex rounded rectangle.
 		**/
-		override public function get height():Number{
+		public function get height():Number{
 			return _height;
 		}
-		override public function set height(value:Number):void{
+		public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
 				invalidated=true;

@@ -109,11 +109,11 @@ package com.degrafa.geometry{
 		* The x-axis coordinate of the upper left point of the arcs enclosure. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
+		public function get x():Number{
 			if(!_x){return 0;}
 			return _x;
 		}
-		override public function set x(value:Number):void{
+		public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated = true;
@@ -126,11 +126,11 @@ package com.degrafa.geometry{
 		* The y-axis coordinate of the upper left point of the arcs enclosure. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
+		public function get y():Number{
 			if(!_y){return 0;}
 			return _y;
 		}
-		override public function set y(value:Number):void{
+		public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated = true;
@@ -176,11 +176,11 @@ package com.degrafa.geometry{
 		/**
 		* The width of the arc.
 		**/
-		override public function get width():Number{
+		public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
 		}
-		override public function set width(value:Number):void{
+		public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
 				invalidated = true;
@@ -192,11 +192,11 @@ package com.degrafa.geometry{
 		/**
 		* The height of the arc.
 		**/
-		override public function get height():Number{
+		public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
 		}
-		override public function set height(value:Number):void{
+		public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
 				invalidated = true;

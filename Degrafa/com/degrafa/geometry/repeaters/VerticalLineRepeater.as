@@ -140,10 +140,10 @@ package com.degrafa.geometry.repeaters{
 		* The x-coordinate of the start point of the first line. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
+		public function get x():Number{
 			return _x;
 		}
-		override public function set x(value:Number):void{
+		public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated=true;
@@ -155,10 +155,10 @@ package com.degrafa.geometry.repeaters{
 		* The y-coordinate of the start point of the first line. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
+		public function get y():Number{
 			return _y;
 		}
-		override public function set y(value:Number):void{
+		public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated=true;

@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
@@ -30,7 +29,9 @@ package com.degrafa.geometry{
 	import com.degrafa.core.collections.DisplayObjectCollection;
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.decorators.IGlobalDecorator;
+	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.layout.ILayout;
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
 	import com.degrafa.transform.ITransform;
@@ -88,24 +89,7 @@ package com.degrafa.geometry{
 		public function get isBoundsInvalidated():Boolean{
 			return _boundsInvalidated;
 		} 
-		
-		/**
-		* Specifies whether the layout of this object is to be re calculated 
-		* on the next cycle.
-		**/
-		protected var _layoutInvalidated:Boolean;
-		public function get layoutInvalidated():Boolean{
-			return _layoutInvalidated;
-		}
-		public function set layoutInvalidated(value:Boolean):void{
-			_layoutInvalidated = true;
-		}
-		
-		public function get isLayoutInvalidated():Boolean{
-			return _layoutInvalidated;
-		} 
-		
-				
+						
 		private var _data:String;
 		/**
 		* Allows a short hand property setting that is 
@@ -400,6 +384,22 @@ package com.degrafa.geometry{
 				}
 			}
 			dispatchEvent(new DegrafaEvent(DegrafaEvent.RENDER));
+			
+			//test only draw bounding box for layout
+			/*if(layout){
+				graphics.lineStyle(1,0xFFF000);
+				graphics.drawRect(
+				
+				layout.layoutRectangle.x,
+				layout.layoutRectangle.y,
+				layout.layoutRectangle.width,
+				layout.layoutRectangle.height
+				
+				);
+				
+			}*/
+			
+			
 	    }		
 		
 		
@@ -489,24 +489,18 @@ package com.degrafa.geometry{
 		* and is responsible for it's own pre calculation cycle.
 		**/
 		public function preDraw():void{
-			//overridden
+			//overriden by subclasses
 		}
-		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		private var _commandStack:CommandStack;
-		public function get commandStack():CommandStack{
-			
-			if(!_commandStack)
-				_commandStack = new CommandStack(this);
-			
-			return _commandStack;
-		}	
-		public function set commandStack(value:CommandStack):void{
-			_commandStack=value;
-		}
-		
+				
+		public function initLayout():void{
+			//calculate the layout called by subclasses after the 
+			//bounds is available
+			if(layout){
+				layout.computeLayoutRectangle(bounds,Geometry(parent).bounds);
+			}
+		}		
+				
+				
 		private var _decorators:Array=[];
 		/**
 		* An Array of decorators that modify this Geometry.  IGlobalDecorator
@@ -606,6 +600,23 @@ package com.degrafa.geometry{
 			
 		}
 		
+		
+		/**
+		* An Array of flash rendering commands that make up this element. 
+		**/
+		private var _commandStack:CommandStack;
+		public function get commandStack():CommandStack{
+			
+			if(!_commandStack)
+				_commandStack = new CommandStack(this);
+			
+			return _commandStack;
+		}	
+		public function set commandStack(value:CommandStack):void{
+			_commandStack=value;
+		}
+		
+		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -626,314 +637,35 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* Layout related.
   		**********************************************************/
-  		private var _x:Number;
-		/**
-		* Doc
-		**/
-		public function get x():Number {
-			return _x;
-		}
-		public function set x(value:Number):void {
-			_x = value;
-		}
-		
-		private var _y:Number;
-		/**
-		* Doc
-		**/
-		public function get y():Number {
-			return _y;
-		}
-		public function set y(value:Number):void {
-			_y = value;
-		}
   		
-  		private var _width:Number;
+  		private var _layout:ILayout;
 		/**
-		* Doc
+		* Defines the layout that will be used for 
+		* positioning this geometry object.
 		**/
-		public function get width():Number {
-			return _width;
+		public function get layout():ILayout{
+			return _layout;
 		}
-		public function set width(value:Number):void {
-			_width = value;
-		}
-  		
-  		private var _percentWidth:Number;
-		/**
-		 * When set, the width of the layout will be
-		 * set as the value of this property multiplied
-		 * by the containing width.
-		 * A value of 0 represents 0% and 1 represents 100%.
-		 */
-		public function get percentWidth():Number {
-			return _percentWidth;
-		}
-		/** */
-		public function set percentWidth(value:Number):void {
-			_percentWidth = value;
-		}
-
-
-  		private var _height:Number;
-		/**
-		* Doc
-		**/
-		public function get height():Number {
-			return _height;
-		}
-		public function set height(value:Number):void {
-			_height = value;
-		}
-		
-		private var _percentHeight:Number;
-		/**
-		 * When set, the height of the layout will be
-		 * set as the value of this property multiplied
-		 * by the parent height.
-		 * A value of 0 represents 0% and 1 represents 100%.
-		 */
-		public function get percentHeight():Number {
-			return _percentHeight;
-		}
-		/** */
-		public function set percentHeight(value:Number):void {
-			_percentHeight = value;
-		}
-		
-  		private var _top:Number;
-		/**
-		* Doc
-		**/
-		public function get top():Number {
-			return _top;
-		}
-		public function set top(value:Number):void {
-			_top = value;
-		}
-
-		private var _right:Number;
-		/**
-		* Doc
-		**/
-		public function get right():Number {
-			return _right;
-		}
-		public function set right(value:Number):void {
-			_right = value;
-		}
-  		
-  		private var _bottom:Number;
-		/**
-		* Doc
-		**/
-		public function get bottom():Number {
-			return _bottom;
-		}
-		public function set bottom(value:Number):void {
-			_bottom = value;
-		}
-  		
-  		private var _left:Number;
-		/**
-		* Doc
-		**/
-		public function get left():Number {
-			return _left;
-		}
-		public function set left(value:Number):void {
-			_left = value;
-		}
-		
-		private var _horizontalCenter:Number;
-		/**
-		 * If set and left or right are not set then the resulting 
-		 * geometry will be centered horizontally offset by the value. 
-		 */
-		public function get horizontalCenter():Number {
-			return _horizontalCenter;
-		}
-		public function set horizontalCenter(value:Number):void {
-			_horizontalCenter = value;
-		}
-		
-		private var _verticalCenter:Number;
-		/**
-		 * If set and top or bottom are not set then the resulting 
-		 * geometry will be centered vertically offset by the value. 
-		 */
-		public function get verticalCenter():Number {
-			return _verticalCenter;
-		}
-		public function set verticalCenter(value:Number):void {
-			_verticalCenter = value;
-		}
-		
-
-		private var _maintainAspectRatio:Boolean;
-		/**
-		 * If true the drawn result of the geometry 
-		 * will maintain an aspect ratio relative to the ratio
-		 * of the precalculated bounds width and height.
-		 */
-		public function get maintainAspectRatio():Boolean {
-			return _maintainAspectRatio;
-		}
-		public function set maintainAspectRatio(value:Boolean):void {
-			_maintainAspectRatio = value;
-		}
-
-
-		private var _layoutRectangle:Rectangle = new Rectangle();
-		/**
-		* The resulting calculated rectangle from which to 
-		* layout/modify the geometry command stack items.
-		**/
-		public function get layoutRectangle():Rectangle {
-			return _layoutRectangle.clone();
-		}
-		public function set layoutRectangle(value:Rectangle):void {
-			_layoutRectangle = value;
-		}
-		
-		//based on the layout settings calculates a 
-		//rectangle object from which to adjust the 
-		//drawing commands when compared to the calculated 
-		//bounds. 
-		private function calculateLayoutRectangle():void{
-			
-			if (!isLayoutInvalidated){return;}
-			
-			//either the current target rectangle or the 
-			//parent geometry rectangle.
-			//(NOTE :: needs to be set before all this will work)
-			var container:Rectangle;
-			
-			//bring the layout rectangle local;
-			var _rect:Rectangle = layoutRectangle;
-			
-			// reusable value
-			var currValue:Number;
-			
-			// horizontal placement
-			var noLeft:Boolean = isNaN(_left);
-			var noRight:Boolean = isNaN(_right);
-			var noHorizontalCenter:Boolean = isNaN(_horizontalCenter);
-			var alignedLeft:Boolean = !Boolean(noLeft);
-			var alignedRight:Boolean = !Boolean(noRight);
-			
-			if (container){
-				if (!alignedLeft && !alignedRight) {
-					if (noHorizontalCenter) { 
-						// normal
-						_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
-						_rect.x = _x + container.left;
-					}else{ 
-						// centered
-						_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
-						_rect.x = _horizontalCenter - _rect.width/2 + container.left + container.width/2;
-					}
-					
-				}else if (!alignedRight) { 
-					// left
-					_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
-					_rect.x = container.left + _left;
-				}else if (!alignedLeft) { 
-					// right
-					_rect.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
-					_rect.x = container.right - _right - _rect.width;
-				}else{ 
-					// right and left (boxed)
-					_rect.right = container.right - _right;
-					_rect.left = container.left + _left;
-				}
-			}
-
-			// vertical placement
-			var noTop:Boolean = isNaN(_top);
-			var noBottom:Boolean = isNaN(_bottom);
-			var noVerticalCenter:Boolean = isNaN(_verticalCenter);
-			var alignedTop:Boolean = !Boolean(noTop);
-			var alignedBottom:Boolean = !Boolean(noBottom);
-			
-			if (container){
-				if (!alignedTop && !alignedBottom) {
-					
-					if (noVerticalCenter) { 
-						// normal
-						_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
-						_rect.y = _y + container.top;
-						
-					}else{ 
-						// centered
-						_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
-						_rect.y = _verticalCenter - _rect.height/2 + container.top + container.height/2;
-					}
-					
-				}else if (!alignedBottom) { 
-					// top
-					_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
-					_rect.y = container.top + _top;
-					
-				}else if (!alignedTop) { 
-					// bottom
-					_rect.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
-					_rect.y = container.bottom - _bottom - _rect.height;
-					
-				}else{ 
-					// top and bottom (boxed)
-					_rect.bottom = container.bottom - _bottom;
-					_rect.top = container.top + _top;
-				}
-			}
-
-			// maintaining aspect if applicable; use width and height for aspect
-			// only apply if one dimension is static and the other dynamic
-			// maintaining aspect has highest priority so it is evaluated last
-			if (_maintainAspectRatio && _height && _width) {
-								
-				var sizeRatio:Number = _height/_width;
-				var rectRatio:Number = _rect.height/_rect.width;
+		public function set layout(value:ILayout):void{
+			if(_layout != value){
+				var oldValue:Object=_layout;
 				
-				if (sizeRatio > rectRatio) { 
-					// width
-					currValue = _rect.height/sizeRatio;
-					
-					if (!alignedLeft) {
-						if (alignedRight) { 
-							// right 
-							_rect.x += _rect.width - currValue;
-						}else if (!(noHorizontalCenter)) { 
-							// centered
-							_rect.x += (_rect.width - currValue)/2;
-						}
-					}else if (alignedLeft && alignedRight) { 
-						// boxed
-						_rect.x += (_rect.width - currValue)/2;
+				if(_layout){
+					if(_layout.hasEventManager){
+						_layout.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 					}
-					_rect.width = currValue;
-					
-				}else if (sizeRatio < rectRatio) { 
-					// height
-					currValue = _rect.width * sizeRatio;
-					
-					if (!alignedTop) {
-						if (alignedBottom) { 
-							// bottom 
-							_rect.y += _rect.height - currValue;
-						}else if (!(noVerticalCenter)) { 
-							// centered
-							_rect.y += (_rect.height - currValue)/2;
-						}
-					}else if (alignedTop && alignedBottom) { 
-						// boxed
-						_rect.y += (_rect.height - currValue)/2;
-					}
-					_rect.height = currValue;
 				}
-			}
-			
-			layoutRectangle = _rect;
+								
+				_layout = value;
+				
+				if(enableEvents){	
+					_layout.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				}
+												
+				//call local helper to dispatch event
+				initChange("layout",oldValue,_layout,this);
+				
+			}	
 			
 		}
 		
