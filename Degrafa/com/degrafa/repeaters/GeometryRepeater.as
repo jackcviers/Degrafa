@@ -226,18 +226,86 @@ package com.degrafa.repeaters
 
 		
 		private function calcBounds():void {
-			/*_bounds=new Rectangle();
-			_bounds.left=this.x;
-			_bounds.top=this.y;
-			_bounds.width=this.width;
-			_bounds.height=this.height;*/
+			_bounds=new Rectangle();
+			_bounds.x=x;
+			_bounds.y=y;
+			_bounds.width=width;
+			_bounds.height=height;
 			
-			for (var i:int=0;i<geometry.length;i++) {
+			/*for (var i:int=0;i<geometry.length;i++) {
 				 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
 					_bounds.union(Geometry(geometry[i]).bounds);
-			}
+			}*/
 			//trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
+		
+		//*******
+		//temporary until bounds for this is figured out
+		private var _x:Number;
+		/**
+		* The x-axis coordinate of the upper left point of the regular rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get x():Number{
+			if(!_x){return 0;}
+			return _x;
+		}
+		public function set x(value:Number):void{
+			if(_x != value){
+				_x = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		private var _y:Number;
+		/**
+		* The y-axis coordinate of the upper left point of the regular rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		public function get y():Number{
+			if(!_y){return 0;}
+			return _y;
+		}
+		public function set y(value:Number):void{
+			if(_y != value){
+				_y = value;
+				invalidated = true;
+			}
+		}
+		
+		private var _width:Number;
+		/**
+		* The width of the regular rectangle.
+		**/
+		public function get width():Number{
+			if(!_width){return 0;}
+			return _width;
+		}
+		public function set width(value:Number):void{
+			if(_width != value){
+				_width = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		private var _height:Number;
+		/**
+		* The height of the regular rectangle.
+		**/
+		public function get height():Number{
+			if(!_height){return 0;}
+			return _height;
+		}
+		public function set height(value:Number):void{
+			if(_height != value){
+				_height = value;
+				invalidated = true;
+			}
+		}
+		
+		
 		
 	}
 }
