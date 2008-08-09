@@ -329,6 +329,7 @@ package com.degrafa.geometry.command{
 			
 		}
 		
+		//Based on code from Trevor McCauley, www.senocular.com
 		/**
 		* Returns the point on the line at t (0-1) of a line.
 		**/

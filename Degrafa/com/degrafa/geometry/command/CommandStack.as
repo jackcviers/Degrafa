@@ -409,7 +409,7 @@ package com.degrafa.geometry.command{
 			return source[length-1];
 		}
 		
-		
+		//Based on code from Trevor McCauley, www.senocular.com
 		/**
 		* Returns the point at t(0-1) on the path.
 		**/
