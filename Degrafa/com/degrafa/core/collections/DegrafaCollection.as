@@ -194,7 +194,7 @@ package com.degrafa.core.collections{
 		* @param index The index at which to add the item.
 		* @return The item added.
 		**/
-		protected function _addItemAt(value:*,index:Number):*{
+		protected function _addItemAt(value:Object,index:Number):*{
 			addListener(value);
 			splice(index,0,value);
 			return value;
@@ -529,7 +529,10 @@ package com.degrafa.core.collections{
 			
 			var returnArray:Array
 			
-			if(values.length !=0){
+			if(values.length == 1){
+				returnArray=_items.splice(startIndex,deleteCount,values[0]);
+			}
+			else if(values.length > 1){
 				returnArray=_items.splice(startIndex,deleteCount,values);
 			}
 			else{
