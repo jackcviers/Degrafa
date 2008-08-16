@@ -43,6 +43,7 @@ package com.degrafa.geometry{
 	
 	import mx.core.IStateClient;
 	import mx.events.PropertyChangeEvent;
+	import mx.styles.ISimpleStyleClient;
 	
 	[DefaultProperty("geometry")]
 	[Bindable(event="propertyChange")]
@@ -55,7 +56,7 @@ package com.degrafa.geometry{
  	*  property that can be used for short hand property setting.
  	**/	
 	public class Geometry extends DegrafaObject implements IDegrafaObject, 
-	IGeometryComposition, IStateClient{
+	IGeometryComposition, IStateClient, ISimpleStyleClient {
 		
 		/**
 		* Specifies whether this object is to be re calculated 
@@ -128,6 +129,35 @@ package com.degrafa.geometry{
 			
 		}
 		
+		private var _inheritStroke:Boolean=true;
+		/**
+		* If set to true and no stroke is defined and there is a parent object
+		* then this object will walk up through the parents to retrive a stroke 
+		* object. 
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get inheritStroke():Boolean{
+			return _inheritStroke;
+		} 
+		public function set inheritStroke(value:Boolean):void{
+			_inheritStroke=value;
+		}
+		
+		private var _inheritFill:Boolean=true;
+		/**
+		* If set to true and no fill is defined and there is a parent object
+		* then this object will walk up through the parents to retrive a fill 
+		* object. 
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get inheritFill():Boolean{
+			return _inheritFill;
+		} 
+		public function set inheritFill(value:Boolean):void{
+			_inheritFill=value;
+		}
+		
+		
 		private var _autoClearGraphicsTarget:Boolean=true;
 		/**
 		* When using a graphicsTarget and if this property is set to true 
@@ -190,29 +220,6 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-		
-		private var _state:String;
-		/**
-		* The state at which to draw this object
-		**/
-		public function get state():String{
-			return _state;
-		}
-		public function set state(value:String):void{
-			_state = value;
-		}
-		
-		private var _stateEvent:String;
-		/**
-		* The state event at which to draw this object
-		**/
-		public function get stateEvent():String{
-			return _stateEvent;
-		}
-		public function set stateEvent(value:String):void{
-			_stateEvent = value;
-		}
-		
 		
 		private var _geometry:GeometryCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.IGeometryComposition")]
@@ -384,53 +391,7 @@ package com.degrafa.geometry{
 				}
 			}
 			dispatchEvent(new DegrafaEvent(DegrafaEvent.RENDER));
-			
-			//test only draw bounding box for layout
-			/*if(layout){
-				graphics.lineStyle(1,0xFFF000);
-				graphics.drawRect(
-				
-				layout.layoutRectangle.x,
-				layout.layoutRectangle.y,
-				layout.layoutRectangle.width,
-				layout.layoutRectangle.height
-				
-				);
-				
-			}*/
-			
-			
-	    }		
-		
-		
-		private var _inheritStroke:Boolean=true;
-		/**
-		* If set to true and no stroke is defined and there is a parent object
-		* then this object will walk up through the parents to retrive a stroke 
-		* object. 
-		**/
-		[Inspectable(category="General", enumeration="true,false")]
-		public function get inheritStroke():Boolean{
-			return _inheritStroke;
-		} 
-		public function set inheritStroke(value:Boolean):void{
-			_inheritStroke=value;
-		}
-		
-		private var _inheritFill:Boolean=true;
-		/**
-		* If set to true and no fill is defined and there is a parent object
-		* then this object will walk up through the parents to retrive a fill 
-		* object. 
-		**/
-		[Inspectable(category="General", enumeration="true,false")]
-		public function get inheritFill():Boolean{
-			return _inheritFill;
-		} 
-		public function set inheritFill(value:Boolean):void{
-			_inheritFill=value;
-		}
-		
+		}		
 		
 		/**
 		* Initialise the stroke for this geometry object. Typically only called by draw 
@@ -491,17 +452,47 @@ package com.degrafa.geometry{
 		public function preDraw():void{
 			//overriden by subclasses
 		}
-				
-		public function initLayout():void{
-			//calculate the layout called by subclasses after the 
-			//bounds is available
-			if(layout){
-				layout.computeLayoutRectangle(bounds,Geometry(parent).bounds);
-			}
-		}		
-				
-				
-		private var _decorators:Array=[];
+		
+		/**
+		* An Array of flash rendering commands that make up this element. 
+		**/
+		private var _commandStack:CommandStack;
+		public function get commandStack():CommandStack{
+			
+			if(!_commandStack)
+				_commandStack = new CommandStack(this);
+			
+			return _commandStack;
+		}	
+		public function set commandStack(value:CommandStack):void{
+			_commandStack=value;
+		}
+		
+		
+		/**
+		* Begins the draw phase for geometry objects. All geometry objects 
+		* override this to do their specific rendering.
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds. 
+		**/
+		public function draw(graphics:Graphics,rc:Rectangle):void{
+			
+			//always do layout regardless
+			initLayout();
+		
+			//don't draw unless visible
+			if(!visible){return;}
+			
+			commandStack.draw(graphics,(layout)? layout.layoutRectangle:rc);
+         	endDraw(graphics);
+         
+  		}		
+  		
+  		/**********************************************************
+  		* Decoration related.
+  		**********************************************************/
+  		private var _decorators:Array=[];
 		/**
 		* An Array of decorators that modify this Geometry.  IGlobalDecorator
 		* are executed and cleaned up here. 
@@ -534,9 +525,9 @@ package com.degrafa.geometry{
 				
 				_decorators=value;
 				
-				/* if(enableEvents){	
+				if(enableEvents){	
 					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
-				} */
+				}
 				
 				initChange("decorators",oldValue,_decorators,this);
 				
@@ -551,7 +542,14 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-		/**
+		/**********************************************************
+  		* END Decoration related.
+  		**********************************************************/
+  		
+  		/**********************************************************
+  		* Transform related.
+  		**********************************************************/
+  		/**
 		 * A reference to the transformation matrix context within which local transforms will be applied.
 		 * Similar in concept to the concatenatedMatrix on a flash DisplayObjects transform property.
 		 */
@@ -599,40 +597,10 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		
-		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
-		private var _commandStack:CommandStack;
-		public function get commandStack():CommandStack{
-			
-			if(!_commandStack)
-				_commandStack = new CommandStack(this);
-			
-			return _commandStack;
-		}	
-		public function set commandStack(value:CommandStack):void{
-			_commandStack=value;
-		}
-		
-		
-		/**
-		* Begins the draw phase for geometry objects. All geometry objects 
-		* override this to do their specific rendering.
-		* 
-		* @param graphics The current context to draw to.
-		* @param rc A Rectangle object used for fill bounds. 
-		**/
-		public function draw(graphics:Graphics,rc:Rectangle):void{
-						
-			//don't draw unless visible
-			if(!visible){return;}
-			
-			commandStack.draw(graphics,rc);
-         	endDraw(graphics);
-         
-  		}		
+		/**********************************************************
+  		* END Transform related.
+  		**********************************************************/
+  		
   		
   		/**********************************************************
   		* Layout related.
@@ -669,12 +637,25 @@ package com.degrafa.geometry{
 			
 		}
 		
+		//read only accessor for the layout rectangle
+		public function get layoutRectangle():Rectangle{
+			return (layout)? layout.layoutRectangle:bounds;
+		}
 		
+		//does the layout calculation		
+		public function initLayout():void{
+			if(parent && layout){
+				layout.computeLayoutRectangle(bounds,Geometry(parent).layoutRectangle);
+			}
+		}		
+		/**********************************************************
+  		* END Layout related.
+  		**********************************************************/
+  		
   		/**********************************************************
   		* State related.
   		**********************************************************/
-  		
-	    private var _currentState:String;
+  		private var _currentState:String;
 	   
 	    [Bindable("currentStateChange")]
 	    public function get currentState():String
@@ -707,7 +688,51 @@ package com.degrafa.geometry{
 	    		stateManager = null;	
 	    	}
 	    }
-	 
+	 	
+	 	
+		private var _state:String;
+		/**
+		* The state at which to draw this object
+		**/
+		public function get state():String{
+			return _state;
+		}
+		public function set state(value:String):void{
+			_state = value;
+		}
+		
+		private var _stateEvent:String;
+		/**
+		* The state event at which to draw this object
+		**/
+		public function get stateEvent():String{
+			return _stateEvent;
+		}
+		public function set stateEvent(value:String):void{
+			_stateEvent = value;
+		}
+		
+	 	/**********************************************************
+  		* END state related.
+  		**********************************************************/
+   	
+   		/**********************************************************
+  		* Style related.
+  		**********************************************************/
+  		private var _styleName:Object;
+  		public function get styleName():Object{
+  			return _styleName;
+  		} 
+   		public function set styleName(value:Object):void{
+   			_styleName=value;
+   		} 
+
+		public function styleChanged(styleProp:String):void{
+			//handle change
+		} 
+  		/**********************************************************
+  		* END Style related.
+  		**********************************************************/
    	
   	}
 }

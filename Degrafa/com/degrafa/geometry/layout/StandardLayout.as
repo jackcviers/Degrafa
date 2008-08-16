@@ -35,10 +35,14 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get x():Number {
+			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void {
-			_x = value;
+			if(_x != value){
+				_x = value;
+				invalidated = true;
+			}
 		}
 		
 		private var _y:Number;
@@ -46,21 +50,30 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get y():Number {
+			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void {
-			_y = value;
+			if(_y != value){
+				_y = value;
+				invalidated = true;
+			}
 		}
   		
   		private var _width:Number;
+  		[PercentProxy("percentWidth")]
 		/**
 		* Doc
 		**/
 		public function get width():Number {
+			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void {
-			_width = value;
+			if(_width != value){
+				_width = value;
+				invalidated = true;
+			}
 		}
   		
   		private var _percentWidth:Number;
@@ -71,23 +84,32 @@ package com.degrafa.geometry.layout
 		 * A value of 0 represents 0% and 1 represents 100%.
 		 */
 		public function get percentWidth():Number {
+			if(!_percentWidth){return NaN;}
 			return _percentWidth;
 		}
 		/** */
 		public function set percentWidth(value:Number):void {
-			_percentWidth = value;
+			if(_percentWidth != value){
+				_percentWidth = value;
+				invalidated = true;
+			}
 		}
 
 
   		private var _height:Number;
+  		[PercentProxy("percentHeight")]
 		/**
 		* Doc
 		**/
 		public function get height():Number {
+			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void {
-			_height = value;
+			if(_height != value){
+				_height = value;
+				invalidated = true;
+			}
 		}
 		
 		private var _percentHeight:Number;
@@ -98,11 +120,15 @@ package com.degrafa.geometry.layout
 		 * A value of 0 represents 0% and 1 represents 100%.
 		 */
 		public function get percentHeight():Number {
+			if(!_percentHeight){return NaN;}
 			return _percentHeight;
 		}
 		/** */
 		public function set percentHeight(value:Number):void {
-			_percentHeight = value;
+			if(_percentHeight != value){
+				_percentHeight = value;
+				invalidated = true;
+			}
 		}
 		
   		private var _top:Number;
@@ -110,10 +136,14 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get top():Number {
+			if(!_top){return NaN;}
 			return _top;
 		}
 		public function set top(value:Number):void {
-			_top = value;
+			if(_top != value){
+				_top = value;
+				invalidated = true;
+			}
 		}
 
 		private var _right:Number;
@@ -121,10 +151,14 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get right():Number {
+			if(!_right){return NaN;}
 			return _right;
 		}
 		public function set right(value:Number):void {
-			_right = value;
+			if(_right != value){
+				_right = value;
+				invalidated = true;
+			}
 		}
   		
   		private var _bottom:Number;
@@ -132,10 +166,14 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get bottom():Number {
+			if(!_bottom){return NaN;}
 			return _bottom;
 		}
 		public function set bottom(value:Number):void {
-			_bottom = value;
+			if(_bottom != value){
+				_bottom = value;
+				invalidated = true;
+			}
 		}
   		
   		private var _left:Number;
@@ -143,10 +181,14 @@ package com.degrafa.geometry.layout
 		* Doc
 		**/
 		public function get left():Number {
+			if(!_left){return NaN;}
 			return _left;
 		}
 		public function set left(value:Number):void {
-			_left = value;
+			if(_left != value){
+				_left = value;
+				invalidated = true;
+			}
 		}
 		
 		private var _horizontalCenter:Number;
@@ -155,10 +197,14 @@ package com.degrafa.geometry.layout
 		 * geometry will be centered horizontally offset by the value. 
 		 */
 		public function get horizontalCenter():Number {
+			if(!_horizontalCenter){return NaN;}
 			return _horizontalCenter;
 		}
 		public function set horizontalCenter(value:Number):void {
-			_horizontalCenter = value;
+			if(_horizontalCenter != value){
+				_horizontalCenter = value;
+				invalidated = true;
+			}
 		}
 		
 		private var _verticalCenter:Number;
@@ -167,37 +213,32 @@ package com.degrafa.geometry.layout
 		 * geometry will be centered vertically offset by the value. 
 		 */
 		public function get verticalCenter():Number {
+			if(!_verticalCenter){return NaN;}
 			return _verticalCenter;
 		}
 		public function set verticalCenter(value:Number):void {
-			_verticalCenter = value;
+			if(_verticalCenter != value){
+				_verticalCenter = value;
+				invalidated = true;
+			}
 		}
 		
 
-		private var _maintainAspectRatio:Boolean;
+		private var _maintainAspectRatio:Boolean=false;
 		/**
 		 * If true the drawn result of the geometry 
 		 * will maintain an aspect ratio relative to the ratio
 		 * of the precalculated bounds width and height.
 		 */
+		[Inspectable(category="General", enumeration="true,false")]
 		public function get maintainAspectRatio():Boolean {
 			return _maintainAspectRatio;
 		}
 		public function set maintainAspectRatio(value:Boolean):void {
-			_maintainAspectRatio = value;
-		}
-		
-
-		private var _layoutRectangle:Rectangle = new Rectangle();
-		/**
-		* The resulting calculated rectangle from which to 
-		* layout/modify the geometry command stack items.
-		**/
-		public function get layoutRectangle():Rectangle {
-			return _layoutRectangle.clone();
-		}
-		public function set layoutRectangle(value:Rectangle):void {
-			_layoutRectangle = value;
+			if(_maintainAspectRatio != value){
+				_maintainAspectRatio = value;
+				invalidated = true;
+			}
 		}
 		
 		private var _targetCoordinateSpace:DisplayObject;
@@ -205,10 +246,44 @@ package com.degrafa.geometry.layout
 		* The display object that defines the coordinate system to use.
 		**/
 		public function get targetCoordinateSpace():DisplayObject{
+			if(!_targetCoordinateSpace){return null;}
 			return _targetCoordinateSpace;
 		}
 		public function set targetCoordinateSpace(value:DisplayObject):void {
-			_targetCoordinateSpace = value;
+			if(_targetCoordinateSpace != value){
+				_targetCoordinateSpace = value;
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* An object to derive this objects properties from. When specified this 
+		* object will derive it's unspecified properties from the passed object.
+		**/
+		public function set derive(value:StandardLayout):void{
+			if (!_x){_x = value.x;}
+			if (!_y){_y = value.y;}
+			if (!_width){_width = value.width;}
+			if (!_percentWidth){_percentWidth = value.percentWidth;}
+			if (!_height){_height = value.height;}
+			if (!_percentHeight){_percentHeight = value.percentHeight;}
+			if (!_top){_top = value.top;}
+			if (!_right){_right = value.right;}
+			if (!_bottom){_bottom = value.bottom;}
+			if (!_left){_left = value.left;}
+			if (!_horizontalCenter){_horizontalCenter = value.horizontalCenter;}
+			if (!_verticalCenter){_verticalCenter = value.verticalCenter;}
+			if (!_maintainAspectRatio){_maintainAspectRatio = value.maintainAspectRatio;}
+			if (!_targetCoordinateSpace){_targetCoordinateSpace = value.targetCoordinateSpace;}
+		}
+		
+		private var _layoutRectangle:Rectangle = new Rectangle();
+		/**
+		* The resulting calculated read only rectangle from which to 
+		* layout/modify the geometry command stack items.
+		**/
+		public function get layoutRectangle():Rectangle {
+			return _layoutRectangle.clone();
 		}
 				
 		//takes the child bounds (item being layed out) and the parent bounds the 
@@ -218,15 +293,16 @@ package com.degrafa.geometry.layout
 			
 			//***Calculate the destination rectangle
 			
-			//parent can be either a geometry or a display object depending
-			//on the case
-			layoutRectangle = childBounds.clone();
+			//the layout rectangle is the same as the childBounds rectangle and is modified in the 
+			//calculateLayoutRectangle method
+			_layoutRectangle = childBounds.clone();
 			
 			//bounds from a geometry should never be NaN
 			_width=layoutRectangle.width;
 			_height=layoutRectangle.height;
 			_x=layoutRectangle.x;
 			_y=layoutRectangle.y;
+			
 			
 			//retrive the bounds we need to layout to
 			container = parentBounds.clone(); 

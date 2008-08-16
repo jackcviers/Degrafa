@@ -23,12 +23,14 @@ package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
+	
 	public class CommandStack{
 		
 		//TODO this has to be made private now and all access controlled through the command
@@ -111,7 +113,12 @@ package com.degrafa.geometry.command{
 		* while the render loop is processing.
 		**/
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
-		
+			
+			//updat ethe layout this is temp until properly setup
+			if(owner.layout){
+				LayoutUtils.calculateRatios(this,owner.layoutRectangle);
+			}
+			
 			var item:CommandStackItem;
 			
 			var trans:Boolean =  (owner.transformContext ||(owner.transform && !owner.transform.isIdentity));

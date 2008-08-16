@@ -229,7 +229,9 @@ package com.degrafa.transform{
 		protected function getRegistrationPoint(value:IGeometryComposition,rectangle:Rectangle=null):Point{
 			
 			var regPoint:Point;
-			if (value) rectangle = value.bounds;
+			
+			if (value) rectangle = Geometry(value).layoutRectangle;
+			
 			switch(_registrationPoint){
 				
 				case "topLeft":
