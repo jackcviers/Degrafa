@@ -23,10 +23,9 @@ package com.degrafa.geometry.utilities{
 	
 
 	import com.degrafa.geometry.command.CommandStack;
-	import com.degrafa.geometry.command.CommandStackItem;
+	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import mx.validators.NumberValidator;
 	
 	/**
 	* A helper utility class for various geometric calculations.
