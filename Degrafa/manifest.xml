@@ -21,7 +21,7 @@
 	<component id="TranslateTransform" class="com.degrafa.transform.TranslateTransform"/>
 	
 	<!--Layout-->
-	<component id="StandardLayout" class="com.degrafa.geometry.layout.StandardLayout"/>
+	<component id="LayoutConstraint" class="com.degrafa.geometry.layout.LayoutConstraint"/>
 	
 	<!--core-->
 	<component id="DegrafaSkinManipulator" class="com.degrafa.core.manipulators.DegrafaSkinManipulator"/>
