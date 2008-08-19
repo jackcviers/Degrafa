@@ -29,36 +29,31 @@ package com.degrafa.states
 			
 			switch (position)
 	        {
-	            /*******************
-	            * 
-	            * 	Cannot get a reference to the parent geometry collection
-	            * 
-	            *********************/
-	            /*
+	            
 	            case "before":
 	            {
-	                obj.parent.addChildAt(target,
-	                    obj.parent.getChildIndex(obj));
+	                parent.geometryCollection.addItemAt(IGeometry(target),
+	                    parent.geometryCollection.getItemIndex(IGeometry(obj)));
 	                break;
 	            }
 	
 	            case "after":
 	            {
-	                obj.parent.addChildAt(target,
-	                    obj.parent.getChildIndex(obj) + 1);
+	                parent.geometryCollection.addItemAt(IGeometry(target),
+	                    parent.geometryCollection.getItemIndex(IGeometry(obj)) + 1);
 	                break;
-	            } */
+	            }
 	
 	            case "firstChild":
 	            {
-	                obj.geometryCollection.addItemAt(IGeometry(target), 0);
+	                parent.geometryCollection.addItemAt(IGeometry(target), 0);
 	                break;
 	            }
 	
 	            case "lastChild":
 	            default:
 	            {
-	                obj.geometryCollection.addItem(IGeometry(target));
+	                parent.geometryCollection.addItem(IGeometry(target));
 	            }
 	        }
 	
@@ -69,7 +64,7 @@ package com.degrafa.states
 		{
 			var obj:Geometry = relativeTo ? relativeTo : parent;
 			
-			obj.geometryCollection.removeItem(IGeometry(target));
+			parent.geometryCollection.removeItem(IGeometry(target));
 		}
 	}
 }
