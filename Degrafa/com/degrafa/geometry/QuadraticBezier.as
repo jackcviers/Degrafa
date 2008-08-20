@@ -201,6 +201,22 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
+				
+		private var _close:Boolean=false;
+		/**
+		* If true draws a line from the end point to the start point to 
+		* close this curve.
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get close():Boolean{
+			return _close;
+		}
+		public function set close(value:Boolean):void{
+			if(_close != value){
+				_close = value;
+				invalidated = true;
+			}
+		}
 		
 		private var _bounds:Rectangle;
 		/**
@@ -235,7 +251,11 @@ package com.degrafa.geometry{
 				
 				commandStack.addMoveTo(x,y);
 				commandStack.addCurveTo(cx,cy,x1,y1);
-			
+				
+				if(close){
+					commandStack.addLineTo(x,y);	
+				}
+				
 				calcBounds();
 				invalidated = false;
 			}

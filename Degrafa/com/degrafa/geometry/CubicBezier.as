@@ -245,6 +245,22 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		private var _close:Boolean=false;
+		/**
+		* If true draws a line from the end point to the start point to 
+		* close this curve.
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get close():Boolean{
+			return _close;
+		}
+		public function set close(value:Boolean):void{
+			if(_close != value){
+				_close = value;
+				invalidated = true;
+			}
+		}
+		
 		
 		private var _bounds:Rectangle;
 		/**
@@ -322,6 +338,10 @@ package com.degrafa.geometry{
 				//which we'll use to draw and calc the bounds
 				GeometryUtils.cubicToQuadratic(x,y,cx,cy,cx1,cy1+cy1Offset
 				,x1,y1,1,commandStack);	
+				
+				if(close){
+					commandStack.addLineTo(x,y);	
+				}
 								
 				calcBounds();
 				invalidated = false;
