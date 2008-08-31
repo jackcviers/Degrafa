@@ -348,6 +348,10 @@ package com.degrafa.skins{
 	    	if(items){
 	    		if(!stateManager){
 	    			stateManager = new StateManager(this)
+	    			//make sure each item knows about it's manager
+		    		for each (var state:State in _states){
+		    			state.stateManager = stateManager;
+		    		}
 	    		}
 	    	}
 	    	else{

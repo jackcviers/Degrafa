@@ -344,10 +344,14 @@ package com.degrafa.skins
 	    public function set states(items:Array):void{
 	    	
 	    	_states = items;
-	    	
+	    		    	
 	    	if(items){
 	    		if(!stateManager){
 	    			stateManager = new StateManager(this)
+	    			//make sure each item knows about it's manager
+		    		for each (var state:State in _states){
+		    			state.stateManager = stateManager;
+		    		}
 	    		}
 	    	}
 	    	else{

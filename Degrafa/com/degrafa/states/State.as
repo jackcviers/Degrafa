@@ -12,10 +12,10 @@
 //modified for degrafa
 package com.degrafa.states{
 
+import flash.events.Event;
 import flash.events.EventDispatcher;
 
 import mx.events.FlexEvent;
-import mx.states.Transition;
 
 [Event(name="enterState", type="mx.events.FlexEvent")]
 [Event(name="exitState", type="mx.events.FlexEvent")]
@@ -26,7 +26,10 @@ public class State extends EventDispatcher{
 
 	public function State(){
 		super();
+				
 	}
+	
+	public var stateManager:StateManager;
 	 
 	private var initialized:Boolean = false;
 
@@ -68,6 +71,75 @@ public class State extends EventDispatcher{
 	public function dispatchExitState():void{
 		dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
 	}
+	
+	/**
+	* Trigger based code
+	**/
+	
+	private var _triggers:Array= [];
+    [Inspectable(arrayType="com.degrafa.states.Trigger")]
+    [ArrayElementType("com.degrafa.states.Trigger")]
+    public function get triggers():Array{
+    	return _triggers;
+    }
+    public function set triggers(items:Array):void{
+    	_triggers = items;
+    	
+    	//make sure each item knows about it's manager
+		for each (var trigger:Trigger in _triggers){
+			trigger.parentState = this;
+		}
+		
+    }
+	
+	//setup all the listeners
+	internal function initTriggers():void{
+		
+		if(!triggers){return;}
+		
+		for each (var itemTrigger:Trigger in triggers){
+			if(itemTrigger.source && itemTrigger.event){
+				if(!itemTrigger.source.hasEventListener(itemTrigger.event)){
+					itemTrigger.source.addEventListener(itemTrigger.event,
+					onEventTriggered,false,0,true);
+				}
+			}
+		}
+		
+	}
+	private function clearTriggers():void{
+		if(!triggers){return;}
+		
+		for each (var itemTrigger:Trigger in triggers){
+			if(itemTrigger.source && itemTrigger.event){
+				if(!itemTrigger.source.hasEventListener(itemTrigger.event)){
+					itemTrigger.source.removeEventListener(itemTrigger.event,onEventTriggered);
+				}
+			}
+		}
+	}
+	
+	private function onEventTriggered(event:Event):void{
+		
+		var result:Boolean=true;
+		
+		//if there are rules then they must all evaluate 
+		//to true before this state change will take place
+		for each (var itemTrigger:Trigger in triggers){
+			if(itemTrigger.ruleFunction != null){
+				if(!itemTrigger.ruleFunction.call(this,event,itemTrigger)){
+					return;
+				}
+			}
+				
+		}
+		
+		if(result){
+			stateManager.currentState = name;
+		}
+	}
+	
+	
 }
 
 }
