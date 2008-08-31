@@ -21,6 +21,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.core.utils{
+	import com.degrafa.paint.palette.PaletteEntry;
+	
 	
 	/**
 	* A helper utility class for color conversion.
@@ -38,6 +40,9 @@ package com.degrafa.core.utils{
 			else if(value is String){
 				return resolveColorFromString(value as String, none);
 			} 
+			else if(value is PaletteEntry){
+				return resolveColor(PaletteEntry(value).value, none);
+			}
 			else{
 				//always return black if not valid or no color found
 				return 0x000000;
@@ -105,8 +110,7 @@ package com.degrafa.core.utils{
 			return resolveColorFromRGB(red +","+ green +","+blue);
 					
 		}
-		
-		
+				
 		/**
 		* Allows an comma-separated list of three numerical or 
 		* percent values that are then converted to a hex value. 

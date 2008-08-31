@@ -113,6 +113,8 @@ package com.degrafa.paint{
 		/**
 		 * Array of IGraphicsFill Objects to be rendered
 		 */
+		[Inspectable(category="General", arrayType="com.degrafa.core.IGraphicsFill")]
+		[ArrayElementType("com.degrafa.core.IGraphicsFill")]
 		public function get fills():Array { return _fills; }
 		public function set fills(value:Array):void {
 			if(_fills != value) {

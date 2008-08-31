@@ -24,6 +24,9 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.Measure;
 	import com.degrafa.core.utils.ColorUtil;
+	import com.degrafa.paint.palette.PaletteEntry;
+	
+	import mx.events.PropertyChangeEvent;
 	
 	
 	
@@ -83,7 +86,7 @@ package com.degrafa.paint{
 			
 		}
 				
-		private var _color:uint=0x000000;
+		private var _color:Object;
 		[Inspectable(category="General", format="Color",defaultValue="0x000000")]
 		/**
 		* The color value for a gradient stop.
@@ -91,17 +94,86 @@ package com.degrafa.paint{
 		* @see mx.graphics.GradientEntry
 		**/
 		public function get color():Object{
+			if(colorFunction !=null){
+				return ColorUtil.resolveColor(colorFunction());
+			}
+			else if(!_color){
+				return 0x000000;
+			}
 			return _color;
 		}
 		public function set color(value:Object):void{	
+			
+			//setup for a palette entry if one is passed
+			if(value is PaletteEntry){
+				paletteEntry = value as PaletteEntry;
+			}
+			else{
+				paletteEntry=null;
+			}
+			
 			value = ColorUtil.resolveColor(value);
 			if(_color != value){
-				var oldValue:Number=_color;						
+				var oldValue:uint =_color as uint;
 				_color= value as uint;
 				//call local helper to dispatch event	
 				initChange("color",oldValue,_color,this);
 			}
 		}
+		
+		private var _paletteEntry:PaletteEntry;
+		private function set paletteEntry(value:PaletteEntry):void{
+			if(value){	
+				if(_paletteEntry !== value){
+					//remove old listener is required
+					if(_paletteEntry){
+						if(_paletteEntry.hasEventListener(PropertyChangeEvent.PROPERTY_CHANGE)){
+							_paletteEntry.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+						}
+					}
+					//listen for changes	
+					_paletteEntry = value
+					if(_paletteEntry.enableEvents){
+						_paletteEntry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+					}
+				}
+			}
+			else{
+				//clean up
+				if(_paletteEntry){
+					if(_paletteEntry.hasEventListener(PropertyChangeEvent.PROPERTY_CHANGE)){
+						_paletteEntry.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+					}
+					_paletteEntry=null;
+				}
+			}
+		}
+		
+		//handle the change to the palette entry
+		private function onPaletteEntryChange(event:PropertyChangeEvent):void{
+			if(event.property=="value" && event.kind=="update"){
+				color = event.source;
+			}
+		}
+		
+		protected var _colorFunction:Function;
+		[Inspectable(category="General")]
+		/**
+		 * Function that sets the color of the fill. It is executed on
+		 * every draw.
+		 **/		
+		public function get colorFunction():Function{
+			return _colorFunction;
+		}
+		public function set colorFunction(value:Function):void{
+			if(_colorFunction != value){ // value gets resolved first
+				var oldValue:Function =_colorFunction as Function;
+				_colorFunction= value as Function;
+				//call local helper to dispatch event	
+				initChange("colorFunction",oldValue,_colorFunction,this);
+			}
+		}
+		
 				    
 		private var _ratio:Measure = new Measure(-1, Measure.RATIO);
 		[Inspectable(category="General")]

@@ -21,14 +21,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
+	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.utils.ColorUtil;
-	import com.degrafa.IGeometryComposition;
-	import flash.geom.Matrix;
+	import com.degrafa.paint.palette.PaletteEntry;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	import mx.events.PropertyChangeEvent;
 	
 	
 	[Bindable(event="propertyChange")]
@@ -57,8 +59,6 @@ package com.degrafa.paint{
 		public function SolidFill(color:Object=null, alpha:Number=NaN){
 			this.alpha = alpha;
 			this.color = color;
-			
-			
 		}
 		
 		protected var _alpha:Number;
@@ -92,16 +92,66 @@ package com.degrafa.paint{
  		 * 
  		**/
 		public function get color():Object {
-			if(!_color){return 0x000000;}
-			return _color; 
+			if(colorFunction!=null){
+				return ColorUtil.resolveColor(colorFunction());
+			}
+			else if(!_color){
+				return 0x000000;
+			}
+			return _color;
 		}
 		public function set color(value:Object):void{
+			
+			//setup for a palette entry if one is passed
+			if(value is PaletteEntry){
+				paletteEntry = value as PaletteEntry;
+			}
+			else{
+				paletteEntry=null;
+			}
+			
 			value = ColorUtil.resolveColor(value);
+			
 			if(_color != value){ // value gets resolved first
 				var oldValue:uint =_color as uint;
 				_color= value as uint;
 				//call local helper to dispatch event	
 				initChange("color",oldValue,_color,this);
+			}
+		}
+		
+		private var _paletteEntry:PaletteEntry;
+		private function set paletteEntry(value:PaletteEntry):void{
+			if(value){	
+				if(_paletteEntry !== value){
+					//remove old listener is required
+					if(_paletteEntry){
+						if(_paletteEntry.hasEventListener(PropertyChangeEvent.PROPERTY_CHANGE)){
+							_paletteEntry.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+						}
+					}
+					//listen for changes	
+					_paletteEntry = value
+					if(_paletteEntry.enableEvents){
+						_paletteEntry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+					}
+				}
+			}
+			else{
+				//clean up
+				if(_paletteEntry){
+					if(_paletteEntry.hasEventListener(PropertyChangeEvent.PROPERTY_CHANGE)){
+						_paletteEntry.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,onPaletteEntryChange);
+					}
+					_paletteEntry=null;
+				}
+			}
+		}
+		
+		//handle the change to the palette entry
+		private function onPaletteEntryChange(event:PropertyChangeEvent):void{
+			if(event.property=="value" && event.kind=="update"){
+				color = event.source;
 			}
 		}
 		
@@ -138,19 +188,11 @@ package com.degrafa.paint{
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void{
-			var tempColor:uint;
-			// if no color function, use normal color var
-			if(colorFunction!=null){
-				tempColor = ColorUtil.resolveColor(colorFunction());
-			}
-			else{
-				if(!_color){_color=0x000000;}
-				tempColor = _color as uint;
-			}
+			
 			//ensure that all defaults are in fact set these are temp until fully tested
 			if(isNaN(_alpha)){_alpha=1;}
 			
-			graphics.beginFill(tempColor,alpha);						
+			graphics.beginFill(color as uint,alpha);						
 		}
 		
 		/**
