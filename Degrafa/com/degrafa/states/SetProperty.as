@@ -33,7 +33,7 @@ public class SetProperty implements IOverride{
 
     public function initialize():void{}
     
-    public function apply(parent:Geometry):void{
+    public function apply(parent:IDegrafaStateClient):void{
         var obj:Object = target ? target : parent;
         var propName:String = name;
         var newValue:* = value;
@@ -45,7 +45,7 @@ public class SetProperty implements IOverride{
         setPropertyValue(obj, propName, newValue, oldValue);
     }
 
-    public function remove(parent:Geometry):void{
+    public function remove(parent:IDegrafaStateClient):void{
         var obj:Object = target ? target : parent;
         
         var propName:String = name;

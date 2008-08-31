@@ -17,8 +17,8 @@ package com.degrafa.states{
 	
 	public interface IOverride{
 		function initialize():void
-		function apply(parent:Geometry):void;
-		function remove(parent:Geometry):void;
+		function apply(parent:IDegrafaStateClient):void;
+		function remove(parent:IDegrafaStateClient):void;
 	}
 	
 }

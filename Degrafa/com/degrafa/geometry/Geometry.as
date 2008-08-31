@@ -32,6 +32,7 @@ package com.degrafa.geometry{
 	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.layout.ILayout;
+	import com.degrafa.states.IDegrafaStateClient;
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
 	import com.degrafa.transform.ITransform;
@@ -41,7 +42,6 @@ package com.degrafa.geometry{
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
-	import mx.core.IStateClient;
 	import mx.events.PropertyChangeEvent;
 	import mx.styles.ISimpleStyleClient;
 	
@@ -56,7 +56,7 @@ package com.degrafa.geometry{
  	*  property that can be used for short hand property setting.
  	**/	
 	public class Geometry extends DegrafaObject implements IDegrafaObject, 
-	IGeometryComposition, IStateClient, ISimpleStyleClient {
+	IGeometryComposition, IDegrafaStateClient, ISimpleStyleClient {
 		
 		/**
 		* Specifies whether this object is to be re calculated 
@@ -655,12 +655,12 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* State related.
   		**********************************************************/
-  		private var _currentState:String;
+  		private var _currentState:String="";
 	   
 	    [Bindable("currentStateChange")]
 	    public function get currentState():String
 	    {
-	        return "";//stateManager.currentState;
+	        return stateManager.currentState;
 	    }
 	    public function set currentState(value:String):void
 	    {

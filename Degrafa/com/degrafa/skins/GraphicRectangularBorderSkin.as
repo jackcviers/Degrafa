@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Jason Hawryluk, Juan Sanchez, Andy McIntosh, Ben Stucki 
-// and Pavan Podila.
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +27,14 @@ package com.degrafa.skins{
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.core.collections.StrokeCollection;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.states.IDegrafaStateClient;
+	import com.degrafa.states.State;
+	import com.degrafa.states.StateManager;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
@@ -50,9 +51,24 @@ package com.degrafa.skins{
 	/**
 	* GraphicRectangularBorderSkin is an extension of RectangularBorder for use declarativly.
 	**/	
-	public class GraphicRectangularBorderSkin extends RectangularBorder implements IGraphicSkin{		
+	public class GraphicRectangularBorderSkin extends RectangularBorder 
+	implements IGraphicSkin, IDegrafaStateClient{		
 		public function GraphicRectangularBorderSkin(){
 			super();
+		}
+		
+		private var _data:String;
+		/**
+		* Allows a short hand property setting that is 
+		* specific to and parsed by each geometry object. 
+		* Look at the various geometry objects to learn what 
+		* this setting requires.
+		**/	
+		public function get data():String{
+			return _data;
+		}
+		public function set data(value:String):void{
+			_data=value;
 		}
 				
 		private var _stroke:IGraphicsStroke;
@@ -252,34 +268,134 @@ package com.degrafa.skins{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
-		public function draw(graphics:Graphics,rc:Rectangle):void
-		{
+		public function draw(graphics:Graphics,rc:Rectangle):void{
 			if(!parent){return;}
 			
 			this.graphics.clear();
-									
+							
 			if (geometry){
 				for each (var geometryItem:Geometry in _geometry.items){
 					if(geometryItem.state =="" || geometryItem.state ==null){
+						
+						if(states){
+							prepareState();
+						}
+						
 						geometryItem.draw(this.graphics,null);
 					} 
-					else if(geometryItem.state == name){
-						geometryItem.draw(this.graphics,null);	
+					else {
+						var possibleStates:Array=geometryItem.state.split(" ");
+						if (possibleStates.length>0) {
+							for (var i:int=0;i<possibleStates.length;i++) {
+								if (name==possibleStates[i]) {
+									geometryItem.draw(this.graphics,null);	
+									break;
+								}
+							}
+						}
+						else if (geometryItem.state == name) {
+							geometryItem.draw(this.graphics,null);	
+						}
 					}
 				}			
 			}
-					
-	    }
+		}
+	    
+	    [Bindable]
+	    public var skinWidth:Number=0;
+	   
+	    [Bindable]
+	    public var skinHeight:Number=0;
 	    	    
 	    /**
 		* Draws the object and/or sizes and positions its children.
 		**/
 	    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{	    	
+	       	skinWidth =unscaledWidth;
+	        skinHeight =unscaledHeight;
+	        
 	       	draw(null,null);
 	    	endDraw(null);	
 	    }
-	    	    
-	    //event related stuff
+	    
+	    /**********************************************************
+  		* State related.
+  		**********************************************************/
+  		private var _currentState:String="";
+	   
+	    [Bindable("currentStateChange")]
+	    public function get currentState():String
+	    {
+	        return stateManager.currentState;
+	    }
+	    public function set currentState(value:String):void
+	    {
+	        stateManager.currentState = value;
+	    }
+		
+		private var stateManager:StateManager;
+		
+		private var _states:Array= [];
+	    [Inspectable(arrayType="com.degrafa.states.State")]
+	    [ArrayElementType("com.degrafa.states.State")]
+	    public function get states():Array{
+	    	return _states;
+	    }
+	    public function set states(items:Array):void{
+	    	
+	    	_states = items;
+	    	
+	    	if(items){
+	    		if(!stateManager){
+	    			stateManager = new StateManager(this)
+	    		}
+	    	}
+	    	else{
+	    		stateManager = null;	
+	    	}
+	    }
+	 	
+	 	
+		private var _state:String;
+		/**
+		* The state at which to draw this object
+		**/
+		public function get state():String{
+			return _state;
+		}
+		public function set state(value:String):void{
+			_state = value;
+		}
+		
+		private var _stateEvent:String;
+		/**
+		* The state event at which to draw this object
+		**/
+		public function get stateEvent():String{
+			return _stateEvent;
+		}
+		public function set stateEvent(value:String):void{
+			_stateEvent = value;
+		}
+		
+		//Only used in skin classes sets the matching current state 
+		//based on the name
+		private function prepareState():void{
+			//see if the state exists
+			for each (var state:State in states){
+				if(state.name == name){
+					currentState = name;
+				}
+			}
+		}
+		
+	 	/**********************************************************
+  		* END state related.
+  		**********************************************************/
+  			    
+	    /**********************************************************
+  		* event related.
+  		**********************************************************/
 		private var _enableEvents:Boolean=true;
 		/**
  		* Enable events for this object.
@@ -346,6 +462,13 @@ package com.degrafa.skins{
 		**/ 
 		public function get hasEventManager():Boolean{
 			return true;
-		}		
+		}
+				
+		public function get isInitialized():Boolean{
+			return super.initialized;
+		}
+		/**********************************************************
+  		* END event related.
+  		**********************************************************/
 	}
 }

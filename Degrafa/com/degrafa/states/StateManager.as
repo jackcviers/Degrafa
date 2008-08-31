@@ -13,16 +13,17 @@
 package com.degrafa.states{
 	
 	import com.degrafa.geometry.Geometry;
+	
 	import mx.events.FlexEvent;
 	import mx.events.StateChangeEvent;
 	
 	public class StateManager{
 		
-		private var geometry:Geometry;
+		private var stateClient:IDegrafaStateClient;
 		
-		public function StateManager(geometry:Geometry){
+		public function StateManager(stateClient:IDegrafaStateClient){
 			
-			this.geometry = geometry;
+			this.stateClient = stateClient;
 			
 		}
 		private var _currentState:String;
@@ -40,7 +41,7 @@ package com.degrafa.states{
 			 if (stateName != currentState && !(isBaseState(stateName) && isBaseState(currentState))){
 	            requestedCurrentState = stateName;
 	        
-	            if (geometry.isInitialized)
+	            if (stateClient.isInitialized)
 	            {
 	                commitCurrentState();
 	            }
@@ -68,11 +69,11 @@ package com.degrafa.states{
 	        event = new StateChangeEvent(StateChangeEvent.CURRENT_STATE_CHANGING);
 	        event.oldState = oldState;
 	        event.newState = requestedCurrentState ? requestedCurrentState : "";
-	        geometry.dispatchEvent(event);
+	        stateClient.dispatchEvent(event);
 	
 	        // If we're leaving the base state, send an exitState event
 	        if (isBaseState(_currentState))
-	            geometry.dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
+	            stateClient.dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
 	
 	        // Remove the existing state
 	        removeState(_currentState, commonBaseState);
@@ -81,7 +82,7 @@ package com.degrafa.states{
 	        // If we're going back to the base state, dispatch an
 	        // enter state event, otherwise apply the state.
 	        if (isBaseState(currentState))
-	            geometry.dispatchEvent(new FlexEvent(FlexEvent.ENTER_STATE));
+	            stateClient.dispatchEvent(new FlexEvent(FlexEvent.ENTER_STATE));
 	        else
 	            applyState(_currentState, commonBaseState);
 	
@@ -89,18 +90,18 @@ package com.degrafa.states{
 	        event = new StateChangeEvent(StateChangeEvent.CURRENT_STATE_CHANGE);
 	        event.oldState = oldState;
 	        event.newState = _currentState ? _currentState : "";
-	        geometry.dispatchEvent(event);
+	        stateClient.dispatchEvent(event);
 	
 	    }
 
 	    public function getState(stateName:String):State{
-	        if (!geometry.states || isBaseState(stateName))
+	        if (!stateClient.states || isBaseState(stateName))
 	            return null;
 	
-	        for (var i:int = 0; i < geometry.states.length; i++)
+	        for (var i:int = 0; i < stateClient.states.length; i++)
 	        {
-	            if (geometry.states[i].name == stateName)
-	                return geometry.states[i];
+	            if (stateClient.states[i].name == stateName)
+	                return stateClient.states[i];
 	        }
 	        return null;
 	    }
@@ -177,7 +178,7 @@ package com.degrafa.states{
 	            var overrides:Array = state.overrides;
 	
 	            for (var i:int = overrides.length; i; i--)
-	                overrides[i-1].remove(geometry);
+	                overrides[i-1].remove(stateClient);
 	
 	            // Remove any basedOn deltas last
 	            if (state.basedOn != lastState)
@@ -201,7 +202,7 @@ package com.degrafa.states{
 	            var overrides:Array = state.overrides;
 	
 	            for (var i:int = 0; i < overrides.length; i++)
-	                overrides[i].apply(geometry);
+	                overrides[i].apply(stateClient);
 	
 	        }
 	    }
