@@ -144,6 +144,53 @@ package com.degrafa.paint.palette{
 	        }
 	        return colorMap;
 	    }
+	    
+	     /**
+	     * Returns a color palette of given size tries to provide colors
+	     * appropriate as category labels. There are 12 basic color hues
+	     * (red, orange, yellow, olive, green, cyan, blue, purple, magenta,
+	     * and pink). If the size is greater than 12, these colors will be
+	     * continually repeated, but with varying saturation levels.
+	     * @param size the size of the color palette
+	     * @param s1 the initial saturation to use
+	     * @param s2 the final (most distant) saturation to use
+	     * @param b the brightness value to use
+	     * @param a the alpha value to use
+	     */
+	     public static function getCategoryPalette(size:int, 
+	            s1:Number, s2:Number, b:Number,a:int):Array{
+	            	
+	        var colorMap:Array = new Array(size);
+	        var s:Number = s1;
+	        var j:int;
+	        for (var i:int=0; i<size; i++ ) {
+	            j = i % CATEGORY_HUES.length;
+	            if (j == 0)
+	                s = s1 + ((i)/size)*(s2-s1);
+	                
+	            colorMap.push(hsba(CATEGORY_HUES[j],s,b,a));
+	            
+	        }
+	        return colorMap;
+	     }
+	     
+	     /**
+	     * Returns a color palette of given size that cycles through
+	     * the hues of the HSB (Hue/Saturation/Brightness) color space.
+	     * @param size the size of the color palette
+	     * @param s the saturation value to use
+	     * @param b the brightness value to use
+	     * @return the color palette
+	     */
+	     public static function getHSBPalette(size:int, s:Number, b:Number):Array{
+	        var colorMap:Array = new Array(size);
+	        var h:Number;
+	        for (var i:int=0; i<size; i++ ) {
+	            h = (i)/(size-1);
+	            colorMap.push(hsb(h,s,b));
+	        }
+	        return colorMap;
+	    }
 	    	    
 	    /**
 	    * Get the color code for the given grayscale value.
