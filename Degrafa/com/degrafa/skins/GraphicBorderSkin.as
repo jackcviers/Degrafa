@@ -327,7 +327,7 @@ package com.degrafa.skins
 	   
 	    [Bindable("currentStateChange")]
 	    public function get currentState():String{
-	        return stateManager.currentState;
+	         return (stateManager) ? stateManager.currentState:"";
 	    }
 	    public function set currentState(value:String):void{
 	        stateManager.currentState = value;

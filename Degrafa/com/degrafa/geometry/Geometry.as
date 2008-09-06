@@ -658,12 +658,11 @@ package com.degrafa.geometry{
   		private var _currentState:String="";
 	   
 	    [Bindable("currentStateChange")]
-	    public function get currentState():String
-	    {
-	        return stateManager.currentState;
+	    public function get currentState():String{
+	        return (stateManager) ? stateManager.currentState:"";
 	    }
-	    public function set currentState(value:String):void
-	    {
+	    
+	    public function set currentState(value:String):void{
 	        stateManager.currentState = value;
 	    }
 		
