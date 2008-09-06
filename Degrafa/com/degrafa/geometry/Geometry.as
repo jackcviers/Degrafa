@@ -36,6 +36,7 @@ package com.degrafa.geometry{
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
 	import com.degrafa.transform.ITransform;
+	import com.degrafa.triggers.ITrigger;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -650,6 +651,32 @@ package com.degrafa.geometry{
 		}		
 		/**********************************************************
   		* END Layout related.
+  		**********************************************************/
+  		
+  		/**********************************************************
+  		* Trigger related.
+  		**********************************************************/
+  		
+  		private var _triggers:Array= [];
+	    [Inspectable(arrayType="com.degrafa.triggers.ITrigger")]
+	    [ArrayElementType("com.degrafa.triggers.ITrigger")]
+	    public function get triggers():Array{
+	    	return _triggers;
+	    }
+	    public function set triggers(items:Array):void{
+	    	_triggers = items;
+	    	
+	    	if(_triggers){
+		    	//make sure each item knows about it's manager
+	    		for each (var trigger:ITrigger in _triggers){
+	    			trigger.triggerParent = this;
+	    		}
+	    	}
+	    	
+	    }
+	    
+    	/**********************************************************
+  		* End Trigger related.
   		**********************************************************/
   		
   		/**********************************************************

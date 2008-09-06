@@ -31,6 +31,7 @@ package com.degrafa.skins
 	import com.degrafa.states.IDegrafaStateClient;
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
+	import com.degrafa.triggers.ITrigger;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
@@ -41,6 +42,9 @@ package com.degrafa.skins
 	import mx.events.PropertyChangeEventKind;
 	import mx.skins.Border;
 	
+	//required for trigger source binding due to a skins delayed Instantiation
+	import mx.core.mx_internal;
+	use namespace mx_internal;
 	
 	
 	[Exclude(name="graphicsData", kind="property")]		
@@ -60,9 +64,9 @@ package com.degrafa.skins
 		
 		public function GraphicBorderSkin(){
 			super();
-
+			addEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
 		}
-						
+		
 		private var _data:String;
 		/**
 		* Allows a short hand property setting that is 
@@ -76,7 +80,7 @@ package com.degrafa.skins
 		public function set data(value:String):void{
 			_data=value;
 		}
-		
+				
 		private var _stroke:IGraphicsStroke;
 		/**
 		* Defines the stroke object that will be used for 
@@ -224,8 +228,8 @@ package com.degrafa.skins
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
 			dispatchEvent(event);
 			invalidateDisplayList();
+			
 		}
-
 		
 		//not required here but need for interface
 		/**
@@ -251,6 +255,7 @@ package com.degrafa.skins
 		**/
 		public function set graphicsData(value:Array):void{}
 		public function get graphicsData():Array{return null;}
+		
 		
 		/**
 		* Ends the draw phase for geometry objects.
@@ -307,7 +312,7 @@ package com.degrafa.skins
 	    public var skinWidth:Number=0;
 	   
 	    [Bindable]
-	    public var skinHeight:Number=0;
+	    public var skinHeight:Number=0;	    
 	    
 	    /**
 		* Draws the object and/or sizes and positions its children.
@@ -315,10 +320,56 @@ package com.degrafa.skins
 	    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{	    	
 	       	skinWidth =unscaledWidth;
 	        skinHeight =unscaledHeight;
-	       	
+	        
 	       	draw(null,null);
 	    	endDraw(null);	
 	    }
+	    
+	     /**********************************************************
+  		* Trigger related.
+  		**********************************************************/
+  		
+  		private var _triggers:Array= [];
+	    [Inspectable(arrayType="com.degrafa.triggers.ITrigger")]
+	    [ArrayElementType("com.degrafa.triggers.ITrigger")]
+	    public function get triggers():Array{
+	    	return _triggers;
+	    }
+	    public function set triggers(items:Array):void{
+	    	_triggers = items;
+	    	
+	    	if(_triggers){
+		    	//make sure each item knows about it's manager
+	    		for each (var trigger:ITrigger in _triggers){
+	    			trigger.triggerParent = this;
+	    		}
+	    	}
+	    	
+	    }
+	    
+	    //because of the way skins have a differed creation we need to 
+		//set all the bindings for the triggers when the first item is created
+		//this means that all triggers in all states are initialized otherwise we 
+		//could never change state based on a trigger unless the state has been 
+		//previously visited. This also ensures that the event listener is only added one time
+		//but it will be triggered for each rule.
+		private function onAddedToStage(event:Event):void{
+			if(triggers){
+				var bindings:Object  = Object(this)._bindingsByDestination;
+				for each (var trigger:ITrigger in triggers){
+					if(!trigger.source){
+						if(bindings[trigger.id + ".source"]){
+							bindings[trigger.id + ".source"].execute(trigger);
+						}				
+					}
+				}
+			}
+		} 
+		
+    	/**********************************************************
+  		* End Trigger related.
+  		**********************************************************/
+  		
 	    
 	    /**********************************************************
   		* State related.

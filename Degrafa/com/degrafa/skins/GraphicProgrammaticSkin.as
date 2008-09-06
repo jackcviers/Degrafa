@@ -31,6 +31,7 @@ package com.degrafa.skins
 	import com.degrafa.states.IDegrafaStateClient;
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
+	import com.degrafa.triggers.ITrigger;
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
@@ -41,14 +42,20 @@ package com.degrafa.skins
 	import mx.events.PropertyChangeEventKind;
 	import mx.skins.ProgrammaticSkin;
 	
-	[DefaultProperty("geometry")]
+	//required for trigger source binding due to a skins delayed Instantiation
+	import mx.core.mx_internal;
+	use namespace mx_internal;
+	
+	
 	[Exclude(name="graphicsData", kind="property")]		
 	[Exclude(name="percentWidth", kind="property")]	
 	[Exclude(name="percentHeight", kind="property")]	
 	[Exclude(name="target", kind="property")]	
 	
-	[Bindable(event="propertyChange")] 	
-		
+	[DefaultProperty("geometry")]
+	
+	[Bindable(event="propertyChange")] 		
+	
 	/**
 	* GraphicProgrammaticSkin is an extension of ProgrammaticSkin for use declarativly.
 	**/		
@@ -57,6 +64,7 @@ package com.degrafa.skins
 		
 		public function GraphicProgrammaticSkin(){
 			super();
+			addEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
 		}
 		
 		private var _data:String;
@@ -317,6 +325,52 @@ package com.degrafa.skins
 	    	endDraw(null);	
 	    }
 	    
+	     /**********************************************************
+  		* Trigger related.
+  		**********************************************************/
+  		
+  		private var _triggers:Array= [];
+	    [Inspectable(arrayType="com.degrafa.triggers.ITrigger")]
+	    [ArrayElementType("com.degrafa.triggers.ITrigger")]
+	    public function get triggers():Array{
+	    	return _triggers;
+	    }
+	    public function set triggers(items:Array):void{
+	    	_triggers = items;
+	    	
+	    	if(_triggers){
+		    	//make sure each item knows about it's manager
+	    		for each (var trigger:ITrigger in _triggers){
+	    			trigger.triggerParent = this;
+	    		}
+	    	}
+	    	
+	    }
+	    
+	    //because of the way skins have a differed creation we need to 
+		//set all the bindings for the triggers when the first item is created
+		//this means that all triggers in all states are initialized otherwise we 
+		//could never change state based on a trigger unless the state has been 
+		//previously visited. This also ensures that the event listener is only added one time
+		//but it will be triggered for each rule.
+		private function onAddedToStage(event:Event):void{
+			if(triggers){
+				var bindings:Object  = Object(this)._bindingsByDestination;
+				for each (var trigger:ITrigger in triggers){
+					if(!trigger.source){
+						if(bindings[trigger.id + ".source"]){
+							bindings[trigger.id + ".source"].execute(trigger);
+						}				
+					}
+				}
+			}
+		} 
+		
+    	/**********************************************************
+  		* End Trigger related.
+  		**********************************************************/
+  		
+	    
 	    /**********************************************************
   		* State related.
   		**********************************************************/
@@ -341,7 +395,7 @@ package com.degrafa.skins
 	    public function set states(items:Array):void{
 	    	
 	    	_states = items;
-	    	
+	    		    	
 	    	if(items){
 	    		if(!stateManager){
 	    			stateManager = new StateManager(this)
@@ -393,8 +447,7 @@ package com.degrafa.skins
 	 	/**********************************************************
   		* END state related.
   		**********************************************************/
-  		
-	    	    
+  			    
 	    /**********************************************************
   		* event related.
   		**********************************************************/
@@ -467,11 +520,12 @@ package com.degrafa.skins
 		}
 		
 		public function get isInitialized():Boolean{
-			return super.initialized;
+			return true;
 		}
-		
-	    /**********************************************************
+		/**********************************************************
   		* END event related.
   		**********************************************************/
+  		
+		
 	}
 }
