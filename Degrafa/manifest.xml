@@ -102,8 +102,11 @@
 	<component id="SetProperty" class="com.degrafa.states.SetProperty"/>
 	<component id="AddChild" class="com.degrafa.states.AddChild"/>
 	<component id="RemoveChild" class="com.degrafa.states.RemoveChild"/>
-	<component id="Trigger" class="com.degrafa.states.Trigger"/>
-
+		
+	<!--triggers-->
+	<component id="EventTrigger" class="com.degrafa.triggers.EventTrigger"/>
+	<component id="PropertyTrigger" class="com.degrafa.triggers.PropertyTrigger"/>
+	
 	<!--Palette-->
 	<component id="Palette" class="com.degrafa.paint.palette.Palette"/>
 	<component id="PaletteEntry" class="com.degrafa.paint.palette.PaletteEntry"/>
