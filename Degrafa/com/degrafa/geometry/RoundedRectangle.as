@@ -101,11 +101,11 @@ package com.degrafa.geometry{
 		* The x-axis coordinate of the upper left point of the rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get x():Number{
+		override public function get x():Number{
 			if(!_x){return 0;}
 			return _x;
 		}
-		public function set x(value:Number):void{
+		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated = true;
@@ -118,11 +118,11 @@ package com.degrafa.geometry{
 		* The y-axis coordinate of the upper left point of the rounded rectangle. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get y():Number{
+		override public function get y():Number{
 			if(!_y){return 0;}
 			return _y;
 		}
-		public function set y(value:Number):void{
+		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated = true;
@@ -134,11 +134,11 @@ package com.degrafa.geometry{
 		/**
 		* The width of the rounded rectangle.
 		**/
-		public function get width():Number{
+		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
 		}
-		public function set width(value:Number):void{
+		override public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
 				invalidated = true;
@@ -150,11 +150,11 @@ package com.degrafa.geometry{
 		/**
 		* The height of the rounded rectangle.
 		**/
-		public function get height():Number{
+		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
 		}
-		public function set height(value:Number):void{
+		override public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
 				invalidated = true;

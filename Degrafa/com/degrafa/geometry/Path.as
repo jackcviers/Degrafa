@@ -474,14 +474,13 @@ package com.degrafa.geometry{
 			//which case we need to mirror the last used control point (s,S,t,T)
 			var lastControlPoint:Point=lastPoint.clone();
 			
-		var s:uint=getTimer()	
-		var curSegment:Object;
+			var s:uint=getTimer()	
+			var curSegment:Object;
 
-			for each(curSegment in _segments.items)
-			{
+			for each(curSegment in _segments.items){
 				curSegment.computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
 	       	}
-	//	trace('command stack build:' + ((getTimer() - s)));        	
+		      	
 		}
 		
 		private var _bounds:Rectangle;

@@ -88,10 +88,10 @@ package com.degrafa.geometry{
 		* The x-coordinate to move to. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get x():Number{
+		override public function get x():Number{
 			return _x;
 		}
-		public function set x(value:Number):void{
+		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
 				invalidated = true;
@@ -104,10 +104,10 @@ package com.degrafa.geometry{
 		* The y-coordinate to move to. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get y():Number{
+		override public function get y():Number{
 			return _y;
 		}
-		public function set y(value:Number):void{
+		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
 				invalidated = true;

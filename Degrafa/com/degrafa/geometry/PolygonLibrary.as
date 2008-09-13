@@ -64,10 +64,10 @@ package com.degrafa.geometry{
 		* The width of the object. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get width():Number{
+		override public function get width():Number{
 			return _width;
 		}
-		public function set width(value:Number):void{
+		override public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
 				invalidated = true;
@@ -79,10 +79,10 @@ package com.degrafa.geometry{
 		* The height of the object. If not specified 
 		* a default value of 0 is used.
 		**/
-		public function get height():Number{
+		override public function get height():Number{
 			return _height;
 		}
-		public function set height(value:Number):void{
+		override public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
 				invalidated = true;

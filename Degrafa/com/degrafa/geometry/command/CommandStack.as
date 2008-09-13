@@ -115,7 +115,7 @@ package com.degrafa.geometry.command{
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 			
 			//updat ethe layout this is temp until properly setup
-			if(owner.layout){
+			if(owner.layoutConstraint){
 				LayoutUtils.calculateRatios(this,owner.layoutRectangle);
 			}
 			

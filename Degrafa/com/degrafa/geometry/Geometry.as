@@ -31,7 +31,7 @@ package com.degrafa.geometry{
 	import com.degrafa.decorators.IGlobalDecorator;
 	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.geometry.command.CommandStack;
-	import com.degrafa.geometry.layout.ILayout;
+	import com.degrafa.geometry.layout.LayoutConstraint;
 	import com.degrafa.states.IDegrafaStateClient;
 	import com.degrafa.states.State;
 	import com.degrafa.states.StateManager;
@@ -353,16 +353,14 @@ package com.degrafa.geometry{
 						if(autoClearGraphicsTarget){
 							targetItem.graphics.clear();
 						}
+						
+						_renderTarget = DisplayObject(targetItem);
+						
 						draw(targetItem.graphics,null);
 					}
 				}
 			}
 			
-		}
-			
-		public function get bounds():Rectangle{
-			//to be overriden
-			return null;	
 		}
 		
 		/**
@@ -444,6 +442,29 @@ package com.degrafa.geometry{
 	        
 		}
 		
+		//use a number so it can be NaN
+		private var _renderTarget:DisplayObject;
+		/**
+		* Returns the current graphics target being rendered to. 
+		**/
+		protected function get renderTarget():DisplayObject{
+			return _renderTarget;	
+		}
+		
+		/**
+		* Returns the current graphics target bounds tha we are rendering to. 
+		**/
+		protected function get renderTargetRelativeBounds():Rectangle{
+			//as we are drawinf relative to the target x,y=0
+			return new Rectangle(0,0,_renderTarget.width,
+			_renderTarget.height);	
+		}
+				
+		public function get bounds():Rectangle{
+			//to be overriden
+			return null;	
+		}
+		
 		/**
 		* Performs any pre calculation that is required to successfully render 
 		* this element. Including bounds calculations and lower level drawing 
@@ -462,7 +483,8 @@ package com.degrafa.geometry{
 			
 			if(!_commandStack)
 				_commandStack = new CommandStack(this);
-			
+				
+			_commandStack.owner = this;
 			return _commandStack;
 		}	
 		public function set commandStack(value:CommandStack):void{
@@ -479,14 +501,19 @@ package com.degrafa.geometry{
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
-			//always do layout regardless
-			initLayout();
-		
+			//always init layout regardless will be 
+			//moved to predraw after
+			if(hasLayout){
+				initLayout();
+			}
+			
 			//don't draw unless visible
 			if(!visible){return;}
 			
-			commandStack.draw(graphics,(layout)? layout.layoutRectangle:rc);
-         	endDraw(graphics);
+			commandStack.owner = this;
+			commandStack.draw(graphics,(hasLayout)? layoutConstraint.layoutRectangle:rc);
+			
+			endDraw(graphics);
          
   		}		
   		
@@ -606,49 +633,274 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* Layout related.
   		**********************************************************/
-  		
-  		private var _layout:ILayout;
+  		  		
+  		private var _layoutConstraint:LayoutConstraint;
 		/**
-		* Defines the layout that will be used for 
-		* positioning this geometry object.
+		* The layout constraint that is used for positioning/sizing this geometry object.
 		**/
-		public function get layout():ILayout{
-			return _layout;
+		public function get layoutConstraint():LayoutConstraint{
+			return _layoutConstraint;
 		}
-		public function set layout(value:ILayout):void{
-			if(_layout != value){
-				var oldValue:Object=_layout;
+		public function set layoutConstraint(value:LayoutConstraint):void{
+						
+			if(_layoutConstraint != value){
+				var oldValue:Object=_layoutConstraint;
 				
-				if(_layout){
-					if(_layout.hasEventManager){
-						_layout.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				if(_layoutConstraint){
+					if(_layoutConstraint.hasEventManager){
+						_layoutConstraint.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 					}
 				}
 								
-				_layout = value;
+				_layoutConstraint = value;
 				
 				if(enableEvents){	
-					_layout.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+					_layoutConstraint.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
 												
 				//call local helper to dispatch event
-				initChange("layout",oldValue,_layout,this);
+				initChange("layoutConstraint",oldValue,_layoutConstraint,this);
 				
+				hasLayout=true;
+				layoutParentIsGraphicsTarget = (graphicsTarget)? true:false;
 			}	
 			
 		}
 		
-		//read only accessor for the layout rectangle
-		public function get layoutRectangle():Rectangle{
-			return (layout)? layout.layoutRectangle:bounds;
+		private function initLayoutConstraint():void{
+			if(!layoutConstraint){
+				layoutConstraint = new LayoutConstraint();
+				
+				hasLayout=true;
+				layoutParentIsGraphicsTarget = (graphicsTarget)? true:false;
+			}
 		}
 		
-		//does the layout calculation		
+		//is layout present
+		public var hasLayout:Boolean;
+		
+		//if we have a graphics target we lay out to that instead of any parent
+		//normally you would not have both parent and graphics target.
+		public var layoutParentIsGraphicsTarget:Boolean;
+		
+		//read only accessor for the layout rectangle
+		public function get layoutRectangle():Rectangle{
+			return (hasLayout)? layoutConstraint.layoutRectangle:bounds;
+		}
+		
+		//does the layout calculation called during draw or predraw		
 		public function initLayout():void{
-			if(parent && layout){
-				layout.computeLayoutRectangle(bounds,Geometry(parent).layoutRectangle);
+			if(parent && !layoutParentIsGraphicsTarget){
+				layoutConstraint.computeLayoutRectangle(bounds,Geometry(parent).layoutRectangle);
+			}
+			else{
+				//layout to the current graphics target
+				layoutConstraint.computeLayoutRectangle(bounds,renderTargetRelativeBounds);
 			}
 		}		
+		
+		/**
+		* START LAYOUT PROXY PROPERTIES ::
+		* The below are proxy properties for contraint based layout. Depending on the 
+		* object some of these are overrideen in the respective Geometry subclass. 
+		* For example width on a RegularRectangle.
+		**/
+		
+		//x,y,width,height are different as we need a getter and a setter
+		public function get width():Number{
+			return (hasLayout)? layoutConstraint.width:NaN;
+		}
+		public function set width(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.width = value;
+		}
+		public function get percentWidth():Number{
+			return (hasLayout)? layoutConstraint.percentWidth:NaN;
+		}
+		public function set percentWidth(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.percentWidth = value;
+		}
+		public function get maxWidth():Number{
+			return (hasLayout)? layoutConstraint.maxWidth:NaN;
+		}
+		public function set maxWidth(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.maxWidth = value;
+		}
+		public function get minWidth():Number{
+			return (hasLayout)? layoutConstraint.minWidth:NaN;
+		}
+		public function set minWidth(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.minWidth = value;
+		}
+		public function get height():Number{
+			return (hasLayout)? layoutConstraint.height:NaN;
+		}
+		public function set height(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.height = value;
+		}
+		public function get percentHeight():Number{
+			return (hasLayout)? layoutConstraint.percentHeight:NaN;
+		}
+		public function set percentHeight(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.percentHeight = value;
+		}
+		public function get maxHeight():Number{
+			return (hasLayout)? layoutConstraint.maxHeight:NaN;
+		}
+		public function set maxHeight(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.maxHeight = value;
+		}
+		public function get minHeight():Number{
+			return (hasLayout)? layoutConstraint.minHeight:NaN;
+		}
+		public function set minHeight(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.minHeight = value;
+		}
+		public function get x():Number{
+			return (hasLayout)? layoutConstraint.x:NaN;
+		}
+		public function set x(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.x = value;
+		}
+		public function get maxX():Number{
+			return (hasLayout)? layoutConstraint.maxX:NaN;
+		}
+		public function set maxX(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.maxX = value;
+		}
+		public function get minX():Number{
+			return (hasLayout)? layoutConstraint.minX:NaN;
+		}
+		public function set minX(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.minX = value;
+		}
+		public function get y():Number{
+			return (hasLayout)? layoutConstraint.y:NaN;
+		}
+		public function set y(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.y = value;
+		}
+		public function get maxY():Number{
+			return (hasLayout)? layoutConstraint.maxY:NaN;
+		}
+		public function set maxY(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.maxY = value;
+		}
+		public function get minY():Number{
+			return (hasLayout)? layoutConstraint.minY:NaN;
+		}
+		public function set minY(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.minY = value;
+		}
+		public function get horizontalCenter():Number{
+			return (hasLayout)? layoutConstraint.horizontalCenter:NaN;
+		}
+		public function set horizontalCenter(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.horizontalCenter = value;
+		}
+		public function get verticalCenter():Number{
+			return (hasLayout)? layoutConstraint.verticalCenter:NaN;
+		}
+		public function set verticalCenter(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.verticalCenter = value;
+		}
+		public function get top():Number{
+			return (hasLayout)? layoutConstraint.top:NaN;
+		}
+		public function set top(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.top = value;
+		}
+		public function get bottom():Number{
+			return (hasLayout)? layoutConstraint.bottom:NaN;
+		}
+		public function set bottom(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.bottom = value;
+		}
+		public function get left():Number{
+			return (hasLayout)? layoutConstraint.left:NaN;
+		}
+		public function set left(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.left = value;
+		}
+		public function get right():Number{
+			return (hasLayout)? layoutConstraint.right:NaN;
+		}
+		public function set right(value:Number):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.right = value;
+		}
+		public function get maintainAspectRatio():Boolean{
+			return (hasLayout)? layoutConstraint.maintainAspectRatio:false;
+		}
+		public function set maintainAspectRatio(value:Boolean):void{
+			if(!layoutConstraint){
+				initLayoutConstraint();
+			}
+			layoutConstraint.maintainAspectRatio = value;
+		}
+		
+		/**
+		* END LAYOUT PROXY PROPERTIES ::
+		**/
+		
 		/**********************************************************
   		* END Layout related.
   		**********************************************************/
