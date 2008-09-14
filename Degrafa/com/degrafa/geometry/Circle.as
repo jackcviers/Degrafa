@@ -94,10 +94,10 @@ package com.degrafa.geometry{
 		private var _centerX:Number;
 		/**
 		* The x-axis coordinate of the center of the circle. If not specified 
-		* a default value of 0 is used.
+		* a default value of 1 is used in order for layout to work properly.
 		**/
 		public function get centerX():Number{
-			if(!_centerX){return 0;}
+			if(!_centerX){return (hasLayout)? 1:0;}
 			return _centerX;
 		}
 		public function set centerX(value:Number):void{
@@ -110,10 +110,10 @@ package com.degrafa.geometry{
 		private var _centerY:Number;
 		/**
 		* The y-axis coordinate of the center of the circle. If not specified 
-		* a default value of 0 is used.
+		* a default value of 1 is used in order for layout to work properly.
 		**/
 		public function get centerY():Number{
-			if(!_centerY){return 0;}
+			if(!_centerY){return (hasLayout)? 1:0;}
 			return _centerY;
 		}
 		public function set centerY(value:Number):void{
@@ -128,10 +128,10 @@ package com.degrafa.geometry{
 		private var _radius:Number;
 		/**
 		* The radius of the circle. If not specified a default value of 0 
-		* is used.
+		* is used in order for layout to work properly.
 		**/
 		public function get radius():Number{
-			if(!_radius){return 0;}
+			if(!_radius){return (hasLayout)? 1:0;}
 			return _radius;
 		}
 		public function set radius(value:Number):void{
@@ -172,16 +172,31 @@ package com.degrafa.geometry{
 			_bounds = new Rectangle(centerX-radius,centerY-radius,radius*2,radius*2);
 		}		
 		
-		
+		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* radius or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = (_radius || hasLayout);
+			return _hasValideProperties;
+		}
+			
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
+						
 			if(invalidated){
-			
-				//commandStack = new CommandStack();
 				
-				commandStack.source = [];
+				if(!hasValideProperties){return;}
+				
+							
+				commandStack.length = 0;
 								
 			    var span:Number = Math.PI/accuracy;
 			    var controlRadius:Number = radius/Math.cos(span);
@@ -213,8 +228,6 @@ package com.degrafa.geometry{
 			
 		}
 		
-		
-		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -223,8 +236,11 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
+			
 			//re init if required
 		 	preDraw();
+		 	
+		 	if(!_hasValideProperties){return;}
 		 							
 			//apply the fill retangle for the draw
 			super.draw(graphics,(rc)? rc:_bounds);

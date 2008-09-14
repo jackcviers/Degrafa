@@ -155,41 +155,7 @@ package com.degrafa.geometry{
 			invalidated = true;
 			dispatchEvent(event);
 		}
-		
-		private var _x:Number;
-		/**
-		* The x-coordinate of the upper left point to begin drawing from. If not specified 
-		* a default value of 0 is used.
-		**/
-		override public function get x():Number{
-			if(!_x){return 0;}
-			return _x;
-		}
-		override public function set x(value:Number):void{
-			if(_x != value){
-				_x = value;
-				invalidated = true;
-			}
-		}
-		
-		
-		private var _y:Number;
-		/**
-		* The y-coordinate of the upper left point to begin drawing from. If not specified 
-		* a default value of 0 is used.
-		**/
-		override public function get y():Number{
-			if(!_y){return 0;}
-			return _y;
-		}
-		override public function set y(value:Number):void{
-			if(_y != value){
-				_y = value;
-				invalidated = true;
-			}
-		}
-		
-		
+				
 		private var _autoClose:Boolean;
 		/**
 		* Specifies if this polyline is to be automatically closed. 
@@ -251,17 +217,17 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				
-				commandStack.addMoveTo(_points.items[0].x+x,_points.items[0].y+y);
+				commandStack.addMoveTo(_points.items[0].x,_points.items[0].y);
 				
 				var i:int = 0;
 				var length:int = _points.items.length;					
 				for (;i < length; i++){
-					commandStack.addLineTo(_points.items[i].x+x,_points.items[i].y+y);
+					commandStack.addLineTo(_points.items[i].x,_points.items[i].y);
 				}	
 			
 				//close if required
 				if(_autoClose){
-					commandStack.addLineTo(_points.items[0].x+x,_points.items[0].y+y);
+					commandStack.addLineTo(_points.items[0].x,_points.items[0].y);
 				}
 			
 				calcBounds();
@@ -291,9 +257,7 @@ package com.degrafa.geometry{
 			
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
-			if (!_x){_x = value.x};
-			if (!_y){_y = value.y};
-						
+									
 			if (!_points && value.points.length!=0){points = value.points};
 			
 			

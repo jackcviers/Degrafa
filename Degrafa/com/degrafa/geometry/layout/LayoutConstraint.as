@@ -341,7 +341,6 @@ package com.degrafa.geometry.layout
 			}
 		}
 		
-
 		private var _maintainAspectRatio:Boolean=false;
 		/**
 		 * If true the drawn result of the geometry 
@@ -430,10 +429,12 @@ package com.degrafa.geometry.layout
 			_layoutRectangle = childBounds.clone();
 			
 			//bounds from a geometry should never be NaN
-			_width=layoutRectangle.width;
-			_height=layoutRectangle.height;
-			_x=layoutRectangle.x;
-			_y=layoutRectangle.y;
+			//so if the below are not expicitly set use 
+			//the bounds
+			if(!_width){_width =layoutRectangle.width;}
+			if(!_height){_height =layoutRectangle.height;}
+			if(!_x){_x =layoutRectangle.x;}
+			if(!_y){_y =layoutRectangle.y;}
 			
 			
 			//retrive the bounds we need to layout to

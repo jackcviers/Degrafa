@@ -132,7 +132,7 @@ package com.degrafa.geometry{
 		* The width of the regular rectangle.
 		**/
 		override public function get width():Number{
-			if(!_width){return 0;}
+			if(!_width){return (hasLayout)? 1:0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -145,10 +145,11 @@ package com.degrafa.geometry{
 		
 		private var _height:Number;
 		/**
-		* The height of the regular rectangle.
+		* The height of the regular rectangle. If not specified 
+		* a default value of 1 is used in order for layout to work properly.
 		**/
 		override public function get height():Number{
-			if(!_height){return 0;}
+			if(!_height){return (hasLayout)? 1:0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{
@@ -177,10 +178,27 @@ package com.degrafa.geometry{
 		}	
 		
 		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* width and a height or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = ((_width && _height) || hasLayout);
+			return _hasValideProperties;
+		}
+		
+		
+		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
+			
+				if(!hasValideProperties){return;}
 			
 				commandStack.length = 0;
 				
@@ -207,6 +225,8 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
+		 			 	
+		 	if(!_hasValideProperties){return;}
 		 				
 			super.draw(graphics,(rc)? rc:_bounds);
 			

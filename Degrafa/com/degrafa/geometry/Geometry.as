@@ -491,6 +491,16 @@ package com.degrafa.geometry{
 			_commandStack=value;
 		}
 		
+		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		**/
+		protected var _hasValideProperties:Boolean;
+		public function get hasValideProperties():Boolean{
+			//overidden by subclasses
+			return _hasValideProperties;
+		}
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 

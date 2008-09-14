@@ -130,7 +130,7 @@ package com.degrafa.geometry{
 		* The width of the ellipse.
 		**/
 		override public function get width():Number{
-			if(!_width){return 0;}
+			if(!_width){return (hasLayout)? 1:0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -147,7 +147,7 @@ package com.degrafa.geometry{
 		* The height of the ellipse.
 		**/
 		override public function get height():Number{
-			if(!_height){return 0;}
+			if(!_height){return (hasLayout)? 1:0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{			
@@ -197,12 +197,28 @@ package com.degrafa.geometry{
 		}	
 		
 		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* width and a height or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = ((_width && _height) || hasLayout);
+			return _hasValideProperties;
+		}
+		
+		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
 			
 				commandStack.length=0;
+				
+				if(!hasValideProperties){return;}
 				
 				var angleDelta:Number = Math.PI / (accuracy/2); 
 				
@@ -243,6 +259,9 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
+		 	
+		 	if(!hasValideProperties){return;}
+		 	
 			super.draw(graphics,(rc)? rc:_bounds);
 		}
 		

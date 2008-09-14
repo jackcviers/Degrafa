@@ -161,7 +161,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get arc():Number{
-			if(!_arc){return 0;}
+			if(!_arc){return (hasLayout)? 1:0;}
 			return _arc;
 		}
 		public function set arc(value:Number):void{
@@ -177,7 +177,7 @@ package com.degrafa.geometry{
 		* The width of the arc.
 		**/
 		override public function get width():Number{
-			if(!_width){return 0;}
+			if(!_width){return (hasLayout)? 1:0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -193,7 +193,7 @@ package com.degrafa.geometry{
 		* The height of the arc.
 		**/
 		override public function get height():Number{
-			if(!_height){return 0;}
+			if(!_height){return (hasLayout)? 0.01:0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{
@@ -276,12 +276,30 @@ package com.degrafa.geometry{
 			}
 		
 		}	
+		
+		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* width and a height or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = ((_width && _height) || hasLayout);
+			return _hasValideProperties;
+		}
 				
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
+				
+				commandStack.length=0;
+				
+				if(!hasValideProperties){return;}
 				
 				//calculate based on startangle, radius, width, and height to get the drawing
 				//x and y so that our arc is always in the bounds of the rectangle. may want 
@@ -291,9 +309,7 @@ package com.degrafa.geometry{
 				
 				var newY:Number = (height/2) - (height/2) * 
 				Math.sin(startAngle * (Math.PI / 180))+y;
-								
 				
-				commandStack.length=0;
 				
 			//	commandStack.addMoveTo(x,y);				
 				//Calculate the center point. We only needed is we have a pie type 
@@ -342,6 +358,9 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			//re init if required
 		 	preDraw();
+		 	
+		 	if(!hasValideProperties){return;}
+		 	
 			super.draw(graphics,(rc)? rc:_bounds);
 	  	}
 		

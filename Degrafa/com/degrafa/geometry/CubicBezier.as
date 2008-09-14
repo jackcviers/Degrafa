@@ -149,7 +149,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get x1():Number{
-			if(!_x1){return 0;}
+			if(!_x1){return (hasLayout)? 1:0;}
 			return _x1;
 		}
 		public function set x1(value:Number):void{
@@ -167,7 +167,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
-			if(!_y1){return 0;}
+			if(!_y1){return (hasLayout)? 1:0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{
@@ -184,7 +184,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get cx():Number{
-			if(!_cx){return 0;}
+			if(!_cx){return (_cx1)? _cx1:(hasLayout)? 1:0;}
 			return _cx;
 		}
 		public function set cx(value:Number):void{
@@ -201,7 +201,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get cy():Number{
-			if(!_cy){return 0;}
+			if(!_cy){return (_cy1)? _cy1:(hasLayout)? 1:0;}
 			return _cy;
 		}
 		public function set cy(value:Number):void{
@@ -218,7 +218,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get cx1():Number{
-			if(!_cx1){return 0;}
+			if(!_cx1){return (_cx)? _cx:(hasLayout)? 1:0;}
 			return _cx1;
 		}
 		public function set cx1(value:Number):void{
@@ -235,7 +235,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get cy1():Number{
-			if(!_cy1){return 0;}
+			if(!_cy1){return (_cy)? _cy:(hasLayout)? 1:0;}
 			return _cy1;
 		}
 		public function set cy1(value:Number):void{
@@ -314,6 +314,21 @@ package com.degrafa.geometry{
 			if (_bounds.height == 0) _bounds.height = 0.0001;
         	
 		}
+		
+		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* x1, y1 and cx and cy or cx1 and cy1 or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = ((_x1 && _y1 && ((_cx && cy) || (_cx1 && cy1))) || hasLayout);
+			return _hasValideProperties;
+		}
+		
 				
 		/**
 		* @inheritDoc 
@@ -321,6 +336,10 @@ package com.degrafa.geometry{
 		override public function preDraw():void{
 			if(invalidated){
 			
+				commandStack.length=0;
+				
+				if(!hasValideProperties){return;}
+				
 				//if the last controly and the y are the same add a 
 				//minute offset to avoid a display parasite that 
 				//can sometimes occur from this
@@ -330,7 +349,6 @@ package com.degrafa.geometry{
 					cy1Offset=0.000001;
 				}
 				
-				commandStack.length=0;
 				//add a MoveTo at the start of the commandStack rendering chain
 				commandStack.addMoveTo(x,y);
 			
@@ -359,6 +377,9 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			//re init if required
 		 	preDraw();
+		 	
+		 	if(!hasValideProperties){return;}
+		 	
 			super.draw(graphics, (rc)? rc:_bounds);
 		}
 		

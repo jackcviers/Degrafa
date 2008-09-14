@@ -133,7 +133,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
-			if(!_y1){return 0;}
+			if(!_y1){return (hasLayout)? 1:0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{			
@@ -160,12 +160,28 @@ package com.degrafa.geometry{
 		}	
 		
 		/**
+		* Indicates that this geometry has enough required properties 
+		* to properly render. This is tested in the predraw phase for each 
+		* geometry object.
+		*
+		* In order for this object to render we need a minimum of a
+		* y1 or a layout constraint. This objects
+		* children will not be drawn unless this object is valid.
+		**/
+		override public function get hasValideProperties():Boolean{
+			_hasValideProperties = (_y1 || hasLayout);
+			return _hasValideProperties;
+		}
+		
+		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
 			
 				commandStack.length=0;
+				
+				if(!hasValideProperties){return;}
 				
 				commandStack.addMoveTo(x,y);	
 				commandStack.addLineTo(x,y1);
@@ -186,6 +202,9 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{						
 			//re init if required
 		 	preDraw();
+		 	
+		 	if(!hasValideProperties){return;}
+		 	
 			super.draw(graphics,(rc)? rc:_bounds);
 		}		
 		
