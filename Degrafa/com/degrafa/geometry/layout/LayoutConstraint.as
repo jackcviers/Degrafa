@@ -341,6 +341,7 @@ package com.degrafa.geometry.layout
 			}
 		}
 		
+
 		private var _maintainAspectRatio:Boolean=false;
 		/**
 		 * If true the drawn result of the geometry 
@@ -428,14 +429,22 @@ package com.degrafa.geometry.layout
 			//calculateLayoutRectangle method
 			_layoutRectangle = childBounds.clone();
 			
-			//bounds from a geometry should never be NaN
-			//so if the below are not expicitly set use 
-			//the bounds
-			if(!_width){_width =layoutRectangle.width;}
-			if(!_height){_height =layoutRectangle.height;}
-			if(!_x){_x =layoutRectangle.x;}
-			if(!_y){_y =layoutRectangle.y;}
+			//Setup the size and position is none set already
+			if(!_width){
+				_width=(layoutRectangle.width)? layoutRectangle.width:1;
+			}
 			
+			if(!_height){
+				_height=(layoutRectangle.height)? layoutRectangle.height:1;
+			}
+			
+			if(!_x){
+				_x=(layoutRectangle.x)? layoutRectangle.x:0;
+			}
+			
+			if(!_y){
+				_y=(layoutRectangle.y)? layoutRectangle.y:0;
+			}
 			
 			//retrive the bounds we need to layout to
 			container = parentBounds.clone(); 
@@ -443,8 +452,7 @@ package com.degrafa.geometry.layout
 		 	//get the final rectangle we need to layout to and 
 		 	//base our point calcualtions on
 		 	calculateLayoutRectangle();
-		 	
-		 	//returns the resulting rectangle
+		 			 			 	
 		 	return layoutRectangle;
 		 				
 		}

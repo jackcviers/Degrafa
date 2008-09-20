@@ -130,7 +130,7 @@ package com.degrafa.geometry{
 		* The width of the ellipse.
 		**/
 		override public function get width():Number{
-			if(!_width){return (hasLayout)? 1:0;}
+			if(!_width){return 0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -147,7 +147,7 @@ package com.degrafa.geometry{
 		* The height of the ellipse.
 		**/
 		override public function get height():Number{
-			if(!_height){return (hasLayout)? 1:0;}
+			if(!_height){return 0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{			
@@ -197,28 +197,12 @@ package com.degrafa.geometry{
 		}	
 		
 		/**
-		* Indicates that this geometry has enough required properties 
-		* to properly render. This is tested in the predraw phase for each 
-		* geometry object.
-		*
-		* In order for this object to render we need a minimum of a
-		* width and a height or a layout constraint. This objects
-		* children will not be drawn unless this object is valid.
-		**/
-		override public function get hasValideProperties():Boolean{
-			_hasValideProperties = ((_width && _height) || hasLayout);
-			return _hasValideProperties;
-		}
-		
-		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
 			
 				commandStack.length=0;
-				
-				if(!hasValideProperties){return;}
 				
 				var angleDelta:Number = Math.PI / (accuracy/2); 
 				
@@ -250,6 +234,37 @@ package com.degrafa.geometry{
 		}
 		
 		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			//if set use as our base
+			super.calculateLayout(new Rectangle(x,y,
+			(_width)?_width:1,
+			(_height)?_height:1));
+			 
+			//In the case of the base objects with exception to polygons and paths
+			//we pre calc and set the properties
+			
+			//calc the default rect
+			if(_layoutConstraint){
+		 		
+		 		//having an layout overrides the basic properties
+		 		_width= layoutRectangle.width;
+		 		_height = layoutRectangle.height;
+				_x= layoutRectangle.x;
+				_y= layoutRectangle.y;
+				
+				//invalidate so that predraw is re calculated
+				invalidated = true;
+				
+		 	}
+		 	
+		}
+		
+		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
@@ -257,10 +272,12 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
+			
+			//init the layout in this case done before predraw.
+			calculateLayout();
+			
 			//re init if required
 		 	preDraw();
-		 	
-		 	if(!hasValideProperties){return;}
 		 	
 			super.draw(graphics,(rc)? rc:_bounds);
 		}

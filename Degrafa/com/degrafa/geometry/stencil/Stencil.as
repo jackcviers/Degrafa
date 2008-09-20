@@ -26,6 +26,7 @@ package com.degrafa.geometry.stencil{
 	import com.degrafa.geometry.Path;
 	import com.degrafa.geometry.Polygon;
 	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -170,6 +171,28 @@ package com.degrafa.geometry.stencil{
 		}
 		
 		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			super.calculateLayout();
+			
+			//To be set up via a transform
+			//Process the point data but only if we are greater 
+			//than or equal to 0 otherwise the point data gets corrupted
+			//need to find a better way for V1
+			if(_layoutConstraint){
+				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+					LayoutUtils.calculateRatios(commandStack,layoutRectangle);
+				}
+			}
+				
+		}
+				
+		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
@@ -180,7 +203,10 @@ package com.degrafa.geometry.stencil{
 			
 			//re init if required
 		 	preDraw();
-		 			 	
+		 	
+		 	//init the layout in this case done after predraw.
+			calculateLayout();
+			
 			super.draw(graphics,(rc)? rc:bounds);
 	 	}
 		

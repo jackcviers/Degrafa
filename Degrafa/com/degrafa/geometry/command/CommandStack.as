@@ -114,11 +114,6 @@ package com.degrafa.geometry.command{
 		**/
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 			
-			//updat ethe layout this is temp until properly setup
-			if(owner.layoutConstraint){
-				LayoutUtils.calculateRatios(this,owner.layoutRectangle);
-			}
-			
 			var item:CommandStackItem;
 			
 			var trans:Boolean =  (owner.transformContext ||(owner.transform && !owner.transform.isIdentity));

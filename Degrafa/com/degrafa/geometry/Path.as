@@ -23,18 +23,16 @@ package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.SegmentsCollection;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	import com.degrafa.geometry.segment.*;
 	import com.degrafa.geometry.utilities.*;
 	
 	import flash.display.Graphics;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
+	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
-	
-	
-	import flash.utils.getTimer;
 	//--------------------------------------
 	//  Other metadata
 	//--------------------------------------
@@ -540,6 +538,28 @@ package com.degrafa.geometry{
 			}
 			
 		}
+		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			super.calculateLayout();
+			
+			//To be set up via a transform
+			//Process the point data but only if we are greater 
+			//than or equal to 0 otherwise the point data gets corrupted
+			//need to find a better way for V1
+			if(_layoutConstraint){
+				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+					LayoutUtils.calculateRatios(commandStack,layoutRectangle);
+				}
+			}
+				
+		}
 				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -549,8 +569,13 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
+		 	
 		 	//re init if required
 		 	preDraw();
+		 	
+		 	//init the layout in this case done after predraw.
+			calculateLayout();
+						
 			super.draw(graphics, (rc)? rc:_bounds);
         }
 		

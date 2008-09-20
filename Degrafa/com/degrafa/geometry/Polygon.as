@@ -24,10 +24,10 @@ package com.degrafa.geometry{
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.GraphicPointCollection;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.events.PropertyChangeEvent;
 	
@@ -162,6 +162,41 @@ package com.degrafa.geometry{
 			dispatchEvent(event);
 		}
 		
+		
+		private var _x:Number;
+		/**
+		* The x-coordinate of the upper left point to begin drawing from. If not specified 
+		* a default value of 0 is used.
+		**/
+		override public function get x():Number{
+			if(!_x){return 0;}
+			return _x;
+		}
+		override public function set x(value:Number):void{
+			if(_x != value){
+				_x = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		private var _y:Number;
+		/**
+		* The y-coordinate of the upper left point to begin drawing from. If not specified 
+		* a default value of 0 is used.
+		**/
+		override public function get y():Number{
+			if(!_y){return 0;}
+			return _y;
+		}
+		override public function set y(value:Number):void{
+			if(_y != value){
+				_y = value;
+				invalidated = true;
+			}
+		}
+		
+		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
@@ -184,15 +219,16 @@ package com.degrafa.geometry{
 			var length:int = _points.items.length;		
 			for (;i< length; i++) 
 			{
-				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x);
-				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y);
+				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x+x);
+				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y+y);
 				
-				boundsMinX= Math.min(boundsMinX, _points.items[i].x);
-				boundsMinY= Math.min(boundsMinY, _points.items[i].y);
+				boundsMinX= Math.min(boundsMinX, _points.items[i].x+x);
+				boundsMinY= Math.min(boundsMinY, _points.items[i].y+y);
 				
 			}
 
 			_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
+
 
 		}	
 		
@@ -206,17 +242,17 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				
-				commandStack.addMoveTo(_points.items[0].x,_points.items[0].y);	
+				commandStack.addMoveTo(_points.items[0].x+x,_points.items[0].y+y);	
 				
 				var i:int = 0;
 				var length:int = _points.items.length;
 				for (;i < length; i++){
-					commandStack.addLineTo(_points.items[i].x,_points.items[i].y);
+					commandStack.addLineTo(_points.items[i].x+x,_points.items[i].y+y);
 				}	
 			
 				//close if not done already
-				if (_points.items[_points.items.length-1].x !=_points.items[0].x || _points.items[_points.items.length-1].y !=_points.items[0].y){
-					commandStack.addLineTo(_points.items[0].x,_points.items[0].y);
+				if (_points.items[_points.items.length-1].x+x !=_points.items[0].x+x || _points.items[_points.items.length-1].y+y !=_points.items[0].y+y){
+					commandStack.addLineTo(_points.items[0].x+x,_points.items[0].y+y);
 				}
 			
 				calcBounds();
@@ -226,6 +262,29 @@ package com.degrafa.geometry{
 		}
 		
 		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			super.calculateLayout();
+			
+			//To be set up via a transform
+			//Process the point data but only if we are greater 
+			//than or equal to 0 otherwise the point data gets corrupted
+			//need to find a better way for V1
+			if(_layoutConstraint){
+				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+					LayoutUtils.calculateRatios(commandStack,layoutRectangle);
+				}
+			}
+				
+		}
+		
+		
+		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
@@ -233,8 +292,13 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
+			
 			//re init if required
 		 	preDraw();
+		 	
+		 	//init the layout in this case done after predraw.
+			calculateLayout();
+			
 			super.draw(graphics,(rc)? rc:_bounds);
 	 	}
 		
@@ -246,6 +310,8 @@ package com.degrafa.geometry{
 			
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
+			if (!_x){_x = value.x};
+			if (!_y){_y = value.y};
 			
 			if (!_points && value.points.length!=0){points = value.points};
 			
