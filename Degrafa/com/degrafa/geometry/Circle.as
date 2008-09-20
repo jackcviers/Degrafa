@@ -212,7 +212,14 @@ package com.degrafa.geometry{
 			
 		}
 		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			//possible candidate for a transform type layout
 			
 			super.calculateLayout();
 			 

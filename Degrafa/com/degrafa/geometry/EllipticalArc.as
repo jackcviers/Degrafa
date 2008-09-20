@@ -339,6 +339,8 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
+			//possible candidate for a transform type layout
+						
 			//if set use as our base
 			super.calculateLayout(new Rectangle(x,y,
 			(_width)?_width:1,

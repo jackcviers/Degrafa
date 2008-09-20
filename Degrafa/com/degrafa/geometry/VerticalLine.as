@@ -175,6 +175,35 @@ package com.degrafa.geometry{
 			}
 			
 		}
+		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			super.calculateLayout();
+			 
+			//In the case of the base objects with exception to polygons and paths
+			//we pre calc and set the properties
+			
+			//calc the default rect
+			if(_layoutConstraint){
+		 		
+		 		//having an layout overrides the basic properties
+		 		_x=layoutRectangle.x;
+				
+				_y=layoutRectangle.y;
+				_y1=layoutRectangle.y + layoutRectangle.height;
+				
+				
+				//invalidate so that predraw is re calculated
+				invalidated = true;
+				
+		 	}
+		 	
+		}
 				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -183,9 +212,14 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/		
-		override public function draw(graphics:Graphics,rc:Rectangle):void{						
+		override public function draw(graphics:Graphics,rc:Rectangle):void{	
+			
+			//init the layout in this case done before predraw.
+			calculateLayout();
+								
 			//re init if required
 		 	preDraw();
+			
 			super.draw(graphics,(rc)? rc:_bounds);
 		}		
 		
