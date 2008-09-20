@@ -22,10 +22,10 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.layout.LayoutConstraint;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.graphics.IFill;
 	import mx.graphics.IStroke;
@@ -72,6 +72,33 @@ package com.degrafa.geometry{
 		public function AdvancedRectangle(){
 			super();
 		}
+		
+		//Layout is Not yet implemented here so override to avoid mass havoc
+		override public function get layoutConstraint():LayoutConstraint{return null}
+		override public function set layoutConstraint(value:LayoutConstraint):void{}
+		override public function get layoutRectangle():Rectangle{return null} 
+		
+		override public function set width(value:Number):void{}
+		override public function set percentWidth(value:Number):void{}
+		override public function set maxWidth(value:Number):void{}
+		override public function set minWidth(value:Number):void{}
+		override public function set height(value:Number):void{}
+		override public function set percentHeight(value:Number):void{}
+		override public function set maxHeight(value:Number):void{}
+		override public function set minHeight(value:Number):void{}
+		override public function set x(value:Number):void{}
+		override public function set maxX(value:Number):void{}
+		override public function set minX(value:Number):void{}
+		override public function set y(value:Number):void{}
+		override public function set maxY(value:Number):void{}
+		override public function set minY(value:Number):void{}
+		override public function set horizontalCenter(value:Number):void{}
+		override public function set verticalCenter(value:Number):void{}
+		override public function set top(value:Number):void{}
+		override public function set bottom(value:Number):void{}
+		override public function set left(value:Number):void{}
+		override public function set right(value:Number):void{}
+		override public function set maintainAspectRatio(value:Boolean):void{}
 		
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
 			
