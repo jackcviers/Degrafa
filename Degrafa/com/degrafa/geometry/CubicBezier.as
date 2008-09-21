@@ -299,7 +299,9 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-			
+				
+				commandStack = [];
+				
 				//if the last controly and the y are the same add a 
 				//minute offset to avoid a display parasite that 
 				//can sometimes occur from this
@@ -309,7 +311,7 @@ package com.degrafa.geometry{
 					cy1Offset=0.000001;
 				}
 				
-				var tempCommandStack:Array=[]
+				
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
 				GeometryUtils.cubicToQuadratic(new GraphicPoint(x,y),new GraphicPoint(cx,cy),new GraphicPoint(cx1,cy1+cy1Offset)
