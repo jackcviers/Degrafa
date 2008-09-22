@@ -238,12 +238,11 @@ package com.degrafa.geometry.segment{
 				_bounds.right = Math.max(lastPoint.x, newx);
 				
 			} else 	_bounds = new Rectangle(Math.min(lastPoint.x, newx), Math.min(lastPoint.y, newy), Math.abs(lastPoint.x - newx), Math.abs(lastPoint.y - newy));
-
 			for each(item in _commandStackItem.commandStack.source){
 				with(item)
 					{
 						if (type == CommandStackItem.LINE_TO) {
-							_bounds = _bounds.union(new Rectangle(Math.min(lpX?lpX:lastPoint.x, x), Math.min(lpY?lpY:lastPoint.y), Math.abs(lpX?lpX:lastPoint.x - x), Math.abs(lpY?lpY:lastPoint.y - y)));
+							_bounds = _bounds.union(new Rectangle(Math.min(lpX?lpX:lastPoint.x, x), Math.min(lpY?lpY:lastPoint.y, y), Math.abs(lpX?lpX:lastPoint.x - x), Math.abs(lpY?lpY:lastPoint.y - y)));
 							lpX = x;
 							lpY = y;
 						}
