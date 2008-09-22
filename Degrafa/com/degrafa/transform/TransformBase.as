@@ -230,7 +230,7 @@ package com.degrafa.transform{
 			
 			var regPoint:Point;
 			
-			if (value) rectangle = Geometry(value).layoutRectangle;
+			if (value) rectangle = Geometry(value).bounds;
 			
 			switch(_registrationPoint){
 				
