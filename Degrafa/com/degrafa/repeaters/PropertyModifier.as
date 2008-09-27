@@ -26,6 +26,12 @@ package com.degrafa.repeaters
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.geom.Rectangle;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("PropertyModifier.png")]
 
 	public class PropertyModifier extends DegrafaObject implements IRepeaterModifier{
 		

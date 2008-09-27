@@ -32,6 +32,12 @@ package com.degrafa.repeaters
 	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("GeometryRepeater.png")]
 
 	//[DefaultProperty("sourceGeometry")]
 	public class GeometryRepeater extends Geometry implements IGeometry {
