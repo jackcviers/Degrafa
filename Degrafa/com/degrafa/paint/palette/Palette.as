@@ -39,6 +39,12 @@ package  com.degrafa.paint.palette{
 	import mx.graphics.IFill;
 	import mx.graphics.IStroke;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("Palette.png")]
+	
 	[Event(name="initialize", type="mx.events.FlexEvent")]
 	[Event(name="propertyChange", type="mx.events.PropertyChangeEvent")]
 	
