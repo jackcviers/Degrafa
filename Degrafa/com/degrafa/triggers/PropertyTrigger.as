@@ -3,6 +3,12 @@ package com.degrafa.triggers
 	import flash.events.Event;
 	
 	import mx.binding.utils.ChangeWatcher;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("PropertyTrigger.png")]
 
 	public class PropertyTrigger extends Trigger implements ITrigger
 	{

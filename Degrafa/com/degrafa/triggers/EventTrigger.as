@@ -2,6 +2,12 @@ package com.degrafa.triggers
 {
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("EventTrigger.png")]
 
 	public class EventTrigger extends Trigger implements ITrigger
 	{
