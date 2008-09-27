@@ -14,6 +14,12 @@ package com.degrafa.states
 {
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.GeometryCollection;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RemoveChild.png")]
 
 	public class RemoveChild implements IOverride
 	{

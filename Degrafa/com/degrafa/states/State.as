@@ -16,6 +16,12 @@ import flash.events.EventDispatcher;
 
 import mx.events.FlexEvent;
 
+//--------------------------------------
+//  Other metadata
+//--------------------------------------
+	
+	[IconFile("State.png")]
+
 [Event(name="enterState", type="mx.events.FlexEvent")]
 [Event(name="exitState", type="mx.events.FlexEvent")]
 

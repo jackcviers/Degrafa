@@ -14,6 +14,12 @@ package com.degrafa.states{
 
 import com.degrafa.geometry.Geometry;
 
+//--------------------------------------
+//  Other metadata
+//--------------------------------------
+
+[IconFile("SetProperty.png")]
+
 public class SetProperty implements IOverride{
 
     public function SetProperty(target:Object = null, name:String = null,value:* = undefined){

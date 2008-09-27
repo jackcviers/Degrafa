@@ -15,6 +15,12 @@ package com.degrafa.states
 	
 	import com.degrafa.IGeometry;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("AddChild.png")]
+	
 	[DefaultProperty("target")]
 	public class AddChild implements IOverride
 	{
