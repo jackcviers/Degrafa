@@ -25,7 +25,11 @@ package com.degrafa.transform{
 	import com.degrafa.transform.TransformBase;
 	import com.degrafa.transform.ITransform;
 	
-
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("TranslateTransform.png")]
 	
 	[Exclude(name="centerX", kind="property")]
 	[Exclude(name="centerY", kind="property")]

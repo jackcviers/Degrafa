@@ -25,6 +25,12 @@ package com.degrafa.transform{
 	import com.degrafa.transform.TransformBase;
 	import flash.geom.Matrix;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("MatrixTransform.png")]
+	
 	[Bindable]
 	/**
 	* Matrix Transform creates an affine matrix transformation to manipulate the object in the 

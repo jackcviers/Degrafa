@@ -25,6 +25,11 @@ package com.degrafa.transform{
 	import com.degrafa.transform.TransformBase;
 	import com.degrafa.transform.ITransform;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("SkewTransform.png")]
 	
 	[Bindable]
 	/**

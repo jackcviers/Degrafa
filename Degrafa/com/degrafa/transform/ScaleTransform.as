@@ -25,6 +25,12 @@ package com.degrafa.transform{
 	import com.degrafa.transform.TransformBase;
 	import com.degrafa.transform.ITransform;
 	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("ScaleTransform.png")]
+	
 	[Bindable]
 	/**
 	* ScaleTransform scales an object along the x-axis (scaleX) and y-axis (scaleY). 

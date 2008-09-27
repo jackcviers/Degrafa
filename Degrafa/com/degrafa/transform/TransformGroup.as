@@ -30,6 +30,12 @@ package com.degrafa.transform{
 	
 	
 	import mx.events.PropertyChangeEvent;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("TransformGroup.png")]
 			
 	[DefaultProperty("transforms")]	
 	/**

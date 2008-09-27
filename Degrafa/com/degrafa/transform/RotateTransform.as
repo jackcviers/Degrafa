@@ -24,6 +24,11 @@ package com.degrafa.transform{
 	
 	import com.degrafa.transform.TransformBase
 
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+	
+	[IconFile("RotateTransform.png")]
 	
 	[Bindable]
 	/**
