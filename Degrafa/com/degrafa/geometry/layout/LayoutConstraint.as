@@ -5,6 +5,8 @@ package com.degrafa.geometry.layout
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
 
+	[IconFile("LayoutConstraint.png")]
+
 	public class LayoutConstraint extends DegrafaObject implements ILayout
 	{
 		//The rectangle we are laying out to. Parent Geometry bounds or target bounds
