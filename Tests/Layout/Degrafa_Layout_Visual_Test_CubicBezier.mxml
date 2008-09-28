@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007">
+	
+	
+	<CubicBezier graphicsTarget="{[target1]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" left="5" top="5" bottom="5" right="25">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target2]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" percentHeight="1" percentWidth=".75">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target3]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" left="10" top="10" width="50" height="60" >
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target4]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" width="50" height="50" verticalCenter="0" horizontalCenter="0" >
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+		
+	<CubicBezier graphicsTarget="{[target6]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" verticalCenter="0" percentHeight=".5" percentWidth=".5">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target7]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" horizontalCenter="0" percentHeight=".75" percentWidth=".75">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target8]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" percentHeight=".85" percentWidth=".5" bottom="5" right="5" >
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target9]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" percentWidth=".75" percentHeight=".5" maintainAspectRatio="false" top="15" left="5" >
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target10]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" percentWidth=".75" percentHeight=".75" bottom="0" horizontalCenter="0">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+		
+	<CubicBezier graphicsTarget="{[target12]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" x="25" y="25" width="50" height="50">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target13]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" x="20" y="20" width="50%" height="50%">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<CubicBezier graphicsTarget="{[target14]}" x0="600" y0="500" cx="600" cy="350" cx1="900" cy1="650" x1="900" y1="500" percentWidth="75" percentHeight="75">
+		<stroke>
+			<SolidStroke color="green"/>
+		</stroke> 		
+	</CubicBezier>
+	
+	<mx:Canvas id="target1" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="10"/>
+	<mx:Label x="118" y="10" text="left =5 top=5 right=25 bottom=5" width="294" height="100"/>
+		
+	<mx:Canvas id="target2" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="120"/>
+	<mx:Label x="118" y="120" text="percentWidth =.75 percentHeight =1" width="294" height="100"/>
+	
+	<mx:Canvas id="target3" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="230"/>
+	<mx:Label x="118" y="230" text="left=10 top=10 width=50 height=60" width="294" height="100"/>
+	
+	<mx:Canvas id="target4" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="340"/>
+	<mx:Label x="118" y="340" text="width=50 height=50 verticalCenter=0 horizontalCenter=0" width="333" height="100"/>
+	
+	<mx:Canvas id="target6" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="448"/>
+	<mx:Label x="118" y="448" text="percentWidth =.5 percentHeight =.5 verticalCenter=0" width="325" height="100"/>
+	
+	<mx:Canvas id="target7" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="10" y="558"/>
+	<mx:Label x="118" y="558" text="percentWidth =.75 percentHeight =.75 horizontalCenter=0" width="333" height="100"/>
+	
+	<mx:Canvas id="target8" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="10"/>
+	<mx:Label x="591" y="10" text="percentWidth =.5 percentHeight =.85  right=5 bottom=5" width="388" height="100"/>
+	
+	<mx:Canvas id="target9" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="120"/>
+	<mx:Label x="591" y="120" text="{'percentWidth =.75 percentHeight =.5 maintainAspectRatio=flase' + '\n' + 'top=15 left =5'}" width="388" height="100"/>
+	
+	<mx:Canvas id="target10" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="230"/>
+	<mx:Label x="591" y="230" text="{'percentWidth=.75 percentHeight=.75 bottom=0' + '\n' + 'horizontalCenter=0'}" width="388" height="100"/>
+		
+	<mx:Canvas id="target12" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="340"/>
+	<mx:Label x="591" y="340" text="x=25 y=25 width=50 height=50" width="388" height="100"/>
+	
+	<mx:Canvas id="target13" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="450"/>
+	<mx:Label x="591" y="450" text="x=20 y=20 width=50% height=50%" width="388" height="100"/>
+	
+	<mx:Canvas id="target14" borderColor="#666666" borderStyle="solid" 
+		width="100" height="100" x="483" y="560"/>
+	<mx:Label x="591" y="560" text="percentWidth =75 percentHeight =75" width="388" height="100"/>
+	
+	
+</mx:Application>
