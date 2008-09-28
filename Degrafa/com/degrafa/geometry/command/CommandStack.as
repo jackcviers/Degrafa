@@ -23,7 +23,7 @@ package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.geometry.layout.LayoutUtils;
+	import com.degrafa.geometry.layout.LayoutConstraint;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
@@ -38,6 +38,8 @@ package com.degrafa.geometry.command{
 		public var source:Array = [];
 		
 		public var lengthIsValid:Boolean;
+		
+		public var layoutCurveStreching:Boolean;
 		
 		public var owner:Geometry;
 		
@@ -121,6 +123,18 @@ package com.degrafa.geometry.command{
 			var transXY:Point;
 			var transCP:Point;
 			
+			var xOffset:Number=0;
+			var yOffset:Number=0;
+			//setup the layout side
+			if(owner.hasLayout){
+				var layout:LayoutConstraint=(owner.layoutConstraint.isRenderLayout)? owner.layoutConstraint:null;
+				
+				if(layout){
+					xOffset = layout.xOffset;
+					yOffset = layout.yOffset;
+				}
+			}
+			
 			if (trans ) {
 				var transMatrix:Matrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
 				transXY = new Point();
@@ -140,7 +154,15 @@ package com.degrafa.geometry.command{
 								graphics.moveTo(transXY.x,transXY.y);
 							} 
 							else {
-								graphics.moveTo(x,y);
+								if (layout){
+									graphics.moveTo(
+										((x-layout.xMin)*layout.xMultiplier)+xOffset,
+										((y-layout.yMin)*layout.yMultiplier)+yOffset
+										);
+								}
+								else{
+									graphics.moveTo(x,y);
+								}
 							}
 							
 	        				break;
@@ -152,7 +174,15 @@ package com.degrafa.geometry.command{
 								graphics.lineTo(transXY.x,transXY.y);
 							} 
 							else{
-								graphics.lineTo(x,y);
+								if (layout){
+									graphics.lineTo(
+										((x-layout.xMin)*layout.xMultiplier)+xOffset,
+										((y-layout.yMin)*layout.yMultiplier)+yOffset
+										);
+								}
+								else{
+									graphics.lineTo(x,y);
+								}
 							} 
 							
 	        				break;
@@ -166,7 +196,17 @@ package com.degrafa.geometry.command{
 								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
 							} 
 							else{
-								graphics.curveTo(cx,cy,x1,y1);
+								if (layout){
+									graphics.curveTo(
+										((cx-layout.xMin)*layout.xMultiplier)+xOffset,
+										((cy-layout.yMin)*layout.yMultiplier)+yOffset,
+										((x1-layout.xMin)*layout.xMultiplier)+xOffset,
+										((y1-layout.yMin)*layout.yMultiplier)+yOffset);
+								}
+								else{
+									graphics.curveTo(cx,cy,x1,y1);
+								}
+								
 							} 
 							
 	        				break;
@@ -245,19 +285,20 @@ package com.degrafa.geometry.command{
 		/**
 		* Adds a new MOVE_TO type item to be processed.
 		**/	
-		public function addMoveTo(x:Number,y:Number):void{
+		public function addMoveTo(x:Number,y:Number):CommandStackItem{
 			var itemIndex:int = source.push(new CommandStackItem(CommandStackItem.MOVE_TO,
 			x,y,NaN,NaN,NaN,NaN))-1;
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
+			return source[itemIndex];
 		}
 		
 		/**
 		* Adds a new LINE_TO type item to be processed.
 		**/	
-		public function addLineTo(x:Number,y:Number):void{
+		public function addLineTo(x:Number,y:Number):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.LINE_TO,
 			x,y,NaN,NaN,NaN,NaN))-1;
 			
@@ -265,12 +306,14 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			
 			lengthIsValid = false;
+			
+			return source[itemIndex];
 		}
 		
 		/**
 		* Adds a new CURVE_TO type item to be processed.
 		**/	
-		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):void{
+		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
 			NaN,NaN,x1,y1,cx,cy))-1;
 			
@@ -278,33 +321,39 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			
 			lengthIsValid = false;
+			
+			return source[itemIndex];
 		}
 		
 		/**
 		* Adds a new DELEGATE_TO type item to be processed.
 		**/	
-		public function addDelegate(delegate:Function):void{
+		public function addDelegate(delegate:Function):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO))-1;
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
+			
+			return source[itemIndex];
 		}
 		
 		/**
 		* Adds a new COMMAND_STACK type item to be processed.
 		**/	
-		public function addCommandStack(commandStack:CommandStack):void{
+		public function addCommandStack(commandStack:CommandStack):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.COMMAND_STACK,
 			NaN,NaN,NaN,NaN,NaN,NaN,commandStack))-1;
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
+			
+			return source[itemIndex];
 		}
 		
 		/**
 		* Adds a new command stack item to be processed.
 		**/		
-		public function addItem(value:CommandStackItem):void{
+		public function addItem(value:CommandStackItem):CommandStackItem{
 			
 			var itemIndex:int =source.push(value)-1;
 			
@@ -314,6 +363,8 @@ package com.degrafa.geometry.command{
 			if(value.type != CommandStackItem.COMMAND_STACK){
 				lengthIsValid = false;
 			}
+			
+			return source[itemIndex];
 			
 		}
 						

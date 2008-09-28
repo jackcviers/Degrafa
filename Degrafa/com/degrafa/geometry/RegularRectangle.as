@@ -131,6 +131,7 @@ package com.degrafa.geometry{
 		/**
 		* The width of the regular rectangle.
 		**/
+		[PercentProxy("percentWidth")]
 		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
@@ -147,6 +148,7 @@ package com.degrafa.geometry{
 		/**
 		* The height of the regular rectangle.
 		**/
+		[PercentProxy("percentHeight")]
 		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
@@ -205,26 +207,32 @@ package com.degrafa.geometry{
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
 			//possible candidate for a transform type layout
-						
-			//if set use as our base
-			super.calculateLayout(new Rectangle(x,y,
-			(_width)?_width:1,
-			(_height)?_height:1));
 			 
 			//In the case of the base objects with exception to polygons and paths
 			//we pre calc and set the properties
-			
+						
 			//calc the default rect
 			if(_layoutConstraint){
+		 	
+				super.calculateLayout(new Rectangle(
+		 		(_x)? _x:0,
+		 		(_y)? _y:0,
+		 		(_width)? _width:1,(_height)? _height:1));
 		 		
-		 		//having an layout overrides the basic properties
-		 		_width= layoutRectangle.width;
-		 		_height = layoutRectangle.height;
-				_x= layoutRectangle.x;
-				_y= layoutRectangle.y;
-				
-				//invalidate so that predraw is re calculated
-				invalidated = true;
+				_layoutConstraint.isRenderLayout = false;
+		 		
+		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+		 		
+			 		//having an layout overrides the basic properties
+			 		_width= layoutRectangle.width;
+			 		_height = layoutRectangle.height;
+					_x= layoutRectangle.x;
+					_y= layoutRectangle.y;
+					
+					//invalidate so that predraw is re calculated
+					invalidated = true;
+				}
 				
 		 	}
 		 	

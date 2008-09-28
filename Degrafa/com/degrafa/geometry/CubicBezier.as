@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.geometry.command.CommandStackItem;
-	import flash.geom.Point;
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.command.CommandStackItem;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.display.Graphics;
@@ -61,11 +61,11 @@ package com.degrafa.geometry{
 	 	* @param x1 A number indicating the ending x-axis coordinate.
 	 	* @param y1 A number indicating the ending y-axis coordinate. 
 	 	*/		
-		public function CubicBezier(x:Number=NaN,y:Number=NaN,cx:Number=NaN,cy:Number=NaN,cx1:Number=NaN,cy1:Number=NaN,x1:Number=NaN,y1:Number=NaN){
+		public function CubicBezier(x0:Number=NaN,y0:Number=NaN,cx:Number=NaN,cy:Number=NaN,cx1:Number=NaN,cy1:Number=NaN,x1:Number=NaN,y1:Number=NaN){
 			super();
 			
-			this.x=x;
-			this.y=y;
+			this.x0=x0;
+			this.y0=y0;
 			this.cx=cx;
 			this.cy=cy;
 			this.cx1=cx1;
@@ -93,8 +93,8 @@ package com.degrafa.geometry{
 				var tempArray:Array = value.split(" ");
 				
 				if (tempArray.length == 8){
-					_x=tempArray[0];
-					_y=tempArray[1];
+					_x0=tempArray[0];
+					_y0=tempArray[1];
 					_cx=tempArray[2];
 					_cy=tempArray[3];
 					_cx1=tempArray[4];
@@ -108,36 +108,36 @@ package com.degrafa.geometry{
 		} 
 		
 		
-		private var _x:Number;
+		private var _x0:Number;
 		/**
 		* The x-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
-			if(!_x){return 0;}
+		public function get x0():Number{
+			if(!_x0){return 0;}
 			
-			return _x;
+			return _x0;
 		}
-		override public function set x(value:Number):void{
-			if(_x != value){
-				_x = value;
+		public function set x0(value:Number):void{
+			if(_x0 != value){
+				_x0 = value;
 				invalidated = true;
 			}
 		}
 		
 		
-		private var _y:Number;
+		private var _y0:Number;
 		/**
 		* The y-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
-			if(!_y){return 0;}
-			return _y;
+		public function get y0():Number{
+			if(!_y0){return 0;}
+			return _y0;
 		}
-		override public function set y(value:Number):void{
-			if(_y != value){
-				_y = value;
+		public function set y0(value:Number):void{
+			if(_y0 != value){
+				_y0 = value;
 				invalidated = true;
 			}
 		}
@@ -181,7 +181,7 @@ package com.degrafa.geometry{
 		private var _cx:Number;
 		/**
 		* The x-coordinate of the first control point of the curve. If not specified 
-		* a default value of 0 is used.
+		* a default value of 0 or cx1 if specified is used.
 		**/
 		public function get cx():Number{
 			if(!_cx){return 0;}
@@ -198,7 +198,7 @@ package com.degrafa.geometry{
 		private var _cy:Number;
 		/**
 		* The y-coordinate of the first control point of the curve. If not specified 
-		* a default value of 0 is used.
+		* a default value of 0 or cy1 if specified is used.
 		**/
 		public function get cy():Number{
 			if(!_cy){return 0;}
@@ -215,7 +215,7 @@ package com.degrafa.geometry{
 		private var _cx1:Number;
 		/**
 		* The x-coordinate of the second control point of the curve. If not specified 
-		* a default value of 0 is used.
+		* a default value of 0 or cx if specified is used.
 		**/
 		public function get cx1():Number{
 			if(!_cx1){return 0;}
@@ -232,7 +232,7 @@ package com.degrafa.geometry{
 		private var _cy1:Number;
 		/**
 		* The y-coordinate of the second control point of the curve. If not specified 
-		* a default value of 0 is used.
+		* a default value of 0 or cy if specified is used.
 		**/
 		public function get cy1():Number{
 			if(!_cy1){return 0;}
@@ -281,12 +281,12 @@ package com.degrafa.geometry{
 			var lpX:Number;
 			var lpY:Number;
 			if (_bounds) { //re-use the existing Rectangle instance
-				_bounds.x = Math.min(x, x1);
-				_bounds.y = Math.min(y, y1);
-				_bounds.bottom = Math.max(y, y1);
-				_bounds.right = Math.max(x, x1);
+				_bounds.x = Math.min(x0, x1);
+				_bounds.y = Math.min(y0, y1);
+				_bounds.bottom = Math.max(y0, y1);
+				_bounds.right = Math.max(x0, x1);
 				
-			} else 	_bounds = new Rectangle(Math.min(x, x1), Math.min(y, y1), Math.abs(x1 - x), Math.abs(y1 - y));
+			} else 	_bounds = new Rectangle(Math.min(x0, x1), Math.min(y0, y1), Math.abs(x1 - x0), Math.abs(y1 - y0));
 
 			for each(item in commandStack.source){
 				with(item)
@@ -332,15 +332,15 @@ package com.degrafa.geometry{
 				
 				commandStack.length=0;
 				//add a MoveTo at the start of the commandStack rendering chain
-				commandStack.addMoveTo(x,y);
+				commandStack.addMoveTo(x0,y0);
 			
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				GeometryUtils.cubicToQuadratic(x,y,cx,cy,cx1,cy1+cy1Offset
+				GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1+cy1Offset
 				,x1,y1,1,commandStack);	
 				
 				if(close){
-					commandStack.addLineTo(x,y);	
+					commandStack.addLineTo(x0,y0);	
 				}
 								
 				calcBounds();
@@ -350,16 +350,47 @@ package com.degrafa.geometry{
 		}
 		
 		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			if(_layoutConstraint){
+				
+				super.calculateLayout();
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+			}
+		}
+		
+		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
 		* 
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
-		override public function draw(graphics:Graphics,rc:Rectangle):void{		
+		override public function draw(graphics:Graphics,rc:Rectangle):void{	
+							
 			//re init if required
-		 	preDraw();
+			preDraw();
+			
+			//init the layout in this case done after predraw.
+			calculateLayout();
+						
 			super.draw(graphics, (rc)? rc:_bounds);
+			
 		}
 		
 		/**
@@ -370,8 +401,8 @@ package com.degrafa.geometry{
 			
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
-			if (!_x){_x = value.x;}
-			if (!_y){_y = value.y;}
+			if (!_x0){_x0 = value.x0;}
+			if (!_y0){_y0 = value.y0;}
 			if (!_x1){_x1 = value.x1;}
 			if (!_y1){_y1 = value.y1;}
 			if (!_cx){_cx = value.cx;}

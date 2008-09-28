@@ -220,8 +220,6 @@ package com.degrafa.geometry{
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
 			//possible candidate for a transform type layout
-			
-			super.calculateLayout();
 			 
 			//In the case of the base objects with exception to polygons and paths
 			//we pre calc and set the properties
@@ -229,15 +227,30 @@ package com.degrafa.geometry{
 			//calc the default rect
 			if(_layoutConstraint){
 		 		
-		 		//having an layout overrides the basic properties
-		 		_radius= Math.max(layoutRectangle.width,layoutRectangle.height)/2;
-				_centerX= layoutRectangle.x+_radius;
-				_centerY= layoutRectangle.y+_radius;
+		 		if(_radius || _centerX || _centerY){
+		 			super.calculateLayout(new Rectangle((_centerX)? _centerX:0,
+		 			(_centerY)? _centerY:0,(_radius)? _radius*2:1,(_radius)? _radius*2:1));
+		 		}
+		 		else{
+		 			super.calculateLayout();	
+		 		}
 				
-				//invalidate so that predraw is re calculated
-				invalidated = true;
+			
+				_layoutConstraint.isRenderLayout = false;
+		 		
+		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+			
+			 		//having an layout overrides the basic properties
+			 		_radius= Math.max(layoutRectangle.width,layoutRectangle.height)/2;
+					_centerX= layoutRectangle.x+_radius;
+					_centerY= layoutRectangle.y+_radius;
 				
-		 	}
+					//invalidate so that predraw is re calculated
+					invalidated = true;
+				
+				}
+			}
 		 	
 		}
 				

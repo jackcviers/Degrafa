@@ -26,7 +26,6 @@ package com.degrafa.geometry.stencil{
 	import com.degrafa.geometry.Path;
 	import com.degrafa.geometry.Polygon;
 	import com.degrafa.geometry.command.CommandStack;
-	import com.degrafa.geometry.layout.LayoutUtils;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -169,7 +168,7 @@ package com.degrafa.geometry.stencil{
 			}
 			
 		}
-		
+				
 		/**
 		* Performs the specific layout work required by this Geometry.
 		* @param childBounds the bounds to be layed out. If not specified a rectangle
@@ -177,19 +176,22 @@ package com.degrafa.geometry.stencil{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			super.calculateLayout();
-			
-			//To be set up via a transform
-			//Process the point data but only if we are greater 
-			//than or equal to 0 otherwise the point data gets corrupted
-			//need to find a better way for V1
 			if(_layoutConstraint){
-				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
-				layoutRectangle.x>=0 && layoutRectangle.y>=0){
-					LayoutUtils.calculateRatios(commandStack,layoutRectangle);
-				}
-			}
 				
+				super.calculateLayout();
+				
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+			}
 		}
 				
 		/**

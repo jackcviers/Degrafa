@@ -374,6 +374,17 @@ package com.degrafa.geometry.layout
 			}
 		}
 		
+		public var xOffset:Number=0;
+		public var yOffset:Number=0;
+		public var xMin:Number;
+		public var yMin:Number;
+		public var xMax:Number;
+		public var yMax:Number;
+		public var xMultiplier:Number; 
+		public var yMultiplier:Number;
+		public var isRenderLayout:Boolean=true;
+				
+				
 		/**
 		* An object to derive this objects properties from. When specified this 
 		* object will derive it's unspecified properties from the passed object.
@@ -478,21 +489,21 @@ package com.degrafa.geometry.layout
 				if (!alignedLeft && !alignedRight) {
 					if (noHorizontalCenter) { 
 						// normal
-						_layoutRectangle.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+						_layoutRectangle.width = isNaN(_percentWidth) ? _width : (_percentWidth>1)? (_percentWidth/100)*container.width:_percentWidth *container.width;
 						_layoutRectangle.x = isNaN(_x)? 0:_x + container.left;
 					}else{ 
 						// centered
-						_layoutRectangle.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+						_layoutRectangle.width = isNaN(_percentWidth) ? _width : (_percentWidth>1)? (_percentWidth/100)*container.width:_percentWidth *container.width;
 						_layoutRectangle.x = _horizontalCenter - _layoutRectangle.width/2 + container.left + container.width/2;
 					}
 					
 				}else if (!alignedRight) { 
 					// left
-					_layoutRectangle.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+					_layoutRectangle.width = isNaN(_percentWidth) ? _width : (_percentWidth>1)? (_percentWidth/100)*container.width:_percentWidth *container.width;
 					_layoutRectangle.x = container.left + _left;
 				}else if (!alignedLeft) { 
 					// right
-					_layoutRectangle.width = isNaN(_percentWidth) ? _width : _percentWidth*container.width;
+					_layoutRectangle.width = isNaN(_percentWidth) ? _width : (_percentWidth>1)? (_percentWidth/100)*container.width:_percentWidth *container.width;
 					_layoutRectangle.x = container.right - _right - _layoutRectangle.width;
 				}else{ 
 					// right and left (boxed)
@@ -544,23 +555,23 @@ package com.degrafa.geometry.layout
 					
 					if (noVerticalCenter) { 
 						// normal
-						_layoutRectangle.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+						_layoutRectangle.height = isNaN(_percentHeight) ? _height : (_percentHeight>1)? (_percentHeight/100)*container.height:_percentHeight *container.height;
 						_layoutRectangle.y = isNaN(_y)? 0:_y + container.top;
 						
 					}else{ 
 						// centered
-						_layoutRectangle.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+						_layoutRectangle.height = isNaN(_percentHeight) ? _height : (_percentHeight>1)? (_percentHeight/100)*container.height:_percentHeight *container.height;
 						_layoutRectangle.y = _verticalCenter - _layoutRectangle.height/2 + container.top + container.height/2;
 					}
 					
 				}else if (!alignedBottom) { 
 					// top
-					_layoutRectangle.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+					_layoutRectangle.height = isNaN(_percentHeight) ? _height : (_percentHeight>1)? (_percentHeight/100)*container.height:_percentHeight *container.height;
 					_layoutRectangle.y = container.top + _top;
 					
 				}else if (!alignedTop) { 
 					// bottom
-					_layoutRectangle.height = isNaN(_percentHeight) ? _height : _percentHeight*container.height;
+					_layoutRectangle.height = isNaN(_percentHeight) ? _height : (_percentHeight>1)? (_percentHeight/100)*container.height:_percentHeight *container.height;
 					_layoutRectangle.y = container.bottom - _bottom - _layoutRectangle.height;
 					
 				}else{ 

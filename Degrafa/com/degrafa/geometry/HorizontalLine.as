@@ -22,12 +22,17 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
-			
+	//excluded here		
 	[Exclude(name="fill", kind="property")]
+	[Exclude(name="height", kind="property")] 
+	[Exclude(name="percentHeight", kind="property")] 
+	[Exclude(name="maxHeight", kind="property")] 
+	[Exclude(name="minHeight", kind="property")] 
 	
 	//--------------------------------------
 	//  Other metadata
@@ -64,6 +69,13 @@ package com.degrafa.geometry{
 			
 			
 		}
+		
+		//excluded here
+		override public function set fill(value:IGraphicsFill):void{}
+		override public function set height(value:Number):void{}
+		override public function set percentHeight(value:Number):void{}
+		override public function set maxHeight(value:Number):void{}
+		override public function set minHeight(value:Number):void{}
 		
 		/**
 		* HorizontalLine short hand data value.
@@ -184,23 +196,30 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			super.calculateLayout();
+			//possible candidate for a transform type layout
 			 
 			//In the case of the base objects with exception to polygons and paths
 			//we pre calc and set the properties
 			
 			//calc the default rect
 			if(_layoutConstraint){
+		 	
+				super.calculateLayout(new Rectangle((_x)? _x:0,(_y)? _y:0,1,1));
+			
+				_layoutConstraint.isRenderLayout = false;
 		 		
-		 		//having an layout overrides the basic properties
-		 		_x=layoutRectangle.x;
-				_x1=layoutRectangle.x + layoutRectangle.width;
-				
-				_y=layoutRectangle.y;
-								
-				//invalidate so that predraw is re calculated
-				invalidated = true;
-				
+		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+		 		
+			 		//having an layout overrides the basic properties
+			 		_x=layoutRectangle.x;
+					_x1=layoutRectangle.x + layoutRectangle.width;
+					
+					_y=layoutRectangle.y;
+									
+					//invalidate so that predraw is re calculated
+					invalidated = true;
+				}
 		 	}
 		 	
 		}

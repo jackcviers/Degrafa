@@ -23,7 +23,6 @@ package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.SegmentsCollection;
-	import com.degrafa.geometry.layout.LayoutUtils;
 	import com.degrafa.geometry.segment.*;
 	import com.degrafa.geometry.utilities.*;
 	
@@ -502,7 +501,7 @@ package com.degrafa.geometry{
 
         	for each(curSegment in _segments.items) {	
 				_bounds = _bounds.union(curSegment.bounds);
-        	}		
+			}		
 
         	return _bounds;
         	
@@ -538,7 +537,7 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		
+				
 		/**
 		* Performs the specific layout work required by this Geometry.
 		* @param childBounds the bounds to be layed out. If not specified a rectangle
@@ -546,19 +545,22 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			super.calculateLayout();
-			
-			//To be set up via a transform
-			//Process the point data but only if we are greater 
-			//than or equal to 0 otherwise the point data gets corrupted
-			//need to find a better way for V1
 			if(_layoutConstraint){
-				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
-				layoutRectangle.x>=0 && layoutRectangle.y>=0){
-					LayoutUtils.calculateRatios(commandStack,layoutRectangle);
-				}
-			}
 				
+				super.calculateLayout();
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+			}
 		}
 				
 		/**
@@ -577,6 +579,7 @@ package com.degrafa.geometry{
 			calculateLayout();
 						
 			super.draw(graphics, (rc)? rc:_bounds);
+												
         }
 		
 		

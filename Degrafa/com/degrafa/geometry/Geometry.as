@@ -40,9 +40,13 @@ package com.degrafa.geometry{
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
+	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
+	import mx.core.IUIComponent;
+	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	import mx.styles.ISimpleStyleClient;
 	
@@ -75,23 +79,7 @@ package com.degrafa.geometry{
 		public function get isInvalidated():Boolean{
 			return _invalidated;
 		} 
-		
-		/**
-		* Specifies whether the bounds of this object is to be re calculated 
-		* on the next cycle.
-		**/
-		private var _boundsInvalidated:Boolean;
-		public function get boundsInvalidated():Boolean{
-			return _boundsInvalidated;
-		}
-		public function set boundsInvalidated(value:Boolean):void{
-			_boundsInvalidated = true;
-		}
-		
-		public function get isBoundsInvalidated():Boolean{
-			return _boundsInvalidated;
-		} 
-						
+								
 		private var _data:String;
 		/**
 		* Allows a short hand property setting that is 
@@ -192,6 +180,16 @@ package com.degrafa.geometry{
 				if (!item){return;} 
 			}
 			
+			//only required if we have layout to do
+			for each (var target:DisplayObject in value){
+				if(target is IUIComponent){
+					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
+				}
+				else{
+					target.addEventListener(Event.RENDER,onTargetRender);
+				}
+			}
+			
 			//make sure we don't set anything until all target creation is 
 			//complete otherwise we will be getting null items since flex
 			//has not finished creation of the target items.
@@ -199,7 +197,7 @@ package com.degrafa.geometry{
 			_graphicsTarget.items = value;
 			
 		}
-		
+				
 		/**
 		* Access to the Degrafa target collection object for this geometry object.
 		**/
@@ -220,6 +218,45 @@ package com.degrafa.geometry{
 					_graphicsTarget.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 				}
 			}
+		}
+		
+		
+		private function onTargetRender(event:Event):void{
+			drawToTarget(event.currentTarget);
+		}
+		
+		//draws to a single target
+		private  function drawToTarget(target:Object):void{
+			if(target){
+				if(autoClearGraphicsTarget){
+					target.graphics.clear();
+				}
+				_currentGraphicsTarget = target as Sprite;
+				
+				draw(target.graphics,null);
+			}
+		}
+		
+		
+		//draws to each target
+		private  function drawToTargets():void{
+			
+			if(_graphicsTarget){
+				for each (var targetItem:Object in _graphicsTarget.items){
+					if(targetItem){
+						if(autoClearGraphicsTarget){
+							targetItem.graphics.clear();
+						}
+						
+						_currentGraphicsTarget = targetItem as Sprite;
+						
+						draw(targetItem.graphics,null);
+					}
+				}
+			}
+			
+			_currentGraphicsTarget=null;
+			
 		}
 		
 		private var _geometry:GeometryCollection;
@@ -343,27 +380,6 @@ package com.degrafa.geometry{
 		}
 		
 		
-		//draws to each target
-		private  function drawToTargets():void{
-			
-			if(_graphicsTarget){
-				for each (var targetItem:Object in _graphicsTarget.items){
-					if(targetItem){
-						if(autoClearGraphicsTarget){
-							targetItem.graphics.clear();
-						}
-						
-						_currentGraphicsTarget = targetItem as DisplayObject;
-						
-						draw(targetItem.graphics,null);
-					}
-				}
-			}
-			
-			_currentGraphicsTarget=null;
-			
-		}
-		
 		/**
 		* Ends the draw phase for geometry objects.
 		* 
@@ -474,7 +490,7 @@ package com.degrafa.geometry{
 		}
 		
 		//the current graphics target being rendered to.
-		protected var _currentGraphicsTarget:DisplayObject;
+		protected var _currentGraphicsTarget:Sprite;
 		
 		public function get layoutRectangle():Rectangle{
 			return (_layoutConstraint)? _layoutConstraint.layoutRectangle:null;
@@ -532,7 +548,7 @@ package com.degrafa.geometry{
 			//don't draw unless visible
 			if(!visible){return;}
 			
-			commandStack.owner = this;
+			//commandStack.owner = this;
 			commandStack.draw(graphics,rc);
 			
 			endDraw(graphics);
@@ -703,6 +719,7 @@ package com.degrafa.geometry{
 		**/
 		
 		//x,y,width,height are different as we need a getter and a setter
+		[PercentProxy("percentWidth")]
 		public function get width():Number{
 			return (hasLayout)? _layoutConstraint.width:NaN;
 		}
@@ -727,12 +744,15 @@ package com.degrafa.geometry{
 		public function set minWidth(value:Number):void{
 			layoutConstraint.minWidth = value;
 		}
+		
+		[PercentProxy("percentHeight")]
 		public function get height():Number{
 			return (hasLayout)? layoutConstraint.height:NaN;
 		}
 		public function set height(value:Number):void{
 			layoutConstraint.height = value;
 		}
+		
 		public function get percentHeight():Number{
 			return (hasLayout)? layoutConstraint.percentHeight:NaN;
 		}
@@ -823,6 +843,8 @@ package com.degrafa.geometry{
 		public function set right(value:Number):void{
 			layoutConstraint.right = value;
 		}
+		
+		[Inspectable(category="General", enumeration="true,false")]
 		public function get maintainAspectRatio():Boolean{
 			return (hasLayout)? layoutConstraint.maintainAspectRatio:false;
 		}

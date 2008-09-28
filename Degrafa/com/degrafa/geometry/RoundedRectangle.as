@@ -134,6 +134,7 @@ package com.degrafa.geometry{
 		/**
 		* The width of the rounded rectangle.
 		**/
+		[PercentProxy("percentWidth")]
 		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
@@ -150,6 +151,7 @@ package com.degrafa.geometry{
 		/**
 		* The height of the rounded rectangle.
 		**/
+		[PercentProxy("percentHeight")]
 		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
@@ -199,9 +201,11 @@ package com.degrafa.geometry{
 			if(invalidated){
 			
 				commandStack.length=0;
+				
+				var _cornerRadius:Number = cornerRadius;
 								
 				// by Ric Ewing (ric@formequalsfunction.com) 
-				if (cornerRadius>0) {
+				if (_cornerRadius>0) {
 					// init vars
 					var theta:Number;
 					var angle:Number;
@@ -214,93 +218,95 @@ package com.degrafa.geometry{
 					if(!_width || !_height){return;}
 					
 					// make sure that width + h are larger than 2*cornerRadius
-					if (cornerRadius>Math.min(width, height)/2) {
-						cornerRadius = Math.min(width, height)/2;
+					if(width>0 && height>0){
+						if (_cornerRadius>Math.min(width, height)/2) {
+							_cornerRadius = Math.min(width, height)/2;
+						}
 					}
 					
 					// theta = 45 degrees in radians
 					theta = Math.PI/4;
 					
 					// draw top line
-					commandStack.addMoveTo(x+cornerRadius,y)
-					commandStack.addLineTo(x+width-cornerRadius,y);
+					commandStack.addMoveTo(x+_cornerRadius,y)
+					commandStack.addLineTo(x+width-_cornerRadius,y);
 					
 					//angle is currently 90 degrees
 					angle = -Math.PI/2;
 					// draw tr corner in two parts
-					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+width-_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+width-_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 
 					angle += theta;
-					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+width-_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+width-_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw right line 
-					commandStack.addLineTo(x+width,y+height-cornerRadius);
+					commandStack.addLineTo(x+width,y+height-_cornerRadius);
 					// draw br corner
 					angle += theta;
-					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+width-_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+height-_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+width-_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+height-_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					
 					angle += theta;
-					cx = x+width-cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+width-cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+width-_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+height-_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+width-_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+height-_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw bottom line
-					commandStack.addLineTo(x+cornerRadius,y+height);
+					commandStack.addLineTo(x+_cornerRadius,y+height);
 					
 					// draw bl corner
 					angle += theta;
-					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+height-_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+height-_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					angle += theta;
-					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+height-cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+height-cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+height-_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+height-_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					// draw left line
-					commandStack.addLineTo(x,y+cornerRadius);
+					commandStack.addLineTo(x,y+_cornerRadius);
 					
 					// draw tl corner
 					angle += theta;
-					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
 					angle += theta;
 					
-					cx = x+cornerRadius+(Math.cos(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					cy = y+cornerRadius+(Math.sin(angle+(theta/2))*cornerRadius/Math.cos(theta/2));
-					x1 = x+cornerRadius+(Math.cos(angle+theta)*cornerRadius);
-					y1 = y+cornerRadius+(Math.sin(angle+theta)*cornerRadius);
+					cx = x+_cornerRadius+(Math.cos(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					cy = y+_cornerRadius+(Math.sin(angle+(theta/2))*_cornerRadius/Math.cos(theta/2));
+					x1 = x+_cornerRadius+(Math.cos(angle+theta)*_cornerRadius);
+					y1 = y+_cornerRadius+(Math.sin(angle+theta)*_cornerRadius);
 					
 					commandStack.addCurveTo(cx,cy,x1,y1);
 					
@@ -329,29 +335,33 @@ package com.degrafa.geometry{
 			//not a possible candidate for a transform type layout
 			//due to corner radius or we could have the choice to stretch the corners
 			
-			//if set use as our base
-			super.calculateLayout(new Rectangle(x,y,
-			(_width)?_width:1,
-			(_height)?_height:1));
-			 
-			//In the case of the base objects with exception to polygons and paths
-			//we pre calc and set the properties
-			
-			//calc the default rect
 			if(_layoutConstraint){
+				
+				super.calculateLayout(new Rectangle(
+		 		(_x)? _x:0,
+		 		(_y)? _y:0,
+		 		(_width)? _width:1,(_height)? _height:1));
 		 		
-		 		//having an layout overrides the basic properties
-		 		_width= layoutRectangle.width;
-		 		_height = layoutRectangle.height;
-				_x= layoutRectangle.x;
-				_y= layoutRectangle.y;
 				
-				//invalidate so that predraw is re calculated
-				invalidated = true;
+				_layoutConstraint.isRenderLayout = false;
 				
-		 	}
-		 	
+				if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+					//In the case of the base objects with exception to polygons and paths
+					//we pre calc and set the properties
+					
+			 		//having an layout overrides the basic properties
+			 		_width= layoutRectangle.width;
+			 		_height = layoutRectangle.height;
+					_x= layoutRectangle.x;
+					_y= layoutRectangle.y;
+					
+					//invalidate so that predraw is re calculated
+					invalidated = true;
+				}
+			}
 		}
+		
 					
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 

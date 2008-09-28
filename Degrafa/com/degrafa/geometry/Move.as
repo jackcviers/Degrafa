@@ -29,6 +29,7 @@ package com.degrafa.geometry{
 		
 	[Exclude(name="fill", kind="property")]
 	[Exclude(name="stroke", kind="property")]
+	
 	[Bindable]	
 	/**
  	*  The Move element moves the drawing context current point to a specified x and y 

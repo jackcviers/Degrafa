@@ -22,6 +22,7 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.layout.LayoutUtils;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.display.Graphics;
@@ -57,11 +58,11 @@ package com.degrafa.geometry{
 	 	* @param x1 A number indicating the ending x-axis coordinate.
 	 	* @param y1 A number indicating the ending y-axis coordinate. 
 	 	*/		
-		public function QuadraticBezier(x:Number=NaN,y:Number=NaN,cx:Number=NaN,cy:Number=NaN,x1:Number=NaN,y1:Number=NaN){
+		public function QuadraticBezier(x0:Number=NaN,y0:Number=NaN,cx:Number=NaN,cy:Number=NaN,x1:Number=NaN,y1:Number=NaN){
 			super();
 			
-			this.x=x;
-			this.y=y;
+			this.x0=x0;
+			this.y0=y0;
 			this.cx=cx;
 			this.cy=cy;
 			this.x1=x1;
@@ -88,8 +89,8 @@ package com.degrafa.geometry{
 				var tempArray:Array = value.split(" ");
 				
 				if (tempArray.length == 6){
-					_x=tempArray[0];
-					_y=tempArray[1];
+					_x0=tempArray[0];
+					_y0=tempArray[1];
 					_cx=tempArray[2];
 					_cy=tempArray[3];
 					_x1=tempArray[4];
@@ -101,35 +102,35 @@ package com.degrafa.geometry{
 			}
 		} 
 		
-		private var _x:Number;
+		private var _x0:Number;
 		/**
 		* The x-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get x():Number{
-			if(!_x){return 0;}
-			return _x;
+		public function get x0():Number{
+			if(!_x0){return 0;}
+			return _x0;
 		}
-		override public function set x(value:Number):void{
-			if(_x != value){
-				_x = value;
+		public function set x0(value:Number):void{
+			if(_x0 != value){
+				_x0 = value;
 				invalidated = true;
 			}
 		}
 		
 		
-		private var _y:Number;
+		private var _y0:Number;
 		/**
 		* The y-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
-		override public function get y():Number{
-			if(!_y){return 0;}
-			return _y;
+		public function get y0():Number{
+			if(!_y0){return 0;}
+			return _y0;
 		}
-		override public function set y(value:Number):void{
-			if(_y != value){
-				_y = value;
+		public function set y0(value:Number):void{
+			if(_y0 != value){
+				_y0 = value;
 				invalidated = true;
 			}
 		}
@@ -231,7 +232,7 @@ package com.degrafa.geometry{
 		**/		
 		private function calcBounds():void
 		{
-			var rect:Rectangle = GeometryUtils.bezierBounds(x, y, cx, cy, x1, y1);
+			var rect:Rectangle = GeometryUtils.bezierBounds(x0, y0, cx, cy, x1, y1);
 			if (!_bounds) _bounds = rect.clone()
 			else {
 				_bounds.x = rect.x;
@@ -249,11 +250,11 @@ package com.degrafa.geometry{
 			
 				commandStack.length=0;
 				
-				commandStack.addMoveTo(x,y);
+				commandStack.addMoveTo(x0,y0);
 				commandStack.addCurveTo(cx,cy,x1,y1);
 				
 				if(close){
-					commandStack.addLineTo(x,y);	
+					commandStack.addLineTo(x0,y0);	
 				}
 				
 				calcBounds();
@@ -261,6 +262,55 @@ package com.degrafa.geometry{
 			}
 			
 		}
+		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			//possible candidate for a transform type layout
+			
+			//calc the default rect
+			
+			//if we have the base properties then we can calculate properly
+			if(_layoutConstraint){
+		 	
+				super.calculateLayout();
+		 		
+				_layoutConstraint.isRenderLayout = false;
+		 		
+		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
+				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+		 				
+					//invalidate so that predraw is re calculated
+					invalidated = true;
+				}
+				
+		 	}
+		 	
+			
+			
+			/*if(_layoutConstraint){
+				
+				super.calculateLayout();
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+			}*/
+		 	
+		}
+		
 				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -270,9 +320,14 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/								
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
+			
+			//init the layout in this case done before predraw.
+			calculateLayout();
+						 
 			//re init if required
 		 	preDraw();
-			super.draw(graphics, (rc)? rc:_bounds);
+		 	
+		 	super.draw(graphics, (rc)? rc:_bounds);
 		}
 		
 		/**
@@ -283,8 +338,8 @@ package com.degrafa.geometry{
 			
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
-			if (!_x){_x = value.x;}
-			if (!_y){_y = value.y;}
+			if (!_x0){_x0 = value.x0;}
+			if (!_y0){_y0 = value.y0;}
 			if (!_cx){_cx = value.cx;}
 			if (!_cy){_cy = value.cy;}
 			if (!_x1){_x1 = value.x1;}
