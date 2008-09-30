@@ -48,7 +48,11 @@ package com.degrafa.transform{
 	
 
 		private var uniform:Boolean = false;
-		
+		/**
+		* The uniform scale of this ScaleTransform, if valid. Setting scale applies the same scale to both X and Y. If X and Y scales are not
+		* equal, then scale has the value NaN. The center of a uniform scale is determined by the registrationPoint (if set) or centerX and 
+		* centerY property values if no registrationPoint is set.
+		**/
 		public function set scale(value:Number):void
 		{
 			if (_scaleX != value || _scaleY != value)
@@ -64,7 +68,11 @@ package com.degrafa.transform{
 			if (uniform) return _scaleX;
 			return NaN;
 		}
-		
+		/**
+		* The independent value of scaleX as a scale ratio applied when rendering Geometry items affected by this ScaleTransform. 
+		* The center of this ScaleTrasnform is determined by the registrationPoint (if set) or centerX and centerY property values
+		* if no registrationPoint is set
+		**/
 		public function set scaleX( value:Number):void
 		{
 			if (value != _scaleX)
@@ -74,7 +82,11 @@ package com.degrafa.transform{
 			}
 			uniform = false;
 		}
-		
+				/**
+		* The angle of rotation in degrees that the RotateTransform will apply to its target Geometry when rendered. Center of rotation
+		* is determined by the registrationPoint (if set) or centerX and centerY property values if no registrationPoint is
+		* set.
+		**/
 		public function set scaleY( value:Number):void
 		{
 			if (value != _scaleY)

@@ -46,7 +46,11 @@ package com.degrafa.transform{
 		}
 		
 			
-		
+		/**
+		* The x skew represented as the value in degrees by which the y-axis is rotated to alter the rendered output of related Geometry. 
+		* The center of this SkewTransform is determined by the registrationPoint (if set) or centerX and centerY property values
+		* if no registrationPoint is set.
+		**/
 		public function set skewX(value:Number):void 
 		{
 			if (value != _skewX)
@@ -55,6 +59,11 @@ package com.degrafa.transform{
 				 invalidated = true;
 			}
 		}
+		/**
+		* The y skew represented as the value in degrees by which the x-axis is rotated to alter the rendered output of related Geometry. 
+		* The center of this SkewTransform is determined by the registrationPoint (if set) or centerX and centerY property values
+		* if no registrationPoint is set.
+		**/
 		public function set skewY(value:Number):void 
 		{	
 			if (value != _skewY)

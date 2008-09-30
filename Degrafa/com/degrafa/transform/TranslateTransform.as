@@ -47,19 +47,19 @@ package com.degrafa.transform{
 
 		public function TranslateTransform(){
 			super();
-			//set registration Point topLeft. Its irrelevant to Translate, but does need to be defined 
+	
 		}
 		
 		//setting these has no effect on TranslateTransform
-	//	override public function get centerX():Number{return NaN;}
+
 		override public function set centerX(value:Number):void{}
-	//	override public function get centerY():Number{return NaN;}
 		override public function set centerY(value:Number):void{}
-	//	override public function get registrationPoint():String{return "topLeft";}
 		override public function set registrationPoint(value:String):void{}
 		
 		
-
+		/**
+		 * The value of the translation rendering for this Geometry along the x axis.
+		 */
 		public function set x(value:Number):void
 		{
 			if (value != _tx)
@@ -68,7 +68,9 @@ package com.degrafa.transform{
 				 invalidated = true;
 			}
 		}
-
+		/**
+		 * The value of the translation rendering for this Geometry along the y axis.
+		 */
 		public function set y(value:Number):void
 		{
 			if (value != _ty)

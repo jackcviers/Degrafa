@@ -266,7 +266,11 @@ package com.degrafa.transform{
 			
 		}
 		
-		
+		/**
+		 * Utility function used internally for accessing the bounds of a transformed object
+		 * @param	value - the Geometry object for which the transformed bounds are required
+		 * @return  a Rectangle representing the transformed bounds of the Geometry
+		 */
 		public function getTransformedBoundsFor(value:IGeometryComposition):Rectangle
 		{
 			var requester:Geometry = (value as Geometry);
@@ -279,7 +283,7 @@ package com.degrafa.transform{
 		 * Retrieves the adjusted matrix for the registration offset based on the Geometry target bounds, 
 		 * if this transform is based on a registrationPoint, otherwise based on the centerX and centerY settings
 		 * @param	value - the Geometry context for the transform
-		 * @return
+		 * @return	a flash Matrix representing the transform for the Geometry argument
 		 */
 		public function getTransformFor(value:IGeometryComposition):Matrix
 		{

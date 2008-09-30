@@ -38,18 +38,22 @@ package com.degrafa.transform{
 	public class RotateTransform extends TransformBase  implements ITransform{
 		
 		
-		public function RotateTransform(){
+		public function RotateTransform() {
 			super();
 	
 		}
 		
-	
-
+		/**
+		* The angle of rotation in degrees that the RotateTransform will apply to its target Geometry when rendered. Center of rotation
+		* is determined by the registrationPoint (if set) or centerX and centerY property values if no registrationPoint is
+		* set.
+		**/
 		public function set angle(value:Number):void
-		{
+		{ 
 			if (value != _angle)
 			 {
 				 _angle = value;
+				
 				 invalidated = true;
 			}
 		}

@@ -39,10 +39,10 @@ package com.degrafa.transform{
 			
 	[DefaultProperty("transforms")]	
 	/**
-	* TransformGroup is a transformation class a collection of Degrafa Transforms that are processed together 
+	* TransformGroup is a collection of Degrafa Transforms that are processed together 
 	* to generate a composite transform on the requesting geometry and/or fill object.
 	* The same collection of transforms will generate a different result depending on their sequence.
-	* This behavior follows the rules of Matrix multiplication [reference to go here]
+	* 
 	*/
 	public class TransformGroup extends TransformBase implements ITransform
 	{
@@ -117,7 +117,7 @@ package com.degrafa.transform{
 			return retMatrix;
 		}
 		
-		//some fills can be directly requesting this for compound transforms, need to implement it locally
+		//some fills can be directly requesting this for compound transforms, so need to implement it locally in TransformGroup
 		override public function get transformMatrix():Matrix
 		{
 		
@@ -126,7 +126,6 @@ package com.degrafa.transform{
 				{
 					retMatrix.concat(matrix.transformMatrix);
 				}
-				trace('returning:'+retMatrix)
 				return retMatrix;
 		}
 		
