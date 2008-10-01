@@ -23,12 +23,10 @@ package com.degrafa{
 	
 	import com.degrafa.core.collections.FillCollection;
 	import com.degrafa.core.collections.StrokeCollection;
-	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.events.PropertyChangeEvent;
 	
@@ -130,31 +128,7 @@ package com.degrafa{
 			}
 		}
 				
-		/**
-		* Principle event handler for any property changes to a 
-		* graphic object or it's child objects.
-		**/
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			if (!parent){
-				dispatchEvent(event)
-				draw(null,null);
-			}
-			else{
-				dispatchEvent(event)
-			}
-		}
 		
-	    public function clearGraphicsTargets():void{
-    		if(graphicsTarget){
-				for each (var targetItem:Object in graphicsTarget){
-					if(targetItem){
-						targetItem.graphics.clear();
-					}
-				}
-			}
-	    }
-	    
-	    
 	    private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
@@ -167,7 +141,25 @@ package com.degrafa{
 		* Calculates the bounds for this element. 
 		**/
 		public function calcBounds():void{
-			var boundsRect:Rectangle = new Rectangle();
+			
+			if(_layoutConstraint){
+				super.calculateLayout();
+				_bounds = layoutRectangle; 
+			}
+			else if(parent && parent is Geometry){
+				_bounds=Geometry(parent).bounds;
+			}
+			else if (_currentGraphicsTarget){
+				
+				_bounds= _currentGraphicsTarget.getRect(_currentGraphicsTarget)
+				
+			}		
+			else{
+				_bounds= new Rectangle();
+			}
+			
+			
+			/*var boundsRect:Rectangle = new Rectangle();
 			
  			if (geometry){
 				for each (var geometryItem:IGeometryComposition in geometry){
@@ -178,32 +170,30 @@ package com.degrafa{
 				}
 			}
 			
-			_bounds = boundsRect;
-
+			_bounds = boundsRect;*/
 		}		
+	
+		
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			if(_layoutConstraint){
+				super.calculateLayout();
+			}
+			else{
+				//the defaults bounds is that of the current target
+				super.calculateLayout(_currentGraphicsTarget.getRect(_currentGraphicsTarget));
+			}
+			
+		}
 		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
-			
-			if(!invalidated){
-				//verify
-				if (geometry){
-					for each (var geometryItem:IGeometryComposition in geometry){
-						if ((geometryItem as Geometry).invalidated){
-							invalidated = true;
-							break;
-						}
-					}
-				}
-			}
-			if (invalidated) {
-				calcBounds();
-				invalidated = false;
-			}
-			
+			//in the case of geom comp the predraw only sets up the bounds
+			calcBounds();
 		}
+		
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -212,26 +202,18 @@ package com.degrafa{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
-		override public function draw(graphics:Graphics,rc:Rectangle):void{
-			preDraw();
-			if(graphics){
-				super.draw(graphics,rc);
-			}
-			else{
-				
-				if(graphicsTarget){
-					for each (var targetItem:Object in graphicsTarget){
-						if(targetItem){
-							if(autoClearGraphicsTarget){
-								targetItem.graphics.clear();
-							}
-							super.draw(targetItem.graphics,null);
-						}
-					}
-				}
-				
-			}
-		}
-		
+		override public function draw(graphics:Graphics,rc:Rectangle):void{				
+		 	
+		 	//init the layout in this case done before predraw.
+			calculateLayout();
+			
+		 	//re init if required
+		 	preDraw();
+		 				
+			super.draw(graphics, (rc)? rc:_bounds);
+												
+        }
+        
+			
 	}
 }

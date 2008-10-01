@@ -108,7 +108,7 @@ package com.degrafa.repeaters
 		* Principle event handler for any property changes to a 
 		* geometry object or it's child objects.
 		**/
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
 		//	trace("Geometry Repeater: " + event.property + " has changed");
 			if(_isDrawing || this.suppressEventProcessing==true) {
 				this.invalidated=true;
@@ -116,13 +116,14 @@ package com.degrafa.repeaters
 			} 
 			// getting here means a modifier has changed after treating the items that changed we need to dispatch
 			// so that it works it's way up to start the draw cycle.
-			if (!parent){
+			/*if (!parent){
                 dispatchEvent(event)
                 draw(null,null);
             } 
             else{
                 dispatchEvent(event)
-            }
+            }*/
+            super.propertyChangeHandler(event);
 		}
 		
 

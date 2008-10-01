@@ -449,8 +449,9 @@ package com.degrafa.geometry{
 		* Principle event handler for any property changes to a 
 		* geometry object or it's child objects.
 		**/
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			dispatchEvent(event);
+		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
+			invalidated = true;
+			super.propertyChangeHandler(event);
 		}
 		
 		/**

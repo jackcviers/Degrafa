@@ -221,7 +221,7 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private function onTargetRender(event:Event):void{
+		protected function onTargetRender(event:Event):void{
 			drawToTarget(event.currentTarget);
 		}
 		
@@ -369,7 +369,7 @@ package com.degrafa.geometry{
 		* Principle event handler for any property changes to a 
 		* geometry object or it's child objects.
 		**/
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
+		protected function propertyChangeHandler(event:PropertyChangeEvent):void{
 			if (!parent){
 				dispatchEvent(event);
 				drawToTargets();	
@@ -493,7 +493,7 @@ package com.degrafa.geometry{
 		protected var _currentGraphicsTarget:Sprite;
 		
 		public function get layoutRectangle():Rectangle{
-			return (_layoutConstraint)? _layoutConstraint.layoutRectangle:null;
+			return (_layoutConstraint)? _layoutConstraint.layoutRectangle:bounds;
 		} 
 		
 		/**
@@ -516,7 +516,7 @@ package com.degrafa.geometry{
 					
 					//if we have a gerometry parent then layout to thoes bounds
 					if(parent && parent is Geometry){
-						_layoutConstraint.computeLayoutRectangle(childBounds,Geometry(parent).bounds);
+						_layoutConstraint.computeLayoutRectangle(childBounds,Geometry(parent).layoutRectangle);
 						return;
 					}
 					
