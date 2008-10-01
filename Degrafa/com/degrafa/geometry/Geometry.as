@@ -24,7 +24,6 @@ package com.degrafa.geometry{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
-	import com.degrafa.core.IGraphicSkin;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.DisplayObjectCollection;
