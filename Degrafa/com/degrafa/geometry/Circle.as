@@ -228,8 +228,8 @@ package com.degrafa.geometry{
 			if(_layoutConstraint){
 		 		
 		 		if(_radius || _centerX || _centerY){
-		 			super.calculateLayout(new Rectangle((_centerX)? _centerX:0,
-		 			(_centerY)? _centerY:0,(_radius)? _radius*2:1,(_radius)? _radius*2:1));
+		 			super.calculateLayout(new Rectangle((_centerX)? _centerX-_radius:0,
+		 			(_centerY)? _centerY-_radius:0,(_radius)? _radius*2:1,(_radius)? _radius*2:1));
 		 		}
 		 		else{
 		 			super.calculateLayout();	
@@ -270,7 +270,7 @@ package com.degrafa.geometry{
 		 	preDraw();
 		 	
 			//apply the fill retangle for the draw
-			super.draw(graphics,(rc)? rc:bounds);
+			super.draw(graphics,(rc)? rc:layoutRectangle);
 		}
 		
 		/**

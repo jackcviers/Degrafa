@@ -33,17 +33,16 @@ package com.degrafa.skins
 	import com.degrafa.states.StateManager;
 	import com.degrafa.triggers.ITrigger;
 	
+	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
 	
+	import mx.core.mx_internal;
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
 	import mx.skins.Border;
-	
-	//required for trigger source binding due to a skins delayed Instantiation
-	import mx.core.mx_internal;
 	use namespace mx_internal;
 	
 	
@@ -196,6 +195,7 @@ package com.degrafa.skins
 			
 			initGeometryCollection();
 			_geometry.items = value;
+						
 		}
 		
 		/**
@@ -212,7 +212,7 @@ package com.degrafa.skins
 		private function initGeometryCollection():void{
 			if(!_geometry){
 				_geometry = new GeometryCollection();
-				
+												
 				//add a listener to the collection
 				if(enableEvents){
 					_geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
@@ -354,7 +354,10 @@ package com.degrafa.skins
 		//previously visited. This also ensures that the event listener is only added one time
 		//but it will be triggered for each rule.
 		private function onAddedToStage(event:Event):void{
-			if(triggers){
+			if(triggers.length !=0){
+				if(!Object(this)._bindingsByDestination){
+					return;
+				}
 				var bindings:Object  = Object(this)._bindingsByDestination;
 				for each (var trigger:ITrigger in triggers){
 					if(!trigger.source){

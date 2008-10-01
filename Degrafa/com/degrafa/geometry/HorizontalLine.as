@@ -239,7 +239,7 @@ package com.degrafa.geometry{
 			//re init if required
 		 	preDraw();
 			
-			super.draw(graphics,(rc)? rc:_bounds);
+			super.draw(graphics,(rc)? rc:layoutRectangle);
 		}
 		
 		/**

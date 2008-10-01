@@ -24,6 +24,7 @@ package com.degrafa.geometry{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.core.IGraphicSkin;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.DisplayObjectCollection;
@@ -507,33 +508,31 @@ package com.degrafa.geometry{
 			
 			if(_layoutConstraint){
 					
-					//setup default
-					if(!childBounds){
-						childBounds = new Rectangle(0,0,1,1);
-					}
-					
-					//now figure out what this needs to layout to.
-					
-					//if we have a gerometry parent then layout to thoes bounds
-					if(parent && parent is Geometry){
-						_layoutConstraint.computeLayoutRectangle(childBounds,Geometry(parent).layoutRectangle);
-						return;
-					}
-					
-					//not a parent of type geometry if !null handle
-					if(parent){
-						if(parent is DisplayObject){
-							//perhaps a skin of some other container as 
-							//they work a bit different
-							return;
-						}
-					} 
-					
-					if(_currentGraphicsTarget){
-						_layoutConstraint.computeLayoutRectangle(childBounds,_currentGraphicsTarget.getRect(_currentGraphicsTarget));
-					}
+				//setup default
+				if(!childBounds){
+					childBounds = new Rectangle(0,0,1,1);
+				}
+									
+				//if we have a gerometry parent then layout to bounds
+				if(parent && parent is Geometry){
+					_layoutConstraint.computeLayoutRectangle(childBounds,Geometry(parent).layoutRectangle);
+					return;
+				}
+				
+				//drawing to a graphicsTarget use that.
+				if(_currentGraphicsTarget){
+					_layoutConstraint.computeLayoutRectangle(childBounds,_currentGraphicsTarget.getRect(_currentGraphicsTarget));
+					return; 
+				}
+				
+				//default end point for mxml components and skins 
+				//use document as layout parent
+				if(document){
+					_layoutConstraint.computeLayoutRectangle(childBounds,new Rectangle(document.x,
+					document.y,document.width,document.height));
+					return;
+				}
 			}
-			
 		}
 		
 		/**

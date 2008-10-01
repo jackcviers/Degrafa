@@ -353,7 +353,7 @@ package com.degrafa.skins
 		//previously visited. This also ensures that the event listener is only added one time
 		//but it will be triggered for each rule.
 		private function onAddedToStage(event:Event):void{
-			if(triggers){
+			if(triggers.length !=0){
 				var bindings:Object  = Object(this)._bindingsByDestination;
 				for each (var trigger:ITrigger in triggers){
 					if(!trigger.source){

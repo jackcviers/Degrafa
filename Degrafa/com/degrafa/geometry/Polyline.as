@@ -311,7 +311,7 @@ package com.degrafa.geometry{
 		 	//init the layout in this case done after predraw.
 			calculateLayout();
 			
-			super.draw(graphics,(rc)? rc:_bounds);
+			super.draw(graphics,(rc)? rc:layoutRectangle);
 	 	}
 		
 		/**
