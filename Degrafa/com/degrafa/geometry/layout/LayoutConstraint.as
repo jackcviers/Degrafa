@@ -451,11 +451,11 @@ package com.degrafa.geometry.layout
 				_height=(layoutRectangle.height)? layoutRectangle.height:1;
 			}
 			
-			if(!_x){
+			if(isNaN(_x)){
 				_x=(layoutRectangle.x)? layoutRectangle.x:0;
 			}
 			
-			if(!_y){
+			if(isNaN(_y)){
 				_y=(layoutRectangle.y)? layoutRectangle.y:0;
 			}
 			
