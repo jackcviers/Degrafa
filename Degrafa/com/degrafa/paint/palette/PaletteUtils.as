@@ -29,7 +29,6 @@ package com.degrafa.paint.palette{
 	
 	/**
 	* Methods for processing color values and generating color palettes. 
-	* Specifically used by Palette.
 	**/
 	public class PaletteUtils{
 		
@@ -353,9 +352,5 @@ package com.degrafa.paint.palette{
 			return hsb;
 		}
 		
-		
-
-
-
 	}
 }
