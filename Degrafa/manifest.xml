@@ -110,5 +110,7 @@
 	<!--Palette-->
 	<component id="Palette" class="com.degrafa.paint.palette.Palette"/>
 	<component id="PaletteEntry" class="com.degrafa.paint.palette.PaletteEntry"/>
+	<component id="PresetColorPalette" class="com.degrafa.paint.palette.PresetColorPalette"/>
+	<component id="InterpolatedColorPalette" class="com.degrafa.paint.palette.InterpolatedColorPalette"/>
 		
 </componentPackage>    
