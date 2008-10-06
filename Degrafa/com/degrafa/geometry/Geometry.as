@@ -481,8 +481,7 @@ package com.degrafa.geometry{
 			
 			if(!_commandStack)
 				_commandStack = new CommandStack(this);
-				
-			_commandStack.owner = this;
+						
 			return _commandStack;
 		}	
 		public function set commandStack(value:CommandStack):void{

@@ -270,7 +270,7 @@ package com.degrafa.geometry{
 		 	preDraw();
 		 	
 			//apply the fill retangle for the draw
-			super.draw(graphics,(rc)? rc:layoutRectangle);
+			super.draw(graphics,(rc)? rc:bounds);
 		}
 		
 		/**

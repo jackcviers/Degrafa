@@ -450,7 +450,6 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
-			invalidated = true;
 			super.propertyChangeHandler(event);
 		}
 		
@@ -579,7 +578,7 @@ package com.degrafa.geometry{
 		 	//init the layout in this case done after predraw.
 			calculateLayout();
 						
-			super.draw(graphics, (rc)? rc:layoutRectangle);
+			super.draw(graphics, (rc)? rc:bounds);
 												
         }
 		

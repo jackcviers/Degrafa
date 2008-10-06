@@ -157,7 +157,7 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			//re init if required
 		 	preDraw();
-			super.draw(graphics,(rc)? rc:layoutRectangle);
+			super.draw(graphics,(rc)? rc:bounds);
 		}
 		
 		
