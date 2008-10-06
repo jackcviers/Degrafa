@@ -23,7 +23,6 @@ package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.command.CommandStackItem;
-	import com.degrafa.geometry.layout.LayoutUtils;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	
 	import flash.display.Graphics;

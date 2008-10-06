@@ -23,8 +23,7 @@ package com.degrafa.geometry.utilities{
 	
 	import flash.geom.Point;
 	import com.degrafa.geometry.command.CommandStack;
-	import com.degrafa.geometry.command.CommandStackItem;
-
+	
 	/**
 	* A helper utility class for drawing arcs.
 	**/

@@ -1,6 +1,5 @@
 package com.degrafa.utilities.swf
 {
-	import com.degrafa.utilities.swf.fonts.FontName;
 	import com.degrafa.utilities.swf.fonts.FontSet;
 	
 	import flash.utils.ByteArray;
