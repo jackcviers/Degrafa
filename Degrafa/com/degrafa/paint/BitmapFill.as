@@ -582,7 +582,6 @@ package com.degrafa.paint{
 			if(!bitmapData) {
 				return;
 			}
-			
 			// todo: optimize all this with cacheing
 			var template:BitmapData = bitmapData;
 			
@@ -672,7 +671,13 @@ package com.degrafa.paint{
 			var regPoint:Point;
 			var transformRequest:ITransform;
 			var tempmat:Matrix;
-		
+			//handle layout transforms - only renderLayouts so far
+			if (_requester && (_requester as Geometry).hasLayout) {
+				var geom:Geometry = _requester as Geometry;
+				if (geom.layoutConstraint.isRenderLayout) {
+					matrix.concat( geom._layoutMatrix);
+				}
+			}
 			if (_transform && ! _transform.isIdentity) {
 				
 					tempmat= new Matrix();
