@@ -495,6 +495,9 @@ package com.degrafa.geometry{
 			return (_layoutConstraint)? _layoutConstraint.layoutRectangle:bounds;
 		} 
 		
+		//for use in fills, and possible future implementation of layout
+		public var _layoutMatrix:Matrix;
+		
 		/**
 		* Performs the layout calculations if required. 
 		* All geometry override this for specifics.
@@ -503,7 +506,7 @@ package com.degrafa.geometry{
 		* of (0,0,1,1) is used.
 		**/
 		public function calculateLayout(childBounds:Rectangle=null):void{
-			
+
 			if(_layoutConstraint){
 					
 				//setup default
