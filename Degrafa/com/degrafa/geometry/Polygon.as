@@ -209,10 +209,10 @@ package com.degrafa.geometry{
 		**/
 		private function calcBounds():void{
 			
-			var boundsMaxX:Number =0;
-			var boundsMaxY:Number =0;
-			var boundsMinX:Number =Number.MAX_VALUE;
-			var boundsMinY:Number =Number.MAX_VALUE;
+			var boundsMaxX:Number = Number.NEGATIVE_INFINITY;
+			var boundsMaxY:Number = Number.NEGATIVE_INFINITY;
+			var boundsMinX:Number =Number.POSITIVE_INFINITY;
+			var boundsMinY:Number =Number.POSITIVE_INFINITY;
 			
 			var i:int = 0;
 			var length:int = _points.items.length;		
