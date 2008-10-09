@@ -459,9 +459,16 @@ package com.degrafa.geometry{
 	        
 		}
 								
+		//override in subclasses						
 		public function get bounds():Rectangle{
 			return null;	
 		}
+		
+		//override in subclasses
+		public function get originalBounds():Rectangle{
+			return null;	
+		}
+		
 		
 		/**
 		* Performs any pre calculation that is required to successfully render 

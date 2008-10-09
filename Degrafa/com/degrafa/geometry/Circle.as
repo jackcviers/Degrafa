@@ -97,7 +97,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get centerX():Number{
-			if(!_centerX){return 0;}
+			if(!_centerX){return (hasLayout)? 1:0;}
 			return _centerX;
 		}
 		public function set centerX(value:Number):void{
@@ -113,7 +113,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get centerY():Number{
-			if(!_centerY){return 0;}
+			if(!_centerY){return (hasLayout)? 1:0;}
 			return _centerY;
 		}
 		public function set centerY(value:Number):void{
@@ -130,7 +130,7 @@ package com.degrafa.geometry{
 		* is used.
 		**/
 		public function get radius():Number{
-			if(!_radius){return 0;}
+			if(!_radius){return (hasLayout)? 2:0;}
 			return _radius;
 		}
 		public function set radius(value:Number):void{
@@ -165,11 +165,21 @@ package com.degrafa.geometry{
 			return _bounds;
 		}
 		
+		private var _originalBounds:Rectangle;
+		override public function get originalBounds():Rectangle{
+			return _originalBounds;	
+		}
+		
 		/**
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
 			_bounds = new Rectangle(centerX-radius,centerY-radius,radius*2,radius*2);
+			
+			if(!_originalBounds && _radius){
+				_originalBounds=_bounds;
+			}
+			
 		}		
 		
 		
@@ -215,40 +225,45 @@ package com.degrafa.geometry{
 		/**
 		* Performs the specific layout work required by this Geometry.
 		* @param childBounds the bounds to be layed out. If not specified a rectangle
-		* of (0,0,1,1) is used. 
+		* of (0,0,1,1) is used or the most appropriate size is calculated. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			//possible candidate for a transform type layout
-			 
-			//In the case of the base objects with exception to polygons and paths
-			//we pre calc and set the properties
-			
-			//calc the default rect
 			if(_layoutConstraint){
-		 		
-		 		if(_radius || _centerX || _centerY){
-		 			super.calculateLayout(new Rectangle((_centerX)? _centerX-_radius:0,
-		 			(_centerY)? _centerY-_radius:0,(_radius)? _radius*2:1,(_radius)? _radius*2:1));
+				
+				var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+				
+				if(_radius){
+		 			tempLayoutRect.width = tempLayoutRect.height = radius;
 		 		}
-		 		else{
-		 			super.calculateLayout();	
-		 		}
-				
-			
-				_layoutConstraint.isRenderLayout = false;
 		 		
-		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
-				layoutRectangle.x>=0 && layoutRectangle.y>=0){
+		 		if(_centerX){
+		 			tempLayoutRect.x = _centerX-(_radius)? _radius:0;
+		 		}
+		 		
+		 		if(_centerY){
+		 			tempLayoutRect.y = _centerY-(_radius)? _radius:0;
+		 		}
+		 		
+		 		super.calculateLayout(tempLayoutRect);	
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
 			
-			 		//having an layout overrides the basic properties
-			 		_radius= Math.max(layoutRectangle.width,layoutRectangle.height)/2;
-					_centerX= layoutRectangle.x+_radius;
-					_centerY= layoutRectangle.y+_radius;
-				
-					//invalidate so that predraw is re calculated
-					invalidated = true;
-				
+			
+				if(!_originalBounds){
+					if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
+						_originalBounds = layoutRectangle;
+					}
 				}
 			}
 		 	
@@ -263,12 +278,12 @@ package com.degrafa.geometry{
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			
-			//init the layout in this case done before predraw.
-			calculateLayout();
-			
 			//re init if required
 		 	preDraw();
 		 	
+		 	//init the layout
+			calculateLayout();
+						
 			//apply the fill retangle for the draw
 			super.draw(graphics,(rc)? rc:bounds);
 		}

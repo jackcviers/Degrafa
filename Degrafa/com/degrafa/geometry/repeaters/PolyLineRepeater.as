@@ -156,15 +156,7 @@ package com.degrafa.geometry.repeaters{
 				}
 			}
 		}
-		
-		/**
-		* Principle event handler for any property changes to a 
-		* geometry object or it's child objects.
-		**/
-		private function propertyChangeHandler(event:PropertyChangeEvent):void{
-			dispatchEvent(event);
-		}
-		
+				
 		private var _x:Number=0;
 		/**
 		* The x-coordinate of the upper left point to begin drawing from of the first polygon. If not specified 

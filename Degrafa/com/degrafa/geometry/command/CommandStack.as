@@ -81,8 +81,15 @@ package com.degrafa.geometry.command{
 				var temp:Matrix = new Matrix();
 			//	if (!owner.bounds) owner.preDraw();
 			    //need original bounds here
-				temp.translate(-owner.bounds.x, -owner.bounds.y)
-				temp.scale(owner.layoutRectangle.width/owner.bounds.width,owner.layoutRectangle.height/owner.bounds.height);
+				if (owner.originalBounds) {
+					temp.translate( -owner.originalBounds.x, -owner.originalBounds.y)
+					temp.scale(owner.layoutRectangle.width/owner.originalBounds.width,owner.layoutRectangle.height/owner.originalBounds.height);
+				}
+				else {
+					temp.translate( -owner.bounds.x, -owner.bounds.y)
+					temp.scale(owner.layoutRectangle.width/owner.bounds.width,owner.layoutRectangle.height/owner.bounds.height);
+				}
+				
 				temp.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
 				owner._layoutMatrix = temp;
 			}
