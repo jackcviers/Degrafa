@@ -178,7 +178,7 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentWidth")]
 		override public function get width():Number{
-			if(!_width){return 0;}
+			if(!_width){return (hasLayout)? 1:0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -195,7 +195,7 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentHeight")]
 		override public function get height():Number{
-			if(!_height){return 0;}
+			if(!_height){return (hasLayout)? 1:0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{
@@ -233,6 +233,12 @@ package com.degrafa.geometry{
 		**/
 		override public function get bounds():Rectangle{
 			return _bounds;	
+		}
+		
+		
+		private var _originalBounds:Rectangle;
+		override public function get originalBounds():Rectangle{
+			return _originalBounds;	
 		}
 		
 		/**
@@ -276,6 +282,10 @@ package com.degrafa.geometry{
 
 					}
 			}
+			
+			if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
+				_originalBounds=_bounds;
+			}
 		
 		}	
 				
@@ -296,8 +306,7 @@ package com.degrafa.geometry{
 								
 				
 				commandStack.length=0;
-				
-			//	commandStack.addMoveTo(x,y);				
+			
 				//Calculate the center point. We only needed is we have a pie type 
 				//closeur. May want to store this local sometime
 				var ax:Number=newX-Math.cos(-(startAngle/180)*Math.PI)*width/2;
@@ -341,35 +350,47 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			//possible candidate for a transform type layout
-			 
-			//In the case of the base objects with exception to polygons and paths
-			//we pre calc and set the properties
-						
-			//calc the default rect
 			if(_layoutConstraint){
-		 	
-				super.calculateLayout(new Rectangle(
-		 		(_x)? _x:0,
-		 		(_y)? _y:0,
-		 		(_width)? _width:1,(_height)? _height:1));
-			
-				_layoutConstraint.isRenderLayout = false;
-		 		
-		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
-				layoutRectangle.x>=0 && layoutRectangle.y>=0){
-		 		
-			 		//having an layout overrides the basic properties
-			 		_width= layoutRectangle.width;
-			 		_height = layoutRectangle.height;
-					_x= layoutRectangle.x;
-					_y= layoutRectangle.y;
-					
-					//invalidate so that predraw is re calculated
-					invalidated = true;
-				}
 				
-		 	}
+				var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+				
+				if(_width){
+		 			tempLayoutRect.width = _width;
+		 		}
+				
+				if(_height){
+		 			tempLayoutRect.height = _height;
+		 		}
+		 		
+		 		if(_x){
+		 			tempLayoutRect.x = _x;
+		 		}
+		 		
+		 		if(_y){
+		 			tempLayoutRect.y = _y;
+		 		}
+		 				 		
+		 		super.calculateLayout(tempLayoutRect);	
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+			
+			
+				if(!_originalBounds){
+					if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
+						_originalBounds = layoutRectangle;
+					}
+				}
+			}
 		 	
 		}
 		
@@ -383,11 +404,10 @@ package com.degrafa.geometry{
 		**/		
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			
-			//init the layout in this case done before predraw.
-			calculateLayout();
-			
 			//re init if required
 		 	preDraw();
+			
+			calculateLayout();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 	  	}
