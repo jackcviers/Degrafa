@@ -44,6 +44,7 @@ package com.degrafa.core.utils{
 	 */
 	public class StyleUtil{
 		
+		public static var LEGACY:String = "BETA";
 		private static var functions:Dictionary;
 		
 		
@@ -51,37 +52,19 @@ package com.degrafa.core.utils{
 		// Public Methods
 		//********************************************
 		
-		/*
-		public static function resolveStroke(value:Object, none:IStroke = null):IStroke {
-			if(value is IStroke) {
-				return IStroke(value);
-			} else if(value is uint) {
-				return new Stroke(0, uint(value));
-			} else if(value is String) {
-				return resolveStrokeFromString(value);
-			} else {
-				return none;
-			}
-		}
-		*/
-		
 		/**
 		 * Return an IFill object based on the CSS input given.
 		 * @param value May be a uint, String, asset, or Array of uints, Strings, or assets.
 		 */
 		public static function resolveFill(value:Object, none:IFill = null):IFill {
 			if(value is uint) {
-				return new SolidColor(value as uint);
+				return new SolidFill(value as uint, 1);
 			} else if(value is Class || value is BitmapData || value is Bitmap || value is DisplayObject) { // causes duplicate type checking
-				//var instance:DisplayObject = new (value as Class);
-				//if(instance is Bitmap) {
-					return new BitmapFill(value);
-				//} else {return none;}
+				return new BitmapFill(value);
 			} else if(value is String) {
 				return resolveFillFromString(value as String);
 			} else if(value is Array) {
 				return resolveFillFromArray(value as Array);
-				//return resolveBitmapFromArray(value as Array);
 			} else if(value is IFill) {
 				return value as IFill;
 			} else {
@@ -110,7 +93,7 @@ package com.degrafa.core.utils{
 		
 		/**
 		 * Returns an array of DropShadowFilter objects based on the CSS input given.
-		 * @parameter value May be a Number, String or Array of Number or Strings
+		 * @parameter value may be a Number, String or Array of Numbers or Strings
 		 */
 		public static function resolveShadow(value:Object, none:Array = null ):Array {
 			if(value is Array) {
@@ -154,31 +137,25 @@ package com.degrafa.core.utils{
 		// Parsing Functions
 		//*******************************
 		
-		/*
-		private static function resolveStrokeFromString(value:String):IStroke {
-			var properties:Array = expandProperty(value, [0, "solid", 0]);
-			var test:uint = colorFromStyle(properties[0]);
-			if(properties[1] is uint) { properties[2] = properties[1]; }
-			if(properties[0] is String && test == 0) { properties[1] = properties[0]; }
-			else if(properties[0] is String && test > 0 && isNaN(properties[0])) { properties[2] = properties[1]; }
-			return new Stroke(colorFromStyle(properties[2]), Number(properties[0]));
-			//return {width: Number(array[0]), style: String(array[1]), color: resolveColor(array[2])};
-		}
-		*/
-		
 		private static function resolveFillFromArray(value:Array):IFill {
+			if(LEGACY == "ALPHA") { return resolveFillFromArrayOld(value); }
 			var complex:ComplexFill = new ComplexFill();
 			var fills:Array = complex.fills = new Array();
-			for each(var object:Object in value as Array) {
+			var i:int = value.length;
+			while(i-->0) {
+				var object:Object = value[i];
 				var fill:IFill = resolveFill(object);
 				fills.push(fill);
 			}
 			return complex;
 		}
 		
+		
+		
 		// this whole thing needs refactoring
 		private static function resolveFillFromString(value:String):IFill {
 			if(value == null) { return null; }
+			if(value.toLowerCase() == "none") { return null; }
 			if(value.indexOf(" ") > 0) { // gradient definitions must have at least one space
 				return resolveGradientFromString(value);
 			} else {
@@ -227,17 +204,7 @@ package com.degrafa.core.utils{
 			return fill;
 		}
 		
-		/*
-		private static function resolveBitmapFromArray(value:Array):IFill {
-			var complex:ComplexFill = new ComplexFill();
-			var fills:Array = complex.fills = new Array();
-			for each(var object:Object in value as Array) {
-				var fill:IFill = resolveBitmap(object);
-				fills.push(fill);
-			}
-			return complex;
-		}
-		*/
+		
 		private static function resolveRepeatFromString(value:String):Object {
 			switch(value) {
 				case "repeat":
@@ -265,8 +232,11 @@ package com.degrafa.core.utils{
 		}
 		
 		private static function resolveRepeatFromArray(value:Array):Array {
+			if(LEGACY == "ALPHA") { return resolveRepeatFromArrayOld(value); }
 			var result:Array = new Array();
-			for each(var item:Object in value) {
+			var i:int = value.length;
+			while(i-->0) {
+				var item:Object = value[i];
 				if(item is String) {
 					result.push(resolveRepeatFromString(item as String));
 				} else {
@@ -282,8 +252,11 @@ package com.degrafa.core.utils{
 		}
 		
 		private static function resolvePositionFromArray(value:Array):Array {
+			if(LEGACY == "ALPHA") { return resolvePositionFromArrayOld(value); }
 			var result:Array = new Array();
-			for each(var item:Object in value) {
+			var i:int = value.length;
+			while(i-->0) {
+				var item:Object = value[i];
 				if(item is String) {
 					result.push(resolvePositionFromString(item as String));
 				} else {
@@ -378,6 +351,40 @@ package com.degrafa.core.utils{
 			return Number( object );
 		}
 		
+		// legacy code
+		private static function resolveFillFromArrayOld(value:Array):IFill {
+			var complex:ComplexFill = new ComplexFill();
+			var fills:Array = complex.fills = new Array();
+			for each(var object:Object in value as Array) {
+				var fill:IFill = resolveFill(object);
+				fills.push(fill);
+			}
+			return complex;
+		}
+		
+		private static function resolveRepeatFromArrayOld(value:Array):Array {
+			var result:Array = new Array();
+			for each(var item:Object in value) {
+				if(item is String) {
+					result.push(resolveRepeatFromString(item as String));
+				} else {
+					result.push(item);
+				}
+			}
+			return result;
+		}
+		
+		private static function resolvePositionFromArrayOld(value:Array):Array {
+			var result:Array = new Array();
+			for each(var item:Object in value) {
+				if(item is String) {
+					result.push(resolvePositionFromString(item as String));
+				} else {
+					result.push(item);
+				}
+			}
+			return result;
+		}
 		
 		//*******************************
 		// generic utility functions
@@ -420,10 +427,6 @@ package com.degrafa.core.utils{
 				}
 			}
 			return split;
-		}
-		
-		private static function isFunction(value:String):Boolean {
-			return false;
 		}
 		
 		

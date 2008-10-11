@@ -140,7 +140,7 @@ package com.degrafa.paint{
 			// todo: optimize with more cacheing
 			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
 				if (_fills.length == 1) { // short cut
-					trace('short');
+					//trace('short');
 					_fills[0].requester = _requester;
 					(_fills[0] as IFill ).begin(graphics, rectangle);
 					_requester = null;

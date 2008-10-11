@@ -33,7 +33,6 @@ package com.degrafa.skins
 	
 	import flash.geom.Rectangle;
 	
-	
 	import mx.core.EdgeMetrics;
 	import mx.graphics.GradientEntry;
 	import mx.graphics.IFill;
@@ -53,6 +52,11 @@ package com.degrafa.skins
 	 * Sets the background color of an element.
 	 */
 	[Style(name="backgroundColor")]
+	
+	/**
+	 * Sets the background alpha of an element.
+	 */
+	//[Style(name="backgroundAlpha")] // hmm, there is no background-alpha in the css3 spec ???
 	
 	// woops
 	// Images are drawn with the first specified one on top (closest to the user) and each subsequent image behind the previous one.
@@ -158,6 +162,7 @@ package com.degrafa.skins
 		//*****************************************************
 		
 		private static const ASSET_CLASS:String = "assetClass";
+		//private static const BACKGROUND_ALPHA:String = "backgroundAlpha";
 		private static const BACKGROUND_COLOR:String = "backgroundColor";
 		private static const BACKGROUND_IMAGE:String = "backgroundImage";
 		private static const BACKGROUND_REPEAT:String = "backgroundRepeat";
@@ -594,7 +599,10 @@ package com.degrafa.skins
 			if(style is String) {
 				backgroundBlend = [style]
 			} else if(style is Array) {
-				backgroundBlend = style as Array;
+				backgroundBlend = (style as Array).concat();
+				if(StyleUtil.LEGACY != "ALPHA") {
+					backgroundBlend.reverse();
+				}
 			} else {
 				backgroundBlend = [];
 			}
@@ -782,7 +790,10 @@ package com.degrafa.skins
 		}
 		
 		private function resolveAssetsFromString(value:String):Object {
-			var asset:Object = assetClass[value];
+			var asset:Object;
+			if(assetClass) {
+				asset = assetClass[value];
+			}
 			if(asset != null) {
 				return asset;
 			} else {
