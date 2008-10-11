@@ -17,10 +17,10 @@ Panel {
 	border-width: "10px 30px 10px 10px";
 	border-top-right-radius: 24px;
 	border-bottom-left-radius: 24px;
-	background-image: RETRO, KITCHEN, "-90deg #666666 120px #FFFFFF 90% #AAAAAA", GRUNGE;
-	background-repeat: repeat, repeat-y, stretch, stretch;
-	background-position: "top center", "top 85%", center, center;
-	background-blend: normal, normal, multiply, multiply;
+	background-image: GRUNGE, "-90deg #666666 120px #FFFFFF 90% #AAAAAA", KITCHEN, RETRO;
+	background-repeat: stretch, stretch, repeat-y, repeat;
+	background-position: center, center, "top 85%", "top center";
+	background-blend: multiply, multiply, normal, normal;
 	asset-class: ClassReference("assets.ExampleAssets");
 	borderSkin: ClassReference("com.degrafa.skins.CSSSkin");
 }
