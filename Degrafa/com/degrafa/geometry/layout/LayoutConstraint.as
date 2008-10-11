@@ -1,3 +1,27 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
+
+//Based on code from Trevor McCauley, www.senocular.com 
+
 package com.degrafa.geometry.layout
 {
 	import com.degrafa.core.DegrafaObject;
@@ -6,8 +30,9 @@ package com.degrafa.geometry.layout
 	import flash.geom.Rectangle;
 
 	[IconFile("LayoutConstraint.png")]
-	
-	[Bindable]
+	/**
+	* Defines constraint based layout.
+	**/
 	public class LayoutConstraint extends DegrafaObject implements ILayout
 	{
 		//The rectangle we are laying out to. Parent Geometry bounds or target bounds
@@ -27,15 +52,13 @@ package com.degrafa.geometry.layout
 		public function set invalidated(value:Boolean):void{
 			_invalidated = value;
 		}
-		
-		public function get isInvalidated():Boolean{
-			return _invalidated;
-		} 
+		 
 		
 		private var _x:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* Defines the x location (top left) of the layout.
+		*/
 		public function get x():Number {
 			if(!_x){return 0;}
 			return _x;
@@ -48,9 +71,11 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _minX:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The minimum x location that can be applied
+		* to the layout.
+		*/
 		public function get minX():Number {
 			return _minX;
 		}
@@ -62,9 +87,11 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _maxX:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The maximum x location that can be applied
+		* to the layout.
+		*/
 		public function get maxX():Number {
 			return _maxX;
 		}
@@ -77,9 +104,10 @@ package com.degrafa.geometry.layout
 
 
 		private var _y:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* Defines the y location (top left) of the layout.
+		*/
 		public function get y():Number {
 			if(!_y){return 0;}
 			return _y;
@@ -92,9 +120,11 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _minY:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The minimum y location that can be applied
+		* to the layout.
+		*/
 		public function get minY():Number {
 			return _minY;
 		}
@@ -106,9 +136,11 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _maxY:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The maximum y location that can be applied
+		* to the layout.
+		*/
 		public function get maxY():Number {
 			return _maxY;
 		}
@@ -123,9 +155,15 @@ package com.degrafa.geometry.layout
   		
   		private var _width:Number;
   		[PercentProxy("percentWidth")]
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		* Defines the width of the layout.
+		* Once left (or percentLeft) or right (or percentRight)
+		* is set, the width value no longer applies. If
+		* percentWidth exists when width is set, percentWidth
+		* will be overridden and be given a value of NaN. This 
+		* property also accepts a percent value for example 75%.
+		*/
 		public function get width():Number {
 			if(!_width){return 0;}
 			return _width;
@@ -139,9 +177,11 @@ package com.degrafa.geometry.layout
 		}
   		
   		private var _minWidth:Number;
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		* The minimum width that can be applied
+		* to the layout.
+		*/
 		public function get minWidth():Number {
 			return _minWidth;
 		}
@@ -153,13 +193,14 @@ package com.degrafa.geometry.layout
 			}
 		}
 		private var _maxWidth:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The maximum width that can be applied
+		* to the layout.
+		*/
 		public function get maxWidth():Number {
 			return _maxWidth;
 		}
-		/** */
 		public function set maxWidth(value:Number):void {
 			if(_maxWidth != value){
 				_maxWidth = value;
@@ -168,17 +209,18 @@ package com.degrafa.geometry.layout
 		}
   		
   		private var _percentWidth:Number;
+  		[Bindable]
 		/**
-		 * When set, the width of the layout will be
-		 * set as the value of this property multiplied
-		 * by the containing width.
-		 * A value of 0 represents 0% and 1 represents 100%.
-		 */
+		* When set, the width of the layout will be
+		* set as the value of this property multiplied
+		* by the containing width.
+		* A value of 0 represents 0% and 1 represents 100%
+		* a value of 75 represents 75%.
+		*/
 		public function get percentWidth():Number {
 			if(!_percentWidth){return NaN;}
 			return _percentWidth;
 		}
-		/** */
 		public function set percentWidth(value:Number):void {
 			if(_percentWidth != value){
 				_percentWidth = value;
@@ -189,9 +231,15 @@ package com.degrafa.geometry.layout
 
   		private var _height:Number;
   		[PercentProxy("percentHeight")]
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		* Defines the height of the layout boundary.
+		* Once top (or percentTop) or bottom (or percentBottom)
+		* is set, the width value no longer applies. If
+		* percentWidth exists when width is set, percentWidth
+		* will be overridden and be given a value of NaN. This 
+		* property also accepts a percent value for example 75%.
+		*/
 		public function get height():Number {
 			if(!_height){return 0;}
 			return _height;
@@ -205,13 +253,14 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _minHeight:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The minimum height that can be applied
+		* to the layout.
+		*/
 		public function get minHeight():Number {
 			return _minHeight;
 		}
-		/** */
 		public function set minHeight(value:Number):void {
 			if(_minHeight != value){
 				_minHeight = value;
@@ -219,13 +268,14 @@ package com.degrafa.geometry.layout
 			}
 		}
 		private var _maxHeight:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* The maximum height that can be applied
+		* to the layout.
+		*/
 		public function get maxHeight():Number {
 			return _maxHeight;
 		}
-		/** */
 		public function set maxHeight(value:Number):void {
 			if(_maxHeight != value){
 				_maxHeight = value;
@@ -234,17 +284,18 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _percentHeight:Number;
+		[Bindable]
 		/**
-		 * When set, the height of the layout will be
-		 * set as the value of this property multiplied
-		 * by the parent height.
-		 * A value of 0 represents 0% and 1 represents 100%.
-		 */
+		* When set, the height of the layout will be
+		* set as the value of this property multiplied
+		* by the containing height.
+		* A value of 0 represents 0% and 1 represents 100%
+		* a value of 75 represents 75%.
+		*/
 		public function get percentHeight():Number {
 			if(!_percentHeight){return NaN;}
 			return _percentHeight;
 		}
-		/** */
 		public function set percentHeight(value:Number):void {
 			if(_percentHeight != value){
 				_percentHeight = value;
@@ -253,9 +304,11 @@ package com.degrafa.geometry.layout
 		}
 		
   		private var _top:Number;
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		* When set, the top of the layout will be located
+		* offset from the top of it's parent.
+		*/
 		public function get top():Number {
 			if(!_top){return NaN;}
 			return _top;
@@ -268,9 +321,12 @@ package com.degrafa.geometry.layout
 		}
 
 		private var _right:Number;
+		[Bindable]
 		/**
-		* Doc
-		**/
+		* When set, the right of the layout will be located
+		* offset by the value of this property multiplied
+		* by the containing width.
+		*/
 		public function get right():Number {
 			if(!_right){return NaN;}
 			return _right;
@@ -283,9 +339,11 @@ package com.degrafa.geometry.layout
 		}
   		
   		private var _bottom:Number;
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		* When set, the bottom of the layout will be located
+		* offset from the bottom of it's parent.
+		*/
 		public function get bottom():Number {
 			if(!_bottom){return NaN;}
 			return _bottom;
@@ -298,9 +356,12 @@ package com.degrafa.geometry.layout
 		}
   		
   		private var _left:Number;
+  		[Bindable]
 		/**
-		* Doc
-		**/
+		 * When set, the left of the layout will be located
+		 * offset by the value of this property multiplied
+		 * by the containing width.
+		 */
 		public function get left():Number {
 			if(!_left){return NaN;}
 			return _left;
@@ -313,9 +374,11 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _horizontalCenter:Number;
+		[Bindable]
 		/**
-		 * If set and left or right are not set then the resulting 
-		 * geometry will be centered horizontally offset by the value. 
+		 * When set, if left or right is not set, the layout
+		 * will be centered horizontally offset by the numeric
+		 * value of this property.
 		 */
 		public function get horizontalCenter():Number {
 			if(!_horizontalCenter){return NaN;}
@@ -329,10 +392,12 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _verticalCenter:Number;
+		[Bindable]
 		/**
-		 * If set and top or bottom are not set then the resulting 
-		 * geometry will be centered vertically offset by the value. 
-		 */
+		* When set, if top or bottom is not set, the layout
+		* will be centered vertically offset by the numeric
+		* value of this property.
+		*/
 		public function get verticalCenter():Number {
 			if(!_verticalCenter){return NaN;}
 			return _verticalCenter;
@@ -346,11 +411,14 @@ package com.degrafa.geometry.layout
 		
 
 		private var _maintainAspectRatio:Boolean=false;
+		[Bindable]
 		/**
-		 * If true the drawn result of the geometry 
-		 * will maintain an aspect ratio relative to the ratio
-		 * of the precalculated bounds width and height.
-		 */
+		* When true, the size of the layout will always
+		* maintain an aspect ratio relative to the ratio
+		* of the current width and height properties, even
+		* if those properties are not in control of the
+		* height and width of the layout.
+		*/
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get maintainAspectRatio():Boolean {
 			return _maintainAspectRatio;
@@ -363,6 +431,7 @@ package com.degrafa.geometry.layout
 		}
 		
 		private var _targetCoordinateSpace:DisplayObject;
+		[Bindable]
 		/**
 		* The display object that defines the coordinate system to use.
 		**/
@@ -377,16 +446,45 @@ package com.degrafa.geometry.layout
 			}
 		}
 		
+		/**
+		* The final offset x value of the layout.
+		**/
 		public var xOffset:Number=0;
+		
+		/**
+		* The final offset y value of the layout.
+		**/
 		public var yOffset:Number=0;
+		
+		/**
+		* The minimum x of the objects bounds befor layout.
+		*/
 		public var xMin:Number;
+		
+		/**
+		* The minimum y of the objects bounds befor layout.
+		*/
 		public var yMin:Number;
+		
+		/**
+		* The maximum x of the objects bounds befor layout.
+		*/
 		public var xMax:Number;
+		
+		/**
+		* The maximum y of the objects bounds befor layout.
+		*/
 		public var yMax:Number;
+		
+		/**
+		* The calculated x ratio by which to multiply points at render time.
+		*/
 		public var xMultiplier:Number; 
+		
+		/**
+		* The calculated y ratio by which to multiply points at render time.
+		*/
 		public var yMultiplier:Number;
-		public var isRenderLayout:Boolean=true;
-				
 				
 		/**
 		* An object to derive this objects properties from. When specified this 
@@ -421,21 +519,29 @@ package com.degrafa.geometry.layout
 			
 			if (!_maintainAspectRatio){_maintainAspectRatio = value.maintainAspectRatio;}
 			if (!_targetCoordinateSpace){_targetCoordinateSpace = value.targetCoordinateSpace;}
+			
+			invalidated = true;
 		}
 		
 		private var _layoutRectangle:Rectangle = new Rectangle();
 		/**
 		* The resulting calculated read only rectangle from which to 
-		* layout/modify the geometry command stack items.
+		* layout/modify the geometry.
 		**/
 		public function get layoutRectangle():Rectangle {
 			return _layoutRectangle.clone();
 		}
 				
-		//takes the child bounds (item being layed out) and the parent bounds the 
-		//item we are laying out to and returns the calculated destination result 
-		//rectangle
+		/**
+		* Given a parent and a child bounds rectangle calculates the optimal layout
+		* based on set properties.
+		**/
 		public function computeLayoutRectangle(childBounds:Rectangle,parentBounds:Rectangle):Rectangle{
+			
+			//make sure the parent is not 0 width and height
+			if(parentBounds.height <=0 && parentBounds.width<=0){ 
+				return null
+			}
 			
 			//***Calculate the destination rectangle
 			
@@ -471,11 +577,7 @@ package com.degrafa.geometry.layout
 		 				
 		}
 		
-		//Based on code from Trevor McCauley, www.senocular.com
-		//based on the layout settings calculates a 
-		//rectangle object from which to adjust the 
-		//drawing commands when compared to the calculated 
-		//bounds. 
+		//Performs the final calculation. 
 		private function calculateLayoutRectangle():void{
 			
 			// reusable value

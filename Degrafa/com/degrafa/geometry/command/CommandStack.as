@@ -76,7 +76,7 @@ package com.degrafa.geometry.command{
 				}
 			}
 			//setup a layout transform for paint (and later perhaps, in renderCommandStack)
-			if (owner.hasLayout &&  owner.layoutConstraint.isRenderLayout && owner.bounds) {
+			if (owner.hasLayout && owner.bounds) {
 			//this only handles renderLayouts at this point:
 				var temp:Matrix = new Matrix();
 			//	if (!owner.bounds) owner.preDraw();
@@ -99,31 +99,10 @@ package com.degrafa.geometry.command{
 			
 			//setup the fill
 			owner.initFill(graphics,rc);
-			
-			//TODO decorations will work differently
-			/*
-			if(owner.decorators.length !=0){
-				cmdSource = CloneUtil.clone(source)
-				_cursor = new DegrafaCursor(cmdSource);
-				
-				for each(var decorator:Object in owner.decorators){
-					if(decorator is IDrawDecorator){
-						decorator.execute(this);
-					}
-				}
-			
-			}
-			else{
-				_cursor = new DegrafaCursor(source);	
-			}*/
-			
+						
 			_cursor = new DegrafaCursor(source);
 			renderCommandStack(graphics,rc,_cursor);  
-			        	
-        	/*if(owner.decorators.length !=0){
-        		cmdSource.length = 0;
-        	}*/
-        	
+			
 		}
 		
 		
@@ -145,7 +124,7 @@ package com.degrafa.geometry.command{
 			//setup the layout side
 			//TODO : merge layout with transforms for rendering implementation
 			if(owner.hasLayout){
-				var layout:LayoutConstraint=(owner.layoutConstraint.isRenderLayout)? owner.layoutConstraint:null;
+				var layout:LayoutConstraint=owner.layoutConstraint;
 				
 				if(layout){
 					xOffset = layout.xOffset;

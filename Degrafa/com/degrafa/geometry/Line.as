@@ -141,7 +141,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get x1():Number{
-			if(!_x1){return 0;}
+			if(!_x1){return (hasLayout)? 1:0;}
 			return _x1;
 		}
 		public function set x1(value:Number):void{
@@ -158,7 +158,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
-			if(!_y1){return 0;}
+			if(!_y1){return (hasLayout)? 1:0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{
@@ -217,11 +217,21 @@ package com.degrafa.geometry{
 			return _bounds;	
 		}
 		
+		private var _originalBounds:Rectangle;
+		override public function get originalBounds():Rectangle{
+			return _originalBounds;	
+		}
+		
 		/**
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
-			_bounds = new Rectangle(Math.min(x,x1),Math.min(y,y1),x1-x,y1-y);
+			_bounds = new Rectangle(Math.min(x,x1),Math.min(y,y1),Math.abs(x1-x),Math.abs(y1-y));
+			
+			if(!_originalBounds && (_x1 || _y1)){
+				_originalBounds=_bounds;
+			}
+			
 		}	
 		
 		/**
@@ -248,33 +258,48 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			//possible candidate for a transform type layout
-			 
-			//In the case of the base objects with exception to polygons and paths
-			//we pre calc and set the properties
-			
-			//calc the default rect
 			if(_layoutConstraint){
-		 	
-				super.calculateLayout(new Rectangle((_x)? _x:0,(_y)? _y:0,1,1));
+				
+				
+				var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+				
+				if(_x1){
+		 			tempLayoutRect.width = _x1-_x;
+		 		}
+				
+				if(_y1){
+		 			tempLayoutRect.height = _y1-_y;
+		 		}
+		 		
+		 		if(_x){
+		 			tempLayoutRect.x = _x;
+		 		}
+		 		
+		 		if(_y){
+		 			tempLayoutRect.y = _y;
+		 		}
+		 				 		
+		 		super.calculateLayout(tempLayoutRect);	
+		 					
+				_layoutConstraint.xMax=bounds.bottomRight.x;
+				_layoutConstraint.yMax=bounds.bottomRight.y;
+				
+				_layoutConstraint.xMin=bounds.x;
+				_layoutConstraint.yMin=bounds.y;
+				
+				_layoutConstraint.xOffset = layoutRectangle.x;
+				_layoutConstraint.yOffset = layoutRectangle.y;
+				
+				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
 			
-				_layoutConstraint.isRenderLayout = false;
-		 		
-		 		if(layoutRectangle.height>0 && layoutRectangle.width>0 && 
-				layoutRectangle.x>=0 && layoutRectangle.y>=0){
-		 		
-			 		//having an layout overrides the basic properties
-			 		_x=layoutRectangle.x;
-					_x1=layoutRectangle.x + layoutRectangle.width;
-					
-					_y=layoutRectangle.y;
-					_y1=layoutRectangle.y + layoutRectangle.height;
-					
-					
-					//invalidate so that predraw is re calculated
-					invalidated = true;
+			
+				if(!_originalBounds){
+					if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
+						_originalBounds = layoutRectangle;
+					}
 				}
-		 	}
+			}
 		 	
 		}
 				
@@ -286,12 +311,11 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
-			
-			//init the layout in this case done before predraw.
-			calculateLayout();
-			
+		
 			//re init if required
 		 	preDraw();
+		
+			calculateLayout();
 		 	
 			super.draw(graphics,(rc)? rc:bounds);
 		}
