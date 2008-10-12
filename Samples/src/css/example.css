@@ -13,8 +13,8 @@ Application {
 Panel {
 	color: #FFFFFF;
 	border-alpha: 0.8;
-	border-color: "#002255 #002255 #001144 #001144";
-	border-width: "10px 30px 10px 10px";
+	border-color: "#002255 #001144 #001144 #002255";
+	border-width: "30px 10px 10px 10px";
 	border-top-right-radius: 24px;
 	border-bottom-left-radius: 24px;
 	background-image: GRUNGE, "-90deg #666666 120px #FFFFFF 90% #AAAAAA", KITCHEN, RETRO;
