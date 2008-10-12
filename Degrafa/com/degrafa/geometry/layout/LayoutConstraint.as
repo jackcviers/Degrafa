@@ -538,10 +538,7 @@ package com.degrafa.geometry.layout
 		**/
 		public function computeLayoutRectangle(childBounds:Rectangle,parentBounds:Rectangle):Rectangle{
 			
-			//make sure the parent is not 0 width and height
-			if(parentBounds.height <=0 && parentBounds.width<=0){ 
-				return null
-			}
+			if(parentBounds.isEmpty()){return null;}
 			
 			//***Calculate the destination rectangle
 			

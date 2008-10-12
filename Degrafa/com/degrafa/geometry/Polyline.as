@@ -219,10 +219,10 @@ package com.degrafa.geometry{
 		**/
 		private function calcBounds():void{
 		
-			var boundsMaxX:Number =0;
-			var boundsMaxY:Number =0;
-			var boundsMinX:Number =Number.MAX_VALUE;
-			var boundsMinY:Number =Number.MAX_VALUE;
+			var boundsMaxX:Number = Number.NEGATIVE_INFINITY;
+			var boundsMaxY:Number = Number.NEGATIVE_INFINITY;
+			var boundsMinX:Number =Number.POSITIVE_INFINITY;
+			var boundsMinY:Number =Number.POSITIVE_INFINITY;
 			
 			var i:int = 0;
 			var length:int = _points.items.length;			
@@ -277,24 +277,25 @@ package com.degrafa.geometry{
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 		
 			if(_layoutConstraint){
-				super.calculateLayout(new Rectangle(
-		 		(_x)? _x:0,
-		 		(_y)? _y:0,
-		 		1,1));
-				
-				_layoutConstraint.xMax=bounds.bottomRight.x;
-				_layoutConstraint.yMax=bounds.bottomRight.y;
-				
-				_layoutConstraint.xMin=bounds.x;
-				_layoutConstraint.yMin=bounds.y;
-				
-				_layoutConstraint.xOffset = layoutRectangle.x;
-				_layoutConstraint.yOffset = layoutRectangle.y;
-				
-				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+				if (_layoutConstraint.invalidated){
+					super.calculateLayout(new Rectangle(
+			 		(_x)? _x:0,
+			 		(_y)? _y:0,
+			 		1,1));
+					
+					_layoutConstraint.xMax=bounds.bottomRight.x;
+					_layoutConstraint.yMax=bounds.bottomRight.y;
+					
+					_layoutConstraint.xMin=bounds.x;
+					_layoutConstraint.yMin=bounds.y;
+					
+					_layoutConstraint.xOffset = layoutRectangle.x;
+					_layoutConstraint.yOffset = layoutRectangle.y;
+					
+					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+				}
 			}
-				
 		}
 				
 		/**

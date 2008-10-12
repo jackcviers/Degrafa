@@ -259,48 +259,47 @@ package com.degrafa.geometry{
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
 			if(_layoutConstraint){
+				if (_layoutConstraint.invalidated){
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					
+					if(_x1){
+			 			tempLayoutRect.width = _x1-_x;
+			 		}
+					
+					if(_y1){
+			 			tempLayoutRect.height = _y1-_y;
+			 		}
+			 		
+			 		if(_x){
+			 			tempLayoutRect.x = _x;
+			 		}
+			 		
+			 		if(_y){
+			 			tempLayoutRect.y = _y;
+			 		}
+			 				 		
+			 		super.calculateLayout(tempLayoutRect);	
+			 					
+					_layoutConstraint.xMax=bounds.bottomRight.x;
+					_layoutConstraint.yMax=bounds.bottomRight.y;
+					
+					_layoutConstraint.xMin=bounds.x;
+					_layoutConstraint.yMin=bounds.y;
+					
+					_layoutConstraint.xOffset = layoutRectangle.x;
+					_layoutConstraint.yOffset = layoutRectangle.y;
+					
+					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
 				
 				
-				var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-				
-				if(_x1){
-		 			tempLayoutRect.width = _x1-_x;
-		 		}
-				
-				if(_y1){
-		 			tempLayoutRect.height = _y1-_y;
-		 		}
-		 		
-		 		if(_x){
-		 			tempLayoutRect.x = _x;
-		 		}
-		 		
-		 		if(_y){
-		 			tempLayoutRect.y = _y;
-		 		}
-		 				 		
-		 		super.calculateLayout(tempLayoutRect);	
-		 					
-				_layoutConstraint.xMax=bounds.bottomRight.x;
-				_layoutConstraint.yMax=bounds.bottomRight.y;
-				
-				_layoutConstraint.xMin=bounds.x;
-				_layoutConstraint.yMin=bounds.y;
-				
-				_layoutConstraint.xOffset = layoutRectangle.x;
-				_layoutConstraint.yOffset = layoutRectangle.y;
-				
-				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-			
-			
-				if(!_originalBounds){
-					if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-						_originalBounds = layoutRectangle;
+					if(!_originalBounds){
+						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
+							_originalBounds = layoutRectangle;
+						}
 					}
 				}
 			}
-		 	
 		}
 				
 		/**

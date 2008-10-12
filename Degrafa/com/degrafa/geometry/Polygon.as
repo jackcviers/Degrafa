@@ -266,29 +266,26 @@ package com.degrafa.geometry{
 		* of (0,0,1,1) is used. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
-			
-			
-			
 			if(_layoutConstraint){
-			
-				super.calculateLayout(new Rectangle(
-		 		(_x)? _x:0,
-		 		(_y)? _y:0,
-		 		1,1));
-			
-				_layoutConstraint.xMax=bounds.bottomRight.x;
-				_layoutConstraint.yMax=bounds.bottomRight.y;
+				if (_layoutConstraint.invalidated){
+					super.calculateLayout(new Rectangle(
+			 		(_x)? _x:0,
+			 		(_y)? _y:0,
+			 		1,1));
 				
-				_layoutConstraint.xMin=bounds.x;
-				_layoutConstraint.yMin=bounds.y;
-				
-				_layoutConstraint.xOffset = layoutRectangle.x;
-				_layoutConstraint.yOffset = layoutRectangle.y;
-				
-				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+					_layoutConstraint.xMax=bounds.bottomRight.x;
+					_layoutConstraint.yMax=bounds.bottomRight.y;
+					
+					_layoutConstraint.xMin=bounds.x;
+					_layoutConstraint.yMin=bounds.y;
+					
+					_layoutConstraint.xOffset = layoutRectangle.x;
+					_layoutConstraint.yOffset = layoutRectangle.y;
+					
+					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
+					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+				}
 			}
-				
 		}
 		
 		

@@ -265,10 +265,8 @@ package com.degrafa.geometry{
 							_originalBounds = layoutRectangle;
 						}
 					}
-				
 				}
 			}
-		 	
 		}
 				
 		/**
