@@ -39,6 +39,8 @@ package com.degrafa.geometry.command{
 		
 		public var lengthIsValid:Boolean;
 		
+		public var transMatrix:Matrix;
+		
 		public var layoutCurveStreching:Boolean;
 		
 		public var owner:Geometry;
@@ -79,8 +81,6 @@ package com.degrafa.geometry.command{
 			if (owner.hasLayout && owner.bounds) {
 			//this only handles renderLayouts at this point:
 				var temp:Matrix = new Matrix();
-			//	if (!owner.bounds) owner.preDraw();
-			    //need original bounds here
 				if (owner.originalBounds) {
 					temp.translate( -owner.originalBounds.x, -owner.originalBounds.y)
 					temp.scale(owner.layoutRectangle.width/owner.originalBounds.width,owner.layoutRectangle.height/owner.originalBounds.height);
@@ -122,7 +122,6 @@ package com.degrafa.geometry.command{
 			var xOffset:Number=0;
 			var yOffset:Number=0;
 			//setup the layout side
-			//TODO : merge layout with transforms for rendering implementation
 			if(owner.hasLayout){
 				var layout:LayoutConstraint=owner.layoutConstraint;
 				
@@ -131,12 +130,20 @@ package com.degrafa.geometry.command{
 					yOffset = layout.yOffset;
 				}
 			}
+			else{
+				
+			}
 			
 			if (trans ) {
-				var transMatrix:Matrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
+				transMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
 				transXY = new Point();
 				transCP = new Point();
 			}
+			else{
+				transMatrix = null;
+			}
+			
+			
 			while(cursor.moveNext()){	   			
 	   			
 	   			item = cursor.current;
@@ -146,7 +153,8 @@ package com.degrafa.geometry.command{
 						
 	        			case CommandStackItem.MOVE_TO:
 						    if (trans){
-						    	transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
+						    	transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; 
+						    	transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
 								transXY = transMatrix.transformPoint(transXY);
 								graphics.moveTo(transXY.x,transXY.y);
 							} 
@@ -167,7 +175,8 @@ package com.degrafa.geometry.command{
 	        			case CommandStackItem.LINE_TO:
 	        				if (trans) {
 								
-								transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
+								transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; 
+								transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
 								transXY = transMatrix.transformPoint(transXY);
 								graphics.lineTo(transXY.x,transXY.y);
 							} 
@@ -187,10 +196,10 @@ package com.degrafa.geometry.command{
 	        			
 	        			case CommandStackItem.CURVE_TO:
 	        				if (trans) {
-								transXY.x = layout? (x1-layout.xMin)*layout.xMultiplier+xOffset:x1; transXY.y = layout? (y1-layout.yMin)*layout.yMultiplier+yOffset:y1;
-								//transXY.x = x1; transXY.y = y1;
-								transCP.x = layout? (cx-layout.xMin)*layout.xMultiplier+xOffset:cx; transCP.y = layout? (cy-layout.yMin)*layout.yMultiplier+yOffset:cy;
-							//	transCP.x = cx; transCP.y = cy;
+								transXY.x = layout? (x1-layout.xMin)*layout.xMultiplier+xOffset:x1; 
+								transXY.y = layout? (y1-layout.yMin)*layout.yMultiplier+yOffset:y1;
+								transCP.x = layout? (cx-layout.xMin)*layout.xMultiplier+xOffset:cx; 
+								transCP.y = layout? (cy-layout.yMin)*layout.yMultiplier+yOffset:cy;
 								transXY = transMatrix.transformPoint(transXY);
 								transCP = transMatrix.transformPoint(transCP);
 								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
