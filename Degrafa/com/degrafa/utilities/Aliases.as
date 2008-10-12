@@ -78,7 +78,6 @@ package com.degrafa.utilities{
 						Move:Move,
 						Path:Path,
 						Polygon:Polygon,
-						PolygonLibrary:PolygonLibrary,
 						Polyline:Polyline,
 						QuadraticBezier:QuadraticBezier,
 						RegularRectangle:RegularRectangle,
