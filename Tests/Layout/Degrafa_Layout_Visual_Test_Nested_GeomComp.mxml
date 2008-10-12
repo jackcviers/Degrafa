@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007">
+	
+	<GeometryComposition graphicsTarget="{[target1]}">
+
+		<Ellipse percentHeight="1" percentWidth="1">
+			<fill>
+				<SolidFill color="#FFFFFF"/>
+			</fill>
+		</Ellipse>
+		
+		<Ellipse top="10" bottom="10" left="10" right="10">
+			<fill>
+			<SolidFill color="#FF0000"/>
+			</fill>
+		</Ellipse>
+		
+		<Ellipse width="300" height="300">
+			<fill>
+				<SolidFill color="#000000"/>
+			</fill>
+		</Ellipse>
+	
+	</GeometryComposition>
+
+	<mx:Canvas id="target1" borderStyle="solid" borderThickness="0" width="75%" height="75%"/>
+	
+	
+</mx:Application>

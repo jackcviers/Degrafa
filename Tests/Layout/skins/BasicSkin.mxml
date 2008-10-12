@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007">
+		
+	<geometry>
+		<RegularRectangle  percentWidth=".75" percentHeight=".5" maintainAspectRatio="false" top="15" left="5">
+			<fill>
+				<LinearGradientFill>
+					<GradientStop color="#CCC"/>
+					<GradientStop color="#666"/>
+				</LinearGradientFill>
+			</fill>
+		</RegularRectangle>
+	</geometry>		
+</GraphicBorderSkin>

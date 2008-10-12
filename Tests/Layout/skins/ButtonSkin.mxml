@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007">
+	
+	<states>
+		<State name="overSkin" >
+			<SetProperty target="{stop1}" name="color" value="#FFF"/>
+			<SetProperty target="{rect1}" name="left" value="5"/>
+			<SetProperty target="{rect1}" name="top" value="5"/>
+		</State>
+	</states>
+		
+	<geometry>
+		<RegularRectangle id="rect1" left="0" right="0" top="0" bottom="0">
+			<fill>
+				<LinearGradientFill>
+					<GradientStop id="stop1" color="#CCC"/>
+					<GradientStop color="#666"/>
+				</LinearGradientFill>
+			</fill>
+		</RegularRectangle>
+	</geometry>		
+	
+</GraphicBorderSkin>
