@@ -53,10 +53,6 @@ package com.degrafa.skins
 	 */
 	[Style(name="backgroundColor")]
 	
-	/**
-	 * Sets the background alpha of an element.
-	 */
-	//[Style(name="backgroundAlpha")] // hmm, there is no background-alpha in the css3 spec ???
 	
 	// woops
 	// Images are drawn with the first specified one on top (closest to the user) and each subsequent image behind the previous one.
@@ -142,6 +138,12 @@ package com.degrafa.skins
 	
 	
 	// Custom (non-w3c based) Styles
+	
+	/**
+	 * Sets the background alpha of an element.
+	 */
+	//[Style(name="backgroundAlpha")] // hmm, there is no background-alpha in the css3 spec ???
+	
 	
 	/**
 	 * Sets the blend mode used to blend a given image layer with the layers behind it.
@@ -264,7 +266,6 @@ package com.degrafa.skins
 			_borderMetrics = EdgeMetrics.EMPTY;
 			background = new ComplexFill();
 			refreshStyles();
-
 		}
 		
 		
@@ -552,6 +553,7 @@ package com.degrafa.skins
 		}
 		
 		private function updateBorderColor():void {
+			if(StyleUtil.LEGACY == "ALPHA") { return updateBorderColorOld(); }
 			var style:Object = getStyle(BORDER_COLOR);
 			var styles:Array = StyleUtil.expandProperty(style, [0, -1, -2, -2]);
 			for(var i:int = 0; i < 4; i++) {
@@ -559,16 +561,16 @@ package com.degrafa.skins
 				(fill as SolidFill).alpha = getStyle(BORDER_ALPHA);
 				switch(i) {
 					case 0:
-						borderLeftFill = fill;
-						break;
-					case 1:
 						borderTopFill = fill;
 						break;
-					case 2:
+					case 1:
 						borderRightFill = fill;
 						break;
-					case 3:
+					case 2:
 						borderBottomFill = fill;
+						break;
+					case 3:
+						borderLeftFill = fill;
 						break;
 				}
 			}
@@ -618,6 +620,7 @@ package com.degrafa.skins
 		// border updates
 		
 		private function updateBorderWidth():void {
+			if(StyleUtil.LEGACY == "ALPHA") { return updateBorderWidthOld(); }
 			var style:Object = getStyle(BORDER_WIDTH);
 			if(style != null) {
 				var properties:Array = StyleUtil.expandProperty(style, [0, -1, -2, -2]);
@@ -625,16 +628,16 @@ package com.degrafa.skins
 					var measure:Measure = StyleUtil.resolveMeasure(properties[i]);
 					switch(i) {
 						case 0:
-							borderLeftWidth = measure;
-							break;
-						case 1:
 							borderTopWidth = measure;
 							break;
-						case 2:
+						case 1:
 							borderRightWidth = measure;
 							break;
-						case 3:
+						case 2:
 							borderBottomWidth = measure;
+							break;
+						case 3:
+							borderLeftWidth = measure;
 							break;
 					}
 				}
@@ -860,6 +863,56 @@ package com.degrafa.skins
 			styleChanged(BORDER_BOTTOM_COLOR);
 			styleChanged(BORDER_LEFT_COLOR);
 		}
+		
+		// legacy code
+		
+		private function updateBorderWidthOld():void {
+			var style:Object = getStyle(BORDER_WIDTH);
+			if(style != null) {
+				var properties:Array = StyleUtil.expandProperty(style, [0, -1, -2, -2]);
+				for(var i:int = 0; i < 4; i++) {
+					var measure:Measure = StyleUtil.resolveMeasure(properties[i]);
+					switch(i) {
+						case 0:
+							borderLeftWidth = measure;
+							break;
+						case 1:
+							borderTopWidth = measure;
+							break;
+						case 2:
+							borderRightWidth = measure;
+							break;
+						case 3:
+							borderBottomWidth = measure;
+							break;
+					}
+				}
+			}
+		}
+		
+		private function updateBorderColorOld():void {
+			var style:Object = getStyle(BORDER_COLOR);
+			var styles:Array = StyleUtil.expandProperty(style, [0, -1, -2, -2]);
+			for(var i:int = 0; i < 4; i++) {
+				var fill:IFill = StyleUtil.resolveFill(styles[i]);
+				(fill as SolidFill).alpha = getStyle(BORDER_ALPHA);
+				switch(i) {
+					case 0:
+						borderLeftFill = fill;
+						break;
+					case 1:
+						borderTopFill = fill;
+						break;
+					case 2:
+						borderRightFill = fill;
+						break;
+					case 3:
+						borderBottomFill = fill;
+						break;
+				}
+			}
+		}
+		
 		
 	}
 }
