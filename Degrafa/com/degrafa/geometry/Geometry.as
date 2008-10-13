@@ -238,6 +238,15 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		public function clearGraphicsTargets():void{
+    		if(graphicsTarget){
+				for each (var targetItem:Object in graphicsTarget){
+					if(targetItem){
+						targetItem.graphics.clear();
+					}
+				}
+			}
+	    }
 		
 		//draws to each target
 		private  function drawToTargets():void{

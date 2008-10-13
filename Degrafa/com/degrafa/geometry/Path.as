@@ -105,7 +105,13 @@ package com.degrafa.geometry{
 				* Cubic Bezier = C,c,S,s
 				**/
 				var start:uint = getTimer();
+				
+				var currentTime:Date = new Date();
+        		trace("Parse Start::" + currentTime + " ms:" + currentTime.getMilliseconds());
 				var pathDataArray:Array = PathDataToArray(value)
+				currentTime = new Date();
+				trace("Parse End ::" + currentTime+ " ms:" + currentTime.getMilliseconds());
+				
 			
 				//store the array as we add items and set the segments after 
 				var segmentStack:Array=[];
@@ -366,20 +372,42 @@ package com.degrafa.geometry{
 			}
 			
 		} 
-		
+				
 		/**
 		* Converts the path data string value to an array of workable items
 		**/
 		private function PathDataToArray(value:String):Array{
-					value=value.replace(/[\s]+|\-|[MmLlCcQqZzAaSsHhVvTt]/g,getReplaceValue)
-					value=value.replace(/,{2,}/g,",")
-				return value.split(",");
+			
+			value=value.replace(/([ \t\r\f\n,]+)/g,",");
+			value=value.replace(/([MmLlCcQqZzAaSsHhVvTt])/g,",$1,")
+			value=value.replace(/(([-+]?[0-9]+(\.[0-9]*)?|[-+]?\.[0-9]+)([eE][-+]?[0-9]+)?)/g,",$1,")
+			value=value.replace(/,{2,}/g,",")
+			
+			//remove first or last chr if they are a comma.
+			if(value.charAt(0) == ","){
+				value=value.slice(1,value.length);
+			}
+			if(value.charAt(value.length-1) == ","){
+				value=value.slice(0,value.length-1);
+			}
+			
+			return value.split(",");
+			
+			//old version
+			/*value=value.replace(/[\s]+|\-|[MmLlCcQqZzAaSsHhVvTt]/g,getReplaceValue)
+			value=value.replace(/,{2,}/g,",")
+			return value.split(",");*/
+			
 		}
 		
 		/**
+		* OLD LEGACY Method as part of the above parsing no longer required but left
+		* until testing complete. The old way was a touch faster but had no support for
+		* scientific notation.
+		* 
 		* Helper function used when parsing the path data string
 		**/
-		private function getReplaceValue(matchedSubstring:String,itemIndex:Number,theString:String):String{	
+		/*private function getReplaceValue(matchedSubstring:String,itemIndex:Number,theString:String):String{	
 			if (!itemIndex)
 			{
 				return matchedSubstring + ",";														
@@ -403,7 +431,7 @@ package com.degrafa.geometry{
 			}
 						
 			
-		}
+		}*/
 			
 							
 		private var _segments:SegmentsCollection;
