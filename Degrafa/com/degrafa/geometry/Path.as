@@ -104,15 +104,8 @@ package com.degrafa.geometry{
 				* Quadratic Bezier = Q,q,T,t
 				* Cubic Bezier = C,c,S,s
 				**/
-				var start:uint = getTimer();
-				
-				var currentTime:Date = new Date();
-        		trace("Parse Start::" + currentTime + " ms:" + currentTime.getMilliseconds());
 				var pathDataArray:Array = PathDataToArray(value)
-				currentTime = new Date();
-				trace("Parse End ::" + currentTime+ " ms:" + currentTime.getMilliseconds());
 				
-			
 				//store the array as we add items and set the segments after 
 				var segmentStack:Array=[];
 				
@@ -364,11 +357,8 @@ package com.degrafa.geometry{
 						break;
 					}
 				}
-			
-		//trace('path data parsing:'+ ((getTimer()-start)))
 				segments = segmentStack;
 				invalidated = true;
-				
 			}
 			
 		} 
