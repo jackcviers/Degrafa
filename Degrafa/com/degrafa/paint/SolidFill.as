@@ -174,7 +174,12 @@ package com.degrafa.paint{
 		}
 		
 
-		
+		//reference to the requesting geometry
+		private var _requester:IGeometryComposition;
+		public function set requester(value:IGeometryComposition):void{
+			_requester = value;
+		}
+		 
 		/**
 		* Begins the fill for the graphics context.
 		* 

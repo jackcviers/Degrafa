@@ -34,7 +34,7 @@ package com.degrafa.core{
 		// we have to be careful as we would like the ability to use
 		//IGraphicsFill objects for charts etc..
 			
-	
+		function set requester(value:IGeometryComposition ):void;
 	
 
 	

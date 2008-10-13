@@ -20,16 +20,15 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core{
-	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
 	
 	/**
  	* Base interface for all Degrafa transformable fill and stroke objects.
  	**/ 	
-	public interface ITransformablePaint extends IDegrafaObject{
+	public interface ITransformablePaint extends IDegrafaObject, IGraphicsFill{
 		
 		function get transform():ITransform;
 		function set transform(value:ITransform):void
-		function set requester(value:IGeometryComposition):void
+		
 	}
 }
