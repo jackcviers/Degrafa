@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
@@ -425,7 +426,9 @@ package com.degrafa.geometry{
 			}
 			
 			//setup the stroke
-			if (_stroke){
+			if (_stroke) {
+					//same approach as used for fills: it's required for transform inheritance by some strokes
+				if (_stroke is ITransformablePaint) (_stroke as ITransformablePaint).requester = this;
 	        	_stroke.apply(graphics,(rc)? rc:null);
 	        }
 			else{
@@ -452,8 +455,8 @@ package com.degrafa.geometry{
 			//setup the fill
 	        if (_fill)
 	        {   
-				//this is a quick fix because we can't pass it in the method signature with IFill
-				_fill.requester = this;
+				//we can't pass a reference to the requesting Geometry in the method signature with IFill - its required for transform inheritance by some fills
+				if (_fill is ITransformablePaint) (_fill as ITransformablePaint).requester = this;
 	        	_fill.begin(graphics, (rc) ? rc:null);	
 	        }
 	        
