@@ -20,23 +20,16 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core{
-	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.IGeometryComposition;
-	import flash.geom.Rectangle;
-	import flash.display.Graphics;
-	import mx.graphics.IFill;
+	import com.degrafa.transform.ITransform;
 	
 	/**
- 	* Base interface for all Degrafa fill objects.
- 	**/ 
-	public interface IGraphicsFill extends IDegrafaObject, IFill {
-		//no difference as of yet basically used to limit the list
-		// we have to be careful as we would like the ability to use
-		//IGraphicsFill objects for charts etc..
-			
-	
-	
-
-	
+ 	* Base interface for all Degrafa transformable fill and stroke objects.
+ 	**/ 	
+	public interface ITransformablePaint extends IDegrafaObject{
+		
+		function get transform():ITransform;
+		function set transform(value:ITransform):void
+		function set requester(value:IGeometryComposition):void
 	}
 }
