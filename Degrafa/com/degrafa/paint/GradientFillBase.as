@@ -23,6 +23,7 @@ package com.degrafa.paint{
 	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.GradientStopsCollection;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
@@ -42,7 +43,7 @@ package com.degrafa.paint{
 	* 
 	* @see http://degrafa.com/samples/LinearGradientFill.html	  
 	**/
-	public class GradientFillBase extends DegrafaObject{
+	public class GradientFillBase extends DegrafaObject implements ITransformablePaint{
 					
 		//these are setup in processEntries
 		protected var _colors:Array = [];
@@ -216,6 +217,24 @@ package com.degrafa.paint{
 			}
 			
 		}
+		/**
+		* Coordinate type to be used for fill bounds, either absolute, or relative to target bounds.
+		**/
+		protected var _absCoordType:String = "absolute";
+		
+		[Inspectable(category="General", enumeration="absolute,relative,ratio", defaultValue="absolute")]
+		public function set coordinateType(value:String):void
+		{
+			if (value!=_absCoordType) 
+			{
+				//call local helper to dispatch event	
+				initChange("coordinateType",_absCoordType,_absCoordType = value,this);
+			}
+		}
+		public function get coordinateType():String{
+			return _absCoordType;
+		}
+		
 		
 		//reference to the requesting geometry
 		protected var _requester:IGeometryComposition;
@@ -252,8 +271,10 @@ package com.degrafa.paint{
 			//handle layout transforms - only renderLayouts so far
 			if (_requester && (_requester as Geometry).hasLayout) {
 				var geom:Geometry = _requester as Geometry;
-				matrix.concat( geom._layoutMatrix);
-			}
+
+					matrix.concat( geom._layoutMatrix);
+				}
+			
 			if (_transform && ! _transform.isIdentity) {
 					var regPoint:Point;
 					var tempmat:Matrix = new Matrix();
@@ -271,7 +292,6 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-	
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}

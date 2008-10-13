@@ -22,6 +22,7 @@
 package com.degrafa.paint{
 	
 	import com.degrafa.core.collections.FilterCollection;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.GeometryGroup;
 	import com.degrafa.transform.TransformBase;
@@ -62,7 +63,7 @@ package com.degrafa.paint{
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
-	public class VectorFill extends DegrafaObject implements IGraphicsFill, IBlend{
+	public class VectorFill extends DegrafaObject implements IGraphicsFill, IBlend, ITransformablePaint{
 		
 		// static constants
 		public static const NONE:String = "none";

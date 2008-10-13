@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.core.Measure;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
@@ -42,7 +43,7 @@ package com.degrafa.paint{
 	import flash.geom.Rectangle;
 	
 	import flash.utils.getDefinitionByName;
-		import mx.events.PropertyChangeEvent;
+	import mx.events.PropertyChangeEvent;
 	import com.degrafa.utilities.external.ExternalBitmapData;
 	import com.degrafa.utilities.external.ExternalDataAsset;
 	import com.degrafa.utilities.external.LoadingLocation;
@@ -61,7 +62,7 @@ package com.degrafa.paint{
 	/**
 	 * Used to fill an area on screen with a bitmap or other DisplayObject.
 	 */
-	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend{
+	public class BitmapFill extends DegrafaObject implements IGraphicsFill, IBlend,ITransformablePaint{
 		
 		// static constants
 		public static const NONE:String = "none";

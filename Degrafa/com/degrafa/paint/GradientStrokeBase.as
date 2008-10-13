@@ -24,6 +24,7 @@ package com.degrafa.paint {
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.transform.ITransform;
+	import flash.geom.Point;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
@@ -113,7 +114,7 @@ package com.degrafa.paint {
 			
 				//call local helper to dispatch event	
 				initChange("pixelHinting",oldValue,_pixelHinting,this);
-			}			
+			}
 		}
 						
 		protected var _miterLimit:Number;
@@ -216,21 +217,30 @@ package com.degrafa.paint {
 				matrix=null;
 			}
 			//handle transforms on the gradient stroke
-			//first from the requesting geometry:
+
+			//handle layout transforms - only renderLayouts so far
+			if (_requester && (_requester as Geometry).hasLayout) {
+				var geom:Geometry = _requester as Geometry;
+					matrix.concat( geom._layoutMatrix);
+				}
+			
+			if (_transform && ! _transform.isIdentity) {
+					var regPoint:Point;
+					var tempmat:Matrix = new Matrix();
+					regPoint = _transform.getRegPointForRectangle(rc);
+					tempmat.translate(-regPoint.x,-regPoint.y);
+					tempmat.concat(_transform.transformMatrix);
+					tempmat.translate( regPoint.x,regPoint.y);
+					matrix.concat(tempmat);
+				}
 			var transformRequest:ITransform;
-			if (super._requester && (transformRequest  = (super._requester as Geometry).transform)) {
+			//the requesting geometry:
+			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
 					matrix.concat(transformRequest.getTransformFor(super._requester));
 				//remove the requester reference
-				super._requester = null;
+				_requester = null;
 			}
-			//next for the stroke's own transforms:
-			if (super._transform)
-			{
-				//this stroke's transform:ignore the registration point /center point settings etc - use the center of the gradient box.
-				matrix.translate(-(rc.x+rc.width/2),-(rc.y+rc.height/2))
-				matrix.concat(super._transform.transformMatrix);
-				matrix.translate((rc.x+rc.width/2),(rc.y+rc.height/2))
-			}
+			
 			
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
@@ -240,7 +250,6 @@ package com.degrafa.paint {
 			else{
 				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
 			}
-			
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}

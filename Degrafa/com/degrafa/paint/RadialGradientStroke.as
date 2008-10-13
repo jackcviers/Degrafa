@@ -164,11 +164,17 @@ package com.degrafa.paint{
  		**/
 		override public function apply(graphics:Graphics,rc:Rectangle):void{
 			
-			if(_cx && _cy && _radius){
-				super.apply(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
+			if (_cx && _cy && _radius) {
+				if (_absCoordType == "relative") super.apply(graphics, new Rectangle(rc.x + cx-radiusX, rc.y + cy-radiusY, radiusX*2, radiusY*2));
+				else if (_absCoordType == "ratio") super.apply(graphics, new Rectangle(rc.x + (cx-radiusX) * rc.width, rc.y + (cy-radiusY) * rc.height, radiusX *2* (_ellipse? rc.width:Math.min(rc.width,rc.height)), radiusY*2 * (_ellipse? rc.height:Math.min(rc.width,rc.height))));
+				else super.apply(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
+			//	super.apply(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
 			}
-			else if (_radius){
-				super.apply(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
+			else if (_radius) {
+		if (_absCoordType == "relative") super.begin(graphics, new Rectangle(rc.x -radiusX, rc.y -radiusY, radiusX*2, radiusY*2));
+				else if (_absCoordType == "ratio") super.begin(graphics, new Rectangle(rc.x -radiusX * rc.width, rc.y -radiusY * rc.height, radiusX *2* (_ellipse? rc.width:Math.min(rc.width,rc.height)), radiusY*2 * (_ellipse? rc.height:Math.min(rc.width,rc.height))));
+				else super.begin(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
+				//super.apply(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
 			}
 			else{
 				super.apply(graphics,rc);

@@ -169,11 +169,15 @@ package com.degrafa.paint{
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
 		override public function begin(graphics:Graphics, rc:Rectangle):void{
-			if(_cx && _cy && _radius){
-				super.begin(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
+			if (_cx && _cy && _radius) {
+				if (_absCoordType == "relative") super.begin(graphics, new Rectangle(rc.x + cx-radiusX, rc.y + cy-radiusY, radiusX*2, radiusY*2));
+				else if (_absCoordType == "ratio") super.begin(graphics, new Rectangle(rc.x + (cx-radiusX) * rc.width, rc.y + (cy-radiusY) * rc.height, radiusX *2* (_ellipse? rc.width:Math.min(rc.width,rc.height)), radiusY*2 * (_ellipse? rc.height:Math.min(rc.width,rc.height))));
+				else super.begin(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2));
 			}
-			else if (_radius){
-				super.begin(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
+			else if (_radius) {
+				if (_absCoordType == "relative") super.begin(graphics, new Rectangle(rc.x -radiusX, rc.y -radiusY, radiusX*2, radiusY*2));
+				else if (_absCoordType == "ratio") super.begin(graphics, new Rectangle(rc.x -radiusX * rc.width, rc.y -radiusY * rc.height, radiusX * 2* (_ellipse? rc.width:Math.min(rc.width,rc.height)), radiusY*2 * (_ellipse? rc.height:Math.min(rc.width,rc.height))));
+				else super.begin(graphics,new Rectangle(0,0,radiusX*2,radiusY*2));
 			}
 			else{
 				super.begin(graphics,rc);
