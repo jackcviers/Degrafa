@@ -1111,7 +1111,7 @@ package com.degrafa.paint{
 					break;
 				}
 			
-				if ((repX > 1 && repY > 1)  ) {
+			if ((repX > 1 && repY > 1)  ) {
 					//we have both x and y repeats, so just use the flash native bitmapfill's x&y repeat
 					repX = 1;
 					repY = 1;
@@ -1127,32 +1127,31 @@ package com.degrafa.paint{
 				
 			}
 			repeat = (repeat || !(repeatX == VectorFill.NONE || repeatY == VectorFill.NONE));
-		//not sure about this yet, need to go back and compare with BitmapFill to verify
+	
 			if(repeatX == VectorFill.NONE || repeatX == VectorFill.REPEAT) {
 				positionX = _offsetX.relativeTo(rectangle.width-template.width)
 			}
-		//not sure about this yet, need to go back and compare with BitmapFill to verify
+
 			if(repeatY == VectorFill.NONE || repeatY == VectorFill.REPEAT) {
 				positionY = _offsetY.relativeTo(rectangle.height-template.height)
 			}
-			//	matrix.translate(-padX-renderingPadX, -padY-renderingPadX);
+
 			matrix.translate(-padX, -padY);
 		
 			}
 			matrix.translate( -_originX, -_originY);
 
 			matrix.scale(_scaleX, _scaleY);
-			matrix.rotate(_rotation);
+			matrix.rotate(_rotation*(Math.PI/180));
 			matrix.translate(positionX, positionY);
 			var transformRequest:ITransform;
 			var tempmat:Matrix;
-			//handle layout transforms - only renderLayouts so far
+			//handle layout transforms 
 			if (_requester && (_requester as Geometry).hasLayout) {
 				var geom:Geometry = _requester as Geometry;
 				matrix.concat( geom._layoutMatrix);
 			}
 			if (_transform && ! _transform.isIdentity) {
-				
 					tempmat= new Matrix();
 					regPoint = _transform.getRegPointForRectangle(rectangle);
 					tempmat.translate(-regPoint.x,-regPoint.y);
@@ -1176,7 +1175,7 @@ package com.degrafa.paint{
 			graphics.endFill();
 			disposeBitmapData();
 		//testing code:	
-	/*	graphics.lineStyle(0, 0xff0000, .1);
+		/*	graphics.lineStyle(0, 0xff0000, .1);
 			var renderingRect:Rectangle = (_enableSourceClipping)? _clipSourceRect.clone():sourceBounds.clone();
 			renderingRect.offset(_requester.bounds.x-renderingRect.x, _requester.bounds.y-renderingRect.y);
 

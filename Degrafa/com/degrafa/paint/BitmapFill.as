@@ -666,7 +666,7 @@ package com.degrafa.paint{
 			matrix.translate( -_originX, -_originY);
 
 			matrix.scale(_scaleX, _scaleY);
-			matrix.rotate(_rotation);
+			matrix.rotate(_rotation*(Math.PI/180));
 			matrix.translate(positionX, positionY);
 			
 			var regPoint:Point;
