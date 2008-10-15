@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
@@ -140,14 +141,11 @@ package com.degrafa.paint{
 			// todo: optimize with more cacheing
 			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
 				if (_fills.length == 1) { // short cut
-					//trace('short');
-					_fills[0].requester = _requester;
 					(_fills[0] as IFill ).begin(graphics, rectangle);
-					_requester = null;
 				} else {
 					var matrix:Matrix = new Matrix(1, 0, 0, 1, rectangle.x*-1, rectangle.y*-1);
-					if(fillsChanged || bitmapData == null || rectangle.width != bitmapData.width || rectangle.height != bitmapData.height) { // cacheing
-						bitmapData = new BitmapData(rectangle.width, rectangle.height, true, 0);
+					if(fillsChanged || bitmapData == null || Math.ceil(rectangle.width) != bitmapData.width || Math.ceil(rectangle.height) != bitmapData.height) { // cacheing
+						bitmapData = new BitmapData(Math.ceil(rectangle.width), Math.ceil(rectangle.height), true, 0);
 						var g:Graphics = shape.graphics;
 						g.clear();
 						var lastType:String;
