@@ -40,9 +40,8 @@ package com.degrafa.geometry.command{
 		public var lengthIsValid:Boolean;
 		
 		public var transMatrix:Matrix;
-		
-		public var layoutCurveStreching:Boolean;
-		
+		public var layout:LayoutConstraint;
+				
 		public var owner:Geometry;
 		
 		private static var isRegistered:Boolean = false;
@@ -123,7 +122,7 @@ package com.degrafa.geometry.command{
 			var yOffset:Number=0;
 			//setup the layout side
 			if(owner.hasLayout){
-				var layout:LayoutConstraint=owner.layoutConstraint;
+				layout=owner.layoutConstraint;
 				
 				if(layout){
 					xOffset = layout.xOffset;
@@ -377,19 +376,10 @@ package com.degrafa.geometry.command{
 			
 		}
 						
-		private var _currentRenderPoint:Point;
-		/**
-		* Returns the current end point of the item being rendered.
-		**/		
-		public function get currentRenderPoint():Point{
-			return _currentRenderPoint;
-		}
-				
 		private var _cursor:DegrafaCursor;
 		/**
 		* Returns a working cursor for this command stack
 		**/
-		//TODO add a cursor dispose.
 		public function get cursor():DegrafaCursor{
 			if(!_cursor)
 				_cursor = new DegrafaCursor(source);
@@ -398,14 +388,14 @@ package com.degrafa.geometry.command{
 		}
 		
 		/**
-		* Retuirn the item at the given index
+		* Return the item at the given index
 		**/
 		public function getItem(index:int):CommandStackItem{
 			return source[index];
 		}
 		
 		/**
-		* The current length of the internal array of command stack items. Setting 
+		* The current length(count) of the internal array of command stack items. Setting 
 		* the length to 0 will clear all items in the command stack.
 		**/
 		public function get length():int {
@@ -413,6 +403,33 @@ package com.degrafa.geometry.command{
 		}
 		public function set length(value:int):void{
 			source.length = value;
+		}
+		
+		/**
+		* Applies the current layout and transform to a point.
+		**/
+		public function adjustPointToLayoutAndTransform(point:Point):Point{
+			
+			var newPoint:Point = new Point();
+			
+			if(!owner){return point;}
+			
+			if(owner.hasLayout){
+				var layout:LayoutConstraint=owner.layoutConstraint;
+				
+			}
+			if(transMatrix){
+				newPoint.x = layout? (point.x-layout.xMin)*layout.xMultiplier+layout.xOffset:point.x; 
+				newPoint.y = layout? (point.y-layout.yMin)*layout.yMultiplier+layout.yOffset:point.y;
+				newPoint = transMatrix.transformPoint(newPoint);
+			}
+			else if(layout){
+				newPoint.x = ((point.x-layout.xMin)*layout.xMultiplier)+layout.xOffset;
+				newPoint.y = ((point.y-layout.yMin)*layout.yMultiplier)+layout.yOffset;
+			}
+						
+			return newPoint;
+								
 		}
 		
 		private var _pathLength:Number=0;
@@ -431,7 +448,9 @@ package com.degrafa.geometry.command{
 			return _pathLength;
 		}
 		
-		//walk from the start to get the first item with length
+		/**
+		* Returns the first commandStackItem objetc that has length
+		**/
 		public function get firstSegmentWithLength():CommandStackItem{
 			
 			var item:CommandStackItem;
@@ -451,7 +470,9 @@ package com.degrafa.geometry.command{
 			return source[0];
 		}
 		
-		//walk the source backwards to get the last item that has length
+		/**
+		* Returns the last commandStackItem objetc that has length
+		**/
 		public function get lastSegmentWithLength():CommandStackItem{
 			
 			var i:int = source.length-1;
@@ -483,10 +504,10 @@ package com.degrafa.geometry.command{
 			if (t == 0){
 				var firstSegment:CommandStackItem =firstSegmentWithLength;
 				curLength = firstSegment.segmentLength;
-				return firstSegment.segmentPointAt(t);
+				return adjustPointToLayoutAndTransform(firstSegment.segmentPointAt(t));
 			}
 			else if (t == 1){
-				return lastSegmentWithLength.segmentPointAt(t);
+				return adjustPointToLayoutAndTransform(lastSegmentWithLength.segmentPointAt(t));
 			}
 			
 			var tLength:Number = t*pathLength;
@@ -504,7 +525,7 @@ package com.degrafa.geometry.command{
 						continue;
 					}
 					if (tLength <= curLength){
-						return segmentPointAt((tLength - lastLength)/segmentLength);
+						return adjustPointToLayoutAndTransform(segmentPointAt((tLength - lastLength)/segmentLength));
 					}
 				}
 				
