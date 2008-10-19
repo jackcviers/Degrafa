@@ -195,7 +195,12 @@ package com.degrafa.skins
 			
 			initGeometryCollection();
 			_geometry.items = value;
-						
+			
+			//make sure the top geometry parent knows about this
+			//as a graphics target
+			if(value.length !=0){
+				Geometry(value[0]).graphicsTarget = [this];
+			}
 		}
 		
 		/**
@@ -228,7 +233,6 @@ package com.degrafa.skins
 		private function propertyChangeHandler(event:PropertyChangeEvent):void{
 			dispatchEvent(event);
 			invalidateDisplayList();
-			
 		}
 		
 		//not required here but need for interface
@@ -276,18 +280,18 @@ package com.degrafa.skins
 		* @param rc A Rectangle object used for fill bounds. 
 		**/	
 		public function draw(graphics:Graphics,rc:Rectangle):void{
+			
 			if(!parent){return;}
 			
 			this.graphics.clear();
 							
 			if (geometry){
 				for each (var geometryItem:Geometry in _geometry.items){
+					
 					if(geometryItem.state =="" || geometryItem.state ==null){
-						
 						if(states){
 							prepareState();
 						}
-						
 						geometryItem.draw(this.graphics,null);
 					} 
 					else {
@@ -295,6 +299,7 @@ package com.degrafa.skins
 						if (possibleStates.length>0) {
 							for (var i:int=0;i<possibleStates.length;i++) {
 								if (name==possibleStates[i]) {
+									
 									geometryItem.draw(this.graphics,null);	
 									break;
 								}

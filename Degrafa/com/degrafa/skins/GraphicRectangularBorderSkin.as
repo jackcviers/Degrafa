@@ -195,6 +195,13 @@ package com.degrafa.skins
 			
 			initGeometryCollection();
 			_geometry.items = value;
+			
+			//make sure the top geometry parent knows about this
+			//as a graphics target
+			if(value.length !=0){
+				Geometry(value[0]).graphicsTarget = [this];
+			}
+			
 		}
 		
 		/**
