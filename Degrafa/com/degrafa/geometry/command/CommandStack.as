@@ -191,9 +191,13 @@ package com.degrafa.geometry.command{
 			
 			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
 			
+			if((filteredRect.width+sourceRect.x)<1 || (filteredRect.height+sourceRect.y)<1){
+				return;
+			} 
+			
 			bitmapData = new BitmapData(filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y, true, 0);
 			bitmapData.draw(source,null,null,null,clipTo);
-			context.beginBitmapFill(bitmapData);
+			context.beginBitmapFill(bitmapData,null,false);
 			context.lineStyle(NaN,NaN)
 			context.drawRect(0,0, filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y);
 			context.endFill();
