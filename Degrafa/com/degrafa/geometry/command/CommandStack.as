@@ -23,9 +23,12 @@ package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.geometry.layout.LayoutConstraint;
 	
+	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
 	import flash.display.Graphics;
+	import flash.display.Shape;
+	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -40,9 +43,17 @@ package com.degrafa.geometry.command{
 		public var lengthIsValid:Boolean;
 		
 		public var transMatrix:Matrix;
-		public var layout:LayoutConstraint;
-				
+		
+		
+		private	static var transXY:Point=new Point();
+		private	static var transCP:Point=new Point();
+						
 		public var owner:Geometry;
+		
+		//filter stuff
+		private var hasFilters:Boolean
+		
+		private var _fxShape:Shape;
 		
 		private static var isRegistered:Boolean = false;
 		
@@ -50,23 +61,22 @@ package com.degrafa.geometry.command{
 			super();
 			this.owner = geometry;
 			
+			if(geometry){
+				hasFilters = (geometry.filters.length>0);
+			}
+			
 			if (!isRegistered) {
 				registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);
 				isRegistered = true;
 			}
-			
 		}
-
+		
 		/**
-		* Initiates the render phase.
+		* Setups the layout and transforms
 		**/
-		public function draw(graphics:Graphics,rc:Rectangle):void{
+		private function predraw():void{
 			
-			//exit if no command stack
-			if(source.length==0){return;}
-						
 			var requester:Geometry = owner;
-
 			//establish a transform context if there are ancestral transforms
 			while (requester.parent){
 				//assign a transformContext based on the closest ancestral transform
@@ -76,35 +86,134 @@ package com.degrafa.geometry.command{
 					break;
 				}
 			}
-			//setup a layout transform for paint (and later perhaps, in renderCommandStack)
-			if (owner.hasLayout && owner.bounds) {
-			//this only handles renderLayouts at this point:
+			
+			var layout:Boolean=owner.hasLayout;
+					
+			//setup a layout transform
+			if (layout){
 				var temp:Matrix = new Matrix();
-				if (owner.originalBounds) {
-					temp.translate( -owner.originalBounds.x, -owner.originalBounds.y)
-					temp.scale(owner.layoutRectangle.width/owner.originalBounds.width,owner.layoutRectangle.height/owner.originalBounds.height);
-				}
-				else {
-					temp.translate( -owner.bounds.x, -owner.bounds.y)
-					temp.scale(owner.layoutRectangle.width/owner.bounds.width,owner.layoutRectangle.height/owner.bounds.height);
-				}
-				
+				var tempRect:Rectangle = owner.originalBounds ? owner.originalBounds: owner.bounds;
+				temp.translate( -tempRect.x, -tempRect.y)
+				temp.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
 				temp.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
 				owner._layoutMatrix = temp;
+				transMatrix = owner._layoutMatrix.clone();
 			}
-						
-			//setup the stroke
-			owner.initStroke(graphics,rc);
 			
-			//setup the fill
-			owner.initFill(graphics,rc);
+			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
+			
+			//combin the layout and transform into one matrix
+			if (trans){	
+				if (!layout){
+					transMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;	
+				} 
+				else{
+					transMatrix.concat((owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext)
+				}
+			}
+			else{
+				if (!layout) transMatrix = null;
+			}
+		}
+		
+		/**
+		* Initiates the render phase.
+		**/
+		public function draw(graphics:Graphics,rc:Rectangle):void{
+			
+			//exit if no command stack
+			if(source.length==0){return;}
+			
+			//setup requirements before the render
+			predraw()
 						
-			_cursor = new DegrafaCursor(source);
-			renderCommandStack(graphics,rc,_cursor);  
+			//setup a cursor for the path data interation
+			_cursor=new DegrafaCursor(source)
+			
+			//setup the temporary shape to draw to in place 
+			//of the passsed graphics context
+			if(hasFilters){
+				
+				if (!_fxShape) _fxShape = new Shape();
+				
+				/*if(owner.blendMode){
+					_fxShape.blendMode = owner.blendMode;
+				}*/
+				
+				_fxShape.graphics.clear();
+											
+				//setup the stroke
+				owner.initStroke(_fxShape.graphics,rc);
+				
+				//setup the fill
+				owner.initFill(_fxShape.graphics,rc);
+				
+				renderCommandStack(_fxShape.graphics,rc,_cursor);
+				
+				//apply the filters
+				if(owner.filters.length!=0 && owner.filters[0] !=null){
+					_fxShape.filters = owner.filters;
+				
+					//blit the data to the destination context
+					renderBitmapDatatoContext(_fxShape,graphics)
+				}
+				
+			}
+			else{
+				//setup the stroke
+				owner.initStroke(graphics,rc);
+				
+				//setup the fill
+				owner.initFill(graphics,rc);
+				
+				renderCommandStack(graphics,rc,_cursor);
+			}
 			
 		}
 		
 		
+		
+		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics):void{
+									
+			var sourceRect:Rectangle = source.getBounds(source);
+			
+			if(sourceRect.isEmpty()){return;}
+			
+			var filteredRect:Rectangle = sourceRect.clone();
+			filteredRect.x=filteredRect.y=0;
+			
+			filteredRect = updateToFilterRectangle(filteredRect,source);
+			filteredRect.offset(sourceRect.x, sourceRect.y);
+						
+			var bitmapData:BitmapData;
+			
+			//var blendMode:String= (owner.blendMode)? owner.blendMode:null; 
+			
+			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
+			
+			bitmapData = new BitmapData(filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y, true, 0);
+			bitmapData.draw(source,null,null,null,clipTo);
+			context.beginBitmapFill(bitmapData);
+			context.lineStyle(NaN,NaN)
+			context.drawRect(0,0, filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y);
+			context.endFill();
+			
+		}
+		
+		private function updateToFilterRectangle(filterRect:Rectangle,source:DisplayObject):Rectangle{
+			
+			//iterate the filters to calculte the desired rect
+			var bitmapData:BitmapData = new BitmapData(filterRect.width, filterRect.height, true, 0);
+			
+			//compute the combined filter rectangle
+			for each (var filter:BitmapFilter in owner.filters){
+				filterRect = filterRect.union(bitmapData.generateFilterRect(filterRect,filter));
+			}
+			
+			return filterRect;
+			
+		}
+				
 		/**
 		* Principle render loop. Use delgates to override specific items
 		* while the render loop is processing.
@@ -113,112 +222,48 @@ package com.degrafa.geometry.command{
 			
 			var item:CommandStackItem;
 			
-			var trans:Boolean =  (owner.transformContext ||(owner.transform && !owner.transform.isIdentity));
-			
-			var transXY:Point;
-			var transCP:Point;
-			
-			var xOffset:Number=0;
-			var yOffset:Number=0;
-			//setup the layout side
-			if(owner.hasLayout){
-				layout=owner.layoutConstraint;
-				
-				if(layout){
-					xOffset = layout.xOffset;
-					yOffset = layout.yOffset;
-				}
-			}
-			else{
-				
-			}
-			
-			if (trans ) {
-				transMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
-				transXY = new Point();
-				transCP = new Point();
-			}
-			else{
-				transMatrix = null;
-			}
-			
-			
 			while(cursor.moveNext()){	   			
 	   			
 	   			item = cursor.current;
 	   			
 				with(item){	
 					switch(type){
-						
-	        			case CommandStackItem.MOVE_TO:
-						    if (trans){
-						    	transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; 
-						    	transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
+						case CommandStackItem.MOVE_TO:
+						    if (transMatrix){
+								transXY.x = x; 
+								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								graphics.moveTo(transXY.x,transXY.y);
-							} 
-							else {
-								if (layout){
-									graphics.moveTo(
-										((x-layout.xMin)*layout.xMultiplier)+xOffset,
-										((y-layout.yMin)*layout.yMultiplier)+yOffset
-										);
-								}
-								else{
-									graphics.moveTo(x,y);
-								}
+								graphics.moveTo(transXY.x, transXY.y);
 							}
-							
-	        				break;
-	        			
+							else{
+								graphics.moveTo(x,y);
+							}
+							break;
 	        			case CommandStackItem.LINE_TO:
-	        				if (trans) {
-								
-								transXY.x = layout? (x-layout.xMin)*layout.xMultiplier+xOffset:x; 
-								transXY.y = layout? (y-layout.yMin)*layout.yMultiplier+yOffset:y;
+	        				if (transMatrix){
+								transXY.x = x; 
+								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
 								graphics.lineTo(transXY.x,transXY.y);
 							} 
 							else{
-								if (layout){
-									graphics.lineTo(
-										((x-layout.xMin)*layout.xMultiplier)+xOffset,
-										((y-layout.yMin)*layout.yMultiplier)+yOffset
-										);
-								}
-								else{
-									graphics.lineTo(x,y);
-								}
-							} 
-							
-	        				break;
-	        			
+								graphics.lineTo(x,y);
+							}
+							break;
 	        			case CommandStackItem.CURVE_TO:
-	        				if (trans) {
-								transXY.x = layout? (x1-layout.xMin)*layout.xMultiplier+xOffset:x1; 
-								transXY.y = layout? (y1-layout.yMin)*layout.yMultiplier+yOffset:y1;
-								transCP.x = layout? (cx-layout.xMin)*layout.xMultiplier+xOffset:cx; 
-								transCP.y = layout? (cy-layout.yMin)*layout.yMultiplier+yOffset:cy;
+	        				if (transMatrix){
+								transXY.x = x1; 
+								transXY.y = y1;
+								transCP.x = cx; 
+								transCP.y = cy;
 								transXY = transMatrix.transformPoint(transXY);
 								transCP = transMatrix.transformPoint(transCP);
 								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
 							} 
 							else{
-								if (layout){
-									graphics.curveTo(
-										((cx-layout.xMin)*layout.xMultiplier)+xOffset,
-										((cy-layout.yMin)*layout.yMultiplier)+yOffset,
-										((x1-layout.xMin)*layout.xMultiplier)+xOffset,
-										((y1-layout.yMin)*layout.yMultiplier)+yOffset);
-								}
-								else{
-									graphics.curveTo(cx,cy,x1,y1);
-								}
-								
-							} 
-							
-	        				break;
-	        				
+								graphics.curveTo(cx,cy,x1,y1);
+							}
+							break;
 	        			case CommandStackItem.DELEGATE_TO:
 	        				item.delegate(graphics,rc,this);
 	        				break;
@@ -228,7 +273,6 @@ package com.degrafa.geometry.command{
 	        				renderCommandStack(graphics,rc,new DegrafaCursor(commandStack.source))
 					}
     			}
-    
         	}
 		}
 				
@@ -410,10 +454,19 @@ package com.degrafa.geometry.command{
 		**/
 		public function adjustPointToLayoutAndTransform(point:Point):Point{
 			
-			var newPoint:Point = new Point();
+			//var newPoint:Point = new Point();
 			
 			if(!owner){return point;}
 			
+			if (transMatrix){
+				return transMatrix.transformPoint(point)
+			}else{
+				return point;	
+			}
+			
+			
+			
+			/* OLD to be removed
 			if(owner.hasLayout){
 				var layout:LayoutConstraint=owner.layoutConstraint;
 				
@@ -428,7 +481,7 @@ package com.degrafa.geometry.command{
 				newPoint.y = ((point.y-layout.yMin)*layout.yMultiplier)+layout.yOffset;
 			}
 						
-			return newPoint;
+			return newPoint;*/
 								
 		}
 		

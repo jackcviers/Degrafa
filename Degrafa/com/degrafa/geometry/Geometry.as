@@ -21,13 +21,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
-	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.core.collections.DisplayObjectCollection;
+	import com.degrafa.core.collections.FilterCollection;
 	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.decorators.IGlobalDecorator;
 	import com.degrafa.events.DegrafaEvent;
@@ -43,6 +44,7 @@ package com.degrafa.geometry{
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
@@ -563,7 +565,7 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{
-			
+						
 			//don't draw unless visible
 			if(!visible){return;}
 			
@@ -991,6 +993,100 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* END Style related.
   		**********************************************************/
-   	
+   		
+   		/**********************************************************
+  		* Filter / Display object related. 
+  		* 
+  		* Any setting of the below items indicate a requirement for a display
+  		* object to be used at render time.
+  		**********************************************************/
+  		
+   		/**
+		* A collection of filters to apply to the geometry.
+		*/
+		private var _filters:FilterCollection;
+		[Inspectable(category="General", arrayType="flash.filters.BitmapFilter")]
+		[ArrayElementType("flash.filters.BitmapFilter")]
+		public function get filters():Array{
+			initFilterCollection();
+			return _filters.items;
+		}
+		
+		public function set filters(value:Array):void {
+			initFilterCollection();
+			if(_filters.items != value){
+				
+				var oldValue:Array=_filters.items;
+				_filters.items = value;
+			
+				//call local helper to dispatch event	
+				initChange("filters",oldValue,_filters.items,this);
+				
+			}
+		}
+	
+		/**
+		* Initialize the filter collection by creating it and adding an event listener.
+		**/
+		private function initFilterCollection():void{
+			if(!_filters){
+				_filters = new FilterCollection();
+				//add the parent so it can be managed by the collection
+				_filters.parent = this;
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_filters.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
+		//private var _blendMode:String=undefined;
+		//[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
+		/**
+		* The blend mode which is used to render the geometry to the target.
+		*/
+		/*public function get blendMode():String { 
+			return _blendMode; 
+		}
+		public function set blendMode(value:String):void {
+			if(_blendMode != value){
+				
+				var oldValue:String=_blendMode;
+				
+				_blendMode = value;
+			
+				//call local helper to dispatch event	
+				initChange("blendMode",oldValue,_blendMode,this);
+				
+			}
+			
+		}*/
+		
+		private var _clippingRectangle:Rectangle=null;
+		/**
+		* A clipping rectangle to use when rendering this geometry.
+		*/
+		public function get clippingRectangle():Rectangle { 
+			return _clippingRectangle; 
+		}
+		public function set clippingRectangle(value:Rectangle):void {
+			if(_clippingRectangle != value){
+				
+				var oldValue:Rectangle=_clippingRectangle;
+				
+				_clippingRectangle = value;
+			
+				//call local helper to dispatch event	
+				initChange("clippingRectangle",oldValue,_clippingRectangle,this);
+			}
+		}
+		
+		
+		/**********************************************************
+  		* End Filter related.
+  		**********************************************************/
+  		
+		
   	}
 }
