@@ -543,7 +543,22 @@ package com.degrafa.geometry{
 				
 				//drawing to a graphicsTarget use that.
 				if(_currentGraphicsTarget){
-					_layoutConstraint.computeLayoutRectangle(childBounds,_currentGraphicsTarget.getRect(_currentGraphicsTarget));
+					
+					var graphicsTargetRect:Rectangle = _currentGraphicsTarget.getRect(_currentGraphicsTarget);
+					
+					//if empty try explicit as the target may not have anything in it
+					//This can happen when you have a percent width/heigh on a canvas and it has no 
+					//fill nor border in these cases there is no update event.
+					if(graphicsTargetRect.isEmpty()){
+						if(_currentGraphicsTarget.width !=0 || _currentGraphicsTarget.height !=0){
+							graphicsTargetRect.x=_currentGraphicsTarget.x;
+							graphicsTargetRect.y=_currentGraphicsTarget.y;
+							graphicsTargetRect.width=_currentGraphicsTarget.width;
+							graphicsTargetRect.height=_currentGraphicsTarget.height;
+						}
+					}
+					
+					_layoutConstraint.computeLayoutRectangle(childBounds,graphicsTargetRect);
 					return; 
 				}
 				
