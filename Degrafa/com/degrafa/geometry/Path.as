@@ -104,8 +104,9 @@ package com.degrafa.geometry{
 				* Quadratic Bezier = Q,q,T,t
 				* Cubic Bezier = C,c,S,s
 				**/
+
 				var pathDataArray:Array = PathDataToArray(value)
-				
+
 				//store the array as we add items and set the segments after 
 				var segmentStack:Array=[];
 				
@@ -368,40 +369,20 @@ package com.degrafa.geometry{
 		**/
 		private function PathDataToArray(value:String):Array{
 			
-			value=value.replace(/([ \t\r\f\n,]+)/g,",");
-			value=value.replace(/([MmLlCcQqZzAaSsHhVvTt])/g,",$1,")
-			value=value.replace(/(([-+]?[0-9]+(\.[0-9]*)?|[-+]?\.[0-9]+)([eE][-+]?[0-9]+)?)/g,",$1,")
-			value=value.replace(/,{2,}/g,",")
-			
-			//remove first or last chr if they are a comma.
-			if(value.charAt(0) == ","){
-				value=value.slice(1,value.length);
-			}
-			if(value.charAt(value.length-1) == ","){
-				value=value.slice(0,value.length-1);
-			}
-			
+					
+			//trim whitespace at start:
+			value = value.replace(/^[\s]+/, "");
+			value=value.replace(/[\s]+|\-|[MmLlCcQqZzAaSsHhVvTt]/g,getReplaceValue)
+			value = value.replace(/,{2,}/g, ",")
 			return value.split(",");
-			
-			//old version
-			/*value=value.replace(/[\s]+|\-|[MmLlCcQqZzAaSsHhVvTt]/g,getReplaceValue)
-			value=value.replace(/,{2,}/g,",")
-			return value.split(",");*/
 			
 		}
 		
 		/**
-		* OLD LEGACY Method as part of the above parsing no longer required but left
-		* until testing complete. The old way was a touch faster but had no support for
-		* scientific notation.
 		* 
 		* Helper function used when parsing the path data string
 		**/
-		/*private function getReplaceValue(matchedSubstring:String,itemIndex:Number,theString:String):String{	
-			if (!itemIndex)
-			{
-				return matchedSubstring + ",";														
-			}
+		private function getReplaceValue(matchedSubstring:String, itemIndex:Number, theString:String):String {	
 			
 			switch (matchedSubstring.charAt(0)){
 				case " ":
@@ -413,15 +394,21 @@ package com.degrafa.geometry{
 					return ",";
 					break;
 				case "-":
-					return "," + matchedSubstring;
+					//don't put a comma in front of a negative exponent
+					if (theString.charAt(itemIndex - 1).toUpperCase() == 'E') {
+						return matchedSubstring;
+					} else return "," + matchedSubstring;
 					break;				
 				default:
+					if (!itemIndex){
+						return matchedSubstring + ",";														
+					}
 					return "," + matchedSubstring + ",";	
 					break	
 			}
 						
-			
-		}*/
+		}
+		
 			
 							
 		private var _segments:SegmentsCollection;
@@ -581,7 +568,7 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-				
+		static public var test:uint;
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -590,7 +577,7 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-		 	
+
 		 	//re init if required
 		 	preDraw();
 		 	
@@ -598,7 +585,7 @@ package com.degrafa.geometry{
 			calculateLayout();
 						
 			super.draw(graphics, (rc)? rc:bounds);
-												
+					
         }
 		
 		
