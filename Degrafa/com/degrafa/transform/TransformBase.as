@@ -158,12 +158,12 @@ package com.degrafa.transform{
 			_transformMatrix=value;
 		}
 		
-		protected var _centerX:Number=0;
+		protected var _centerX:Number=NaN;
 		/**
 		* The center point of the transform along the x-axis.
 		**/
 		public function get centerX():Number{
-			return _centerX;
+			return isNaN(_centerX)? 0:_centerX;
 		}
 		public function set centerX(value:Number):void{
 			
@@ -174,12 +174,12 @@ package com.degrafa.transform{
 			
 		}
 		
-		protected var _centerY:Number=0;
+		protected var _centerY:Number=NaN;
 		/**
 		* The center point of the transform along the y-axis.
 		**/
-		public function get centerY():Number{
-			return _centerY;
+		public function get centerY():Number {
+			return isNaN(_centerY)? 0:_centerY;
 		}
 		public function set centerY(value:Number):void{
 			if(_centerY != value){
@@ -204,6 +204,14 @@ package com.degrafa.transform{
 		}
 		
 		/**
+		 * A check to determine if the center of transfomation has been explicitly set. Required for TransformGroup
+		 * @return boolean true if this Transform object has an explicit setting for it's registration point
+		 */
+		public function hasExplicitSetting():Boolean {
+			return (_registrationPoint || !(isNaN(_centerX) || isNaN(_centerY)));
+		}
+		
+		/**
 		 * Detetermines the transformation registration point based on this transform's settings for an arbitrary Rectangle. Exposed primarily for
 		 * use in Fills. This method returns a point where 0,0 as centerX,centerY (default for a Transform) is the center of the rectangle, because Fill transforms default to the center
 		 * of the Fill target's bounds for their registration Point.
@@ -217,7 +225,7 @@ package com.degrafa.transform{
 			else
 			{
 				//use the centerpoint of the rectangle as the 'origin' in this case (best for fills)
-				fillRegPoint = new Point(rectangle.x+rectangle.width/2+_centerX ,rectangle.y+rectangle.height/2+ _centerY);
+				fillRegPoint = new Point(rectangle.x+rectangle.width/2+centerX ,rectangle.y+rectangle.height/2+ centerY);
 			}
 			return fillRegPoint;
 		}
@@ -287,7 +295,7 @@ package com.degrafa.transform{
 		 */
 		public function getTransformFor(value:IGeometryComposition):Matrix
 		{
-			var offset:Point = (_registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
+			var offset:Point = (_registrationPoint)? getRegistrationPoint(value):new Point(centerX, centerY);
 			//first check for a transform history...
 			//this relies on the nested update sequence from parent to children to work in 
 			//a stable way.
@@ -330,7 +338,7 @@ package com.degrafa.transform{
 		public function getRegPoint(value:IGeometryComposition):Point
 		{
 			if (_registrationPoint) return getRegistrationPoint(value);
-			else return new Point(_centerX, _centerY);
+			else return new Point(centerX, centerY);
 		}
 		/**
 		 * Boolean value indicating whether this transform will have no effect on the coordinate space of a target

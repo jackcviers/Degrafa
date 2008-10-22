@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
+	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.collections.TransformCollection;
 	import com.degrafa.transform.TransformBase
@@ -106,28 +107,46 @@ package com.degrafa.transform{
 		override public function getTransformFor(value:IGeometryComposition):Matrix
 		{
 			//dev note: this doesn't yet have an invalidation check..
-			var offset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(_centerX, _centerY);
+			var groupOffset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(centerX, centerY);
 			var retMatrix:Matrix = new Matrix();
-		    retMatrix.translate( -offset.x, -offset.y);
+		    var currentOffset:Point=new Point();
+
 			for each(var matrix:ITransform in transforms)
 			{
+				if (matrix.hasExplicitSetting()) currentOffset = matrix.getRegPoint(value)
+				else currentOffset = groupOffset.clone();
+//				trace(currentOffset);
+				var xofffset:Number = currentOffset.x;
+				var yofffset:Number = currentOffset.y;
+			
+				currentOffset = retMatrix.transformPoint(currentOffset)
+//				trace(matrix+"--->" + currentOffset);
+				
+			//	currentOffset.x += retMatrix.tx;
+			//	currentOffset.y += retMatrix.ty;
+			//	currentOffset.offset(off.x,off.y)
+			//	currentOffset.offset(xofffset, yofffset);// currentOffset.y)
+				retMatrix.translate(-currentOffset.x, -currentOffset.y)
 				retMatrix.concat(matrix.transformMatrix);
+				retMatrix.translate(currentOffset.x, currentOffset.y)
 			}
-			retMatrix.translate(offset.x, offset.y)
 			return retMatrix;
 		}
+		
+		
+		
+		
+		
 		
 		//some fills can be directly requesting this for compound transforms, so need to implement it locally in TransformGroup
 		override public function get transformMatrix():Matrix
 		{
-		
 				var retMatrix:Matrix = new Matrix();
 				for each(var matrix:ITransform in transforms)
 				{
 					retMatrix.concat(matrix.transformMatrix);
 				}
 				return retMatrix;
-		}
-		
+		}	
 	}
 }

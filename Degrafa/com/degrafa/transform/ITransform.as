@@ -33,14 +33,26 @@ package com.degrafa.transform{
 	public interface ITransform extends IDegrafaObject{		
 		function get data():String;
 		function set data(value:String):void;
-		function get isIdentity():Boolean;
+
+		//Transforms must support either a defined registration point or a description based point calculated relative to bounds
+		function get centerX():Number;
+		function set centerX(value:Number):void;
+		function get centerY():Number;
+		function set centerY(value:Number):void;
+		function get registrationPoint():String;
+		function set registrationPoint(value:String):void
+		
+		//Transforms must provide the following calculated geometry support objects
 		function get transformMatrix():Matrix;
 		function getRegPoint(value:IGeometryComposition):Point;
 		function getTransformFor(value:IGeometryComposition):Matrix;
 		function getRegPointForRectangle(rectangle:Rectangle):Point
-		function get registrationPoint():String;
-		function set registrationPoint(value:String):void
-		//getters are always available on all subclasses
+		
+		//Transform profile functions must be available on all subclasses
+		function hasExplicitSetting():Boolean
+		function get isIdentity():Boolean;
+		
+		//Transform property getters are always available on all subclasses
 		function get scaleX():Number;
 		function get scaleY():Number;
 		function get x():Number;
@@ -48,6 +60,5 @@ package com.degrafa.transform{
 		function get angle():Number;
 		function get skewX():Number;
 		function get skewY():Number;
-		
 	}
 }
