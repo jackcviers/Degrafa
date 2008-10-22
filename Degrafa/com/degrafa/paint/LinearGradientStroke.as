@@ -148,11 +148,15 @@ package com.degrafa.paint{
  		**/
 		override public function apply(graphics:Graphics,rc:Rectangle):void{
 			
-			if(x && y && width && height){
-				super.apply(graphics,new Rectangle(x,y,width,height));
+			if (_x && _y && _width && _height) {
+				if (_coordType == "relative") super.apply(graphics, new Rectangle(rc.x + x, rc.y + y, width, height));
+				else if (_coordType == "ratio") super.apply(graphics, new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height));
+				else super.apply(graphics, new Rectangle(x, y, width, height));
 			}
-			else if (width && height){
-				super.apply(graphics,new Rectangle(0,0,width, height));
+			else if (_width && _height) {
+				if (_coordType == "relative") super.apply(graphics, new Rectangle(rc.x , rc.y , width, height));
+				else if (_coordType == "ratio") super.apply(graphics, new Rectangle(rc.x, rc.y , width * rc.width, height * rc.height));
+				else super.apply(graphics, new Rectangle(0, 0, width, height));
 			}
 			else{
 				super.apply(graphics,rc);
