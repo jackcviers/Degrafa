@@ -204,26 +204,25 @@ package com.degrafa.paint {
 			if(!_scaleMode){_scaleMode="normal";}
 			if(!_weight){_weight=1;}
 			
-			
 			var matrix:Matrix;
 			if (rc) {
 				matrix=new Matrix();
-				matrix.createGradientBox(rc.width+weight, rc.height+weight,
-				(angle/180)*Math.PI, rc.x-weight, rc.y-weight);
+				matrix.createGradientBox(rc.width, rc.height,
+				(angle/180)*Math.PI, rc.x, rc.y);
 				var xp:Number = (angle % 90)/90;
 				var yp:Number = 1 - xp;
-				processEntries((rc.width+weight)*xp + (rc.height+weight)*yp);
+				processEntries((rc.width)*xp + (rc.height)*yp);
 			} else {
 				matrix=null;
 			}
-			//handle transforms on the gradient stroke
+		
 
 			//handle layout transforms - only renderLayouts so far
 			if (_requester && (_requester as Geometry).hasLayout) {
 				var geom:Geometry = _requester as Geometry;
 					matrix.concat( geom._layoutMatrix);
 				}
-			
+			//handle transforms on the gradient stroke
 			if (_transform && ! _transform.isIdentity) {
 					var regPoint:Point;
 					var tempmat:Matrix = new Matrix();
@@ -231,8 +230,9 @@ package com.degrafa.paint {
 					tempmat.translate(-regPoint.x,-regPoint.y);
 					tempmat.concat(_transform.transformMatrix);
 					tempmat.translate( regPoint.x,regPoint.y);
-					matrix.concat(tempmat);
+					matrix.concat(tempmat);	
 				}
+			
 			var transformRequest:ITransform;
 			//the requesting geometry:
 			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {

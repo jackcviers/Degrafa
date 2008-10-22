@@ -167,18 +167,16 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
-		override public function begin(graphics:Graphics, rc:Rectangle):void{
+		override public function begin(graphics:Graphics, rc:Rectangle):void {
 			if (_x && _y && _width && _height) {
-				if (_absCoordType == "relative") super.begin(graphics, new Rectangle(rc.x + x, rc.y + y, width, height));
-				else if (_absCoordType == "ratio") super.begin(graphics, new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height));
+				if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x + x, rc.y + y, width, height));
+				else if (_coordType == "ratio") super.begin(graphics, new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height));
 				else super.begin(graphics, new Rectangle(x, y, width, height));
 			}
 			else if (_width && _height) {
-				if (_absCoordType == "relative") super.begin(graphics, new Rectangle(rc.x , rc.y , width, height));
-				else if (_absCoordType == "ratio") super.begin(graphics, new Rectangle(rc.x, rc.y , width * rc.width, height * rc.height));
+				if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x , rc.y , width, height));
+				else if (_coordType == "ratio") super.begin(graphics, new Rectangle(rc.x, rc.y , width * rc.width, height * rc.height));
 				else super.begin(graphics, new Rectangle(0, 0, width, height));
-			//	if (_absCoordType) super.begin(graphics, new Rectangle(0, 0, width, height));
-			//	else super.begin(graphics, new Rectangle(rc.x, rc.y, width, height));
 			}
 			else{
 				super.begin(graphics,rc);

@@ -217,22 +217,22 @@ package com.degrafa.paint{
 			}
 			
 		}
+	
+		protected var _coordType:String = "absolute";
 		/**
-		* Coordinate type to be used for fill bounds, either absolute, or relative to target bounds.
+		* Coordinate type to be used for fill bounds, either absolute, or relative to target bounds, or as a ratio to target bounds.
 		**/
-		protected var _absCoordType:String = "absolute";
-		
 		[Inspectable(category="General", enumeration="absolute,relative,ratio", defaultValue="absolute")]
 		public function set coordinateType(value:String):void
 		{
-			if (value!=_absCoordType) 
+			if (value!=_coordType) 
 			{
 				//call local helper to dispatch event	
-				initChange("coordinateType",_absCoordType,_absCoordType = value,this);
+				initChange("coordinateType",_coordType,_coordType = value,this);
 			}
 		}
 		public function get coordinateType():String{
-			return _absCoordType;
+			return _coordType;
 		}
 		
 		
@@ -270,8 +270,7 @@ package com.degrafa.paint{
 			}
 			//handle layout transforms - only renderLayouts so far
 			if (_requester && (_requester as Geometry).hasLayout) {
-				var geom:Geometry = _requester as Geometry;
-
+					var geom:Geometry = _requester as Geometry;
 					matrix.concat( geom._layoutMatrix);
 				}
 			
@@ -284,9 +283,9 @@ package com.degrafa.paint{
 					tempmat.translate( regPoint.x,regPoint.y);
 					matrix.concat(tempmat);
 				}
+				
 			var transformRequest:ITransform;
 			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
-				
 				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
 				else matrix.concat((_requester as Geometry).transformContext);
 				//remove the requester reference
