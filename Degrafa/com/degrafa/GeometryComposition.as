@@ -173,21 +173,6 @@ package com.degrafa{
 			_bounds = boundsRect;*/
 		}		
 	
-		
-		override public function calculateLayout(childBounds:Rectangle=null):void{
-			
-			if (_layoutConstraint) {
-				if (childBounds){
-					super.calculateLayout(childBounds);
-				}
-				else{
-					//the defaults bounds is that of the current target
-					super.calculateLayout(_currentGraphicsTarget.getRect(_currentGraphicsTarget));
-				}
-			}
-			
-		}
-		
 		/**
 		* @inheritDoc 
 		**/
