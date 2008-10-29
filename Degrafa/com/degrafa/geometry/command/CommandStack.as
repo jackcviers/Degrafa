@@ -18,7 +18,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//
+// Some algorithms based on code from Trevor McCauley, www.senocular.com
 ////////////////////////////////////////////////////////////////////////////////
+
 package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
@@ -457,36 +461,12 @@ package com.degrafa.geometry.command{
 		* Applies the current layout and transform to a point.
 		**/
 		public function adjustPointToLayoutAndTransform(point:Point):Point{
-			
-			//var newPoint:Point = new Point();
-			
 			if(!owner){return point;}
-			
 			if (transMatrix){
 				return transMatrix.transformPoint(point)
 			}else{
 				return point;	
 			}
-			
-			
-			
-			/* OLD to be removed
-			if(owner.hasLayout){
-				var layout:LayoutConstraint=owner.layoutConstraint;
-				
-			}
-			if(transMatrix){
-				newPoint.x = layout? (point.x-layout.xMin)*layout.xMultiplier+layout.xOffset:point.x; 
-				newPoint.y = layout? (point.y-layout.yMin)*layout.yMultiplier+layout.yOffset:point.y;
-				newPoint = transMatrix.transformPoint(newPoint);
-			}
-			else if(layout){
-				newPoint.x = ((point.x-layout.xMin)*layout.xMultiplier)+layout.xOffset;
-				newPoint.y = ((point.y-layout.yMin)*layout.yMultiplier)+layout.yOffset;
-			}
-						
-			return newPoint;*/
-								
 		}
 		
 		private var _pathLength:Number=0;
@@ -496,6 +476,10 @@ package com.degrafa.geometry.command{
 		public function get pathLength():Number{
 			if(!lengthIsValid){
 				lengthIsValid = true;
+				
+				//clear prev length
+				_pathLength=0;
+				
 				var item:CommandStackItem;
 				
 				for each (item in source){
@@ -549,7 +533,7 @@ package com.degrafa.geometry.command{
 			return source[length-1];
 		}
 		
-		//Based on code from Trevor McCauley, www.senocular.com
+		
 		/**
 		* Returns the point at t(0-1) on the path.
 		**/
