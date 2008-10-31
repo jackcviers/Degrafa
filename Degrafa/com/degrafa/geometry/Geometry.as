@@ -1097,6 +1097,24 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		private var _mask:IGeometryComposition;
+		/**
+		* A separate geometry object to use as a mask when rendering this geometry.
+		*/
+		public function get mask():IGeometryComposition { 
+			return _mask; 
+		}
+		public function set mask(value:IGeometryComposition):void {
+			if (_mask != value && value != this) {
+				if (_mask) Geometry(_mask).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				var oldValue:IGeometryComposition=_mask;
+				
+				_mask = value;
+				Geometry(_mask).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+				//call local helper to dispatch event	
+				initChange("mask", oldValue, _mask, this);
+			}
+		}
 		
 		/**********************************************************
   		* End Filter related.

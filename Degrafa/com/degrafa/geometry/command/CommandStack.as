@@ -41,7 +41,7 @@ package com.degrafa.geometry.command{
 	public class CommandStack{
 		
 		//TODO this has to be made private now and all access controlled through the command
-		//stack otherwise we can loose previous and next references
+		//stack otherwise we can lose previous and next references
 		public var source:Array = [];
 		
 		public var lengthIsValid:Boolean;
@@ -58,13 +58,12 @@ package com.degrafa.geometry.command{
 		private var hasFilters:Boolean
 		
 		private var _fxShape:Shape;
-		
+		private var _maskRender:Shape;
 		private static var isRegistered:Boolean = false;
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
 			this.owner = geometry;
-			
 			if(geometry){
 				hasFilters = (geometry.filters.length>0);
 			}
@@ -74,6 +73,8 @@ package com.degrafa.geometry.command{
 				isRegistered = true;
 			}
 		}
+		
+		
 		
 		/**
 		* Setups the layout and transforms
@@ -106,7 +107,7 @@ package com.degrafa.geometry.command{
 			
 			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
 			
-			//combin the layout and transform into one matrix
+			//combine the layout and transform into one matrix
 			if (trans){	
 				if (!layout){
 					transMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;	
@@ -124,21 +125,28 @@ package com.degrafa.geometry.command{
 		* Initiates the render phase.
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{
-			
+
 			//exit if no command stack
 			if(source.length==0){return;}
 			
 			//setup requirements before the render
 			predraw()
-						
+					
 			//setup a cursor for the path data interation
 			_cursor=new DegrafaCursor(source)
 			
 			//setup the temporary shape to draw to in place 
 			//of the passsed graphics context
-			if(hasFilters){
-				
+			var hasmask:Boolean = (owner.mask!=null);
+			if(hasFilters || hasmask){
 				if (!_fxShape) _fxShape = new Shape();
+				if (hasmask) {
+					//dev note: need to change this mask is only redrawn when necessary
+					if (!_maskRender) _maskRender = new Shape();
+					_maskRender.graphics.clear();
+					_fxShape.mask = _maskRender;
+					owner.mask.draw(_maskRender.graphics, owner.mask.bounds)
+				} else if (_fxShape.mask) _fxShape.mask = null;
 				
 				/*if(owner.blendMode){
 					_fxShape.blendMode = owner.blendMode;
@@ -155,15 +163,15 @@ package com.degrafa.geometry.command{
 				renderCommandStack(_fxShape.graphics,rc,_cursor);
 				
 				//apply the filters
-				if(owner.filters.length!=0 && owner.filters[0] !=null){
-					_fxShape.filters = owner.filters;
+			//	if(owner.mask ||(owner.filters.length!=0 && owner.filters[0] !=null)){
+					if (owner.filters[0]) _fxShape.filters = owner.filters;
 				
 					//blit the data to the destination context
 					renderBitmapDatatoContext(_fxShape,graphics)
-				}
+			//	}
 				
 			}
-			else{
+			else {
 				//setup the stroke
 				owner.initStroke(graphics,rc);
 				
@@ -180,12 +188,13 @@ package com.degrafa.geometry.command{
 		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics):void{
 									
 			var sourceRect:Rectangle = source.getBounds(source);
-			
+			if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
 			if(sourceRect.isEmpty()){return;}
 			
 			var filteredRect:Rectangle = sourceRect.clone();
-			filteredRect.x=filteredRect.y=0;
-			
+			filteredRect.x = filteredRect.y = 0;
+			filteredRect.width = Math.ceil(filteredRect.width);
+			filteredRect.height = Math.ceil(filteredRect.height);
 			filteredRect = updateToFilterRectangle(filteredRect,source);
 			filteredRect.offset(sourceRect.x, sourceRect.y);
 						
@@ -195,15 +204,18 @@ package com.degrafa.geometry.command{
 			
 			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
 			
-			if((filteredRect.width+sourceRect.x)<1 || (filteredRect.height+sourceRect.y)<1){
+			if(filteredRect.width<1 || filteredRect.height<1){
 				return;
 			} 
 			
-			bitmapData = new BitmapData(filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y, true, 0);
-			bitmapData.draw(source,null,null,null,clipTo);
-			context.beginBitmapFill(bitmapData,null,false);
-			context.lineStyle(NaN,NaN)
-			context.drawRect(0,0, filteredRect.width+sourceRect.x, filteredRect.height+sourceRect.y);
+			bitmapData = new BitmapData(filteredRect.width , filteredRect.height , true, 0);
+			var mat:Matrix=new Matrix(1,0,0,1,-filteredRect.x,-filteredRect.y)
+			bitmapData.draw(source, mat, null, null, clipTo,true);
+			mat.invert()
+			context.beginBitmapFill(bitmapData, mat, false);
+		//dev note: debug outline
+		//	context.lineStyle(0,0x00ff00)
+			context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
 			context.endFill();
 			
 		}
@@ -217,7 +229,6 @@ package com.degrafa.geometry.command{
 			for each (var filter:BitmapFilter in owner.filters){
 				filterRect = filterRect.union(bitmapData.generateFilterRect(filterRect,filter));
 			}
-			
 			return filterRect;
 			
 		}
@@ -229,11 +240,9 @@ package com.degrafa.geometry.command{
 		private function renderCommandStack(graphics:Graphics,rc:Rectangle,cursor:DegrafaCursor=null):void{
 			
 			var item:CommandStackItem;
-			
 			while(cursor.moveNext()){	   			
 	   			
 	   			item = cursor.current;
-	   			
 				with(item){	
 					switch(type){
 						case CommandStackItem.MOVE_TO:
@@ -252,7 +261,7 @@ package com.degrafa.geometry.command{
 								transXY.x = x; 
 								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								graphics.lineTo(transXY.x,transXY.y);
+								graphics.lineTo(transXY.x, transXY.y);
 							} 
 							else{
 								graphics.lineTo(x,y);
@@ -361,7 +370,7 @@ package com.degrafa.geometry.command{
 		public function addLineTo(x:Number,y:Number):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.LINE_TO,
 			x,y,NaN,NaN,NaN,NaN))-1;
-			
+
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
@@ -390,7 +399,8 @@ package com.degrafa.geometry.command{
 		**/	
 		public function addDelegate(delegate:Function):CommandStackItem{
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.DELEGATE_TO))-1;
-			
+			source[itemIndex].delegate = delegate;
+
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
