@@ -215,56 +215,13 @@ package com.degrafa.geometry.segment{
 		* The tight bounds of this segment as represented by a Rectangle object. 
 		**/
 		public function get bounds():Rectangle{
-			return _bounds;	
-		}
-				
-		/**
-		* Calculates the bounds for this segment. 
-		**/	
-		private function calcBounds():Rectangle{
-			
-			if(_commandStackItem.commandStack.length==0){return null;}
-			
-			
-			var newx:Number = _absCoordType? x:lastPoint.x + x;
-			var newy:Number = _absCoordType? y:lastPoint.y + y;
-			var item:CommandStackItem;
-			var lpX:Number;
-			var lpY:Number;
-			if (_bounds) { //re-use the existing Rectangle instance
-				_bounds.x = Math.min(lastPoint.x, newx);
-				_bounds.y = Math.min(lastPoint.y, newy);
-				_bounds.bottom = Math.max(lastPoint.y, newy);
-				_bounds.right = Math.max(lastPoint.x, newx);
-				
-			} else 	_bounds = new Rectangle(Math.min(lastPoint.x, newx), Math.min(lastPoint.y, newy), Math.abs(lastPoint.x - newx), Math.abs(lastPoint.y - newy));
-			for each(item in _commandStackItem.commandStack.source){
-				with(item)
-					{
-						if (type == CommandStackItem.LINE_TO) {
-							_bounds = _bounds.union(new Rectangle(Math.min(lpX?lpX:lastPoint.x, x), Math.min(lpY?lpY:lastPoint.y, y), Math.abs(lpX?lpX:lastPoint.x - x), Math.abs(lpY?lpY:lastPoint.y - y)));
-							lpX = x;
-							lpY = y;
-						}
-						else {
-						_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX?lpX:lastPoint.x, lpY?lpY:lastPoint.y, cx, cy, x1, y1));
-						lpX = x1;
-						lpY = y1;
-						}
-					}
-			}
-			//adjustment for horizontal and vertical lines
-			if (_bounds.width == 0) _bounds.width = 0.0001;
-			if (_bounds.height == 0) _bounds.height = 0.0001;
-
-			return _bounds;
+			return commandStackItem.bounds;	
 		}
 		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
-			calcBounds();
 			invalidated = false;
 		} 
 				
@@ -318,21 +275,36 @@ package com.degrafa.geometry.segment{
 				_commandStackItem.commandStack.length=0;
 							
 				 if(_isShortSequence){
-                                        
-						GeometryUtils.cubicToQuadratic(
+                        
+                        _commandStackItem.commandStack.addCubicBezierTo(lastPoint.x,lastPoint.y,
+						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
+						nlcpx,nlcpy,
+						nlpx,nlpy,
+						1);
+                        
+                        //to be cleaned out after extensive testing                
+						/*GeometryUtils.cubicToQuadratic(
 						lastPoint.x,lastPoint.y,
 						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
 						nlcpx,nlcpy,
 						nlpx,nlpy,
-						1,_commandStackItem.commandStack);
+						1,_commandStackItem.commandStack);*/
 				}
 				else{
-						GeometryUtils.cubicToQuadratic(
+						
+						_commandStackItem.commandStack.addCubicBezierTo(lastPoint.x,lastPoint.y,
+						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
+						nlcpx,nlcpy,
+						nlpx,nlpy,
+						1);
+						
+						//to be cleaned out after extensive testing
+						/*GeometryUtils.cubicToQuadratic(
 						lastPoint.x,lastPoint.y,
 						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
 						nlcpx,nlcpy,
 						nlpx,nlpy,
-						1,_commandStackItem.commandStack);
+						1,_commandStackItem.commandStack);*/
 				}
 				if (!_commandStackItem.commandStack.length) trace('err')
 				

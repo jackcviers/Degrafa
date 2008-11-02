@@ -127,6 +127,25 @@ package com.degrafa{
 				}
 			}
 		}
+		
+		/**
+		* Returns the bounds for this objects children 
+		* not including this object.
+		**/
+		public function get childBounds():Rectangle{
+			var tempRect:Rectangle;
+			for each (var item:Geometry in geometry){
+				if(!tempRect || tempRect.isEmpty()){
+					tempRect = item.bounds;
+				}
+				else{
+					tempRect=tempRect.union(item.bounds);
+				}
+			}
+			
+			return tempRect;
+		}
+		
 				
 		
 	    private var _bounds:Rectangle;

@@ -140,37 +140,20 @@ package com.degrafa.geometry.segment{
 				invalidated = true;
 			}
 		}
-		
-		
-		/**
-		* Calculates the bounds for this segment. 
-		**/	
-		private function calcBounds():void{
-			 /*_bounds = new Rectangle(
-									Math.min(lastPoint.x, _commandStackItem.x),
-									Math.min(lastPoint.y, _commandStackItem.y), 
-									Math.abs(_commandStackItem.x - lastPoint.x),
-									Math.abs(_commandStackItem.y - lastPoint.y)
-									);*/
-			_bounds = new Rectangle(_commandStackItem.x,_commandStackItem.y,0.00001,0.00001);
-		}
-		
+				
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this segment as represented by a Rectangle object. 
 		**/
 		public function get bounds():Rectangle{
-			return _bounds;	
+			return commandStackItem.bounds;
 		}
 		
 		/**
 		* @inheritDoc 
 		**/		
 		override public function preDraw():void{
-			
-			calcBounds();
 			invalidated = false;
-			
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);

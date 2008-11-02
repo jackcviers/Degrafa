@@ -248,7 +248,8 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
+			//return _bounds;
+			return commandStack.bounds;	
 		}
 		
 		private var _originalBounds:Rectangle;
@@ -260,8 +261,7 @@ package com.degrafa.geometry{
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
-			_bounds = new Rectangle(x,y,width,height);
-			
+			if(commandStack.length==0){return;}
 			if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
 				_originalBounds=_bounds;
 			}

@@ -490,26 +490,7 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
-		}
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/				
-		private function calcBounds():Rectangle{
-			
-
-			if (_bounds) _bounds.setEmpty() else _bounds = new Rectangle();
-
-			var curSegment:Object
-			//union all segment bounds	
-
-        	for each(curSegment in _segments.items) {	
-				_bounds = _bounds.union(curSegment.bounds);
-			}		
-
-        	return _bounds;
-        	
+			return commandStack.bounds;	
 		}
 		
 		/**
@@ -537,7 +518,6 @@ package com.degrafa.geometry{
 			if(invalidated){
 				commandStack.length=0;
 				buildFlashCommandStack();
-				calcBounds();
 				invalidated = false;
 			}
 			
@@ -568,7 +548,7 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-		static public var test:uint;
+				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.

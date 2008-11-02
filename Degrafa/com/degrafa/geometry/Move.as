@@ -121,30 +121,19 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
+			//return _bounds;
+			return commandStack.bounds;
 		}
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			_bounds = new Rectangle(0,0,0,0);
-		}	
 		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-			
 				commandStack.length=0;
-				
 				commandStack.addMoveTo(x,y);	
-				
-				calcBounds();
 				invalidated = false;
 			}
-			
 		}
 		
 		/**

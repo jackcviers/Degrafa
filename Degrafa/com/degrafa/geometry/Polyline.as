@@ -211,34 +211,9 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
+			//return _bounds;
+			return commandStack.bounds;	
 		}
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-		
-			var boundsMaxX:Number = Number.NEGATIVE_INFINITY;
-			var boundsMaxY:Number = Number.NEGATIVE_INFINITY;
-			var boundsMinX:Number =Number.POSITIVE_INFINITY;
-			var boundsMinY:Number =Number.POSITIVE_INFINITY;
-			
-			var i:int = 0;
-			var length:int = _points.items.length;			
-			for (;i< length; i++) 
-			{
-				boundsMaxX = Math.max(boundsMaxX, _points.items[i].x+x);
-				boundsMaxY = Math.max(boundsMaxY, _points.items[i].y+y);
-				
-				boundsMinX= Math.min(boundsMinX, _points.items[i].x+x);
-				boundsMinY= Math.min(boundsMinY, _points.items[i].y+y);
-				
-			}
-
-			_bounds = new Rectangle(boundsMinX,boundsMinY,boundsMaxX-boundsMinX,boundsMaxY-boundsMinY);
-
-		}	
 		
 		/**
 		* @inheritDoc 
@@ -263,7 +238,6 @@ package com.degrafa.geometry{
 					commandStack.addLineTo(_points.items[0].x+x,_points.items[0].y+y);
 				}
 			
-				calcBounds();
 				invalidated = false;
 			}
 			

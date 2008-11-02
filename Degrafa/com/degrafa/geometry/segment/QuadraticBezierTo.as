@@ -173,30 +173,12 @@ package com.degrafa.geometry.segment{
 			}
 		}
 		
-		
-		/**
-		* Calculates the bounds for this segment. 
-		**/	
-		private function calcBounds():void{
-			var rect:Rectangle= GeometryUtils.bezierBounds(lastPoint.x,
-					lastPoint.y, _commandStackItem.cx, _commandStackItem.cy,
-					_commandStackItem.x1, _commandStackItem.y1);
-					
-			if (!_bounds) _bounds = rect.clone()
-			else {
-				_bounds.x = rect.x;
-				_bounds.y = rect.y;
-				_bounds.width = rect.width;
-				_bounds.height = rect.height;
-			}	
-		}
-		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this segment as represented by a Rectangle object. 
 		**/
 		public function get bounds():Rectangle{
-			return _bounds;	
+			return commandStackItem.bounds;	
 		}
 		
 		/**

@@ -232,7 +232,8 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
+			//return _bounds;
+			return commandStack.bounds;	
 		}
 		
 		
@@ -245,48 +246,10 @@ package com.degrafa.geometry{
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
-			
 			if(commandStack.length==0){return;}
-			var item:CommandStackItem;
-			var lpX:Number;
-			var lpY:Number;
-			if (_bounds) {
-				_bounds.x = x+width/2;
-				_bounds.y = y+height/2;
-				_bounds.width = 0.0001;
-				_bounds.right = 0.0001;
-				
-			} else 	_bounds = new Rectangle(x+width/2, y+height/2, 0.0001, 0.0001);
-
-			//it's a regular commandStack of quadratic beziers
-			//TODO: implement a (presumably) faster geometric bounds calculation in ArcUtils based on the arcTo parameters alone
-			for each(item in commandStack.source){
-				with(item)
-					{
-						if (type == CommandStackItem.MOVE_TO)
-						{
-							lpX = x;
-							lpY = y;
-						} else {
-						if (type == CommandStackItem.LINE_TO)
-						{
-							_bounds = _bounds.union(new Rectangle(Math.min(lpX,x),Math.min(lpY,y),Math.abs(x-lpX),Math.abs(y-lpY)));
-							lpX = x;
-							lpY = y;
-						} else {
-							_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX, lpY, cx, cy, x1, y1));
-							lpX = x1;
-							lpY = y1;
-							}
-						}
-
-					}
-			}
-			
-			if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
+				if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
 				_originalBounds=_bounds;
 			}
-		
 		}	
 				
 		/**

@@ -266,7 +266,10 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return _bounds;	
+			//return _bounds;
+			
+			return commandStack.bounds;
+				
 		}
 		
 		private var _originalBounds:Rectangle;
@@ -278,49 +281,10 @@ package com.degrafa.geometry{
 		* Calculates the bounds for this element. 
 		**/		
 		private function calcBounds():void{
-			
 			if(commandStack.length==0){return;}
-			
-			var item:CommandStackItem;
-			var lpX:Number;
-			var lpY:Number;
-			if (_bounds) { //re-use the existing Rectangle instance
-				_bounds.x = Math.min(x0, x1);
-				_bounds.y = Math.min(y0, y1);
-				_bounds.bottom = Math.max(y0, y1);
-				_bounds.right = Math.max(x0, x1);
-				
-			} else 	_bounds = new Rectangle(Math.min(x0, x1), Math.min(y0, y1), Math.abs(x1 - x0), Math.abs(y1 - y0));
-
-			for each(item in commandStack.source){
-				with(item)
-					{
-						if (type == CommandStackItem.MOVE_TO)
-						{
-							lpX = x;
-							lpY = y;
-						} else {
-							if (type == CommandStackItem.LINE_TO) {
-							_bounds = _bounds.union(new Rectangle(Math.min(lpX, x), Math.min(lpY,y), Math.abs(lpX- x), Math.abs(lpY- y)));
-							lpX = x;
-							lpY = y;
-						}
-						else {
-							_bounds = _bounds.union(GeometryUtils.bezierBounds(lpX,lpY, cx, cy, x1, y1));
-							lpX = x1;
-							lpY = y1;
-						}
-						}
-					}
-			}
-			//adjustment for horizontal and vertical lines
-			if (_bounds.width == 0) _bounds.width = 0.0001;
-			if (_bounds.height == 0) _bounds.height = 0.0001;
-        
-        	if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
+			if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
 				_originalBounds=_bounds;
 			}
-				
 		}
 				
 		/**
@@ -328,7 +292,9 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-			
+				
+				commandStack.resetBounds();
+				
 				//if the last controly and the y are the same add a 
 				//minute offset to avoid a display parasite that 
 				//can sometimes occur from this
@@ -344,8 +310,11 @@ package com.degrafa.geometry{
 			
 				//fill the quad array with curve to segments 
 				//which we'll use to draw and calc the bounds
-				GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1+cy1Offset
-				,x1,y1,1,commandStack);	
+				/*GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1+cy1Offset
+				,x1,y1,1,commandStack);	*/
+				
+				commandStack.addCubicBezierTo(x0,y0,cx,cy,cx1,cy1+cy1Offset
+				,x1,y1,1);
 				
 				if(close){
 					commandStack.addLineTo(x0,y0);	

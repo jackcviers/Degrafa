@@ -27,6 +27,9 @@ package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.utilities.GeometryUtils;
+	import com.degrafa.transform.Transform;
+	import com.degrafa.transform.TransformBase;
 	
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -350,6 +353,37 @@ package com.degrafa.geometry.command{
 			return null;
 		}
 		
+		public function get transformBounds():Rectangle{
+			var tempBounds:Rectangle = TransformBase.transformBounds(_bounds.clone(),transMatrix);
+			return tempBounds;
+		}
+		
+		/**
+		* The calculated bounds for this object.
+		*/		
+		private var _bounds:Rectangle;
+		public function get bounds():Rectangle{
+			return _bounds;
+		}
+		
+		private function addBounds(item:CommandStackItem):void{
+			
+			if(item){
+				item.calcBounds();
+			}
+			
+			if(!_bounds || _bounds.isEmpty()){
+				_bounds = item.bounds;
+			}
+			else{
+				_bounds = _bounds.union(item.bounds);
+			}
+			
+		}
+		
+		public function resetBounds():void{
+			_bounds.setEmpty();
+		}
 		
 		/**
 		* Adds a new MOVE_TO type item to be processed.
@@ -360,6 +394,8 @@ package com.degrafa.geometry.command{
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
+			
+			addBounds(source[itemIndex]);
 			
 			return source[itemIndex];
 		}
@@ -373,6 +409,8 @@ package com.degrafa.geometry.command{
 
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
+			
+			addBounds(source[itemIndex]);
 			
 			lengthIsValid = false;
 			
@@ -389,9 +427,23 @@ package com.degrafa.geometry.command{
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
+			addBounds(source[itemIndex]);
+			
 			lengthIsValid = false;
 			
 			return source[itemIndex];
+		}
+		
+		/**
+		* Accepts a cubic bezier and adds the CURVE_TO type items requiered to render it.
+		* And returns the array of added CURVE_TO objects.
+		**/	
+		public function addCubicBezierTo(x0:Number,y0:Number,cx:Number,cy:Number,cx1:Number,cy1:Number,x1:Number,y1:Number,tolerance:int=1):Array{
+			
+			lengthIsValid = false;
+			
+			return GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1,x1,y1,1,this);
+			
 		}
 		
 		/**
@@ -417,6 +469,8 @@ package com.degrafa.geometry.command{
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
+			addBounds(source[itemIndex]);
+			
 			return source[itemIndex];
 		}
 		
@@ -429,6 +483,8 @@ package com.degrafa.geometry.command{
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
+			
+			addBounds(source[itemIndex]);
 						
 			if(value.type != CommandStackItem.COMMAND_STACK){
 				lengthIsValid = false;

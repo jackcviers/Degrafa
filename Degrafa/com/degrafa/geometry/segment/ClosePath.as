@@ -78,40 +78,19 @@ package com.degrafa.geometry.segment{
 			return "ClosePath";
 		}
 		
-		/**
-		* Calculates the bounds for this segment. 
-		**/	
-		private function calcBounds():void{
-			_bounds = new Rectangle(
-							Math.min(lastPoint.x,firstPoint.x),
-							Math.min(lastPoint.y, firstPoint.y), 
-							Math.abs(firstPoint.x-lastPoint.x),
-							Math.abs(firstPoint.y - lastPoint.y)
-							);
-			if(_bounds.width == 0){
-				_bounds.width =0.000001;
-			}
-			if(_bounds.height== 0){
-				_bounds.height =0.000001;
-			}
-		}
-		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this segment as represented by a Rectangle object. 
 		**/
 		public function get bounds():Rectangle{
-			return _bounds;	
+			return commandStackItem.bounds;	
 		}
 		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
-			
-			calcBounds();
 			invalidated = false;
-			
 		} 
 		
 		private var lastPoint:Point=new Point(NaN,NaN);

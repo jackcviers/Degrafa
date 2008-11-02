@@ -21,7 +21,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.command{
 	
+	import com.degrafa.geometry.utilities.GeometryUtils;
+	
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	
 	public class CommandStackItem{
@@ -42,6 +45,8 @@ package com.degrafa.geometry.command{
 		
 		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,commandStack:CommandStack=null){
 			
+			invalidated = true;
+			
 			this.type = type;
 			_x=x;
 			_y=y;
@@ -53,7 +58,7 @@ package com.degrafa.geometry.command{
 			if(commandStack){			
 				this.commandStack = commandStack;
 			}
-						
+									
 			if(!isRegistered){
 				registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
 				registerClassAlias("flash.geom.Point", Point);
@@ -98,6 +103,48 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
+		/**
+		* The calculated bounds for this object.
+		*/		
+		private var _bounds:Rectangle;
+		public function get bounds():Rectangle{
+			return _bounds;
+		}
+				
+		/**
+		* Calculates the bounds for this item.
+		**/
+		public function calcBounds():void{
+			
+			if(!invalidated){return;}
+			
+			//using the previous item calculate the bounds for this object
+			switch(type){
+				
+				case CommandStackItem.MOVE_TO:
+					_bounds = new Rectangle(x,y,0.001,0.001);	
+					break;			
+				case CommandStackItem.LINE_TO:
+					_bounds = new Rectangle(Math.min(x,start.x),Math.min(y,start.y),
+					Math.abs(x-start.x),Math.abs(y-start.y));
+					break;
+			
+				case CommandStackItem.CURVE_TO:
+					_bounds = GeometryUtils.bezierBounds(start.x,start.y, cx, cy, x1, y1)
+					break;
+					
+				case CommandStackItem.COMMAND_STACK:
+					_bounds = commandStack.bounds;
+					break;
+			}
+			
+			//adjustment for horizontal and vertical lines
+			if (_bounds.width == 0) _bounds.width = 0.0001;
+			if (_bounds.height == 0) _bounds.height = 0.0001;
+			
+		}
+		
+				
 		/**
 		* Return the start point as a point object. This is considered to be
 		* the previous segments end point. You can only get the start point 

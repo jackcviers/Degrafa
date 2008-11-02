@@ -112,42 +112,18 @@ package com.degrafa.geometry.segment{
 			}
 		}
 		
-		
-		/**
-		* Calculates the bounds for this segment. 
-		**/	
-		private function calcBounds():void
-		{
-			_bounds = new Rectangle(
-										Math.min(lastPoint.x,_commandStackItem.x),
-										lastPoint.y, 
-										Math.abs(_commandStackItem.x-lastPoint.x),
-										0
-									);
-			
-			//temporary fix for 0 width or height
-			if(_bounds.width == 0){
-				_bounds.width =0.000001;
-			}
-			if(_bounds.height== 0){
-				_bounds.height =0.000001;
-			}
-									
-		}
-		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this segment as represented by a Rectangle object. 
 		**/
 		public function get bounds():Rectangle{
-			return _bounds;	
+			return commandStackItem.bounds;	
 		}
 		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
-			calcBounds();
 			invalidated = false;
 		} 
 		

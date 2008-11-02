@@ -148,7 +148,7 @@ package com.degrafa.geometry.stencil{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			return itemDataDictionary[type].originalBounds;	
+			return itemDataDictionary[type].originalBounds;
 		}
 		
 		/**
