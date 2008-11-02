@@ -185,7 +185,6 @@ package com.degrafa.geometry.segment{
 		* @inheritDoc 
 		**/		
 		override public function preDraw():void{
-			calcBounds();
 			invalidated = false;
 		} 
 		
