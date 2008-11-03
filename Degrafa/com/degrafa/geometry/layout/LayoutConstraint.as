@@ -18,9 +18,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+// Some algorithms and docs based on code from Trevor McCauley, www.senocular.com
 ////////////////////////////////////////////////////////////////////////////////
 
-//Based on code from Trevor McCauley, www.senocular.com 
 
 package com.degrafa.geometry.layout
 {
