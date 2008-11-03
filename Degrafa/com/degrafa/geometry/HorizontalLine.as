@@ -177,7 +177,7 @@ package com.degrafa.geometry{
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
 			if(!_originalBounds && _x1){
-				_originalBounds=_bounds;
+				_originalBounds=bounds;
 			}
 		}	
 		

@@ -282,8 +282,8 @@ package com.degrafa.geometry{
 		**/		
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && (_bounds.width !=0 || _bounds.height!=0)){
-				_originalBounds=_bounds;
+			if(!_originalBounds && (bounds.width !=0 || bounds.height!=0)){
+				_originalBounds=bounds;
 			}
 		}
 				

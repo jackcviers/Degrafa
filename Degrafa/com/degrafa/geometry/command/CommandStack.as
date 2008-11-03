@@ -382,7 +382,9 @@ package com.degrafa.geometry.command{
 		}
 		
 		public function resetBounds():void{
-			_bounds.setEmpty();
+			if(_bounds){
+				_bounds.setEmpty();
+			}
 		}
 		
 		/**
