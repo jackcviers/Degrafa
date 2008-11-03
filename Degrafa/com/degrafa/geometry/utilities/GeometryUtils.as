@@ -387,6 +387,7 @@ package com.degrafa.geometry.utilities{
 		private static var dy:Number;
 		private static var dx1:Number;
 		private static var dx2:Number;
+		private static var returnResult:Array;
 		/**
 		* CubicToQuadratic
 		* <p>Approximates a cubic bezier with as many quadratic bezier segments (n) as required 
@@ -403,7 +404,12 @@ package com.degrafa.geometry.utilities{
 		* @param k tolerance (low number = most accurate result)
 		* @param commandStack will contain the path of quadratic bezier curves that closely approximates the original cubic bezier curve
 		*/
-	 	public static function cubicToQuadratic(p1x:Number,p1y:Number, c1x:Number,c1y:Number, c2x:Number,c2y:Number, p2x:Number,p2y:Number, k:Number, commandStack:CommandStack):void{
+	 	public static function cubicToQuadratic(p1x:Number,p1y:Number, c1x:Number,c1y:Number, c2x:Number,c2y:Number, p2x:Number,p2y:Number, k:Number, commandStack:CommandStack):Array{
+			
+			//prepare the return array
+			if(!returnResult){
+				returnResult = [];
+			}
 			
 			// find intersection between bezier arms (intersection point calculated as coords sx,xy)
 			dx1= c1x - p1x;
@@ -412,15 +418,15 @@ package com.degrafa.geometry.utilities{
 			{
 				//horizontal line: store it as a lineTo in commandStack
 				//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
-				commandStack.addLineTo(p2x, p2y);
-				return;
+				returnResult.push(commandStack.addLineTo(p2x, p2y));
+				return returnResult;
 			}
 			if (!dx1 && !dx2 && p1x==p2x)
 			{
 				//vertical line: store it as a lineTo in commandStack
 				//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
-				commandStack.addLineTo(p2x, p2y);
-				return;
+				returnResult.push(commandStack.addLineTo(p2x, p2y));
+				return returnResult;
 
 			}
 			else if (!dx1){
@@ -446,8 +452,8 @@ package com.degrafa.geometry.utilities{
 				if (m1 == m2  && m3 == m1) {
 					//if they are colinear with the line between the anchors...its just a line
 					//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
-					commandStack.addLineTo(p2x, p2y);
-					return;
+					returnResult.push(commandStack.addLineTo(p2x, p2y));
+					return returnResult;
 				}
 				//are they on the same side or opposite sides of the line between the anchors?
 				if ((m1 > m3 && m2 < m3) || (m1 < m3 && m2 > m3)){
@@ -494,12 +500,15 @@ package com.degrafa.geometry.utilities{
 				cubicToQuadratic (p03x,p03y,p13x,p13y,p23x,p23y, p2x,p2y,k, commandStack);	
 			} 
 			else{
-				
 				// end recursion by saving points
-				
-				commandStack.addCurveTo(sx,sy,p2x,p2y);
+				returnResult.push(commandStack.addCurveTo(sx,sy,p2x,p2y));
 			}
+		
+			return returnResult;
+		
 		}
+		
+		
 	
 	}
 }
