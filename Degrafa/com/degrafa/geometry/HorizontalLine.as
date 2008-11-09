@@ -208,10 +208,10 @@ package com.degrafa.geometry{
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
 				
-					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,0.0001,0.0001);
 					
-					if(_x1){
-			 			tempLayoutRect.width = _x1-_x;
+					if(_x1 -_x){
+			 			tempLayoutRect.width = Math.abs(_x1-_x);
 			 		}
 							 		
 			 		if(_x){
