@@ -216,6 +216,39 @@ package com.degrafa.geometry.command{
 		}
 		
 		/**
+		* Function to be called during the render loop when 
+		* this item is about to be rendered.
+		*/		
+		private var _renderDelegateStart:Function;
+		public function get renderDelegateStart():Function{
+			return _renderDelegateStart;
+		}
+		public function set renderDelegateStart(value:Function):void{
+			if(_renderDelegateStart != value){
+				_renderDelegateStart = value;
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* Function to be called during the render loop when 
+		* this item has just been rendered.
+		*/	
+		private var _renderDelegateEnd:Function;
+		public function get renderDelegateEnd():Function{
+			return _renderDelegateEnd;
+		}
+		public function set renderDelegateEnd(value:Function):void{
+			if(_renderDelegateEnd != value){
+				_renderDelegateEnd = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		
+		
+		/**
 		* A nested command stack in the case of a command stack type
 		**/
 		private var _commandStack:CommandStack;

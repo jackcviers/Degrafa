@@ -99,8 +99,11 @@ package com.degrafa.geometry.command{
 					
 			//setup a layout transform
 			if (layout){
+				//[Greg] to be verified.
 				var temp:Matrix = new Matrix();
 				var tempRect:Rectangle = owner.originalBounds ? owner.originalBounds: owner.bounds;
+				tempRect = owner.bounds;
+				
 				temp.translate( -tempRect.x, -tempRect.y)
 				temp.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
 				temp.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
@@ -245,7 +248,13 @@ package com.degrafa.geometry.command{
 			var item:CommandStackItem;
 			while(cursor.moveNext()){	   			
 	   			
-	   			item = cursor.current;
+				item = cursor.current;				
+				
+				//deffer to the start delegate if one found
+				if (item.renderDelegateStart !=null){
+					item=item.renderDelegateStart(this,item,graphics);
+				}
+				
 				with(item){	
 					switch(type){
 						case CommandStackItem.MOVE_TO:
@@ -293,6 +302,12 @@ package com.degrafa.geometry.command{
 	        				renderCommandStack(graphics,rc,new DegrafaCursor(commandStack.source))
 					}
     			}
+    			
+    			//deffer to the end delegate if one found
+				if (item.renderDelegateEnd !=null){
+					item=item.renderDelegateEnd(this,item,graphics);
+				}
+				
         	}
 		}
 				
