@@ -690,8 +690,6 @@ package com.degrafa.paint{
 		private var sourceBounds:Rectangle;
 		private function redraw():void
 		{
-				
-				
 				//dev note: [optimization] at the moment, switching filters on/off also triggers a redraw below...this is not necessary if it is the only propertyChange
 				// as a redraw is not required, just application or removal of the filters and adjustment of sourceBounds
 				shape.graphics.clear();
@@ -1149,7 +1147,7 @@ package com.degrafa.paint{
 			//handle layout transforms 
 			if (_requester && (_requester as Geometry).hasLayout) {
 				var geom:Geometry = _requester as Geometry;
-				matrix.concat( geom._layoutMatrix);
+				if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
 			}
 			if (_transform && ! _transform.isIdentity) {
 					tempmat= new Matrix();

@@ -29,6 +29,8 @@ package com.degrafa.paint{
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
+	import mx.controls.Text;
+	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEventKind;
 	
 	import flash.display.Bitmap;
@@ -550,18 +552,22 @@ package com.degrafa.paint{
 			//original:	if (bitmapData == null && target != null)
 			if( target != null)
 			{
+				//trace('dispobj')
+			//	if (target is UIComponent) trace('UIComponent')
 				//handle displayObjects with zero width and height
 				if (!target.width || !target.height)
 				{
+					trace('check')
 					//check the bounds and if they're not empty use them.
 					var tempRect:Rectangle = target.getBounds(target);
+					trace(target is Text)
 					if (!tempRect.isEmpty())
 					{
-						bitmapData = new BitmapData(tempRect.width, tempRect.height, true, 0);
+						bitmapData = new BitmapData(Math.ceil(tempRect.width), Math.ceil(tempRect.height), true, 0);
 						bitmapData.draw(target, new Matrix(1, 0, 0, 1, -tempRect.x, -tempRect.y));
 					} else bitmapData = null;
-					
 				} else {
+					trace('ok')
 				bitmapData = new BitmapData(target.width, target.height, true, 0);
 				bitmapData.draw(target);
 				}
@@ -675,7 +681,7 @@ package com.degrafa.paint{
 			//handle layout transforms - only renderLayouts so far
 			if (_requester && (_requester as Geometry).hasLayout) {
 				var geom:Geometry = _requester as Geometry;
-				matrix.concat( geom._layoutMatrix);
+				if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
 			}
 			if (_transform && ! _transform.isIdentity) {
 				

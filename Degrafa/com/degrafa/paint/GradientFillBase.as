@@ -271,7 +271,7 @@ package com.degrafa.paint{
 			//handle layout transforms - only renderLayouts so far
 			if (_requester && (_requester as Geometry).hasLayout) {
 					var geom:Geometry = _requester as Geometry;
-					matrix.concat( geom._layoutMatrix);
+					if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
 				}
 			
 			if (_transform && ! _transform.isIdentity) {

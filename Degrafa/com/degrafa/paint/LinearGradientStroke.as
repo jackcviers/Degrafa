@@ -129,9 +129,7 @@ package com.degrafa.paint{
 		public function set height(value:Number):void{
 			if(_height != value){
 				var oldValue:Number=_height;
-				
 				_height = value;
-				
 				//call local helper to dispatch event	
 				initChange("height",oldValue,_height,this);
 			}

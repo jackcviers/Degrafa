@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.IGeometryComposition;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -108,7 +109,7 @@ package com.degrafa.paint{
 		
 		public function begin(graphics:Graphics, rectangle:Rectangle):void {
 			if (fill != null) {
-			if (fill is IGraphicsFill)	(fill as IGraphicsFill).requester = _requester;
+			if (fill is ITransformablePaint)	(fill as ITransformablePaint).requester = _requester;
 				fill.begin(graphics, rectangle);
 				_requester = null;
 			}
