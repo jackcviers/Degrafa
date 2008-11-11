@@ -179,18 +179,7 @@ package com.degrafa.geometry.stencil{
 			if(_layoutConstraint){
 				
 				super.calculateLayout();
-				
-				_layoutConstraint.xMax=bounds.bottomRight.x;
-				_layoutConstraint.yMax=bounds.bottomRight.y;
-				
-				_layoutConstraint.xMin=bounds.x;
-				_layoutConstraint.yMin=bounds.y;
-				
-				_layoutConstraint.xOffset = layoutRectangle.x;
-				_layoutConstraint.yOffset = layoutRectangle.y;
-				
-				_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-				_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+				_layoutRectangle = _layoutConstraint.layoutRectangle;
 			}
 		}
 				
@@ -204,10 +193,10 @@ package com.degrafa.geometry.stencil{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			//re init if required
-		 	preDraw();
+		 	if (invalidated) preDraw();
 		 	
 		 	//init the layout in this case done after predraw.
-			calculateLayout();
+			if (_layoutConstraint) calculateLayout();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 	 	}
