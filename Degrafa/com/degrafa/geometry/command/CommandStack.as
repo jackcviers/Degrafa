@@ -27,8 +27,8 @@ package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.utilities.GeometryUtils;
-	import com.degrafa.transform.Transform;
 	import com.degrafa.transform.TransformBase;
 	
 	import flash.display.BitmapData;
@@ -42,27 +42,32 @@ package com.degrafa.geometry.command{
 	import flash.net.registerClassAlias;
 	
 	public class CommandStack{
+	
+		static public const IS_REGISTERED:Boolean = !registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);	
 		
+		static public var transMatrix:Matrix=new Matrix();
+		static public var currentLayoutMatrix:Matrix=new Matrix();
+		static public var currentTransformMatrix:Matrix = new Matrix();
+		
+		//single references to point objects used for internal calculations:
+		static private var transXY:Point=new Point();
+		static private var transCP:Point=new Point();
+			
 		//TODO this has to be made private now and all access controlled through the command
 		//stack otherwise we can lose previous and next references
 		public var source:Array = [];
 		
 		public var lengthIsValid:Boolean;
 		
-		public var transMatrix:Matrix;
-		
-		
-		private	static var transXY:Point=new Point();
-		private	static var transCP:Point=new Point();
-						
 		public var owner:Geometry;
+		public var parent:CommandStackItem;
 		
 		//filter stuff
 		private var hasFilters:Boolean
 		
 		private var _fxShape:Shape;
 		private var _maskRender:Shape;
-		private static var isRegistered:Boolean = false;
+
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
@@ -70,14 +75,8 @@ package com.degrafa.geometry.command{
 			if(geometry){
 				hasFilters = (geometry.filters.length>0);
 			}
-			
-			if (!isRegistered) {
-				registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);
-				isRegistered = true;
-			}
 		}
-		
-		
+	
 		
 		/**
 		* Setups the layout and transforms
@@ -96,25 +95,32 @@ package com.degrafa.geometry.command{
 			}
 			
 			var layout:Boolean=owner.hasLayout;
-					
+			currentLayoutMatrix.identity();
 			//setup a layout transform
 			if (layout){
-				//[Greg] to be verified.
-				var temp:Matrix = new Matrix();
-				var tempRect:Rectangle = owner.originalBounds ? owner.originalBounds: owner.bounds;
-				tempRect = owner.bounds;
-				
-				temp.translate( -tempRect.x, -tempRect.y)
-				temp.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
-				temp.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
-				owner._layoutMatrix = temp;
-				transMatrix = owner._layoutMatrix.clone();
+
+				var tempRect:Rectangle = bounds;
+				//	tempRect = owner.bounds;
+				if (!tempRect.equals(owner.layoutRectangle)) {	
+					currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
+					currentLayoutMatrix.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
+					currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
+					owner._layoutMatrix = currentLayoutMatrix.clone();
+					transMatrix = currentLayoutMatrix.clone();
+				} else {
+					layout = false;
+					owner._layoutMatrix = null;
+				}
+			} 
+			else if (owner._layoutMatrix){  
+				owner._layoutMatrix= null;
 			}
 			
 			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
 			
 			//combine the layout and transform into one matrix
-			if (trans){	
+			if (trans) {	
+				currentTransformMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;
 				if (!layout){
 					transMatrix = (owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext;	
 				} 
@@ -122,7 +128,8 @@ package com.degrafa.geometry.command{
 					transMatrix.concat((owner.transform)? owner.transform.getTransformFor(owner): owner.transformContext)
 				}
 			}
-			else{
+			else {
+				currentTransformMatrix.identity();
 				if (!layout) transMatrix = null;
 			}
 		}
@@ -133,58 +140,70 @@ package com.degrafa.geometry.command{
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 
 			//exit if no command stack
-			if(source.length==0){return;}
+			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
 			
 			//setup requirements before the render
 			predraw()
-					
-			//setup a cursor for the path data interation
-			_cursor=new DegrafaCursor(source)
 			
-			//setup the temporary shape to draw to in place 
-			//of the passsed graphics context
-			var hasmask:Boolean = (owner.mask!=null);
-			if(hasFilters || hasmask){
-				if (!_fxShape) _fxShape = new Shape();
-				if (hasmask) {
-					//dev note: need to change this mask is only redrawn when necessary
-					if (!_maskRender) _maskRender = new Shape();
-					_maskRender.graphics.clear();
-					_fxShape.mask = _maskRender;
-					owner.mask.draw(_maskRender.graphics, owner.mask.bounds)
-				} else if (_fxShape.mask) _fxShape.mask = null;
+			if((owner is IDisplayObjectProxy)){
 				
-				/*if(owner.blendMode){
-					_fxShape.blendMode = owner.blendMode;
-				}*/
-				
-				_fxShape.graphics.clear();
-											
-				//setup the stroke
-				owner.initStroke(_fxShape.graphics,rc);
-				
-				//setup the fill
-				owner.initFill(_fxShape.graphics,rc);
-				
-				renderCommandStack(_fxShape.graphics,rc,_cursor);
-				
-				//apply the filters
-			//	if(owner.mask ||(owner.filters.length!=0 && owner.filters[0] !=null)){
-					if (owner.filters[0]) _fxShape.filters = owner.filters;
-				
-					//blit the data to the destination context
-					renderBitmapDatatoContext(_fxShape,graphics)
-			//	}
+				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject,graphics);
 				
 			}
-			else {
-				//setup the stroke
-				owner.initStroke(graphics,rc);
+			else{
+					
+				//setup a cursor for the path data interation
+				_cursor=new DegrafaCursor(source)
 				
-				//setup the fill
-				owner.initFill(graphics,rc);
-				
-				renderCommandStack(graphics,rc,_cursor);
+				//setup the temporary shape to draw to in place 
+				//of the passsed graphics context
+				var hasmask:Boolean = (owner.mask!=null);
+				if(hasFilters || hasmask){
+					if (!_fxShape){
+						_fxShape = new Shape();
+					}
+					else{
+						_fxShape.graphics.clear();
+					}
+					
+					if (hasmask) {
+						//dev note: need to change this mask is only redrawn when necessary
+						if (!_maskRender) _maskRender = new Shape();
+						_maskRender.graphics.clear();
+						_fxShape.mask = _maskRender;
+						owner.mask.draw(_maskRender.graphics, owner.mask.bounds)
+					} else if (_fxShape.mask) _fxShape.mask = null;
+					
+					/*if(owner.blendMode){
+						_fxShape.blendMode = owner.blendMode;
+					}*/
+																	
+					//setup the stroke
+					owner.initStroke(_fxShape.graphics,rc);
+					
+					//setup the fill
+					owner.initFill(_fxShape.graphics,rc);
+					
+					renderCommandStack(_fxShape.graphics,rc,_cursor);
+					
+					//apply the filters
+					//	if(owner.mask ||(owner.filters.length!=0 && owner.filters[0] !=null)){
+						if (owner.filters[0]) _fxShape.filters = owner.filters;
+					
+						//blit the data to the destination context
+						renderBitmapDatatoContext(_fxShape,graphics)
+					//	}
+					
+				}
+				else {
+					//setup the stroke
+					owner.initStroke(graphics,rc);
+					
+					//setup the fill
+					owner.initFill(graphics,rc);
+					
+					renderCommandStack(graphics,rc,_cursor);
+				}
 			}
 			
 		}
@@ -192,8 +211,11 @@ package com.degrafa.geometry.command{
 		
 		
 		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics):void{
+			
+			if(!source){return;}
 									
-			var sourceRect:Rectangle = source.getBounds(source);
+			var sourceRect:Rectangle=source.getBounds(source);
+									
 			if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
 			if(sourceRect.isEmpty()){return;}
 			
@@ -205,22 +227,19 @@ package com.degrafa.geometry.command{
 			filteredRect.offset(sourceRect.x, sourceRect.y);
 						
 			var bitmapData:BitmapData;
-			
-			//var blendMode:String= (owner.blendMode)? owner.blendMode:null; 
-			
+						
 			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
 			
 			if(filteredRect.width<1 || filteredRect.height<1){
 				return;
 			} 
 			
-			bitmapData = new BitmapData(filteredRect.width , filteredRect.height , true, 0);
+			bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
 			var mat:Matrix=new Matrix(1,0,0,1,-filteredRect.x,-filteredRect.y)
-			bitmapData.draw(source, mat, null, null, clipTo,true);
+			bitmapData.draw(source, mat, null, null, clipTo,false);
 			mat.invert()
-			context.beginBitmapFill(bitmapData, mat, false);
-		//dev note: debug outline
-		//	context.lineStyle(0,0x00ff00)
+			
+			context.beginBitmapFill(bitmapData, mat,false,false);
 			context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
 			context.endFill();
 			
@@ -250,7 +269,7 @@ package com.degrafa.geometry.command{
 	   			
 				item = cursor.current;				
 				
-				//deffer to the start delegate if one found
+				//defer to the start delegate if one found
 				if (item.renderDelegateStart !=null){
 					item=item.renderDelegateStart(this,item,graphics);
 				}
@@ -300,10 +319,12 @@ package com.degrafa.geometry.command{
 	        			//recurse if required
 	        			case CommandStackItem.COMMAND_STACK:
 	        				renderCommandStack(graphics,rc,new DegrafaCursor(commandStack.source))
+	        				break;
+	        			        				
 					}
     			}
     			
-    			//deffer to the end delegate if one found
+    			//defer to the end delegate if one found
 				if (item.renderDelegateEnd !=null){
 					item=item.renderDelegateEnd(this,item,graphics);
 				}
@@ -334,8 +355,8 @@ package com.degrafa.geometry.command{
 		**/
 		public function get lastNonCommandStackItem():CommandStackItem{
 			var i:int = source.length-1;
-			while(i>0){
-				if(source[i].type != 4){
+			while (i > 0) {
+				if(source[i].type != CommandStackItem.COMMAND_STACK){
 					return source[i];
 				}
 				else{
@@ -354,8 +375,7 @@ package com.degrafa.geometry.command{
 			
 			var i:int = source.length-1;
 			while(i<source.length-1){
-				
-				if(source[i].type != 4){
+				if(source[i].type != CommandStackItem.COMMAND_STACK){
 					return source[i];
 				}
 				else{
@@ -372,17 +392,32 @@ package com.degrafa.geometry.command{
 			var tempBounds:Rectangle = TransformBase.transformBounds(_bounds.clone(),transMatrix);
 			return tempBounds;
 		}
-		
+		private var invalidated:Boolean = true;
 		/**
 		* The calculated bounds for this object.
 		*/		
-		private var _bounds:Rectangle;
-		public function get bounds():Rectangle{
+		private var _bounds:Rectangle=new Rectangle();
+		
+		public function get bounds():Rectangle {
+			if (!invalidated) return _bounds
+			else {
+				_bounds.setEmpty();
+				for each(var item:CommandStackItem in source) {
+					item.calcBounds();
+						_bounds = _bounds.union(item.bounds);
+				}
+				invalidated = false;
+				if (_bounds.height!=0.0001) _bounds.height = Number(_bounds.height.toPrecision(3));
+				if (_bounds.width != 0.0001) _bounds.width = Number(_bounds.width.toPrecision(3));
+				if (_bounds.isEmpty()) invalidated = true;
+			}
 			return _bounds;
 		}
 		
-		private function addBounds(item:CommandStackItem):void{
-			
+		private function addBounds(item:CommandStackItem):void {
+			//** CHANGE HERE *** 
+			//leaving old code here for now		
+			/*
 			if(item){
 				item.calcBounds();
 			}
@@ -393,7 +428,7 @@ package com.degrafa.geometry.command{
 			else{
 				_bounds = _bounds.union(item.bounds);
 			}
-			
+			*/
 		}
 		
 		public function resetBounds():void{
@@ -411,8 +446,9 @@ package com.degrafa.geometry.command{
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
-			
-			addBounds(source[itemIndex]);
+			source[itemIndex].indexInParent = itemIndex;
+			//** CHANGE HERE *** 	
+			//	addBounds(source[itemIndex]);
 			
 			return source[itemIndex];
 		}
@@ -427,8 +463,10 @@ package com.degrafa.geometry.command{
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
-			addBounds(source[itemIndex]);
-			
+			//** CHANGE HERE *** 	
+			//	addBounds(source[itemIndex]);
+			source[itemIndex].indexInParent = itemIndex;
+			source[itemIndex].parent = this;
 			lengthIsValid = false;
 			
 			return source[itemIndex];
@@ -437,17 +475,18 @@ package com.degrafa.geometry.command{
 		/**
 		* Adds a new CURVE_TO type item to be processed.
 		**/	
-		public function addCurveTo(cx:Number,cy:Number,x1:Number,y1:Number):CommandStackItem{
+		public function addCurveTo(cx:Number, cy:Number, x1:Number, y1:Number):CommandStackItem {
 			var itemIndex:int =source.push(new CommandStackItem(CommandStackItem.CURVE_TO,
 			NaN,NaN,x1,y1,cx,cy))-1;
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
-			
-			addBounds(source[itemIndex]);
+			source[itemIndex].indexInParent = itemIndex;
+			source[itemIndex].parent = this;
+			//** CHANGE HERE *** 	
+			//addBounds(source[itemIndex]);
 			
 			lengthIsValid = false;
-			
 			return source[itemIndex];
 		}
 		
@@ -458,7 +497,6 @@ package com.degrafa.geometry.command{
 		public function addCubicBezierTo(x0:Number,y0:Number,cx:Number,cy:Number,cx1:Number,cy1:Number,x1:Number,y1:Number,tolerance:int=1):Array{
 			
 			lengthIsValid = false;
-			
 			return GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1,x1,y1,1,this);
 			
 		}
@@ -472,7 +510,8 @@ package com.degrafa.geometry.command{
 
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
-			
+			source[itemIndex].indexInParent = itemIndex;
+			source[itemIndex].parent = this;
 			return source[itemIndex];
 		}
 		
@@ -485,8 +524,10 @@ package com.degrafa.geometry.command{
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
-			
-			addBounds(source[itemIndex]);
+			source[itemIndex].indexInParent = itemIndex;
+			source[itemIndex].parent = this;
+			//** CHANGE HERE *** 		
+			//	addBounds(source[itemIndex]);
 			
 			return source[itemIndex];
 		}
@@ -496,12 +537,14 @@ package com.degrafa.geometry.command{
 		**/		
 		public function addItem(value:CommandStackItem):CommandStackItem{
 			
-			var itemIndex:int =source.push(value)-1;
+			var itemIndex:int = source.push(value) - 1;
 			
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
-			
-			addBounds(source[itemIndex]);
+			value.indexInParent = itemIndex;
+			value.parent = this;
+			//** CHANGE HERE *** 	
+			//	addBounds(source[itemIndex]);
 						
 			if(value.type != CommandStackItem.COMMAND_STACK){
 				lengthIsValid = false;
