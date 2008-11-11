@@ -29,6 +29,10 @@ package com.degrafa.geometry.command{
 	
 	public class CommandStackItem{
 		
+		static public const IS_REGISTERED:Boolean = !(	registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem) &&
+														registerClassAlias("flash.geom.Point", Point));	
+
+		
 		public static const MOVE_TO:int=0;
 		public static const LINE_TO:int=1;
 		public static const CURVE_TO:int=2;
@@ -39,9 +43,12 @@ package com.degrafa.geometry.command{
 		public var id:String;
 		public var reference:String;
 		
+		//invalid flag for bounds
 		public var invalidated:Boolean;
-		
-		private static var isRegistered:Boolean = false;
+		//skip flag for rendering
+		public var skip:Boolean;
+		internal var indexInParent:uint;
+		internal var parent:CommandStack;
 		
 		public function CommandStackItem(type:int=0,x:Number=NaN,y:Number=NaN,x1:Number=NaN,y1:Number=NaN,cx:Number=NaN,cy:Number=NaN,commandStack:CommandStack=null){
 			
@@ -59,11 +66,6 @@ package com.degrafa.geometry.command{
 				this.commandStack = commandStack;
 			}
 									
-			if(!isRegistered){
-				registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem);
-				registerClassAlias("flash.geom.Point", Point);
-				isRegistered = true;
-			}
 		}
 		
 		/**
@@ -76,10 +78,12 @@ package com.degrafa.geometry.command{
 		public function set previous(value:CommandStackItem):void{
 			if(_previous != value){
 				_previous = value;
-				
+				if (value.type == CommandStackItem.COMMAND_STACK) {
+					_previous = value.commandStack.lastNonCommandStackItem;
+				}
 				//on set if this is a command stack then forward to the first item			
-				if(type==CommandStackItem.COMMAND_STACK){
-					CommandStackItem(commandStack.source[0]).previous = value;
+				if(type==CommandStackItem.COMMAND_STACK && commandStack.length){
+					CommandStackItem(commandStack.source[0]).previous = _previous;
 				}
 			}
 		}
@@ -96,8 +100,9 @@ package com.degrafa.geometry.command{
 				_next = value;
 				
 				//on set if this is a command stack then forward to the last item			
-				if(type==CommandStackItem.COMMAND_STACK){
-					CommandStackItem(commandStack.source[commandStack.source.length-1]).next = value;
+				if (type == CommandStackItem.COMMAND_STACK) {
+					commandStack.lastNonCommandStackItem.next = value;
+				//	CommandStackItem(commandStack.source[commandStack.source.length-1]).next = value;
 				}
 				
 			}
@@ -107,7 +112,8 @@ package com.degrafa.geometry.command{
 		* The calculated bounds for this object.
 		*/		
 		private var _bounds:Rectangle;
-		public function get bounds():Rectangle{
+		public function get bounds():Rectangle {
+			if (invalidated) calcBounds();
 			return _bounds;
 		}
 				
@@ -115,33 +121,40 @@ package com.degrafa.geometry.command{
 		* Calculates the bounds for this item.
 		**/
 		public function calcBounds():void{
-			
+	//** CHANGE HERE *** 
+	//some changes to the bounds calculations
 			if(!invalidated){return;}
-			
+			var start:Point
 			//using the previous item calculate the bounds for this object
 			switch(type){
 				
 				case CommandStackItem.MOVE_TO:
-					_bounds = new Rectangle(x,y,0.001,0.001);	
+					_bounds = new Rectangle(x, y, 0, 0);	
 					break;			
 				case CommandStackItem.LINE_TO:
+					start = this.start;
+				
 					_bounds = new Rectangle(Math.min(x,start.x),Math.min(y,start.y),
-					Math.abs(x-start.x),Math.abs(y-start.y));
+					Math.abs(x - start.x), Math.abs(y - start.y));
+					if (!_bounds.width) _bounds.width = 0.0001;
+					if (!_bounds.height) _bounds.height = 0.0001;
 					break;
 			
 				case CommandStackItem.CURVE_TO:
-					_bounds = GeometryUtils.bezierBounds(start.x,start.y, cx, cy, x1, y1)
+					start = this.start;
+					_bounds = GeometryUtils.bezierBounds(start.x, start.y, cx, cy, x1, y1).clone();
 					break;
 					
 				case CommandStackItem.COMMAND_STACK:
 					_bounds = commandStack.bounds;
 					break;
 			}
+			invalidated = false;
 			
 			//adjustment for horizontal and vertical lines
-			if (_bounds.width == 0) _bounds.width = 0.0001;
-			if (_bounds.height == 0) _bounds.height = 0.0001;
-			
+		//	if (_bounds.width == 0) _bounds.width = 0.0001;
+		//	if (_bounds.height == 0) _bounds.height = 0.0001;
+		//	trace(_bounds);
 		}
 		
 				
@@ -152,9 +165,9 @@ package com.degrafa.geometry.command{
 		**/
 		public function get start():Point{
 			if(_previous){
-				return _previous.end.clone();
+				return _previous.end;
 			}
-			else{
+			else {
 				return new Point(0,0);
 			}
 			
@@ -258,6 +271,7 @@ package com.degrafa.geometry.command{
 		public function set commandStack(value:CommandStack):void{
 			if(_commandStack != value){
 				_commandStack = value;
+				value.parent = this;
 				invalidated = true;
 			}
 		}
