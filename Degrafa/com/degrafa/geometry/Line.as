@@ -218,19 +218,12 @@ package com.degrafa.geometry{
 			return commandStack.bounds;	
 		}
 		
-		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle{
-			return _originalBounds;	
-		}
 		
 		/**
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && (_x1 || _y1)){
-				_originalBounds=bounds;
-			}
 		}	
 		
 		/**
@@ -279,23 +272,15 @@ package com.degrafa.geometry{
 			 				 		
 			 		super.calculateLayout(tempLayoutRect);	
 			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
 					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					if (isNaN(_x1) && isNaN(_y1) && !_x && !_y) {
+						//layout defined initial state
+						_x = _layoutRectangle.x;
+						_y = _layoutRectangle.y;
+						_x1 = _layoutRectangle.right;
+						_y1 = _layoutRectangle.bottom;
+						invalidated = true;
 					}
 				}
 			}

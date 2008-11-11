@@ -56,10 +56,9 @@ package com.degrafa.geometry{
 		public function Circle(centerX:Number=NaN,centerY:Number=NaN,radius:Number=NaN){			
 			super();
 			
-			this.centerX=centerX;
-			this.centerY=centerY;
-			this.radius=radius;
-			
+			if (centerX) this.centerX=centerX;
+			if (centerY) this.centerY=centerY;
+			if (radius)  this.radius=radius;
 		
 		}
 		
@@ -74,19 +73,18 @@ package com.degrafa.geometry{
 		**/
 		override public function set data(value:String):void{
 			if(super.data != value){
-				super.data = value;
-			
+
 				//parse the string
 				var tempArray:Array = value.split(" ");
 				
 				if (tempArray.length == 3)
-				{
-					_centerX=tempArray[0];
-					_centerY=tempArray[1];
-					_radius=tempArray[2];
+				{	
+					super.data = value;
+					_centerX=	tempArray[0];
+					_centerY=	tempArray[1];
+					_radius =	tempArray[2];
+					invalidated = true;
 				}	
-				
-				invalidated = true;
 			}
 		} 
 		
@@ -97,11 +95,11 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get centerX():Number{
-			if(!_centerX){return (hasLayout)? 1:0;}
+			if(!_centerX){return (hasLayout)? 0.5:0;}
 			return _centerX;
 		}
 		public function set centerX(value:Number):void{
-			if(_centerX != value){
+			if (_centerX != value) {
 				_centerX = value;
 				invalidated = true;
 			}
@@ -113,7 +111,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get centerY():Number{
-			if(!_centerY){return (hasLayout)? 1:0;}
+			if(!_centerY){return (hasLayout)? 0.5:0;}
 			return _centerY;
 		}
 		public function set centerY(value:Number):void{
@@ -130,7 +128,7 @@ package com.degrafa.geometry{
 		* is used.
 		**/
 		public function get radius():Number{
-			if(!_radius){return (hasLayout)? 1:0;}
+			if(!_radius){return (hasLayout)? .5:0;}
 			return _radius;
 		}
 		public function set radius(value:Number):void{
@@ -167,19 +165,12 @@ package com.degrafa.geometry{
 			
 		}
 		
-		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle{
-			return _originalBounds;	
-		}
 		
 		/**
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && (bounds.width !=0 || bounds.height!=0)){
-				_originalBounds=bounds;
-			}
 		}		
 		
 		
@@ -244,27 +235,24 @@ package com.degrafa.geometry{
 					if(_centerY){
 						tempLayoutRect.y = _centerY - (_radius? _radius:0);	
 					}
-			 				 		
+
 			 		super.calculateLayout(tempLayoutRect);	
-			 				 				 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+					//** JASON PLEASE INVESTIGATE
+					//dev note: startup ISSUE here with one test layout for Circle.... when centerX and centerY are defined, but layout sets radius. Initial layoutRectangle has bad x and y settings
+					if (isNaN(_radius)) {
+						//handle layout defined startup values:
+						_radius = _layoutRectangle.width / 2;
+						//if _centerX and _centerY were defined but radius was not, then the layout is wrong...correct it with the newly created radius.
+						//if _centerX and _centery were not defined, then set the initial values
+						if (isNaN(_centerX)) 	_centerX = layoutRectangle.width / 2 + layoutRectangle.x ;
+						else _layoutRectangle.x -= _radius;
+						if (isNaN(_centerY)) 	_centerY = layoutRectangle.height / 2  + layoutRectangle.y;
+						else _layoutRectangle.y -= _radius;
+						
+						invalidated = true;
 					}
+
 				}
 			}
 		}
@@ -278,11 +266,12 @@ package com.degrafa.geometry{
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			
-			//re init if required
-		 	preDraw();
-		 	
+			
 		 	//init the layout
-			calculateLayout();
+			if (hasLayout) calculateLayout();
+			
+			//re init if required
+			if (invalidated) preDraw();
 						
 			//apply the fill retangle for the draw
 			super.draw(graphics,(rc)? rc:bounds);

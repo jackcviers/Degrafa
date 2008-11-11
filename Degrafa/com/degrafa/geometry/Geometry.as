@@ -512,8 +512,10 @@ package com.degrafa.geometry{
 		//the current graphics target being rendered to.
 		protected var _currentGraphicsTarget:Sprite;
 		
+		protected var _layoutRectangle:Rectangle;
+
 		public function get layoutRectangle():Rectangle{
-			return (_layoutConstraint)? _layoutConstraint.layoutRectangle:bounds;
+			return (_layoutRectangle)? _layoutRectangle : bounds;
 		} 
 		
 		//for use in fills, and possible future implementation of layout
@@ -558,7 +560,7 @@ package com.degrafa.geometry{
 						}
 					}
 					
-					_layoutConstraint.computeLayoutRectangle(childBounds,graphicsTargetRect);
+					_layoutConstraint.computeLayoutRectangle(childBounds, graphicsTargetRect);
 					return; 
 				}
 				

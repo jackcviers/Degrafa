@@ -256,18 +256,8 @@ package com.degrafa.geometry{
 			 		(_x)? _x:0,
 			 		(_y)? _y:0,
 			 		1,1));
-					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+	
 				}
 			}
 		}

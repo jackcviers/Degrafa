@@ -63,9 +63,9 @@ package com.degrafa.geometry{
 		public function HorizontalLine(x:Number=NaN,y:Number=NaN,x1:Number=NaN){
 			super();
 			
-			this.x=x;
-			this.y=y;
-			this.x1=x1;
+			if (x) this.x=x;
+			if (y) this.y=y;
+			if (x1) this.x1=x1;
 			
 			
 		}
@@ -96,10 +96,11 @@ package com.degrafa.geometry{
 				if (tempArray.length == 3){
 					_x=tempArray[0];
 					_y=tempArray[1];
-					_x1=tempArray[2];
+					_x1 = tempArray[2];	
+					invalidated = true;
 				}
 				
-				invalidated = true;
+			
 			}
 			
 		}  
@@ -145,7 +146,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get x1():Number{
-			if(!_x1){return (hasLayout)? 1:0;}
+			if(isNaN(_x1)){return (hasLayout)? 0.0001:0;}
 			return _x1;
 		}
 		public function set x1(value:Number):void{
@@ -176,9 +177,7 @@ package com.degrafa.geometry{
 		**/
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && _x1){
-				_originalBounds=bounds;
-			}
+
 		}	
 		
 		/**
@@ -223,25 +222,18 @@ package com.degrafa.geometry{
 			 		}
 			 				 		
 			 		super.calculateLayout(tempLayoutRect);	
-			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+					//force the layout to minimum height in this case
+					_layoutRectangle.height = 0.0001;
+					if (isNaN(_x1)) {
+						//layout defined initial settings
+						if (isNaN(_x)) _x = _layoutRectangle.x;
+						if (isNaN(_y)) _y = _layoutRectangle.y;
+						_x1 = _layoutRectangle.right;
+						invalidated = true;
 					}
+			
+
 				}
 			}
 		}
@@ -255,11 +247,10 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
-		
+			
+			if (_layoutConstraint) calculateLayout();
 			//re init if required
-		 	preDraw();
-		
-			calculateLayout();
+		 	if (invalidated) preDraw();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 		}

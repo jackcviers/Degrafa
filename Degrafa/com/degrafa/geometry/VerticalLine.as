@@ -23,7 +23,7 @@ package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.IGraphicsFill;
-	
+
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
@@ -63,10 +63,9 @@ package com.degrafa.geometry{
 		public function VerticalLine(x:Number=NaN,y:Number=NaN,y1:Number=NaN){
 			super();
 			
-			this.x=x;
-			this.y=y;
-			this.y1=y1;
-		
+			if (x) this.x=x;
+			if (y) this.y=y;
+			if (y1) this.y1=y1;
 				
 		}
 		
@@ -97,10 +96,11 @@ package com.degrafa.geometry{
 				if (tempArray.length == 3){
 					_x=tempArray[0];
 					_y=tempArray[1];
-					_y1=tempArray[2];
+					_y1 = tempArray[2];
+					invalidated = true;
 				}	
 				
-				invalidated = true;
+			
 			}
 			
 		}  
@@ -146,7 +146,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
-			if(!_y1){return (hasLayout)? 1:0;}
+			if(isNaN(_y1)){return (hasLayout)? 0.0001:0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{			
@@ -167,7 +167,7 @@ package com.degrafa.geometry{
 		}
 		
 		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle{
+		override public function get originalBounds():Rectangle {
 			return _originalBounds;	
 		}
 		
@@ -176,9 +176,7 @@ package com.degrafa.geometry{
 		**/
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && _y1){
-				_originalBounds=bounds;
-			}
+
 		}	
 		
 		/**
@@ -205,9 +203,10 @@ package com.degrafa.geometry{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 			
-			if(_layoutConstraint){
-				if (_layoutConstraint.invalidated){
+			if (_layoutConstraint) {
 				
+				if (_layoutConstraint.invalidated){
+
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,0.0001,0.0001);
 									
 					if(_y1-y){
@@ -218,29 +217,22 @@ package com.degrafa.geometry{
 			 			tempLayoutRect.x = _x;
 			 		}
 			 		
-			 		if(_y){
-			 			tempLayoutRect.y = _y;
+			 		if(_y || _y1){
+			 			tempLayoutRect.y = Math.min(_y,_y1);
 			 		}
-			 				 		
+
 			 		super.calculateLayout(tempLayoutRect);	
-			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
+					//update the local layoutRectangle
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+					//force the layout to minimum width in this case
+					_layoutRectangle.width = 0.0001;
 					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					if (isNaN(_y1)) {
+						//layout defined initial settings
+						if (isNaN(_x)) _x = _layoutRectangle.x;
+						if (isNaN(_y)) _y = _layoutRectangle.y;
+						_y1 = _layoutRectangle.bottom;
+						invalidated = true;
 					}
 				}
 			}
@@ -253,12 +245,11 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/		
-		override public function draw(graphics:Graphics,rc:Rectangle):void{	
-								
-			//re init if required
-		 	preDraw();
+		override public function draw(graphics:Graphics,rc:Rectangle):void{						
 			
-			calculateLayout();
+			if (_layoutConstraint) calculateLayout();
+			//re init if required
+		 	if (invalidated) preDraw();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 		}		

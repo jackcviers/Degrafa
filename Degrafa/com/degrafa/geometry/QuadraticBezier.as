@@ -238,9 +238,7 @@ package com.degrafa.geometry{
 		**/		
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-			if(!_originalBounds && (bounds.width !=0 || bounds.height!=0)){
-				_originalBounds=bounds;
-			}
+
 		}
 		
 		/**
@@ -278,25 +276,11 @@ package com.degrafa.geometry{
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
 							 		
 			 		super.calculateLayout(tempLayoutRect);	
-			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+		
 					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
+						//	_originalBounds = layoutRectangle.clone();
 						}
-					}
 				}
 			}
 		}
@@ -311,10 +295,11 @@ package com.degrafa.geometry{
 		**/								
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
 						 
-			//re init if required
+				//re init if required
 		 	preDraw();
 		 	
 		 	calculateLayout();
+	
 		 	
 		 	super.draw(graphics, (rc)? rc:bounds);
 		}

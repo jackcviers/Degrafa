@@ -478,11 +478,11 @@ package com.degrafa.geometry{
 			
 			var s:uint=getTimer()	
 			var curSegment:Object;
-
+			
 			for each(curSegment in _segments.items){
 				curSegment.computeSegment(firstPoint,lastPoint,lastControlPoint,commandStack);
 	       	}
-		      	
+		   //   trace('compute in ' + (getTimer() - s));
 		}
 		
 		private var _bounds:Rectangle;
@@ -497,8 +497,7 @@ package com.degrafa.geometry{
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
-			
-			//see if any segments are invalide but only if we are not already invalide
+			//see if any segments are invalid but only if we are not already invalid
 			//we do this as in the case of segments with events disabled we could not 
 			//know otherwise
 			if(!invalidated){
@@ -529,22 +528,13 @@ package com.degrafa.geometry{
 		* of (0,0,1,1) is used. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
-			
+
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
 					super.calculateLayout();
-			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+						
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+			 	
 				}
 			}
 		}
@@ -557,15 +547,14 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-
+	var s:uint=getTimer()	
 		 	//re init if required
 		 	preDraw();
-		 	
-		 	//init the layout in this case done after predraw.
+		 	//init the layout in this case done after predraw because layout never defines a default path geometry.
 			calculateLayout();
 						
 			super.draw(graphics, (rc)? rc:bounds);
-					
+			//trace('draw in '+(getTimer()-s))
         }
 		
 		

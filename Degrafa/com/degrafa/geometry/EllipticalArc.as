@@ -64,13 +64,13 @@ package com.degrafa.geometry{
 		height:Number=NaN,startAngle:Number=NaN,arc:Number=NaN,closureType:String=null){
 			
 			super();
-			this.x=x;
-			this.y=y;
-			this.width=width; 
-			this.height=height;
-			this.startAngle=startAngle;
-			this.arc=arc;
-			this.closureType=closureType;
+			if (!isNaN(x)) this.x=x;
+			if (!isNaN(y)) this.y=y;
+			if (!isNaN(width)) this.width=width; 
+			if (!isNaN(height)) this.height=height;
+			if (!isNaN(startAngle)) this.startAngle=startAngle;
+			if (!isNaN(arc)) this.arc=arc;
+			if (closureType) this.closureType=closureType;
 			
 		}
 		
@@ -97,9 +97,9 @@ package com.degrafa.geometry{
 					_height=tempArray[3]; //yRadius
 					_startAngle=tempArray[4]; //angle
 					_arc=tempArray[5]; //extent
-					
+					invalidated = true;
 				}
-				invalidated = true;
+			
 			}
 			
 		} 
@@ -178,7 +178,7 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentWidth")]
 		override public function get width():Number{
-			if(!_width){return (hasLayout)? 1:0;}
+			if(isNaN(_width)){return (hasLayout)? 1:0;}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -195,7 +195,7 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentHeight")]
 		override public function get height():Number{
-			if(!_height){return (hasLayout)? 1:0;}
+			if(isNaN(_height)){return (hasLayout)? 1:0;}
 			return _height;
 		}
 		override public function set height(value:Number):void{
@@ -247,9 +247,6 @@ package com.degrafa.geometry{
 		**/
 		private function calcBounds():void{
 			if(commandStack.length==0){return;}
-				if(!_originalBounds && (bounds.width !=0 || bounds.height!=0)){
-				_originalBounds=bounds;
-			}
 		}	
 				
 		/**
@@ -335,24 +332,17 @@ package com.degrafa.geometry{
 			 				 		
 			 		super.calculateLayout(tempLayoutRect);	
 			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+					if (isNaN(_width) || isNaN(_height)) {
+						//layout defined initial state:
+						_width = isNaN(_width)? layoutRectangle.width:_width;
+						_height =  isNaN(_height) ? layoutRectangle.height: _height;
+					//consider:	
+					//	if (isNaN(_x)) _x = layoutRectangle.x;
+					//	if (isNaN(_y)) _y = layoutRectangle.y;
+						invalidated = true;
 					}
+			
 				}
 			}
 		}
@@ -367,10 +357,11 @@ package com.degrafa.geometry{
 		**/		
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			
-			//re init if required
-		 	preDraw();
 			
-			calculateLayout();
+			
+			if (_layoutConstraint) calculateLayout();
+			//re init if required
+		 	if (invalidated) preDraw();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 	  	}

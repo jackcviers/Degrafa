@@ -243,18 +243,8 @@ package com.degrafa.geometry{
 			 		(_x)? _x:0,
 			 		(_y)? _y:0,
 			 		1,1));
-				
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+
 				}
 			}
 		}
@@ -270,10 +260,10 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			//re init if required
-		 	preDraw();
-		 	
-		 	//init the layout in this case done after predraw.
-			calculateLayout();
+		 	if (invalidated) preDraw(); 
+			
+			//init the layout in this case done after predraw.
+			if (_layoutConstraint) calculateLayout();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 	 	}
