@@ -176,20 +176,6 @@ package com.degrafa{
 			else{
 				_bounds= new Rectangle();
 			}
-			
-			
-			/*var boundsRect:Rectangle = new Rectangle();
-			
- 			if (geometry){
-				for each (var geometryItem:IGeometryComposition in geometry){
-					geometryItem.preDraw();
-					if (geometryItem.bounds)
-					boundsRect = boundsRect.union(geometryItem.bounds);
-					else trace('unable to combine GeometryComposition calcBounds for:' + (geometryItem as DegrafaObject).id);
-				}
-			}
-			
-			_bounds = boundsRect;*/
 		}		
 	
 		/**
@@ -200,6 +186,21 @@ package com.degrafa{
 			calcBounds();
 		}
 		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			if(_layoutConstraint){
+				if (_layoutConstraint.invalidated){
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+				
+					super.calculateLayout(tempLayoutRect);	
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+				}
+			}
+		}
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 

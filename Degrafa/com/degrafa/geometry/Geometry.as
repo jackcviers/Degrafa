@@ -49,8 +49,9 @@ package com.degrafa.geometry{
 	import flash.geom.Rectangle;
 	
 	import mx.core.IUIComponent;
-	import mx.events.FlexEvent;
+	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
+	import mx.events.ResizeEvent;
 	import mx.styles.ISimpleStyleClient;
 	
 	[DefaultProperty("geometry")]
@@ -183,12 +184,9 @@ package com.degrafa.geometry{
 				if (!item){return;} 
 			}
 			
-			//only required if we have layout to do
+			//add listener to targets so we can redraw if required
 			for each (var target:DisplayObject in value){
 				if(target is IUIComponent){
-					//need to update in both cases otherwise we get no events 
-					//on local properties for top level objects
-					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 					target.addEventListener(Event.RENDER,onTargetRender);
 				}
 				else{
