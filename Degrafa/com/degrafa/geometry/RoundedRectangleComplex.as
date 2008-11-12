@@ -21,6 +21,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.geometry.command.CommandStack;
+	import com.degrafa.geometry.command.CommandStackItem;
 	import com.degrafa.IGeometry;
 	
 	import flash.display.Graphics;
@@ -66,14 +68,14 @@ package com.degrafa.geometry{
 			
 			super();
 			
-			this.x=x;
-			this.y=y;
-			this.width=width;
-			this.height=height;
-			this.topLeftRadius=topLeftRadius;
-			this.topRightRadius=topRightRadius;
-			this.bottomLeftRadius=bottomLeftRadius;
-			this.bottomRightRadius=bottomRightRadius;
+			if (x) this.x=x;
+			if (y) this.y=y;
+			if (width) this.width=width;
+			if (height) this.height=height;
+			if (topLeftRadius) this.topLeftRadius=topLeftRadius;
+			if (topRightRadius) this.topRightRadius=topRightRadius;
+			if (bottomLeftRadius) this.bottomLeftRadius=bottomLeftRadius;
+			if (bottomRightRadius) this.bottomRightRadius=bottomRightRadius;
 		}
 		
 		/**
@@ -101,11 +103,9 @@ package com.degrafa.geometry{
 					_topLeftRadius=tempArray[4];
 					_topRightRadius=tempArray[5];
 					_bottomLeftRadius=tempArray[6];
-					_bottomRightRadius=tempArray[7];
+					_bottomRightRadius = tempArray[7];
+					invalidated = true;
 				}	
-				
-				invalidated = true;
-				
 			}
 		} 
 		
@@ -249,89 +249,300 @@ package com.degrafa.geometry{
 		**/
 		override public function get bounds():Rectangle{
 			//return _bounds;
-			return commandStack.bounds;	
+			_bounds=commandStack.bounds
+			return _bounds;	
 		}
+		/**
+		 * If any of the corner radii are negative, the corners with negative values will cut inwards if permitCornerInversion is true. 
+		 * Defaults to false, in which case negative corner radius values represent a zero corner radius.
+		 */
+		private var _permitCornerInversion:Boolean;
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get permitCornerInversion():Boolean {
+			return _permitCornerInversion? true:false;
+		}
+		public function set permitCornerInversion(value:Boolean):void {
+			if (value=!_permitCornerInversion) {
+				_permitCornerInversion = value;
+				invalidated = true;
+			}
+		}
+
+		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
 		
-		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle{
-			return _originalBounds;	
+		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null):CommandStackItem {
+			
+				//use local vars instead of the main getters
+				var x:Number;
+				var y:Number;
+				var width:Number ;
+				var height:Number
+				if (hasLayout && cStack) { //handle layout variant call at render time
+					CommandStack.transMatrix = CommandStack.currentTransformMatrix;
+					x = layoutRectangle.x;
+					y = layoutRectangle.y;
+					width = layoutRectangle.width;
+					height = layoutRectangle.height;
+					
+				} else {
+					x = this.x;
+					y = this.y;
+					width = this.width;
+					height = this.height;
+				}
+					// make sure that cornerRadii fit within the bounds of the rectangle
+					var minSize:Number = Math.min(width, height)*.5;
+					var topLeftRadius:Number = Math.abs(this.topLeftRadius) < minSize ? this.topLeftRadius : minSize* (this.topLeftRadius<0?-1:1) ;
+					var topRightRadius:Number = Math.abs(this.topRightRadius) < minSize ? this.topRightRadius :minSize* (this.topRightRadius<0?-1:1);
+					var bottomLeftRadius:Number = Math.abs(this.bottomLeftRadius) < minSize ? this.bottomLeftRadius : minSize* (this.bottomLeftRadius<0?-1:1);
+					var bottomRightRadius:Number =  Math.abs(this.bottomRightRadius) < minSize ? this.bottomRightRadius : minSize* (this.bottomRightRadius<0?-1:1);
+					
+					//don't permit negative values from the corner radii unless permitCornerInversion is true
+					if (!_permitCornerInversion) {
+						if (topLeftRadius < 0) topLeftRadius = 0;
+						if (topRightRadius < 0) topRightRadius = 0;
+						if (bottomLeftRadius < 0) bottomLeftRadius = 0;
+						if (bottomRightRadius < 0) bottomRightRadius = 0;
+					}
+
+					var bottom:Number = y + height;
+					var right:Number = x + width;
+					var innerRightTop:Number = right - Math.abs(topRightRadius);
+					var innerRightBottom:Number = right - Math.abs(bottomRightRadius);
+					var innerLeftTop:Number = x + Math.abs(topLeftRadius);
+					var innerLeftBottom:Number = x + Math.abs(bottomLeftRadius);
+					var innerTopLeft:Number = y + Math.abs(topLeftRadius);
+					var innerTopRight:Number = y + Math.abs(topRightRadius);
+					var innerBottomLeft:Number = bottom - Math.abs(bottomLeftRadius);
+					var innerBottomRight:Number = bottom - Math.abs(bottomRightRadius);
+					// manipulate the commandStack but do not invalidate its bounds
+					//basic rectangle:
+					startPoint.x = innerLeftTop;
+					startPoint.y = y;
+					topLine.x = innerRightTop;
+					topLine.y = y;
+					rightLine.x = right;
+					rightLine.y = innerBottomRight;
+					bottomLine.x = innerLeftBottom;
+					bottomLine.y = bottom;
+					leftLine.x = x;
+					leftLine.y = innerTopLeft;
+					//corners as necessary
+
+						var cornersplitoffset:Number; 
+						var controlPointOffset:Number
+						var c1x:Number;
+						var c1y:Number;
+						var c2x:Number;
+						var c2y:Number;
+						var x1:Number;
+						var y1:Number;
+						var manipulate:CommandStackItem;
+						//topRightCorner
+						if (topRightRadius) {
+							cornersplitoffset= Math.SQRT1_2 * topRightRadius;
+							controlPointOffset = TRIG * topRightRadius;
+							if (topRightRadius < 0) {
+								//inversion
+								c1x = innerRightTop;
+								c1y = y- controlPointOffset;
+								x1 = right + cornersplitoffset;
+								y1 = y - cornersplitoffset;
+								c2x = right +controlPointOffset;
+								c2y = innerTopRight;
+							} else {
+								//normal
+								c1x = innerRightTop + controlPointOffset;
+								c1y = y;
+								c2x = right;
+								c2y = innerTopRight - controlPointOffset;
+								x1 = innerRightTop + cornersplitoffset;
+								y1 = innerTopRight - cornersplitoffset;
+							}
+								if (!topRightCorner.length) { //create items
+									topRightCorner.addCurveTo(c1x, c1y, x1, y1);
+									topRightCorner.addCurveTo(c2x, c2y, right, innerTopRight)
+								} else {
+									//manipulate:
+									manipulate = topRightCorner.source[0] as CommandStackItem
+									manipulate.cx = c1x;
+									manipulate.cy = c1y;
+									manipulate.x1 = x1;
+									manipulate.y1 = y1;
+									manipulate = manipulate.next;
+									manipulate.cx = c2x;
+									manipulate.cy = c2y;
+									manipulate.x1 = right;
+									manipulate.y1 = innerTopRight;
+								}
+						} else topRightCorner.length = 0;
+	
+						//bottomRightCorner
+						if (bottomRightRadius) {
+							cornersplitoffset= Math.SQRT1_2 * bottomRightRadius;
+							controlPointOffset = TRIG * bottomRightRadius;
+							if (bottomRightRadius < 0) {
+								//inversion
+								c1x = right+ controlPointOffset;
+								c1y = innerBottomRight;
+								x1 = right + cornersplitoffset;
+								y1 = bottom +  cornersplitoffset;
+								c2x = innerRightBottom;
+								c2y = bottom+controlPointOffset;
+							} else {
+								//normal
+								c1x = right;
+								c1y = innerBottomRight + controlPointOffset;
+								c2x = innerRightBottom + controlPointOffset;
+								c2y = bottom;
+								x1 = innerRightBottom + cornersplitoffset;
+								y1 = innerBottomRight + cornersplitoffset;
+							}
+								if (!bottomRightCorner.length) { //create items
+									bottomRightCorner.addCurveTo(c1x, c1y, x1, y1);
+									bottomRightCorner.addCurveTo(c2x, c2y, innerRightBottom, bottom)
+								} else {
+									//manipulate:
+									manipulate = bottomRightCorner.source[0] as CommandStackItem
+									manipulate.cx = c1x;
+									manipulate.cy = c1y;
+									manipulate.x1 = x1;
+									manipulate.y1 = y1;
+									manipulate = manipulate.next;
+									manipulate.cx = c2x;
+									manipulate.cy = c2y;
+									manipulate.x1 = innerRightBottom;
+									manipulate.y1 = bottom;
+								}
+						} else bottomRightCorner.length = 0;
+						
+						//bottomLeftCorner
+						if (bottomLeftRadius) {
+							cornersplitoffset= Math.SQRT1_2 * bottomLeftRadius;
+							controlPointOffset = TRIG * bottomLeftRadius;
+							if (bottomLeftRadius < 0) {
+								//inversion
+								c1x = innerLeftBottom;
+								c1y = bottom+controlPointOffset;
+								x1 = x - cornersplitoffset;
+								y1 = bottom +  cornersplitoffset;
+								c2x = x-controlPointOffset;
+								c2y = innerBottomLeft;
+							} else {
+								//normal
+								c1x = innerLeftBottom - controlPointOffset;
+								c1y = bottom;
+								c2x = x;
+								c2y = innerBottomLeft + controlPointOffset;
+								x1 = innerLeftBottom - cornersplitoffset;
+								y1 = innerBottomLeft + cornersplitoffset;
+							}
+								if (!bottomLeftCorner.length) { //create items
+									bottomLeftCorner.addCurveTo(c1x, c1y, x1, y1);
+									bottomLeftCorner.addCurveTo(c2x, c2y, x, innerBottomLeft)
+								} else {
+									//manipulate:
+									manipulate = bottomLeftCorner.source[0] as CommandStackItem
+									manipulate.cx = c1x;
+									manipulate.cy = c1y;
+									manipulate.x1 = x1;
+									manipulate.y1 = y1;
+									manipulate = manipulate.next;
+									manipulate.cx = c2x;
+									manipulate.cy = c2y;
+									manipulate.x1 = x;
+									manipulate.y1 = innerBottomLeft;
+								}
+						} else bottomLeftCorner.length = 0;
+						
+						//topLeftCorner
+						if (topLeftRadius) {
+							cornersplitoffset= Math.SQRT1_2 * topLeftRadius;
+							controlPointOffset = TRIG * topLeftRadius;
+								if (topLeftRadius < 0) {
+								//inversion
+								c1x = x-controlPointOffset;
+								c1y = innerTopLeft;
+								x1 = x - cornersplitoffset;
+								y1 = y -  cornersplitoffset;
+								c2x = innerLeftTop;
+								c2y = y-controlPointOffset;
+							} else {
+								//normal
+								c1x = x;
+								c1y = innerTopLeft - controlPointOffset;
+								c2x = innerLeftTop - controlPointOffset;
+								c2y = y;
+								x1 = innerLeftTop - cornersplitoffset;
+								y1 = innerTopLeft - cornersplitoffset;
+							}
+								if (!topLeftCorner.length) { //create items
+									topLeftCorner.addCurveTo(c1x, c1y, x1, y1);
+									topLeftCorner.addCurveTo(c2x, c2y, innerLeftTop, y)
+								} else {
+									//manipulate:
+									manipulate = topLeftCorner.source[0] as CommandStackItem;
+									manipulate.cx = c1x;
+									manipulate.cy = c1y;
+									manipulate.x1 = x1;
+									manipulate.y1 = y1;
+									manipulate = manipulate.next;
+									manipulate.cx = c2x;
+									manipulate.cy = c2y;
+									manipulate.x1 = innerLeftTop;
+									manipulate.y1 = y;
+								}
+						} else topLeftCorner.length = 0;
+						
+					return commandStack.source[0];
+
 		}
+
+		
 		
 		/**
 		* Calculates the bounds for this element. 
 		**/
 		private function calcBounds():void{
-			if(commandStack.length==0){return;}
-			if(!_originalBounds && (bounds.width !=0 || bounds.height!=0)){
-				_originalBounds=bounds;
-			}
+			if (commandStack.length == 0) { return; }
 		}	
-
+		
+		private var startPoint:CommandStackItem;
+		private var topLine:CommandStackItem;
+		private var topRightCorner:CommandStack;
+		private var rightLine:CommandStackItem;
+		private var bottomRightCorner:CommandStack;
+		private var bottomLine:CommandStackItem;
+		private var bottomLeftCorner:CommandStack;	
+		private var leftLine:CommandStackItem;
+		private var topLeftCorner:CommandStack;
+		
+		
 		/**
 		* @inheritDoc 
-		**/	
+		**/
 		override public function preDraw():void{
 			if(invalidated){
 			
-				commandStack.length=0;
-				
-				if(topLeftRadius==0 && topRightRadius==0 && bottomLeftRadius==0 && bottomRightRadius==0){
-					commandStack.addMoveTo(x,y);
-					commandStack.addLineTo(x+width,y);
-					commandStack.addLineTo(x+width,y+height)
-					commandStack.addLineTo(x,y+height);
-					commandStack.addLineTo(x,y);
-				}				
-				else{
-					
-					//Copied from the Flex framework but modified to fill our command stack needs
-					//see mx.utils.GraphicsUtil
-					var xw:Number = x + width;
-					var yh:Number = y + height;
-			
-					var minSize:Number = width < height ? width * 2 : height * 2;
-					
-					var topLeftRadius:Number = this.topLeftRadius < minSize ? this.topLeftRadius : minSize;;
-					var topRightRadius:Number = this.topRightRadius < minSize ? this.topRightRadius : minSize;
-					var bottomLeftRadius:Number = this.bottomLeftRadius < minSize ? this.bottomLeftRadius : minSize;
-					var bottomRightRadius:Number =  this.bottomRightRadius < minSize ? this.bottomRightRadius : minSize;
-																				
-					// bottom-right corner
-					var a:Number = bottomRightRadius * 0.292893218813453;		// radius - anchor pt;
-					var s:Number = bottomRightRadius * 0.585786437626905; 	// radius - control pt;
-					
-					commandStack.addMoveTo(xw,yh - bottomRightRadius);
-					commandStack.addCurveTo(xw,yh-s,xw-a,yh-a);
-					commandStack.addCurveTo(xw - s,yh,xw - bottomRightRadius,yh);
-							
-					// bottom-left corner
-					a = bottomLeftRadius * 0.292893218813453;
-					s = bottomLeftRadius * 0.585786437626905;
-					
-					commandStack.addLineTo(x + bottomLeftRadius,yh);
-					commandStack.addCurveTo(x + s,yh,x + a,yh - a);
-					commandStack.addCurveTo(x,yh - s,x,yh - bottomLeftRadius);
-							
-					// top-left corner
-					a = topLeftRadius * 0.292893218813453;
-					s = topLeftRadius * 0.585786437626905;
-					
-					commandStack.addLineTo(x,y + topLeftRadius);
-					commandStack.addCurveTo(x,y+s,x + a,y + a);
-					commandStack.addCurveTo(x + s,y,x + topLeftRadius,y);
-					
-					// top-right corner
-					a = topRightRadius * 0.292893218813453;
-					s = topRightRadius * 0.585786437626905;
-					
-					commandStack.addLineTo(xw - topRightRadius, y);
-					commandStack.addCurveTo(xw - s,y,xw - a,y + a);
-					commandStack.addCurveTo(xw,y + s,xw,y + topRightRadius);
-					commandStack.addLineTo(xw,yh - bottomRightRadius);
+				if (!commandStack.length) {
+					//one top level item permits a single renderDelegate call
+					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
+					commandStackItem.renderDelegateStart = updateCommandStack;
+					var commandStack:CommandStack = commandStackItem.commandStack;
+					//set up quick references to manipulate items directly
+					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
+					topLine = commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					topRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					rightLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					bottomRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					bottomLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					bottomLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					leftLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					topLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
 				}
-				
+				updateCommandStack();
+		
 				calcBounds();
-								
 				invalidated = false;
 			}
 			
@@ -365,25 +576,18 @@ package com.degrafa.geometry{
 			 		}
 			 				 		
 			 		super.calculateLayout(tempLayoutRect);	
-			 					
-					_layoutConstraint.xMax=bounds.bottomRight.x;
-					_layoutConstraint.yMax=bounds.bottomRight.y;
-					
-					_layoutConstraint.xMin=bounds.x;
-					_layoutConstraint.yMin=bounds.y;
-					
-					_layoutConstraint.xOffset = layoutRectangle.x;
-					_layoutConstraint.yOffset = layoutRectangle.y;
-					
-					_layoutConstraint.xMultiplier=layoutRectangle.width/(_layoutConstraint.xMax-bounds.x);
-					_layoutConstraint.yMultiplier=layoutRectangle.height/(_layoutConstraint.yMax-bounds.y);
-				
-				
-					if(!_originalBounds){
-						if(layoutRectangle.width!=0 && layoutRectangle.height!=0){
-							_originalBounds = layoutRectangle;
-						}
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+
+
+					if (isNaN(_width) || isNaN(_height)) {
+						//layout defined initial state
+						_width = _layoutRectangle.width;
+						_height = _layoutRectangle.height;
+						_x = isNaN(_x)? _layoutRectangle.x:_x;
+						_y = isNaN(_y)?_layoutRectangle.y:_y;
+						invalidated = true;
 					}
+
 				}
 			}
 		}
@@ -397,13 +601,13 @@ package com.degrafa.geometry{
 		**/			
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			
-			//re init if required
-		 	preDraw();
+
+		 	if(_layoutConstraint) calculateLayout();
+		 	//re init if required
+		 	if (invalidated) preDraw();
 			
-			calculateLayout();
-			
-			super.draw(graphics,(rc)? rc:bounds);
-	 	}
+			super.draw(graphics, (rc)? rc:bounds);
+		}
 		
 		/**
 		* An object to derive this objects properties from. When specified this 
@@ -420,7 +624,7 @@ package com.degrafa.geometry{
 			if (!_bottomLeftRadius){_bottomLeftRadius = value.bottomLeftRadius;}
 			if (!_bottomRightRadius){_bottomRightRadius = value.bottomRightRadius;}
 			if (!_topLeftRadius){_topLeftRadius = value.topLeftRadius;}
-			if (!_topRightRadius){_topRightRadius = value.topRightRadius;}
+			if (!_topRightRadius) { _topRightRadius = value.topRightRadius; }
 			
 		}
 		
