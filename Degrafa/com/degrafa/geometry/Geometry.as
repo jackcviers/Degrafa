@@ -186,7 +186,10 @@ package com.degrafa.geometry{
 			//only required if we have layout to do
 			for each (var target:DisplayObject in value){
 				if(target is IUIComponent){
+					//need to update in both cases otherwise we get no events 
+					//on local properties for top level objects
 					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
+					target.addEventListener(Event.RENDER,onTargetRender);
 				}
 				else{
 					target.addEventListener(Event.RENDER,onTargetRender);
