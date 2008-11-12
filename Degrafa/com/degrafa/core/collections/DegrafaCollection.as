@@ -217,10 +217,12 @@ package com.degrafa.core.collections{
 		*
 		* @param index The items new index. 
 		* @param value The item to be repositioned.
-		* @return Returns true is the item was repositioned. 
+		* @return True if the item was repositioned. 
 		**/
 		protected function _setItemIndex(value:*,newIndex:Number):Boolean{
-			return true;
+			var spliced:Array = items.splice(items.indexOf(value),1);
+     		items.splice(newIndex, 0, spliced[0]);
+     		return true;
 		}
 		
 		//to be overidden in subclasse if nessesary
