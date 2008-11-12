@@ -91,7 +91,7 @@ package com.degrafa{
 		/**
 		* Called when the image has been successfully loaded.
 		**/
-		private function onLoaded(event:Event):void{
+		protected function onLoaded(event:Event):void{
 		    addChild(event.target.content);
 		    loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onLoaded);
 		}
