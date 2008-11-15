@@ -270,7 +270,7 @@ package com.degrafa.geometry{
 
 		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
 		
-		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null):CommandStackItem {
+		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
 				//use local vars instead of the main getters
 				var x:Number;
@@ -527,7 +527,7 @@ package com.degrafa.geometry{
 				if (!commandStack.length) {
 					//one top level item permits a single renderDelegate call
 					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
-					commandStackItem.renderDelegateStart = updateCommandStack;
+					commandStackItem.renderDelegateStart.push(updateCommandStack);
 					var commandStack:CommandStack = commandStackItem.commandStack;
 					//set up quick references to manipulate items directly
 					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
