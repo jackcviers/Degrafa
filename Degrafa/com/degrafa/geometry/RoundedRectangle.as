@@ -222,11 +222,12 @@ package com.degrafa.geometry{
 					
 				}
 				// make sure that width + h are larger than 2*cornerRadius
-					if(width>0 && height>0){
+		//			if(width>0 && height>0){
 						if (_cornerRadius>Math.min(width, height)/2) {
 							_cornerRadius = Math.min(width, height)/2;
 						}
-					}
+			//		} else _cornerRadius = 0;
+	
 				//round to nearest
 				_cornerRadius = Math.round(_cornerRadius);
 				if (_cornerRadius < 0) _cornerRadius = 0;
