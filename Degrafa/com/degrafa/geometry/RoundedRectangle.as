@@ -222,12 +222,11 @@ package com.degrafa.geometry{
 					
 				}
 				// make sure that width + h are larger than 2*cornerRadius
-		//			if(width>0 && height>0){
+					if(width>0 && height>0){
 						if (_cornerRadius>Math.min(width, height)/2) {
 							_cornerRadius = Math.min(width, height)/2;
 						}
-			//		} else _cornerRadius = 0;
-	
+					}
 				//round to nearest
 				_cornerRadius = Math.round(_cornerRadius);
 				if (_cornerRadius < 0) _cornerRadius = 0;
@@ -351,7 +350,7 @@ package com.degrafa.geometry{
 				if (!commandStack.length) {
 					//one top level item permits a single renderDelegate call
 					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
-					commandStackItem.renderDelegateStart = updateCommandStack;
+					commandStackItem.renderDelegateStart.push(updateCommandStack);
 					var commandStack:CommandStack = commandStackItem.commandStack;
 					//set up quick references to manipulate items directly
 					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
