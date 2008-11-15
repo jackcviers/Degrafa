@@ -547,15 +547,14 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-	var s:uint=getTimer()	
 		 	//re init if required
 		 	preDraw();
+		 	
 		 	//init the layout in this case done after predraw because layout never defines a default path geometry.
 			calculateLayout();
-						
+			
 			super.draw(graphics, (rc)? rc:bounds);
-			//trace('draw in '+(getTimer()-s))
-        }
+	    }
 		
 		
 		/**

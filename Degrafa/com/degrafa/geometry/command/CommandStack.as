@@ -26,6 +26,8 @@
 package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
+	import com.degrafa.decorators.IDecorator;
+	import com.degrafa.decorators.IRenderDecorator;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.utilities.GeometryUtils;
@@ -35,6 +37,7 @@ package com.degrafa.geometry.command{
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Shape;
+	import flash.display.Sprite;
 	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -53,18 +56,15 @@ package com.degrafa.geometry.command{
 		static private var transXY:Point=new Point();
 		static private var transCP:Point=new Point();
 			
-		//TODO this has to be made private now and all access controlled through the command
-		//stack otherwise we can lose previous and next references
+		//TODO this has to be made private eventually otherwise we can lose 
+		//previous and next references
 		public var source:Array = [];
 		
 		public var lengthIsValid:Boolean;
 		
 		public var owner:Geometry;
 		public var parent:CommandStackItem;
-		
-		//filter stuff
-		private var hasFilters:Boolean
-		
+				
 		private var _fxShape:Shape;
 		private var _maskRender:Shape;
 
@@ -72,9 +72,6 @@ package com.degrafa.geometry.command{
 		public function CommandStack(geometry:Geometry = null){
 			super();
 			this.owner = geometry;
-			if(geometry){
-				hasFilters = (geometry.filters.length>0);
-			}
 		}
 	
 		
@@ -94,12 +91,14 @@ package com.degrafa.geometry.command{
 				}
 			}
 			
-			var layout:Boolean=owner.hasLayout;
+			var layout:Boolean = owner.hasLayout;
+			
 			currentLayoutMatrix.identity();
+
 			//setup a layout transform
 			if (layout){
-
-				var tempRect:Rectangle = bounds;
+				//give DisplayObjectProxies the ability to define their own bounds
+				var tempRect:Rectangle = (owner is IDisplayObjectProxy)?owner.bounds:bounds;
 				//	tempRect = owner.bounds;
 				if (!tempRect.equals(owner.layoutRectangle)) {	
 					currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
@@ -107,15 +106,17 @@ package com.degrafa.geometry.command{
 					currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
 					owner._layoutMatrix = currentLayoutMatrix.clone();
 					transMatrix = currentLayoutMatrix.clone();
+
 				} else {
 					layout = false;
 					owner._layoutMatrix = null;
+					currentLayoutMatrix.identity();
 				}
 			} 
 			else if (owner._layoutMatrix){  
 				owner._layoutMatrix= null;
 			}
-			
+
 			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
 			
 			//combine the layout and transform into one matrix
@@ -132,6 +133,7 @@ package com.degrafa.geometry.command{
 				currentTransformMatrix.identity();
 				if (!layout) transMatrix = null;
 			}
+			
 		}
 		
 		/**
@@ -142,13 +144,67 @@ package com.degrafa.geometry.command{
 			//exit if no command stack
 			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
 			
+			//init the decorations if required
+			if(owner.hasDecorators){
+				for each (var item:IDecorator in owner.decorators){
+					
+					item.initialize(this);
+					
+					if(item is IRenderDecorator){
+						hasRenderDecoration = true;
+					}
+				}
+			}
+			
 			//setup requirements before the render
 			predraw()
 			
 			if((owner is IDisplayObjectProxy)){
+				if(!IDisplayObjectProxy(owner).displayObject){
+					return;
+				}
 				
-				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject,graphics);
+				var displayObject:DisplayObject = IDisplayObjectProxy(owner).displayObject;
+				//apply the filters
+				if(owner.hasFilters){
+					displayObject.filters = owner.filters;
+				}
+					
+				if (transMatrix && (IDisplayObjectProxy(owner).transformBeforeRender || (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode == 'scale'))) {
+					var transObject:DisplayObject;
+					if(Sprite(displayObject).numChildren!=0){
+						transObject = Sprite(displayObject).getChildAt(0);
+						if (!IDisplayObjectProxy(owner).transformBeforeRender) {
+							//scale layoutmode only, without a pretransformed capture: scale before capture to bitmapData:
+							transObject.transform.matrix = CommandStack.currentLayoutMatrix;
+						} else {
+							if (IDisplayObjectProxy(owner).layoutMode=='scale') transObject.transform.matrix = CommandStack.transMatrix;
+						    else {
+								if (owner._layoutMatrix) {
+									var tempMat:Matrix = owner._layoutMatrix.clone();
+									tempMat.a = 1; tempMat.d = 1;
+									tempMat.concat(CommandStack.currentTransformMatrix);
+									transObject.transform.matrix = tempMat;
+								} else transObject.transform.matrix = CommandStack.currentTransformMatrix;
+							}
+						}
+					} else {
+						//THIS BRANCH UNTESTED at this point, not sure whether this will work or not as I think we need to include the 
+						transObject = Sprite(displayObject);
+						transObject.transform.matrix = CommandStack.transMatrix;
+					}
+				}
+				//debug:
+			//	var temp:Rectangle;
+			//	temp = Sprite(displayObject).getBounds(Sprite(displayObject));
+			//	graphics.clear();
+			//	graphics.lineStyle(3, 0x00ff00, .4)
+			//	graphics.drawRect(temp.x, temp.y, temp.width, temp.height)
 				
+			//	maybe there's a stroke on some owners at this point:
+				owner.initStroke(graphics, rc);
+				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
+		
 			}
 			else{
 					
@@ -158,7 +214,7 @@ package com.degrafa.geometry.command{
 				//setup the temporary shape to draw to in place 
 				//of the passsed graphics context
 				var hasmask:Boolean = (owner.mask!=null);
-				if(hasFilters || hasmask){
+				if(owner.hasFilters || hasmask){
 					if (!_fxShape){
 						_fxShape = new Shape();
 					}
@@ -170,14 +226,18 @@ package com.degrafa.geometry.command{
 						//dev note: need to change this mask is only redrawn when necessary
 						if (!_maskRender) _maskRender = new Shape();
 						_maskRender.graphics.clear();
+						//cache the current settings as rendering the mask will alter them
+						var cacheLayout:Matrix = currentLayoutMatrix.clone();
+						var cacheTransform:Matrix = currentTransformMatrix.clone();
+						var cacheCombo:Matrix = transMatrix.clone();
+						owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+						//restore cached settings
+						currentLayoutMatrix = cacheLayout;
+						currentTransformMatrix = cacheTransform;
+						transMatrix = cacheCombo;
 						_fxShape.mask = _maskRender;
-						owner.mask.draw(_maskRender.graphics, owner.mask.bounds)
 					} else if (_fxShape.mask) _fxShape.mask = null;
-					
-					/*if(owner.blendMode){
-						_fxShape.blendMode = owner.blendMode;
-					}*/
-																	
+																						
 					//setup the stroke
 					owner.initStroke(_fxShape.graphics,rc);
 					
@@ -186,14 +246,9 @@ package com.degrafa.geometry.command{
 					
 					renderCommandStack(_fxShape.graphics,rc,_cursor);
 					
-					//apply the filters
-					//	if(owner.mask ||(owner.filters.length!=0 && owner.filters[0] !=null)){
-						if (owner.filters[0]) _fxShape.filters = owner.filters;
-					
-						//blit the data to the destination context
-						renderBitmapDatatoContext(_fxShape,graphics)
-					//	}
-					
+					//blit the data to the destination context
+					renderBitmapDatatoContext(_fxShape,graphics)
+				
 				}
 				else {
 					//setup the stroke
@@ -210,38 +265,93 @@ package com.degrafa.geometry.command{
 		
 		
 		
-		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics):void{
+		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics, viaCommandStack:Boolean=false, rc:Rectangle=null):void{
 			
 			if(!source){return;}
 									
 			var sourceRect:Rectangle=source.getBounds(source);
-									
-			if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
-			if(sourceRect.isEmpty()){return;}
 			
+			if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
+
+			if(sourceRect.isEmpty()){return;}
 			var filteredRect:Rectangle = sourceRect.clone();
-			filteredRect.x = filteredRect.y = 0;
-			filteredRect.width = Math.ceil(filteredRect.width);
-			filteredRect.height = Math.ceil(filteredRect.height);
-			filteredRect = updateToFilterRectangle(filteredRect,source);
-			filteredRect.offset(sourceRect.x, sourceRect.y);
-						
+
+			
+			if (owner.hasFilters) {
+				source.filters = owner.filters;
+				filteredRect.x = filteredRect.y = 0;
+				filteredRect.width = Math.ceil(filteredRect.width);
+				filteredRect.height = Math.ceil(filteredRect.height);
+				if (!filteredRect.width || !filteredRect.height) return; //nothing to draw
+				filteredRect = updateToFilterRectangle(filteredRect,source);
+				filteredRect.offset(sourceRect.x, sourceRect.y);
+			} 	else {
+				filteredRect.x = Math.floor(filteredRect.x );
+				filteredRect.y = Math.floor(filteredRect.y );
+				filteredRect.width = Math.ceil(filteredRect.width );
+				filteredRect.height = Math.ceil(filteredRect.height );
+			}
+		
 			var bitmapData:BitmapData;
 						
 			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
 			
 			if(filteredRect.width<1 || filteredRect.height<1){
 				return;
-			} 
-			
+			} else {
+				if (filteredRect.width > 2880 || filteredRect.height > 2880) {
+					trace('DEBUG:oversize bitmap : '+owner.id)
+					return;
+				}
+			}
 			bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
-			var mat:Matrix=new Matrix(1,0,0,1,-filteredRect.x,-filteredRect.y)
-			bitmapData.draw(source, mat, null, null, clipTo,false);
-			mat.invert()
 			
-			context.beginBitmapFill(bitmapData, mat,false,false);
-			context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
-			context.endFill();
+			var mat:Matrix = new Matrix(1, 0, 0, 1, -filteredRect.x, -filteredRect.y);
+			
+			//the 1-? was cutting off some filters
+			//var mat:Matrix = new Matrix(1, 0, 0, 1, 1-filteredRect.x, 1-filteredRect.y)
+			
+			bitmapData.draw(source, mat, null, null, clipTo, true);
+			mat.invert();
+			
+			if (!viaCommandStack) {
+	
+				if (!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy) {
+					//adjust for scale- downscale to fit filters in the same bounds:
+					trace('adjusted down to original bounds or layout');
+					mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
+					context.beginBitmapFill(bitmapData, mat,false,true);
+					context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
+					context.endFill();
+				} else {
+					//draw at filtered size
+					trace('drawn at filtered size');
+					context.beginBitmapFill(bitmapData, mat,false,true);
+					context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
+					context.endFill();
+				}
+			} else {
+				if (transMatrix) {
+					var temp:Matrix
+					if (owner is IDisplayObjectProxy ) {
+						if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
+							var tempMat:Matrix = owner._layoutMatrix.clone();
+							//scaling has already been done before drawing to bitmapdata
+							tempMat.a = 1; tempMat.d = 1;
+							mat.concat(CommandStack.currentTransformMatrix);
+						} 
+						else {
+							mat.concat( currentTransformMatrix);
+							transMatrix = currentTransformMatrix;
+						}
+					} 
+					else mat.concat(transMatrix)
+				}
+				
+				context.beginBitmapFill(bitmapData, mat, false, true);
+				renderCommandStack(context, rc, new DegrafaCursor(this.source))
+				
+			}
 			
 		}
 		
@@ -257,6 +367,68 @@ package com.degrafa.geometry.command{
 			return filterRect;
 			
 		}
+		
+		private var hasRenderDecoration:Boolean;
+		//called from render loop if the geometry has an IRenderDecorator
+		private function delegateGraphicsCall(methodName:String,graphics:Graphics,x:Number=0,y:Number=0,cx:Number=0,cy:Number=0,x1:Number=0,y1:Number=0):*{
+			//permit each decoration to do work on the current segment			
+			for each (var item:IRenderDecorator in owner.decorators){
+				switch(methodName){
+					case "moveTo":
+						return item.moveTo(x,y,graphics);
+						break;
+					case "lineTo":
+						return item.lineTo(x,y,graphics);
+						break;
+					case "curveTo":
+						return item.curveTo(cx,cy,x1,y1,graphics);
+						break;		
+				}
+			}
+		}
+		
+		//calls each delegate in order
+		private function processDelegateArray(delegates:Array,item:CommandStackItem,graphics:Graphics,currentIndex:int):CommandStackItem{
+						
+			for each (var delegate:Function in delegates){
+				item = delegate(this,item,graphics,currentIndex);
+			}
+			
+			return item;
+			
+		}
+		
+		/**
+		* Array of delegate functions to be called during the render loop when 
+		* each item is about to be rendered. Individual item 
+		* delegates take precedence if both are set
+		*/		
+		private var _globalRenderDelegateStart:Array=[];
+		public function get globalRenderDelegateStart():Array{
+			return _globalRenderDelegateStart;
+		}
+		public function set globalRenderDelegateStart(value:Array):void{
+			if(_globalRenderDelegateStart != value){
+				_globalRenderDelegateStart = value;
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* Function to be called during the render loop when 
+		* each item has just been rendered. Individual item 
+		* delegates take precedence if both are set
+		*/	
+		private var _globalRenderDelegateEnd:Array=[];
+		public function get globalRenderDelegateEnd():Array{
+			return _globalRenderDelegateEnd;
+		}
+		public function set globalRenderDelegateEnd(value:Array):void{
+			if(_globalRenderDelegateEnd != value){
+				_globalRenderDelegateEnd = value;
+				invalidated = true;
+			}
+		}
 				
 		/**
 		* Principle render loop. Use delgates to override specific items
@@ -268,10 +440,15 @@ package com.degrafa.geometry.command{
 			while(cursor.moveNext()){	   			
 	   			
 				item = cursor.current;				
-				
+												
 				//defer to the start delegate if one found
-				if (item.renderDelegateStart !=null){
-					item=item.renderDelegateStart(this,item,graphics);
+				if (item.renderDelegateStart.length !=0){
+					item=processDelegateArray(item.renderDelegateStart,item,graphics,cursor.currentIndex);
+				}
+				
+				//process any global type items
+				if (_globalRenderDelegateStart.length !=0){
+					item=processDelegateArray(_globalRenderDelegateStart,item,graphics,cursor.currentIndex);
 				}
 				
 				with(item){	
@@ -281,10 +458,21 @@ package com.degrafa.geometry.command{
 								transXY.x = x; 
 								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								graphics.moveTo(transXY.x, transXY.y);
+								
+								if(hasRenderDecoration){
+									delegateGraphicsCall("moveTo",graphics,transXY.x, transXY.y);
+								}
+								else{
+									graphics.moveTo(transXY.x, transXY.y);
+								}
 							}
 							else{
-								graphics.moveTo(x,y);
+								if(hasRenderDecoration){
+									delegateGraphicsCall("moveTo",graphics,x, y);
+								}
+								else{
+									graphics.moveTo(x,y);
+								}
 							}
 							break;
 	        			case CommandStackItem.LINE_TO:
@@ -292,10 +480,22 @@ package com.degrafa.geometry.command{
 								transXY.x = x; 
 								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								graphics.lineTo(transXY.x, transXY.y);
+								
+								if(hasRenderDecoration){
+									delegateGraphicsCall("lineTo",graphics,transXY.x, transXY.y);
+								}
+								else{
+									graphics.lineTo(transXY.x, transXY.y);
+								}
+								
 							} 
 							else{
-								graphics.lineTo(x,y);
+								if(hasRenderDecoration){
+									delegateGraphicsCall("lineTo",graphics,x, y);
+								}
+								else{
+									graphics.lineTo(x,y);
+								}
 							}
 							break;
 	        			case CommandStackItem.CURVE_TO:
@@ -306,10 +506,22 @@ package com.degrafa.geometry.command{
 								transCP.y = cy;
 								transXY = transMatrix.transformPoint(transXY);
 								transCP = transMatrix.transformPoint(transCP);
-								graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
+								
+								if(hasRenderDecoration){
+									delegateGraphicsCall("curveTo",graphics,0,0,transCP.x,transCP.y,transXY.x,transXY.y);
+								}
+								else{
+									graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
+								}
+								
 							} 
 							else{
-								graphics.curveTo(cx,cy,x1,y1);
+								if(hasRenderDecoration){
+									delegateGraphicsCall("curveTo",graphics,0,0,cx,cy,x1,y1);
+								}
+								else{
+									graphics.curveTo(cx,cy,x1,y1);
+								}
 							}
 							break;
 	        			case CommandStackItem.DELEGATE_TO:
@@ -323,10 +535,15 @@ package com.degrafa.geometry.command{
 	        			        				
 					}
     			}
-    			
-    			//defer to the end delegate if one found
-				if (item.renderDelegateEnd !=null){
-					item=item.renderDelegateEnd(this,item,graphics);
+    			    							
+				//defer to the end delegate if one found
+				if (item.renderDelegateEnd.length !=0){
+					item=processDelegateArray(item.renderDelegateEnd,item,graphics,cursor.currentIndex);
+				}
+				
+				//process any global type items
+				if (_globalRenderDelegateEnd.length !=0){
+					item=processDelegateArray(_globalRenderDelegateEnd,item,graphics,cursor.currentIndex);
 				}
 				
         	}

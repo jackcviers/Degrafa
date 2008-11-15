@@ -9,6 +9,16 @@
 	<component id="GraphicPointEX" class="com.degrafa.GraphicPointEX"/>
 	<component id="GraphicText" class="com.degrafa.GraphicText"/>
 	
+	<component id="RasterText" class="com.degrafa.geometry.RasterText"/>
+	
+	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
+	
+	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
+	
+	
+	<component id="DashedLineDecorator" class="com.degrafa.decorators.DashedLineDecorator"/>
+	<component id="SloppyLineDecorator" class="com.degrafa.decorators.SloppyLineDecorator"/>
+	
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 		
 	<!--Transforms-->

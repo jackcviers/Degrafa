@@ -27,10 +27,10 @@ package com.degrafa.geometry{
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.ITransformablePaint;
+	import com.degrafa.core.collections.DecoratorCollection;
 	import com.degrafa.core.collections.DisplayObjectCollection;
 	import com.degrafa.core.collections.FilterCollection;
 	import com.degrafa.core.collections.GeometryCollection;
-	import com.degrafa.decorators.IGlobalDecorator;
 	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.layout.LayoutConstraint;
@@ -49,9 +49,8 @@ package com.degrafa.geometry{
 	import flash.geom.Rectangle;
 	
 	import mx.core.IUIComponent;
-	import mx.core.UIComponent;
+	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
-	import mx.events.ResizeEvent;
 	import mx.styles.ISimpleStyleClient;
 	
 	[DefaultProperty("geometry")]
@@ -187,7 +186,7 @@ package com.degrafa.geometry{
 			//add listener to targets so we can redraw if required
 			for each (var target:DisplayObject in value){
 				if(target is IUIComponent){
-					target.addEventListener(Event.RENDER,onTargetRender);
+					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 				}
 				else{
 					target.addEventListener(Event.RENDER,onTargetRender);
@@ -597,54 +596,51 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* Decoration related.
   		**********************************************************/
-  		private var _decorators:Array=[];
+  		
+  		public var hasDecorators:Boolean;
+  		
+  		private var _decorators:DecoratorCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.decorators.IDecorator")]
+		[ArrayElementType("com.degrafa.decorators.IDecorator")]
 		/**
-		* An Array of decorators that modify this Geometry.  IGlobalDecorator
-		* are executed and cleaned up here. 
+		* A array of IGraphicsFill objects.
 		**/
 		public function get decorators():Array{
-			return _decorators;
-		}	
-		public function set decorators(value:Array):void{
+			initDecoratorsCollection();
+			return _decorators.items;
+		}
+		public function set decorators(value:Array):void{			
+			initDecoratorsCollection();
+			_decorators.items = value;
 			
-			if(_decorators != value)
-			{
-				var oldValue:Object = _decorators;
+			if(value && value.length!=0){
+				hasDecorators = true;
+			}
+			else{
+				hasDecorators = false;
+			}
+			
+		}
+		
+		/**
+		* Access to the Degrafa fill collection object for this graphic object.
+		**/
+		public function get decoratorCollection():DecoratorCollection{
+			initDecoratorsCollection();
+			return _decorators;
+		}
+		
+		/**
+		* Initialize the collection by creating it and adding an event listener.
+		**/
+		private function initDecoratorsCollection():void{
+			if(!_decorators){
+				_decorators = new DecoratorCollection();
 				
-				if(_decorators){
-					if(_decorators.hasEventManager){
-						_decorators.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-					}
+				//add a listener to the collection
+				if(enableEvents){
+					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 				}
-				
-				if(_decorators)
-				{
-					for each(var decorator:Object in _decorators)
-					{
-						if(decorator is IGlobalDecorator && _decorators.indexOf(decorator) != -1)
-						{
-							IGlobalDecorator(decorator).cleanup();
-						}
-					}			
-				}
-				
-				_decorators=value;
-				
-				if(enableEvents){	
-					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
-				}
-				
-				initChange("decorators",oldValue,_decorators,this);
-				
-				for each(decorator in _decorators)
-				{
-					if(decorator is IGlobalDecorator)
-					{
-						decorator.execute(this);
-					}
-				}
-				
-				invalidated = true;
 			}
 		}
 		/**********************************************************
@@ -902,6 +898,7 @@ package com.degrafa.geometry{
   		/**********************************************************
   		* Trigger related.
   		**********************************************************/
+  		public var hasTriggers:Boolean;
   		
   		private var _triggers:Array= [];
 	    [Inspectable(arrayType="com.degrafa.triggers.ITrigger")]
@@ -909,8 +906,8 @@ package com.degrafa.geometry{
 	    public function get triggers():Array{
 	    	return _triggers;
 	    }
-	    public function set triggers(items:Array):void{
-	    	_triggers = items;
+	    public function set triggers(value:Array):void{
+	    	_triggers = value;
 	    	
 	    	if(_triggers){
 		    	//make sure each item knows about it's manager
@@ -919,6 +916,13 @@ package com.degrafa.geometry{
 	    		}
 	    	}
 	    	
+	    	if(value && value.length!=0){
+				hasTriggers = true;
+			}
+			else{
+				hasTriggers = false;
+			}
+			
 	    }
 	    
     	/**********************************************************
@@ -941,17 +945,19 @@ package com.degrafa.geometry{
 		
 		private var stateManager:StateManager;
 		
+		public var hasStates:Boolean;
+		
 		private var _states:Array= [];
 	    [Inspectable(arrayType="com.degrafa.states.State")]
 	    [ArrayElementType("com.degrafa.states.State")]
 	    public function get states():Array{
 	    	return _states;
 	    }
-	    public function set states(items:Array):void{
+	    public function set states(value:Array):void{
 	    	
-	    	_states = items;
+	    	_states = value;
 	    	
-	    	if(items){
+	    	if(value){
 	    		if(!stateManager){
 	    			stateManager = new StateManager(this)
 	    			
@@ -965,6 +971,13 @@ package com.degrafa.geometry{
 	    	else{
 	    		stateManager = null;	
 	    	}
+	    	
+	    	if(value && value.length!=0){
+				hasStates = true;
+			}
+			else{
+				hasStates = false;
+			}
 	    }
 	 	
 	 	
@@ -1019,6 +1032,8 @@ package com.degrafa.geometry{
   		* object to be used at render time.
   		**********************************************************/
   		
+  		public var hasFilters:Boolean;
+  		
    		/**
 		* A collection of filters to apply to the geometry.
 		*/
@@ -1039,8 +1054,15 @@ package com.degrafa.geometry{
 			
 				//call local helper to dispatch event	
 				initChange("filters",oldValue,_filters.items,this);
-				
 			}
+			
+			if(value && value.length!=0){
+				hasFilters = true;
+			}
+			else{
+				hasFilters = false;
+			}
+			
 		}
 	
 		/**
@@ -1058,7 +1080,13 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-		
+		/**********************************************************
+  		* End Filter related.
+  		**********************************************************/
+  		
+  		/**********************************************************
+  		* Blend Mode related.
+  		**********************************************************/
 		//private var _blendMode:String=undefined;
 		//[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
 		/**
@@ -1081,6 +1109,13 @@ package com.degrafa.geometry{
 			
 		}*/
 		
+		/**********************************************************
+  		* End Blend Mode related.
+  		**********************************************************/
+  		
+  		/**********************************************************
+  		* Clipping related.
+  		**********************************************************/
 		private var _clippingRectangle:Rectangle=null;
 		/**
 		* A clipping rectangle to use when rendering this geometry.
@@ -1099,7 +1134,13 @@ package com.degrafa.geometry{
 				initChange("clippingRectangle",oldValue,_clippingRectangle,this);
 			}
 		}
-		
+		/**********************************************************
+  		* Clipping related.
+  		**********************************************************/
+  		
+  		/**********************************************************
+  		* Mask related.
+  		**********************************************************/
 		private var _mask:IGeometryComposition;
 		/**
 		* A separate geometry object to use as a mask when rendering this geometry.
@@ -1120,7 +1161,7 @@ package com.degrafa.geometry{
 		}
 		
 		/**********************************************************
-  		* End Filter related.
+  		* End mask related.
   		**********************************************************/
   		
 		

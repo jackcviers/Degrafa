@@ -4,5 +4,7 @@ package com.degrafa.geometry.display{
 	
 	public interface IDisplayObjectProxy{
 		function get displayObject():DisplayObject;
+		function get transformBeforeRender():Boolean;
+		function get layoutMode():String;
 	}
 }

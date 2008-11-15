@@ -212,31 +212,16 @@ package com.degrafa.geometry.command{
 				y1=value.y;
 			}
 		}
-		
+				
 		/**
-		* Function to be called during the render loop when 
-		* this item is encountered .
-		*/		
-		private var _delegate:Function;
-		public function get delegate():Function{
-			return _delegate;
-		}
-		public function set delegate(value:Function):void{
-			if(_delegate != value){
-				_delegate = value;
-				invalidated = true;
-			}
-		}
-		
-		/**
-		* Function to be called during the render loop when 
+		* Functions to be called during the render loop when 
 		* this item is about to be rendered.
 		*/		
-		private var _renderDelegateStart:Function;
-		public function get renderDelegateStart():Function{
+		private var _renderDelegateStart:Array=[];
+		public function get renderDelegateStart():Array{
 			return _renderDelegateStart;
 		}
-		public function set renderDelegateStart(value:Function):void{
+		public function set renderDelegateStart(value:Array):void{
 			if(_renderDelegateStart != value){
 				_renderDelegateStart = value;
 				invalidated = true;
@@ -244,14 +229,14 @@ package com.degrafa.geometry.command{
 		}
 		
 		/**
-		* Function to be called during the render loop when 
+		* Functions to be called during the render loop when 
 		* this item has just been rendered.
 		*/	
-		private var _renderDelegateEnd:Function;
-		public function get renderDelegateEnd():Function{
+		private var _renderDelegateEnd:Array=[];
+		public function get renderDelegateEnd():Array{
 			return _renderDelegateEnd;
 		}
-		public function set renderDelegateEnd(value:Function):void{
+		public function set renderDelegateEnd(value:Array):void{
 			if(_renderDelegateEnd != value){
 				_renderDelegateEnd = value;
 				invalidated = true;
