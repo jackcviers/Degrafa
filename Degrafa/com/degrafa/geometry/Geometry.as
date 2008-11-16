@@ -187,6 +187,7 @@ package com.degrafa.geometry{
 			for each (var target:DisplayObject in value){
 				if(target is IUIComponent){
 					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
+					target.addEventListener(Event.RENDER,onTargetRender);
 				}
 				else{
 					target.addEventListener(Event.RENDER,onTargetRender);
@@ -236,15 +237,24 @@ package com.degrafa.geometry{
 				}
 				_currentGraphicsTarget = target as Sprite;
 				
-				draw(target.graphics,null);
+				//when drawing to the target ensure we have valid width and height
+				if(target is IUIComponent){
+					if(_currentGraphicsTarget.width && _currentGraphicsTarget.height){
+						draw(target.graphics,null);
+					}
+				}
+				else{
+					draw(target.graphics,null);
+				}
+				
 			}
 		}
 		
 		public function clearGraphicsTargets():void{
     		if(graphicsTarget){
-				for each (var targetItem:Object in graphicsTarget){
-					if(targetItem){
-						targetItem.graphics.clear();
+				for each (var target:Object in graphicsTarget){
+					if(target){
+						target.graphics.clear();
 					}
 				}
 			}
@@ -254,16 +264,8 @@ package com.degrafa.geometry{
 		private  function drawToTargets():void{
 			
 			if(_graphicsTarget){
-				for each (var targetItem:Object in _graphicsTarget.items){
-					if(targetItem){
-						if(autoClearGraphicsTarget){
-							targetItem.graphics.clear();
-						}
-						
-						_currentGraphicsTarget = targetItem as Sprite;
-						
-						draw(targetItem.graphics,null);
-					}
+				for each (var target:Object in _graphicsTarget.items){
+					drawToTarget(target);
 				}
 			}
 			
