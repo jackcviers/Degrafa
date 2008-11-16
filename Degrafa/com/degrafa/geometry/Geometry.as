@@ -244,7 +244,14 @@ package com.degrafa.geometry{
 					}
 				}
 				else{
-					draw(target.graphics,null);
+					if(hasLayout){
+						if(target.width && target.height){
+							draw(target.graphics,null);
+						}
+					}
+					else{
+						draw(target.graphics,null);
+					}
 				}
 				
 			}
