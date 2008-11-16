@@ -195,7 +195,7 @@ package com.degrafa.geometry{
 
 		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
 		
-		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null):CommandStackItem {
+		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
 				var _cornerRadius:Number = cornerRadius;
 				
