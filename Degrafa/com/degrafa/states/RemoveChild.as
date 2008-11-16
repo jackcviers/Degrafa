@@ -14,6 +14,7 @@ package com.degrafa.states
 {
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.GeometryCollection;
+	import com.degrafa.geometry.Geometry;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -21,11 +22,11 @@ package com.degrafa.states
 	
 	[IconFile("RemoveChild.png")]
 
-	public class RemoveChild implements IOverride
-	{
+	public class RemoveChild implements IOverride{
+		
 		public var target:IDegrafaStateClient;
 		
-		private var oldParent:GeometryCollection;
+		private var oldParent:IDegrafaStateClient;
 		private var oldIndex:int;
 		
 		private var removed:Boolean;
@@ -40,18 +41,34 @@ package com.degrafa.states
 		public function apply(parent:IDegrafaStateClient):void
 		{
 			removed = false;
-		
-			oldParent = parent.geometryCollection;
-			oldIndex = oldParent.getItemIndex(target as IGeometry);
-			oldParent.removeItem(target as IGeometry);
+			
+			if(Geometry(target).parent){
+				oldParent = IDegrafaStateClient(Geometry(target).parent); 
+			}
+			else{
+				oldParent = parent;
+			}
+			
+			if(!oldParent){return;}
+			
+			oldIndex = oldParent.geometryCollection.getItemIndex(target as IGeometry);
+			oldParent.geometryCollection.removeItem(target as IGeometry);
+			
+			var tempGeometry:Array=[] 
+	        tempGeometry = tempGeometry.concat(parent.geometryCollection.items);
+	        parent.geometry = tempGeometry;
 			
 			removed = true;
 		}
 		
 		public function remove(parent:IDegrafaStateClient):void
 		{
-			oldParent.addItemAt(target as IGeometry, oldIndex);
+			oldParent.geometryCollection.addItemAt(target as IGeometry, oldIndex);
 
+			var tempGeometry:Array=[] 
+	        tempGeometry = tempGeometry.concat(parent.geometryCollection.items);
+	        parent.geometry = tempGeometry;
+	        
 			removed = false;
 		}
 	}

@@ -14,6 +14,7 @@ package com.degrafa.states
 {
 	
 	import com.degrafa.IGeometry;
+	import com.degrafa.geometry.Geometry;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -51,32 +52,38 @@ package com.degrafa.states
 	            
 	            case "before":
 	            {
-	                parent.geometryCollection.addItemAt(target as IGeometry,
-	                    parent.geometryCollection.getItemIndex(obj as IGeometry));
+	                obj.geometryCollection.addItemAt(target as IGeometry,
+	                    obj.geometryCollection.getItemIndex(obj as IGeometry));
 	                break;
 	            }
 	
 	            case "after":
 	            {
-	                parent.geometryCollection.addItemAt(target as IGeometry,
-	                    parent.geometryCollection.getItemIndex(obj  as IGeometry) + 1);
+	                obj.geometryCollection.addItemAt(target as IGeometry,
+	                    obj.geometryCollection.getItemIndex(obj  as IGeometry) + 1);
 	                break;
 	            }
 	
 	            case "firstChild":
 	            {
-	                parent.geometryCollection.addItemAt(target  as IGeometry, 0);
+	                obj.geometryCollection.addItemAt(target as IGeometry, 0);
 	                break;
 	            }
 	
 	            case "lastChild":
 	            default:
 	            {
-	                parent.geometryCollection.addItem(target as IGeometry);
+	                obj.geometryCollection.addItem(target as IGeometry);
 	            }
 	        }
 	
 	        _added = true;
+	        	        
+	        var tempGeometry:Array=[] 
+	        tempGeometry = tempGeometry.concat(obj.geometryCollection.items);
+	        obj.geometry = tempGeometry;
+	        
+	        
 		}
 		
 		public function remove(parent:IDegrafaStateClient):void

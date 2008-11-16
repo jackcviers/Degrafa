@@ -33,6 +33,7 @@ package com.degrafa.states{
    	 	function get states():Array
    	 	function set states(items:Array):void
    	 	function get geometry():Array
+   	 	function set geometry(value:Array):void
    	 	function get geometryCollection():GeometryCollection
    	}
 }

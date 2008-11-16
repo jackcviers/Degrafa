@@ -33,7 +33,6 @@ package com.degrafa.skins
 	import com.degrafa.states.StateManager;
 	import com.degrafa.triggers.ITrigger;
 	
-	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.events.Event;
@@ -66,6 +65,7 @@ package com.degrafa.skins
 			addEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
 		}
 		
+						
 		private var _data:String;
 		/**
 		* Allows a short hand property setting that is 
@@ -195,12 +195,12 @@ package com.degrafa.skins
 			
 			initGeometryCollection();
 			_geometry.items = value;
+						
+			for each (var item:Geometry in _geometry.items){
+				item.autoClearGraphicsTarget = false;
+				item.graphicsTarget = [this];
+			} 
 			
-			//make sure the top geometry parent knows about this
-			//as a graphics target
-			if(value.length !=0){
-				Geometry(value[0]).graphicsTarget = [this];
-			}
 		}
 		
 		/**
@@ -282,7 +282,7 @@ package com.degrafa.skins
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 			
 			if(!parent){return;}
-			
+						
 			this.graphics.clear();
 							
 			if (geometry){
@@ -326,8 +326,11 @@ package com.degrafa.skins
 	       	skinWidth =unscaledWidth;
 	        skinHeight =unscaledHeight;
 	        
-	       	draw(null,null);
-	    	endDraw(null);	
+	        //make sure we have bot a height and a width
+	        if(unscaledWidth && unscaledHeight){
+	       		draw(null,null);
+	    		endDraw(null);
+	        }
 	    }
 	    
 	     /**********************************************************
@@ -372,7 +375,9 @@ package com.degrafa.skins
 					}
 				}
 			}
+						
 		} 
+		
 		
     	/**********************************************************
   		* End Trigger related.
@@ -401,7 +406,7 @@ package com.degrafa.skins
 	    	return _states;
 	    }
 	    public function set states(items:Array):void{
-	    	
+	    		    	
 	    	_states = items;
 	    		    	
 	    	if(items){
@@ -416,6 +421,7 @@ package com.degrafa.skins
 	    	else{
 	    		stateManager = null;	
 	    	}
+	    		    	
 	    }
 	 	
 	 	

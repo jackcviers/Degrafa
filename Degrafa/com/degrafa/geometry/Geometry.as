@@ -186,11 +186,11 @@ package com.degrafa.geometry{
 			//add listener to targets so we can redraw if required
 			for each (var target:DisplayObject in value){
 				if(target is IUIComponent){
-					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
-					target.addEventListener(Event.RENDER,onTargetRender);
+					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false,0,true);
+					target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
 				}
 				else{
-					target.addEventListener(Event.RENDER,onTargetRender);
+					target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
 				}
 			}
 			
@@ -201,7 +201,7 @@ package com.degrafa.geometry{
 			_graphicsTarget.items = value;
 			
 		}
-				
+						
 		/**
 		* Access to the Degrafa target collection object for this geometry object.
 		**/
