@@ -557,17 +557,17 @@ package com.degrafa.paint{
 				//handle displayObjects with zero width and height
 				if (!target.width || !target.height)
 				{
-					trace('check')
+					//trace('check')
 					//check the bounds and if they're not empty use them.
 					var tempRect:Rectangle = target.getBounds(target);
-					trace(target is Text)
+					//trace(target is Text)
 					if (!tempRect.isEmpty())
 					{
 						bitmapData = new BitmapData(Math.ceil(tempRect.width), Math.ceil(tempRect.height), true, 0);
 						bitmapData.draw(target, new Matrix(1, 0, 0, 1, -tempRect.x, -tempRect.y));
 					} else bitmapData = null;
 				} else {
-					trace('ok')
+					//trace('ok')
 				bitmapData = new BitmapData(target.width, target.height, true, 0);
 				bitmapData.draw(target);
 				}

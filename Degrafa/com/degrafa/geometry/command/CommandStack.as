@@ -318,7 +318,7 @@ package com.degrafa.geometry.command{
 				filteredRect.width = Math.ceil(filteredRect.width +(filteredRect.x -(filteredRect.x = Math.floor(filteredRect.x ))));
 				filteredRect.height = Math.ceil(filteredRect.height +(filteredRect.y-(filteredRect.y = Math.floor(filteredRect.y ))));
 				if (filteredRect.width > 2880 || filteredRect.height > 2880) {
-					trace('DEBUG:oversize bitmap : '+owner.id)
+					//trace('DEBUG:oversize bitmap : '+owner.id)
 					return;
 				}
 			}

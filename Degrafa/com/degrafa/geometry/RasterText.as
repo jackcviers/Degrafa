@@ -220,7 +220,7 @@ package com.degrafa.geometry{
 
 			 		super.calculateLayout(tempLayoutRect);	
 			 		_layoutRectangle = _layoutConstraint.layoutRectangle;
-					trace('post:' + _layoutRectangle)	
+					//trace('post:' + _layoutRectangle)	
 					
 						
 					if (isNaN(_width) || isNaN(_height) || layoutMode == "adjust") {
@@ -237,7 +237,7 @@ package com.degrafa.geometry{
 						} 
 					}else {
 						if (layoutMode == "scale" ) {
-						trace("SETTING")	
+						//trace("SETTING")	
 					//	_x= textField.x ;
 					//	_y= textField.y ;
 					//	_width	=	textField.width ;

@@ -916,7 +916,7 @@ package com.degrafa.paint{
 					if (tempBmp) tempBmp.dispose();
 					 
 				} else {
-					trace('empty working Rect')
+					//trace('empty working Rect')
 				}
 			}
 		}
