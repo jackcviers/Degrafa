@@ -330,11 +330,8 @@ package com.degrafa.skins
 	       	skinWidth =unscaledWidth;
 	        skinHeight =unscaledHeight;
 	        
-	        //make sure we have bot a height and a width
-	        if(unscaledWidth && unscaledHeight){
-	       		draw(null,null);
-	    		endDraw(null);
-	        }
+	        draw(null,null);
+	    	endDraw(null);
 	    }
 	    
 	     /**********************************************************
