@@ -32,6 +32,8 @@ package com.degrafa.geometry.command{
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	import com.degrafa.transform.TransformBase;
+	import flash.display.Sprite;
+	import mx.core.Application;
 	
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -92,30 +94,37 @@ package com.degrafa.geometry.command{
 			}
 			
 			var layout:Boolean = owner.hasLayout;
-			
+			transMatrix=null;
 			currentLayoutMatrix.identity();
 
 			//setup a layout transform
 			if (layout){
 				//give DisplayObjectProxies the ability to define their own bounds
 				var tempRect:Rectangle = (owner is IDisplayObjectProxy)?owner.bounds:bounds;
-				//	tempRect = owner.bounds;
-				if (!tempRect.equals(owner.layoutRectangle)) {	
-					currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
-					currentLayoutMatrix.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
-					currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
-					owner._layoutMatrix = currentLayoutMatrix.clone();
-					transMatrix = currentLayoutMatrix.clone();
 
-				} else {
-					layout = false;
-					owner._layoutMatrix = null;
-					currentLayoutMatrix.identity();
+				if (!tempRect.equals(owner.layoutRectangle) ) {	
+						currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
+						currentLayoutMatrix.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
+						currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
+
+						owner._layoutMatrix = currentLayoutMatrix.clone();
+						transMatrix = currentLayoutMatrix.clone();
+	
+					} else {
+
+						layout = false;
+						owner._layoutMatrix = null;
+						currentLayoutMatrix.identity();
 				}
 			} 
-			else if (owner._layoutMatrix){  
-				owner._layoutMatrix= null;
-			}
+			else {
+
+				if (owner._layoutMatrix){  
+					owner._layoutMatrix = null;
+				}
+
+				}
+		
 
 			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
 			
@@ -133,7 +142,7 @@ package com.degrafa.geometry.command{
 				currentTransformMatrix.identity();
 				if (!layout) transMatrix = null;
 			}
-			
+
 		}
 		
 		/**
@@ -144,6 +153,7 @@ package com.degrafa.geometry.command{
 			//exit if no command stack
 			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
 			
+
 			//init the decorations if required
 			if(owner.hasDecorators){
 				for each (var item:IDecorator in owner.decorators){
@@ -155,7 +165,7 @@ package com.degrafa.geometry.command{
 					}
 				}
 			}
-			
+
 			//setup requirements before the render
 			predraw()
 			
@@ -163,6 +173,7 @@ package com.degrafa.geometry.command{
 				if(!IDisplayObjectProxy(owner).displayObject){
 					return;
 				}
+				
 				
 				var displayObject:DisplayObject = IDisplayObjectProxy(owner).displayObject;
 				//apply the filters
@@ -172,13 +183,20 @@ package com.degrafa.geometry.command{
 					
 				if (transMatrix && (IDisplayObjectProxy(owner).transformBeforeRender || (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode == 'scale'))) {
 					var transObject:DisplayObject;
+					//always expect a single child of this displayobject
 					if(Sprite(displayObject).numChildren!=0){
 						transObject = Sprite(displayObject).getChildAt(0);
 						if (!IDisplayObjectProxy(owner).transformBeforeRender) {
 							//scale layoutmode only, without a pretransformed capture: scale before capture to bitmapData:
 							transObject.transform.matrix = CommandStack.currentLayoutMatrix;
+	
+				
 						} else {
-							if (IDisplayObjectProxy(owner).layoutMode=='scale') transObject.transform.matrix = CommandStack.transMatrix;
+
+							if (IDisplayObjectProxy(owner).layoutMode == 'scale') {
+						
+								transObject.transform.matrix = CommandStack.transMatrix;
+							}
 						    else {
 								if (owner._layoutMatrix) {
 									var tempMat:Matrix = owner._layoutMatrix.clone();
@@ -187,19 +205,18 @@ package com.degrafa.geometry.command{
 									transObject.transform.matrix = tempMat;
 								} else transObject.transform.matrix = CommandStack.currentTransformMatrix;
 							}
+							/**/
 						}
-					} else {
-						//THIS BRANCH UNTESTED at this point, not sure whether this will work or not as I think we need to include the 
-						transObject = Sprite(displayObject);
-						transObject.transform.matrix = CommandStack.transMatrix;
-					}
+					} 
 				}
 				//debug:
 			//	var temp:Rectangle;
 			//	temp = Sprite(displayObject).getBounds(Sprite(displayObject));
 			//	graphics.clear();
-			//	graphics.lineStyle(3, 0x00ff00, .4)
+			//	graphics.lineStyle(3, 0x0000ff, .4)
 			//	graphics.drawRect(temp.x, temp.y, temp.width, temp.height)
+
+
 				
 			//	maybe there's a stroke on some owners at this point:
 				owner.initStroke(graphics, rc);
@@ -246,6 +263,7 @@ package com.degrafa.geometry.command{
 					
 					renderCommandStack(_fxShape.graphics,rc,_cursor);
 					
+
 					//blit the data to the destination context
 					renderBitmapDatatoContext(_fxShape,graphics)
 				
@@ -276,7 +294,7 @@ package com.degrafa.geometry.command{
 			if(sourceRect.isEmpty()){return;}
 			var filteredRect:Rectangle = sourceRect.clone();
 
-			
+
 			if (owner.hasFilters) {
 				source.filters = owner.filters;
 				filteredRect.x = filteredRect.y = 0;
@@ -285,73 +303,78 @@ package com.degrafa.geometry.command{
 				if (!filteredRect.width || !filteredRect.height) return; //nothing to draw
 				filteredRect = updateToFilterRectangle(filteredRect,source);
 				filteredRect.offset(sourceRect.x, sourceRect.y);
-			} 	else {
-				filteredRect.x = Math.floor(filteredRect.x );
-				filteredRect.y = Math.floor(filteredRect.y );
-				filteredRect.width = Math.ceil(filteredRect.width );
-				filteredRect.height = Math.ceil(filteredRect.height );
-			}
-		
+			} 	
+
 			var bitmapData:BitmapData;
 						
 			var clipTo:Rectangle = (owner.clippingRectangle)? owner.clippingRectangle:null;
 			
 			if(filteredRect.width<1 || filteredRect.height<1){
 				return;
+
 			} else {
+				//adjust to pixelbounds:
+				filteredRect.y = Math.floor(filteredRect.y );
+				filteredRect.width = Math.ceil(filteredRect.width +(filteredRect.x -(filteredRect.x = Math.floor(filteredRect.x ))));
+				filteredRect.height = Math.ceil(filteredRect.height +(filteredRect.y-(filteredRect.y = Math.floor(filteredRect.y ))));
 				if (filteredRect.width > 2880 || filteredRect.height > 2880) {
 					trace('DEBUG:oversize bitmap : '+owner.id)
 					return;
 				}
 			}
-			bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
-			
-			var mat:Matrix = new Matrix(1, 0, 0, 1, -filteredRect.x, -filteredRect.y);
-			
-			//the 1-? was cutting off some filters
-			//var mat:Matrix = new Matrix(1, 0, 0, 1, 1-filteredRect.x, 1-filteredRect.y)
-			
+
+
+			var mat:Matrix
+			if (owner is IDisplayObjectProxy){
+			//padding with transparent pixel border
+				bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
+				mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
+				
+			} else {
+				
+				bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
+				mat = new Matrix(1, 0, 0, 1, - filteredRect.x,  - filteredRect.y)
+			}
 			bitmapData.draw(source, mat, null, null, clipTo, true);
 			mat.invert();
-			
-			if (!viaCommandStack) {
-	
-				if (!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy) {
-					//adjust for scale- downscale to fit filters in the same bounds:
-					trace('adjusted down to original bounds or layout');
-					mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
-					context.beginBitmapFill(bitmapData, mat,false,true);
-					context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
-					context.endFill();
-				} else {
-					//draw at filtered size
-					trace('drawn at filtered size');
-					context.beginBitmapFill(bitmapData, mat,false,true);
-					context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
-					context.endFill();
-				}
+
+		if (!viaCommandStack) {
+		var tempMat:Matrix 
+			if (owner.hasFilters &&!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy ) {
+				//adjust for scale- downscale to fit filters in the same bounds:
+
+				mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
+				context.beginBitmapFill(bitmapData, mat,false,true);
+				context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
+				context.endFill();
 			} else {
-				if (transMatrix) {
-					var temp:Matrix
-					if (owner is IDisplayObjectProxy ) {
-						if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
-							var tempMat:Matrix = owner._layoutMatrix.clone();
-							//scaling has already been done before drawing to bitmapdata
-							tempMat.a = 1; tempMat.d = 1;
-							mat.concat(CommandStack.currentTransformMatrix);
-						} 
-						else {
-							mat.concat( currentTransformMatrix);
-							transMatrix = currentTransformMatrix;
-						}
-					} 
-					else mat.concat(transMatrix)
-				}
-				
-				context.beginBitmapFill(bitmapData, mat, false, true);
-				renderCommandStack(context, rc, new DegrafaCursor(this.source))
-				
+				//draw at filtered size
+
+				context.beginBitmapFill(bitmapData, mat,false,true);
+				context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
+				context.endFill();
 			}
+		} else {
+			if (transMatrix) {
+				var temp:Matrix
+				if (owner is IDisplayObjectProxy ) {
+					if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
+						mat.concat(CommandStack.currentTransformMatrix)
+
+					} else {
+
+						mat.concat( currentTransformMatrix);
+						transMatrix = currentTransformMatrix;
+					}
+				} else mat.concat(transMatrix);
+		}
+		//debug outline:
+		//	context.lineStyle(1, 0xff0000, .5);
+			context.beginBitmapFill(bitmapData, mat, false, true);
+			renderCommandStack(context, rc, new DegrafaCursor(this.source))
+
+			
+		}
 			
 		}
 		
@@ -570,7 +593,8 @@ package com.degrafa.geometry.command{
 		* get the last none commandstack type (CommandStackItem.COMMAND_STACK)
 		* item in this command stack.
 		**/
-		public function get lastNonCommandStackItem():CommandStackItem{
+		public function get lastNonCommandStackItem():CommandStackItem {
+			if (!source.length && parent) return parent.parent.lastNonCommandStackItem;
 			var i:int = source.length-1;
 			while (i > 0) {
 				if(source[i].type != CommandStackItem.COMMAND_STACK){
@@ -581,6 +605,7 @@ package com.degrafa.geometry.command{
 				}
 				i--
 			}
+			
 			return source[0];
 		}
 		
@@ -616,16 +641,18 @@ package com.degrafa.geometry.command{
 		private var _bounds:Rectangle=new Rectangle();
 		
 		public function get bounds():Rectangle {
+
 			if (!invalidated) return _bounds
 			else {
 				_bounds.setEmpty();
 				for each(var item:CommandStackItem in source) {
-					item.calcBounds();
+
 						_bounds = _bounds.union(item.bounds);
 				}
 				invalidated = false;
 				if (_bounds.height!=0.0001) _bounds.height = Number(_bounds.height.toPrecision(3));
 				if (_bounds.width != 0.0001) _bounds.width = Number(_bounds.width.toPrecision(3));
+
 				if (_bounds.isEmpty()) invalidated = true;
 			}
 			return _bounds;
@@ -798,6 +825,7 @@ package com.degrafa.geometry.command{
 		}
 		public function set length(value:int):void{
 			source.length = value;
+			invalidated = true;
 		}
 		
 		/**
