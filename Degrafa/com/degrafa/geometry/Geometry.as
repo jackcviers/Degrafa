@@ -183,22 +183,89 @@ package com.degrafa.geometry{
 				if (!item){return;} 
 			}
 			
-			//add listener to targets so we can redraw if required
-			for each (var target:DisplayObject in value){
-				if(target is IUIComponent){
-					target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false,0,true);
-					target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
-				}
-				else{
-					target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
-				}
-			}
-			
 			//make sure we don't set anything until all target creation is 
 			//complete otherwise we will be getting null items since flex
 			//has not finished creation of the target items.
 			initGraphicsTargetCollection();
 			_graphicsTarget.items = value;
+			
+			addTargetListeners();
+			
+		}
+		
+		private function removeTargetListeners():void{
+			
+			if(!_graphicsTarget){return;}
+			
+			if(!_graphicsTarget.items.length){return;}
+			
+			//add listener to targets so we can redraw if required
+			for each (var target:DisplayObject in _graphicsTarget.items){
+				if(target is IUIComponent){
+					if(target.hasEventListener(FlexEvent.UPDATE_COMPLETE)){
+						target.removeEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false);
+					}
+					if(!target.hasEventListener(Event.RENDER)){
+						target.removeEventListener(Event.RENDER,onTargetRender,false);
+					}
+				}
+				else{
+					if(target.hasEventListener(Event.RENDER)){
+						target.removeEventListener(Event.RENDER,onTargetRender,false);
+					}
+				}
+			}
+		}
+		
+		private function addTargetListeners():void{
+			
+			if(!_graphicsTarget){return;}
+			
+			if(!_graphicsTarget.items.length){return;}
+			
+			if(!_useGraphicsTargetListeners){return;}
+			
+			//add listener to targets so we can redraw if required
+			for each (var target:DisplayObject in _graphicsTarget.items){
+				if(target is IUIComponent){
+					if(!target.hasEventListener(FlexEvent.UPDATE_COMPLETE)){
+						target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false,0,true);
+					}
+					if(!target.hasEventListener(Event.RENDER)){
+						target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
+					}
+				}
+				else{
+					if(!target.hasEventListener(Event.RENDER)){
+						target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
+					}
+				}
+			}
+		}
+		
+		private var _useGraphicsTargetListeners:Boolean=true;
+		/**
+		* Specifiy use of target listeners. When true a 
+		* redraw will occure on target render changes. The listeners 
+		* are required when the root geometry uses layout
+		* and the target is also using layout. In Degrafa skin classes
+		* this is explicitly set to false.
+		* 
+		**/	
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get useGraphicsTargetListeners():Boolean{
+			return _useGraphicsTargetListeners;
+		}
+		public function set useGraphicsTargetListeners(value:Boolean):void{
+			
+			if(!value){
+				removeTargetListeners();
+			}
+			else{
+				addTargetListeners();
+			}
+			
+			_useGraphicsTargetListeners=value;
 			
 		}
 						

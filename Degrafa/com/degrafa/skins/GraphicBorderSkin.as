@@ -198,10 +198,14 @@ package com.degrafa.skins
 						
 			for each (var item:Geometry in _geometry.items){
 				item.autoClearGraphicsTarget = false;
+				item.useGraphicsTargetListeners = useGraphicsTargetListeners;
 				item.graphicsTarget = [this];
+				
 			} 
 			
 		}
+		
+		public var useGraphicsTargetListeners:Boolean=false;
 		
 		/**
 		* Access to the Degrafa geometry collection object for this geometry object.
@@ -289,7 +293,7 @@ package com.degrafa.skins
 				for each (var geometryItem:Geometry in _geometry.items){
 					
 					if(geometryItem.state =="" || geometryItem.state ==null){
-						if(states){
+						if(states.length !=0){
 							prepareState();
 						}
 						geometryItem.draw(this.graphics,null);
