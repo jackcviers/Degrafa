@@ -13,7 +13,6 @@
 package com.degrafa.states
 {
 	import com.degrafa.IGeometry;
-	import com.degrafa.core.collections.GeometryCollection;
 	import com.degrafa.geometry.Geometry;
 	
 	//--------------------------------------
