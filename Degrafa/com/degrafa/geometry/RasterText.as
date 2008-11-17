@@ -40,12 +40,10 @@ package com.degrafa.geometry{
 			
 			textField.selectable = false;
 			textField.mouseEnabled = false;
-			
 			//though heavy handed this is required to get around 
 			//a bug when copying the bitmapdata.
 			sprite.addChild(textField);
-			
-			
+
 		}
 		
 		/**
@@ -175,8 +173,7 @@ package com.degrafa.geometry{
 			
 			//for now just return the textField
 			return sprite;
-			
-		
+
 		}
 		
 		private var _bounds:Rectangle;
@@ -185,25 +182,8 @@ package com.degrafa.geometry{
 		**/
 		override public function get bounds():Rectangle {
 			return commandStack.bounds;
-		//	return _bounds;	
 		}
-		
-		
 
-		/**
-		* Calculates the bounds for this element. 
-		**/
-	/*	private function calcBounds():void{
-			if (!_bounds) _bounds = new Rectangle(textField.x+2,textField.y+2,Math.ceil(textField.textWidth),Math.ceil(textField.textHeight));
-			else {
-				//dev note: tight bounds inside gutter.
-				_bounds.x = textField.x+2; //2 pixel gutter 
-				_bounds.y = textField.y+2; //2 pixel gutter
-				_bounds.width = Math.ceil(textField.textWidth);
-				_bounds.height = Math.ceil(textField.textHeight);
-			}			
-		}	
-		*/
 		
 		/**
 		* Performs the specific layout work required by this Geometry.
@@ -211,11 +191,11 @@ package com.degrafa.geometry{
 		* of (0,0,1,1) is used or the most appropriate size is calculated. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
-			
+			invalidate()
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-					
+				
 					if(_width){
 			 			tempLayoutRect.width = _width;
 			 		}
@@ -239,39 +219,59 @@ package com.degrafa.geometry{
 			 		}
 
 			 		super.calculateLayout(tempLayoutRect);	
-			 		
-			 		_layoutRectangle = _layoutConstraint.layoutRectangle.isEmpty()? tempLayoutRect: _layoutConstraint.layoutRectangle;
-
-					if(isNaN(_width) || isNaN(_height) || layoutMode=="adjust"){
-			//	if (!_layoutRectangle.isEmpty()){
-			 		_x= textField.x = _layoutRectangle.x;
-			 		_y= textField.y = _layoutRectangle.y;
-			 		_width	=	textField.width = _layoutRectangle.width;
-			 		_height = 	textField.height = _layoutRectangle.height;
-					if (!_transformBeforeRender) {
-						_x = _layoutRectangle.x=Math.floor(_layoutRectangle.x);
-						_y = _layoutRectangle.y=Math.floor(_layoutRectangle.y);
-						_width = _layoutRectangle.width=Math.ceil(_layoutRectangle.width);
-						_height = _layoutRectangle.height=Math.ceil(_layoutRectangle.height);
+			 		_layoutRectangle = _layoutConstraint.layoutRectangle;
+					trace('post:' + _layoutRectangle)	
+					
 						
-					}
+					if (isNaN(_width) || isNaN(_height) || layoutMode == "adjust") {
+						
+						_x=textField.x=layoutRectangle.x ;
+						_y=textField.y=layoutRectangle.y ;
+						_width=textField.width=layoutRectangle.width;
+						_height=textField.height=layoutRectangle.height ;
+					
+						if (!_transformBeforeRender) {
+						//make commandstack outline at layoutrectangle pixelbounds
+							_width = _layoutRectangle.width=Math.ceil(_layoutRectangle.width+(_layoutRectangle.x-(_x = _layoutRectangle.x=Math.floor(_layoutRectangle.x))));
+							_height = _layoutRectangle.height=Math.ceil(_layoutRectangle.height+(_layoutRectangle.y-(_y = _layoutRectangle.y=Math.floor(_layoutRectangle.y))));
+						} 
+					}else {
+						if (layoutMode == "scale" ) {
+						trace("SETTING")	
+					//	_x= textField.x ;
+					//	_y= textField.y ;
+					//	_width	=	textField.width ;
+					//	_height = 	textField.height;		
 
-					invalidated = true;
-			//	}
-				}
+						}
 			 	}
-			}
+					invalidated = true;
+		
+				}
+			} else {
+					//size into regular settings
+					_transformBeforeRender = false;
+					if (isNaN(_width)) _width = textField.width;
+					if (isNaN(_height)) _height = textField.height;
+					textField.x = x;
+					textField.y = y
+
+					//if (_width !=_contentWidth) _internalDO.scaleX = _width / _contentWidth;
+					//if (_height != _contentHeight) _internalDO.scaleY = _height / _contentHeight;
+					
+					invalidated = true;
+				}
 		}
 		override public function preDraw():void {
 				if(invalidated){
-	
+				
 				commandStack.length=0;
-				//frame it in a rectangle to permit transforms (whether this is used or not will depend on the 
-				commandStack.addMoveTo(_x, _y);
-				commandStack.addLineTo(_x+_width+1, _y);
-				commandStack.addLineTo(_x+_width+1, _y+_height+1);
-				commandStack.addLineTo(_x, _y + _height+1);
-				commandStack.addLineTo(_x, _y);
+				//frame it in a rectangle to permit transforms via commandStack (whether this is used or not will depend on the transformBeforeRender setting
+				commandStack.addMoveTo(x, y);
+				commandStack.addLineTo(x+width, y);
+				commandStack.addLineTo(x+width, y+height);
+				commandStack.addLineTo(x, y + height);
+				commandStack.addLineTo(x, y);
 
 				invalidated = false;
 				
@@ -283,33 +283,34 @@ package com.degrafa.geometry{
 		
 		private var _layoutMode:String = "adjust";
 
-		[Inspectable(category="General", enumeration="scale,adjust", defaultValue="adjust")]
+	//	[Inspectable(category="General", enumeration="scale,adjust", defaultValue="adjust")]
 		public function get layoutMode():String {
 			return _layoutMode;
 		}
-		public function set layoutMode(value:String):void {
+	/*	public function set layoutMode(value:String):void {
 			if (_layoutMode != value) {
 				_layoutMode = value;
 			}
 		}
-		
+		*/
 		private var _transformBeforeRender:Boolean;
 
-		[Inspectable(category="General", enumeration="true,false", defaultValue="none")]
+	//	[Inspectable(category="General", enumeration="true,false", defaultValue="none")]
 		public function get transformBeforeRender():Boolean {
 			return Boolean(_transformBeforeRender);
 		}
-		public function set transformBeforeRender(value:Boolean):void {
+	/*	public function set transformBeforeRender(value:Boolean):void {
 			if (_transformBeforeRender != value) {
 				_transformBeforeRender = value;
 			}
 		}
-		
+	*/
     	override public function draw(graphics:Graphics,rc:Rectangle):void{
 
     		calculateLayout();
 			preDraw()
-			super.draw(graphics,rc);
+			super.draw(graphics, rc);
+			
     	}
     			
     	
@@ -809,9 +810,11 @@ package com.degrafa.geometry{
 			return textField.text;
 		} 
    		public function set text(value:String):void {
-			if (value!=textField.text){
+			if (value != textField.text) {
+			var oldVal:String = textField.text;
    			textField.text=value;
    			invalidate();
+		
 			}
    		} 
 

@@ -1,0 +1,393 @@
+package com.degrafa.geometry{
+	
+	import com.degrafa.geometry.display.IDisplayObjectProxy;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.geom.Matrix;
+
+	import flash.events.Event;
+	import flash.display.DisplayObject;
+	import flash.display.Graphics;
+	import flash.display.Sprite;
+	import flash.geom.Rectangle;
+	import flash.utils.getDefinitionByName;
+	import mx.events.PropertyChangeEvent;
+	import mx.events.PropertyChangeEventKind;
+	import com.degrafa.utilities.external.ExternalBitmapData;
+	import com.degrafa.utilities.external.ExternalDataAsset;
+	import com.degrafa.utilities.external.LoadingLocation;
+	import com.degrafa.utilities.external.ExternalDataPropertyChangeEvent;
+	import flash.utils.setTimeout;
+	import mx.events.PropertyChangeEvent;
+	
+	[Exclude(name="data", kind="property")]
+		 
+	[Bindable(event="propertyChange")]
+	public class RasterImage extends Geometry implements IDisplayObjectProxy{
+		
+
+		
+		public var sprite:Sprite = new Sprite();
+		private var _externalBitmapData:ExternalBitmapData;
+		private var _loadingLocation:LoadingLocation;
+
+		
+		public function RasterImage(){
+			super();
+			
+		}
+		
+		/**
+		* Excluded Items
+		**/	
+		/**
+		* Data is required for the IGeometry interface and has no effect here.
+		* @private 
+		**/	
+		override public function get data():String{return "";}
+		override public function set data(value:String):void{}
+		
+
+		
+		private var _x:Number;
+		/**
+		* The x-axis coordinate of the upper left point of the regular rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		override public function get x():Number{
+			if(!_x){return 0;}
+			return _x;
+		}
+		override public function set x(value:Number):void{
+			if(_x != value){
+				_x = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		private var _y:Number;
+		/**
+		* The y-axis coordinate of the upper left point of the regular rectangle. If not specified 
+		* a default value of 0 is used.
+		**/
+		override public function get y():Number{
+			if(!_y){return 0;}
+			return _y;
+		}
+		override public function set y(value:Number):void{
+			if(_y != value){
+				_y = value;
+				invalidated = true;
+			}
+		}
+		
+		private var _width:Number;
+		/**
+		* The width of the regular rectangle.
+		**/
+		[PercentProxy("percentWidth")]
+		override public function get width():Number{
+			if(!_width){return (hasLayout)? 1:0;}
+			return _width;
+		}
+		override public function set width(value:Number):void{
+			if(_width != value){
+				_width = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		private var _height:Number;
+		/**
+		* The height of the regular rectangle.
+		**/
+		[PercentProxy("percentHeight")]
+		override public function get height():Number{
+			if(!_height){return (hasLayout)? 1:0;}
+			return _height;
+		}
+		override public function set height(value:Number):void{
+			if(_height != value){
+				_height = value;
+				invalidated = true;
+			}
+		}
+		
+		
+		/**
+		* Returns this objects displayObject.
+		**/
+		public function get displayObject():DisplayObject{
+			if (sprite.numChildren == 0) return null;
+			//provide the container object
+			return sprite;
+		}
+		
+		
+		
+		
+		//EXTERNAL BITMAP SUPPORT
+		/**
+		 * A support property for binding to in the event of an external loading wait.
+		 * permits a simple binding to indicate that the wait is over
+		 */
+		private var _waiting:Boolean;
+		[Bindable("externalDataPropertyChange")] 
+		public function get waiting():Boolean
+		{
+			return (_waiting==true);
+		}
+		public function set waiting(val:Boolean):void
+		{
+		  if (val != _waiting  )
+		  {
+			_waiting = val; 
+			//support binding, but don't use propertyChange to avoid Degrafa redraws for no good reason
+			dispatchEvent(new ExternalDataPropertyChangeEvent(ExternalDataPropertyChangeEvent.EXTERNAL_DATA_PROPERTY_CHANGE, false, false, PropertyChangeEventKind.UPDATE , "waiting", !_waiting, _waiting, this))
+		  }
+		}
+		
+		
+		private var _internalDO:DisplayObject;
+		/**
+		 * handles the ready state for an ExternalBitmapData as the source of a RasterImage
+		 * @param	evt an ExternalDataAsset.STATUS_READY event
+		 */
+		private function externalBitmapHandler(evt:Event):void {
+			switch(evt.type)
+			{
+			case ExternalDataAsset.STATUS_READY:
+				var oldValue:Object = (sprite.numChildren) ? sprite.removeChildAt(0) : null;
+				var bitmapData:BitmapData = evt.target.content;
+				swapInContent(new Bitmap(bitmapData, "auto", true));
+				invalidated = true;
+				initChange("source", oldValue, _internalDO, this);
+				waiting = false;
+			break;
+			}
+		}
+		
+		private function swapInContent(dobj :DisplayObject):void {
+			if (sprite.numChildren) sprite.removeChildAt(0);
+			_internalDO = dobj;
+			sprite.addChild(dobj);
+			//cache original values:
+			_contentWidth = sprite.width;
+			_contentHeight = sprite.height;
+		}
+		
+		/**
+		 * Optional loadingLocation reference. Only relevant when a subsequent source assignment is made as 
+		 * a url string. Using a LoadingLocation simplifies management of loading from external domains
+		 * and is required if a crossdomain policy file is not in the default location (web root) and with the default name (crossdomain.xml)
+		 * In actionscript, a loadingLocation assignment MUST precede a change in the url assigned to the source property
+		 * If a LoadingLocation is being used, the url assigned to the source property MUST be relative to the base path
+		 * defined in the LoadingLocation, otherwise loading will fail.
+		 * If a LoadingLocation is NOT used and the source property assignment is an external domain url, then the crossdomain permissions
+		 * must exist in the default location and with the default name crossdomain.xml, otherwise loading will fail.
+		*/
+		public function get loadingLocation():LoadingLocation { return _loadingLocation; }
+		
+		public function set loadingLocation(value:LoadingLocation):void 
+		{
+			if (value) 	_loadingLocation = value;
+		} 
+		
+		private var target:DisplayObject;
+		public function set source(value:Object):void {
+
+			var oldValue:Object = _internalDO;
+			
+			target = null;
+			
+			if (_externalBitmapData) {
+				_externalBitmapData.removeEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler);
+				_externalBitmapData = null;
+			}
+			
+			if (!value) {
+				_internalDO  = null;
+				if (sprite.numChildren) sprite.removeChildAt(0);
+				if (oldValue!=null)	initChange("source", oldValue, null, this);
+				return;
+			}
+			
+			if (value is ExternalBitmapData) {
+				_externalBitmapData = value as ExternalBitmapData;
+				if (value.content) {		
+					value = value.content;
+				} else {
+					value.addEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler)
+					waiting = true;
+				return;
+				}
+			}
+			
+			if (value is BitmapData)
+			{
+				swapInContent( new Bitmap(value as BitmapData,"auto",true));
+				initChange("source", oldValue, _internalDO, this);
+				return;
+			}
+			//var sprite:DisplayObject;
+			if (value is Class)
+			{
+
+				target= new value() as DisplayObject;
+	
+			}
+			else if (value is Bitmap)
+			{
+				
+				target = value as Bitmap;
+			}
+			else if (value is DisplayObject)
+			{
+				target = value as DisplayObject;
+			}
+			else if (value is String)
+			{
+				//is it a class name or an external url?
+				try {
+					var cls:Class = Class(getDefinitionByName(value as String));	
+				} catch (e:Error)
+				{
+					//if its not a class name, assume url string for an ExternalBitmapData
+					//and wait for isInitialized to check/access loadingLocation mxml assignment
+					if (!isInitialized) {
+						setTimeout(
+							function():void
+							{source = value }, 1);
+							
+					} else {
+						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
+					}
+					return;
+				}
+				target = new cls();
+			}
+			else
+			{
+				_internalDO  = null;
+				if (sprite.numChildren) sprite.removeChildAt(0);
+				if (oldValue!=null)	initChange("source", oldValue, null, this);
+				return;
+			}
+		
+			if( target != null)
+			{
+				swapInContent(target as DisplayObject)
+				initChange("source", oldValue, _internalDO, this);
+			}
+		
+		
+		}
+		
+		private var _bounds:Rectangle;
+		/**
+		* The tight bounds of this element as represented by a Rectangle object. 
+		**/
+		override public function get bounds():Rectangle {
+			
+			return commandStack.bounds;
+		}
+		
+		private var _contentWidth:Number;
+		private var _contentHeight:Number;
+
+		
+		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used or the most appropriate size is calculated. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			
+			if(_layoutConstraint){
+				if (_layoutConstraint.invalidated){
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					if (isNaN(_width)) _width = _contentWidth;
+					if (isNaN(_height)) _height = _contentHeight;
+					
+
+						tempLayoutRect.width = _width 
+						tempLayoutRect.height = _height
+						tempLayoutRect.x =_x?_x: _x=0;
+						tempLayoutRect.y =_y?_y: _y=0;;
+
+
+			 		super.calculateLayout(tempLayoutRect);	
+			 		
+			 		_layoutRectangle = _layoutConstraint.layoutRectangle.isEmpty()? tempLayoutRect: _layoutConstraint.layoutRectangle;
+					_layoutMode = "scale";
+
+					invalidated = true;
+
+					}
+			 	} else {
+					//size into regular settings
+					_transformBeforeRender = false;
+					if (isNaN(_width)) _width = _contentWidth;
+					if (isNaN(_height)) _height = _contentHeight;
+					_internalDO.x = x;
+					_internalDO.y = y
+
+					if (_width !=_contentWidth) _internalDO.scaleX = _width / _contentWidth;
+					if (_height != _contentHeight) _internalDO.scaleY = _height / _contentHeight;
+
+					invalidated = true;
+				}
+	
+		}
+		override public function preDraw():void {
+				if(invalidated){
+	
+				commandStack.length=0;
+				//frame it in a rectangle to permit transforms (whether this is used or not will depend on the transformBeforeRender setting
+				commandStack.addMoveTo(_x, _y);
+				commandStack.addLineTo(_x+_width, _y);
+				commandStack.addLineTo(_x+_width, _y+_height);
+				commandStack.addLineTo(_x, _y + _height);
+				commandStack.addLineTo(_x, _y);
+				invalidated = false;
+
+			}
+
+		}
+		
+		
+		private var _layoutMode:String = "scale";
+
+
+		public function get layoutMode():String {
+			return _layoutMode;
+		}
+		
+		
+		private var _transformBeforeRender:Boolean;
+
+		[Inspectable(category="General", enumeration="true,false", defaultValue="false")]
+		public function get transformBeforeRender():Boolean {
+			return Boolean(_transformBeforeRender);
+		}
+		public function set transformBeforeRender(value:Boolean):void {
+			if (_transformBeforeRender != value) {
+				_transformBeforeRender = value;
+			}
+		}
+		
+    	override public function draw(graphics:Graphics,rc:Rectangle):void{
+			if (!_internalDO) return;
+			calculateLayout();
+			if (invalidated) preDraw()
+			super.draw(graphics,rc);
+    	}
+    			
+    	
+    	
+    		
+	}
+}
