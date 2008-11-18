@@ -35,12 +35,16 @@ package com.degrafa.transform{
 	/**
 	* TransformBase is a base transform class that other transforms extend off of.  
 	**/
-	[DefaultProperty("data")]	
 	public class TransformBase extends DegrafaObject implements ITransform{
 		
 		private static var identity:Matrix = new Matrix();
 		
-		//utility methods - perhaps we should separate this into a static utility class 
+
+		/**
+		 * Helper method to get the bounds after a transform has been applied
+		 * @param	target
+		 * @return  a rendered bounds rectangle
+		 */
 		public static function getRenderedBounds(target:IGeometryComposition):Rectangle
 		{
 			var requester:Geometry = (target as Geometry);
@@ -73,10 +77,10 @@ package com.degrafa.transform{
 		}
 		
 		/**
-		 * Helper method to apply a matrix to a Rectangle and return a transformed Rectangle
-		 * @param	rect the rectangle to be transformed
+		 * Helper method to apply a matrix to a bounds Rectangle and return a transformed bounds Rectangle
+		 * @param	rect the bounds rectangle to be transformed
 		 * @param	trans the transformation Matrix to be applied
-		 * @return
+		 * @return  the transformed bounds rectangle
 		 */
 		public static function transformBounds(rect:Rectangle, trans:Matrix):Rectangle
 		{
