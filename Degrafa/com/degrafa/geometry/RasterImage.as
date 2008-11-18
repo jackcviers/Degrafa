@@ -1,3 +1,24 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
@@ -22,7 +43,19 @@ package com.degrafa.geometry{
 	
 	[Exclude(name="data", kind="property")]
 		 
-	[Bindable(event="propertyChange")]
+	[Bindable(event = "propertyChange")]
+	
+	/**
+ 	*  The RasterImage element draws a Bitmap Rectangle to the 
+	*  drawing target.
+ 	* 
+ 	*  <p>RasterImage represents a bitmap image that can be part of a geometry composition
+	*  with behavior similar to a regular geometry object. The source of the image mirrors the
+	*  flexibility provided by the paint BitmapFill object, including the possibility of externally
+	*  loaded iamges.</p>   
+ 	* 
+ 	* 
+ 	**/
 	public class RasterImage extends Geometry implements IDisplayObjectProxy{
 		
 
@@ -30,11 +63,18 @@ package com.degrafa.geometry{
 		public var sprite:Sprite = new Sprite();
 		private var _externalBitmapData:ExternalBitmapData;
 		private var _loadingLocation:LoadingLocation;
-
+		private var _contentWidth:Number;
+		private var _contentHeight:Number;
 		
+		
+		/**
+	 	* Constructor.
+	 	*  
+	 	* <p>The RasterImage constructor has no arguments .</p>
+	 	* 
+	 	*/	
 		public function RasterImage(){
 			super();
-			
 		}
 		
 		/**
@@ -128,7 +168,6 @@ package com.degrafa.geometry{
 		
 		
 		
-		//EXTERNAL BITMAP SUPPORT
 		/**
 		 * A support property for binding to in the event of an external loading wait.
 		 * permits a simple binding to indicate that the wait is over
@@ -293,9 +332,7 @@ package com.degrafa.geometry{
 			
 			return commandStack.bounds;
 		}
-		
-		private var _contentWidth:Number;
-		private var _contentHeight:Number;
+
 
 		
 		
@@ -342,6 +379,11 @@ package com.degrafa.geometry{
 				}
 	
 		}
+		
+		
+		/**
+		* @inheritDoc 
+		**/
 		override public function preDraw():void {
 				if(invalidated){
 	
@@ -361,14 +403,19 @@ package com.degrafa.geometry{
 		
 		private var _layoutMode:String = "scale";
 
-
+		/**
+		 * The layout mode associated with this IDisplayObjectProxy. For an image this is always scale only.
+		 */
 		public function get layoutMode():String {
 			return _layoutMode;
 		}
 		
 		
 		private var _transformBeforeRender:Boolean;
-
+		/**
+		 * A setting to determine at what point transforms are performed when capturing the bitmap representation of this object internally
+		 * before final rendering. Unless otherwise needed, the default setting of false uses less memory.
+		 */
 		[Inspectable(category="General", enumeration="true,false", defaultValue="false")]
 		public function get transformBeforeRender():Boolean {
 			return Boolean(_transformBeforeRender);
@@ -379,6 +426,13 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		/**
+		* Begins the draw phase for geometry/IDisplayObjectProxy objects. All geometry objects 
+		* override this to do their specific rendering.
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds. 
+		**/
     	override public function draw(graphics:Graphics,rc:Rectangle):void{
 			if (!_internalDO) return;
 			calculateLayout();
