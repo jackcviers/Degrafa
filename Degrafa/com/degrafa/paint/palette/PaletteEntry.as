@@ -26,7 +26,9 @@ package  com.degrafa.paint.palette{
 	import flash.utils.getQualifiedClassName;
 	
 	[DefaultProperty("value")]
-	
+	/**
+	* Stores data and provides binding for a palette entry.
+	**/
 	public class PaletteEntry extends DegrafaObject{
 		
 		public function PaletteEntry(name:String=undefined, value:Object=null){
