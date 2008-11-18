@@ -35,7 +35,7 @@ package com.degrafa.geometry.splines{
 	import flash.geom.Rectangle;
   	
 	/**
- 	* The BezierSpline can be used for drawing of of a smooth curve through 
+ 	* The BezierSpline can be used for drawing of a smooth curve through 
  	* multiple points, with some shape control over the curve via a tension 
  	* parameter. It may also be used for general path animation with tension
  	* control, optional closed-path control, and velocity control 
