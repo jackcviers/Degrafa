@@ -30,13 +30,15 @@ package com.degrafa.transform{
 
 	[DefaultProperty("data")]	
 	[Bindable]
+	/**
+	 * A general purpose Transform. When used in isolation (i.e. not as part of a TransformGroup),
+	 * settings used on this object will generate transform results similar (but not identical) to results from the 
+	 * Flash IDE property settings for editing properties on objects on the flash Stage.
+	 */
 	public class Transform extends TransformBase implements ITransform{
 	
-		
 		/**
-		 * A general purpose Transform. When used in isolation (i.e. not as part of a TransformGroup),
-		 * settings used on this object will generate transform results similar (but not identical) to results from the 
-		 * Flash IDE property settings for editing properties on objects on the flash Stage.
+		 * Constructor
 		 */
 		public function Transform(){
 			super();
