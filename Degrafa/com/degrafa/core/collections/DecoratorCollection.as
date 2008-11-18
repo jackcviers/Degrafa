@@ -25,17 +25,17 @@ package com.degrafa.core.collections{
 	
 	
 	/**
- 	*  The FillCollection stores a collection of IGraphicsFill objects
+ 	*  The DecoratorCollection stores a collection of IDecorator objects
  	**/
 	public class DecoratorCollection extends DegrafaCollection{
 		
 		/**
 	 	* Constructor.
 	 	*  
-	 	* <p>The fill collection constructor accepts 2 optional arguments 
-	 	* that specify the fills to be added and a event operation flag.</p>
+	 	* <p>The DecoratorCollection collection constructor accepts 2 optional arguments 
+	 	* that specify the IDecorator objects to be added and a event operation flag.</p>
 	 	* 
-	 	* @param array An array of IGraphicsFill objects.
+	 	* @param array An array of IDecorator objects.
 	 	* @param suppressEvents A boolean value indicating if events should not be 
 	 	* dispatched for this collection.
 	 	*/		
@@ -44,10 +44,10 @@ package com.degrafa.core.collections{
 		}
 		
 		/**
-		* Adds a IGraphicsFill item to the collection.  
+		* Adds a IDecorator item to the collection.  
 		* 
-		* @param value The IGraphicsFill object to be added.
-		* @return The IGraphicsFill object that was added.   
+		* @param value The IDecorator object to be added.
+		* @return The IDecorator object that was added.   
 		**/		
 		public function addItem(value:IDecorator):IDecorator{
 			return super._addItem(value);
@@ -121,7 +121,7 @@ package com.degrafa.core.collections{
 		* Adds a series of IDecorator objects to this collection.  
 		*
 		* @param value The collection to be added to this IDecorator collection.  
-		* @return The resulting FillCollection after the objects are added.   
+		* @return The resulting DecoratorCollection after the objects are added.   
 		**/
 		public function addItems(value:DecoratorCollection):DecoratorCollection{
 			//todo
