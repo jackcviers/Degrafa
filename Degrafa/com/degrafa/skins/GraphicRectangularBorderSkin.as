@@ -198,13 +198,10 @@ package com.degrafa.skins
 									
 			for each (var item:Geometry in _geometry.items){
 				item.autoClearGraphicsTarget = false;
-				item.useGraphicsTargetListeners = useGraphicsTargetListeners;
 				item.graphicsTarget = [this];
 			} 
 			
 		}
-		
-		public var useGraphicsTargetListeners:Boolean=false;
 		
 		/**
 		* Access to the Degrafa geometry collection object for this geometry object.

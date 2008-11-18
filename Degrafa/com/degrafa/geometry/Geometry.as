@@ -24,6 +24,7 @@ package com.degrafa.geometry{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.core.IGraphicSkin;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.ITransformablePaint;
@@ -43,12 +44,15 @@ package com.degrafa.geometry{
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
 	
-	import mx.core.IUIComponent;
+	import mx.binding.utils.ChangeWatcher;
+	import mx.core.IContainer;
 	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	import mx.styles.ISimpleStyleClient;
@@ -65,7 +69,7 @@ package com.degrafa.geometry{
  	**/	
 	public class Geometry extends DegrafaObject implements IDegrafaObject, 
 	IGeometryComposition, IDegrafaStateClient, ISimpleStyleClient {
-		
+				
 		/**
 		* Specifies whether this object is to be re calculated 
 		* on the next cycle. Only property updates which affect the 
@@ -76,7 +80,13 @@ package com.degrafa.geometry{
 			return _invalidated;
 		}
 		public function set invalidated(value:Boolean):void{
-			_invalidated = value;
+			if(_invalidated != value){
+				_invalidated = value;
+				
+				if(_invalidated && _isRootGeometry){
+					drawToTargets();
+				}
+			}
 		}
 		
 		public function get isInvalidated():Boolean{
@@ -179,7 +189,8 @@ package com.degrafa.geometry{
 			
 			if(!value){return;}
 			
-			for each (var item:Object in value){
+			var item:Object;
+			for each (item in value){
 				if (!item){return;} 
 			}
 			
@@ -189,85 +200,258 @@ package com.degrafa.geometry{
 			initGraphicsTargetCollection();
 			_graphicsTarget.items = value;
 			
-			addTargetListeners();
-			
-		}
-		
-		private function removeTargetListeners():void{
-			
-			if(!_graphicsTarget){return;}
-			
-			if(!_graphicsTarget.items.length){return;}
-			
-			//add listener to targets so we can redraw if required
-			for each (var target:DisplayObject in _graphicsTarget.items){
-				if(target is IUIComponent){
-					if(target.hasEventListener(FlexEvent.UPDATE_COMPLETE)){
-						target.removeEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false);
-					}
-					if(!target.hasEventListener(Event.RENDER)){
-						target.removeEventListener(Event.RENDER,onTargetRender,false);
-					}
-				}
-				else{
-					if(target.hasEventListener(Event.RENDER)){
-						target.removeEventListener(Event.RENDER,onTargetRender,false);
+			var displayObject:DisplayObject;
+			for each (displayObject in _graphicsTarget.items ){
+				
+				//for now this process does not include skins
+				//to be investigated post b3.
+				if(!(displayObject is IGraphicSkin)){
+					//only need to call on first render of each target
+					//dev note :: does not support runtime addition of targets. To Investigate.
+					displayObject.addEventListener(Event.RENDER,onTargetRender);
+					
+					if(displayObject is IContainer){
+						displayObject.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 					}
 				}
 			}
+			
+			_isRootGeometry = true;
+			
 		}
 		
-		private function addTargetListeners():void{
-			
-			if(!_graphicsTarget){return;}
-			
-			if(!_graphicsTarget.items.length){return;}
-			
-			if(!_useGraphicsTargetListeners){return;}
-			
-			//add listener to targets so we can redraw if required
-			for each (var target:DisplayObject in _graphicsTarget.items){
-				if(target is IUIComponent){
-					if(!target.hasEventListener(FlexEvent.UPDATE_COMPLETE)){
-						target.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender,false,0,true);
-					}
-					if(!target.hasEventListener(Event.RENDER)){
-						target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
-					}
-				}
-				else{
-					if(!target.hasEventListener(Event.RENDER)){
-						target.addEventListener(Event.RENDER,onTargetRender,false,0,true);
-					}
-				}
-			}
-		}
-		
-		private var _useGraphicsTargetListeners:Boolean=true;
 		/**
-		* Specifiy use of target listeners. When true a 
-		* redraw will occure on target render changes. The listeners 
-		* are required when the root geometry uses layout
-		* and the target is also using layout. In Degrafa skin classes
-		* this is explicitly set to false.
-		* 
-		**/	
-		[Inspectable(category="General", enumeration="true,false")]
-		public function get useGraphicsTargetListeners():Boolean{
-			return _useGraphicsTargetListeners;
-		}
-		public function set useGraphicsTargetListeners(value:Boolean):void{
+		* METHOD QUE WORK
+		**/
+		
+		/**
+		* NOTE :: All this code can be moved into the DisplayObjectCollection post b3. 
+		* This way only targets that have changed are drawn to.
+		**/
+		private function onTargetRender(event:Event):void{
 			
-			if(!value){
-				removeTargetListeners();
+			//update local stage property
+			if(!_stage){
+				_stage = event.currentTarget.stage;
+			}
+			
+			if(_stage){
+				
+				//remove the event listeners no longer needed
+				event.currentTarget.removeEventListener(Event.RENDER,onTargetRender);
+				
+				//we may want to do this only for displayobject containers
+				if(event.currentTarget is IContainer){
+					event.currentTarget.removeEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
+				}
 			}
 			else{
-				addTargetListeners();
+				return;
+			}
+
+			//and setup the layoutChange watcher for the target
+			
+			//Only do this for IContainer. Requires extensive testing.
+			if(event.currentTarget is IContainer){
+				initLayoutChangeWatcher(event.currentTarget as IContainer);
 			}
 			
-			_useGraphicsTargetListeners=value;
+			//init the draw que
+			initDrawQue();
+			
+			//make sure we have not missed one draw cycle chance.
+			
+			//add a draw to the que.
+			queDraw(event.currentTarget,event.currentTarget.graphics,null)
 			
 		}
+		
+		//target stage refference
+		private var _stage:Stage;
+		
+		private var methodQue:Array=[];
+		private function initDrawQue():void{
+			//add listener to frame change.
+			_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+        }
+		
+		//adds a draw to the que
+		private function queDraw(...args):void{
+			
+			//make sure we are not already qued up to draw 
+			//to that target otherwise add it
+			
+			//DEV note: could improve perf here
+			for each(var item:Object in methodQue){
+				if(item.args[0] == args[0]){return;}
+			}
+			
+			methodQue.push({method:drawToTarget, args:args});
+				
+			if(_stage){	
+				_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+			}
+		}
+				
+		private function processMethodQue(event:Event):void{
+			
+			//trace("TESTING QUE :: ");
+			
+			if(methodQue.length == 0){return;}
+			
+			//trace("QUE LENGTH :::" + methodQue.length)
+			
+			// make local copy so that new calls get through
+        	var queue:Array = methodQue;
+        	methodQue = [];
+        
+        	var len:int = queue.length;
+			for (var i:int=0;i<len;i++){
+				//do the draw
+				queue[i].method.apply(null,[queue[i].args[0]]);
+			}
+			
+			queue.length=0;
+			
+			//no longer needed as all que items have been processed
+			//will get re added in queDraw() on as needed basis.
+			if(methodQue.length==0 && _stage){
+				_stage.removeEventListener(Event.ENTER_FRAME, processMethodQue);
+			}
+		}
+		
+		//keep a local dictionary so we can compare bounds to the targets
+		//enables us to only draw when absolutly required.
+		//this does not include a graphics clear on the target
+		//although we could eventually store a original bitmapdata and 
+		//compare.
+		
+		private var targetDictionary:Dictionary=new Dictionary(true);
+		
+		//return the data stored for the given target				
+		public function requestTarget(value:IContainer):Object{
+			return targetDictionary[value];
+		}	
+		
+		public function removeTarget(value:IContainer):void{
+			delete targetDictionary[value];
+		}
+		
+		public function addUpdateTarget(value:IContainer,data:Object):void{
+			if(!targetDictionary[value]){
+				targetDictionary[value] = []
+				targetDictionary[value].data = data;
+			}
+			else{
+				targetDictionary[value].data = data;
+			}
+		}
+		
+		//this will need to be called in the layout constraint setter as well.
+		private function initLayoutChangeWatcher(container:IContainer):void{
+			
+			//if this root geometry has a constraint based layout
+			//we have to be aware of changes to the target. In this 
+			//case we only care about width and height for now. We also only care
+			//if the target is also using a contraint based layout.
+			
+			var bounds:Rectangle = new Rectangle(container.x,container.y,
+			container.width,container.height);
+			
+			//add a watcher for each property
+			var watchers:Array=[]
+			
+			//could use some work here to only watch specific items related 
+			//to the current layout post b3.
+			watchers.push(ChangeWatcher.watch(container,"width",onTargetChange,true));
+			watchers.push(ChangeWatcher.watch(container,"height",onTargetChange,true));
+			watchers.push(ChangeWatcher.watch(container,"x",onTargetChange,true));
+			watchers.push(ChangeWatcher.watch(container,"y",onTargetChange,true));
+			
+			//only add if not there
+			if(!requestTarget(container)){
+				addUpdateTarget(container,{oldbounds:bounds,watchers:watchers})	
+			}
+			
+		}
+		
+				
+		//stored for when there is no layout and we need to draw one time.
+		private var initialRenderComplete:Boolean=false;
+				
+		private function onTargetChange(event:Event):void{
+			
+			//see if it's there
+			var object:Object = requestTarget(event.currentTarget as IContainer);
+			
+			var watchers:Array; 
+			if(object){
+				watchers = object.data.watchers;
+			}
+			
+			//if we have no layout on this root object and the 
+			//first render pass is complete we can clean up the
+			//watchers and exit
+			if(object){
+				if(!hasLayout){
+									
+					var changeWatcher:ChangeWatcher;
+					for each (changeWatcher in watchers){
+						changeWatcher.unwatch();
+					}
+					
+					removeTarget(event.currentTarget as IContainer)
+					
+					return;
+					
+				}
+			}
+			
+			//compare and update the dictionary
+			if(object){
+				var container:IContainer = event.currentTarget as IContainer;
+				
+				//compare the 2 testing will show if we need to do this test 
+				//as it may only get the event if it has changed. Though in some cases
+				//for example a canvas with a border may have been inited with the 
+				//correct bounds
+				
+				//get the current bounds				
+				var bounds:Rectangle = new Rectangle(container.x,container.y,
+				container.width,container.height);
+				
+				//compare
+				if(!bounds.equals(object.data.oldbounds)){
+					//trace("Requires Redraw::::");
+					
+					//update with the new bounds for next compare
+					addUpdateTarget(container,{oldbounds:bounds,watchers:watchers})
+					
+					//add a draw to the que.
+					queDraw(container,container.graphics,null)
+					
+				}
+				else{
+					//trace("Redraw Not Required::::");
+				}
+				
+				
+			}
+						
+		}
+		
+		//property that specifies if this is the root geom 
+		//object and no other parent geometries exist. Usually 
+		//the only on with a target array and set in the targets 
+		//setter
+		private var _isRootGeometry:Boolean=false;
+		public function get isRootGeometry():Boolean{
+			return _isRootGeometry;
+		}
+		
+		/**
+		* END METHOD QUE WORK
+		**/
 						
 		/**
 		* Access to the Degrafa target collection object for this geometry object.
@@ -292,10 +476,6 @@ package com.degrafa.geometry{
 		}
 		
 		
-		protected function onTargetRender(event:Event):void{
-			drawToTarget(event.currentTarget);
-		}
-		
 		//draws to a single target
 		private  function drawToTarget(target:Object):void{
 			if(target){
@@ -303,9 +483,9 @@ package com.degrafa.geometry{
 					target.graphics.clear();
 				}
 				_currentGraphicsTarget = target as Sprite;
-				
+				draw(target.graphics,null);				
 				//when drawing to the target ensure we have valid width and height
-				if(target is IUIComponent){
+				/*if(target is IUIComponent){
 					if(_currentGraphicsTarget.width && _currentGraphicsTarget.height){
 						draw(target.graphics,null);
 					}
@@ -319,7 +499,7 @@ package com.degrafa.geometry{
 					else{
 						draw(target.graphics,null);
 					}
-				}
+				}*/
 				
 			}
 		}
@@ -334,12 +514,16 @@ package com.degrafa.geometry{
 			}
 	    }
 		
-		//draws to each target
+		//draws to each target as there are changes here or
+		//child changes
 		private  function drawToTargets():void{
 			
 			if(_graphicsTarget){
 				for each (var target:Object in _graphicsTarget.items){
-					drawToTarget(target);
+					
+					queDraw(target,target.graphics,null)
+					
+					//drawToTarget(target);
 				}
 			}
 			
@@ -658,7 +842,7 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		public function draw(graphics:Graphics,rc:Rectangle):void{
-						
+									
 			//don't draw unless visible
 			if(!visible){return;}
 			
