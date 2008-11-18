@@ -24,7 +24,7 @@ package com.degrafa.decorators{
 	import flash.display.Graphics;
 	
 	/**
-	* IDecorator is the base interface for basic decorations. See RenderDecoratorBase.
+	* IRenderDecorator is the base interface for complex render time decorations. See RenderDecoratorBase.
 	**/
 	public interface IRenderDecorator extends IDecorator{
 		function moveTo(x:Number,y:Number,graphics:Graphics):void
