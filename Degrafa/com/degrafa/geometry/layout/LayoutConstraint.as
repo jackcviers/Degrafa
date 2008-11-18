@@ -21,8 +21,6 @@
 //
 // Some algorithms and docs based on code from Trevor McCauley, www.senocular.com
 ////////////////////////////////////////////////////////////////////////////////
-
-
 package com.degrafa.geometry.layout
 {
 	import com.degrafa.core.DegrafaObject;
