@@ -34,6 +34,9 @@ package com.degrafa.geometry.stencil{
 	[Exclude(name="data", kind="property")] 
 	
 	[Bindable]
+	/**
+	* Base class for Stencil type geometry objects.
+	**/ 
 	public class Stencil extends Geometry implements IGeometry{
 		
 		public static const POLYGON:int=0;
