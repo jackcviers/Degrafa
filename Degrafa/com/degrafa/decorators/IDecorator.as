@@ -25,6 +25,9 @@ package com.degrafa.decorators{
 	
 	import flash.display.Graphics;
 	
+	/**
+	* IDecorator is the base interface for basic decorations. See DecoratorBase.
+	**/
 	public interface IDecorator{
 		function initialize(stack:CommandStack):void;
 	}

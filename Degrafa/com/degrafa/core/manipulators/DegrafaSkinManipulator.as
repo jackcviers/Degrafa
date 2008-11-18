@@ -38,7 +38,7 @@ package com.degrafa.core.manipulators{
 	* The DegrafaSkinManipulator allows one to tie in and manipulate the specified 
 	* IGraphicSkin for an object. Degrafa Geometry, fills and strokes can then be 
 	* manipulated and bound to like you would do with any other Degrafa graphic 
-	* or geometry object.
+	* or geometry object. ** Experimental.
 	**/
 	public class DegrafaSkinManipulator extends DegrafaObject{			
 		

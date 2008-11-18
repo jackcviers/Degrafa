@@ -19,13 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.core
-{
+package com.degrafa.core{
 	
 	import flash.system.Capabilities;
 	
-	public class Measure
-	{
+	/**
+	* Constant and conversion class for css skin values.
+	*/
+	public class Measure{
 		
 		// relative length units
 		public static const EM:String = "em";
