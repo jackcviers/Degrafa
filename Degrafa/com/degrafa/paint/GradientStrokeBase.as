@@ -234,9 +234,9 @@ package com.degrafa.paint {
 				}
 			
 			var transformRequest:ITransform;
-			//the requesting geometry:
-			if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
-					matrix.concat(transformRequest.getTransformFor(super._requester));
+			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+				else matrix.concat((_requester as Geometry).transformContext);
 				//remove the requester reference
 				_requester = null;
 			}
@@ -250,6 +250,7 @@ package com.degrafa.paint {
 			else{
 				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
 			}
+			
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}
