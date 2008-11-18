@@ -202,7 +202,6 @@ package com.degrafa.geometry{
 			
 			var displayObject:DisplayObject;
 			for each (displayObject in _graphicsTarget.items ){
-				
 				//for now this process does not include skins
 				//to be investigated post b3.
 				if(!(displayObject is IGraphicSkin)){
@@ -210,9 +209,13 @@ package com.degrafa.geometry{
 					//dev note :: does not support runtime addition of targets. To Investigate.
 					displayObject.addEventListener(Event.RENDER,onTargetRender);
 					
+					//required for stand alone player.
+					displayObject.addEventListener(Event.ADDED_TO_STAGE,onTargetRender);
+					
 					if(displayObject is IContainer){
 						displayObject.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 					}
+					
 				}
 			}
 			
@@ -239,11 +242,13 @@ package com.degrafa.geometry{
 				
 				//remove the event listeners no longer needed
 				event.currentTarget.removeEventListener(Event.RENDER,onTargetRender);
+				event.currentTarget.removeEventListener(Event.ADDED_TO_STAGE,onTargetRender);
 				
 				//we may want to do this only for displayobject containers
 				if(event.currentTarget is IContainer){
 					event.currentTarget.removeEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 				}
+				
 			}
 			else{
 				return;
@@ -273,7 +278,7 @@ package com.degrafa.geometry{
 		private function initDrawQue():void{
 			//add listener to frame change.
 			_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
-        }
+		}
 		
 		//adds a draw to the que
 		private function queDraw(...args):void{
@@ -292,7 +297,7 @@ package com.degrafa.geometry{
 				_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
 			}
 		}
-				
+		
 		private function processMethodQue(event:Event):void{
 			
 			//trace("TESTING QUE :: ");
@@ -483,6 +488,9 @@ package com.degrafa.geometry{
 					target.graphics.clear();
 				}
 				_currentGraphicsTarget = target as Sprite;
+				
+				trace("DRAWING::: " +  this);
+				
 				draw(target.graphics,null);				
 				//when drawing to the target ensure we have valid width and height
 				/*if(target is IUIComponent){
