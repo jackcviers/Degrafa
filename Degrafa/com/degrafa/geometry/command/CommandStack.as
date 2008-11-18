@@ -46,6 +46,11 @@ package com.degrafa.geometry.command{
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	
+	/**
+	* The CommandStack manages and stores the render process. All geometry goes 
+	* through this process at draw time. The command stack provides convenient access 
+	* to all commands that make up the drawing of the Geometry and helper methods.
+	**/
 	public class CommandStack{
 	
 		static public const IS_REGISTERED:Boolean = !registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);	

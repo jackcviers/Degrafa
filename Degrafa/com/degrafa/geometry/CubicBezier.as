@@ -51,8 +51,8 @@ package com.degrafa.geometry{
 	 	* <p>The cubic Bézier constructor accepts 8 optional arguments that define it's 
 	 	* start, end and controls points.</p>
 	 	* 
-	 	* @param x A number indicating the starting x-axis coordinate.
-	 	* @param y A number indicating the starting y-axis coordinate.
+	 	* @param x0 A number indicating the starting x-axis coordinate.
+	 	* @param y0 A number indicating the starting y-axis coordinate.
 	 	* @param cx A number indicating the first control x-axis coordinate. 
 	 	* @param cy A number indicating the first control y-axis coordinate.
 	 	* @param cx1 A number indicating the second control x-axis coordinate.
@@ -78,8 +78,8 @@ package com.degrafa.geometry{
 		/**
 		* CubicBezier short hand data value.
 		* 
-		* <p>The cubic Bézier data property expects exactly 8 values x, 
-		*  y, cx, cy, cx1, cy1, x1 and y1 separated by spaces.</p>
+		* <p>The cubic Bézier data property expects exactly 8 values x0, 
+		*  y0, cx, cy, cx1, cy1, x1 and y1 separated by spaces.</p>
 		* 
 		* @see Geometry#data
 		* 
@@ -109,7 +109,7 @@ package com.degrafa.geometry{
 		
 		private var _x0:Number;
 		/**
-		* The x-coordinate of the start point of the curve. If not specified 
+		* The x0-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get x0():Number{
@@ -127,7 +127,7 @@ package com.degrafa.geometry{
 		
 		private var _y0:Number;
 		/**
-		* The y-coordinate of the start point of the curve. If not specified 
+		* The y0-coordinate of the start point of the curve. If not specified 
 		* a default value of 0 is used.
 		**/
 		public function get y0():Number{

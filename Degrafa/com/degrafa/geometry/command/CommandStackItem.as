@@ -27,6 +27,11 @@ package com.degrafa.geometry.command{
 	import flash.geom.Rectangle;
 	import flash.net.registerClassAlias;
 	
+	/**
+	* The CommandStackItem manages and stores one of type (MOVE_TO,LINE_TO,CURVE_TO,DELEGATE_TO,COMMAND_STACK).
+	* It also serves as an injection point for decoration. Like the CommandStack it provides management and 
+	* helper methods. 
+	**/
 	public class CommandStackItem{
 		
 		static public const IS_REGISTERED:Boolean = !(	registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem) &&
