@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.collections.FilterCollection;
 	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.events.DegrafaEvent;
+	import com.degrafa.GeometryComposition;
 	import com.degrafa.GeometryGroup;
 	import com.degrafa.transform.TransformBase;
 
@@ -61,7 +62,7 @@ package com.degrafa.paint{
 	
 	
 	/**
-	 * Used to fill an area on screen with a bitmap or other DisplayObject.
+	 * Used to fill one Geometry Object with other Degrafa-defined Geometry Objects or compositions
 	 */
 	public class VectorFill extends DegrafaObject implements IGraphicsFill, IBlend, ITransformablePaint{
 		
@@ -70,10 +71,10 @@ package com.degrafa.paint{
 		public static const REPEAT:String = "repeat";
 		public static const SPACE:String = "space";
 		public static const STRETCH:String = "stretch";
-			//targetSettings
+		//targetSettings
 		//scale to target bounds, without maintaining aspect ratio.
 		public static const MATCH_BOUNDS:String = "matchTargetBounds";
-		//scale the geometry fill to the target bounds, whilst maintaining aspect ratio. center horizontally and vertically
+		//scale the VectorFill to the target bounds, whilst maintaining aspect ratio. center horizontally and vertically
 		public static const MATCH_BOUNDS_MAINTAIN_AR:String = "matchTargetBoundsMaintainAspectRatio";
 		//draw without any scaling transforms to match the target bounds, but center on the fill bounds to the target's center of bounds
 		public static const CENTER_TO_TARGET:String = "centerToTarget";
@@ -95,11 +96,10 @@ package com.degrafa.paint{
 		//flags
 		private var _requiresPreRender:Boolean = true;
 			
-		//Dev note: disposeOnChange has implemented as a disposalQueue instead.
-		//See the disposalQueueLimit property
-		//	public var disposeOnChange:Boolean=true;
-
-		
+		/**
+		 * Contructor. Accepts an optional reference to the source Geometry composition to be used to define what this VectorFill renders.
+		 * @param	source
+		 */
 		public function VectorFill(source:IGeometryComposition = null){
 			if (source) this.source = source;
 			shape = new Shape();
@@ -126,8 +126,8 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		* The horizontal origin for the Geometry fill.
-		* The Geometry fill is offset so that this point appears at the origin.
+		* The horizontal origin for the VectorFill.
+		* The VectorFill is offset so that this point appears at the origin.
 		* Scaling and rotation of the VectorFill are performed around this point.
 		* @default 0
 		*/
@@ -153,8 +153,8 @@ package com.degrafa.paint{
 		
 		
 		/**
-		* The vertical origin for the Geometry fill.
-		* The Geometry fill is offset so that this point appears at the origin.
+		* The vertical origin for the VectorFill.
+		* The VectorFill is offset so that this point appears at the origin.
 		* Scaling and rotation of the rendered Geometry are performed around this point.
 		* @default 0
 		*/
@@ -563,7 +563,7 @@ package com.degrafa.paint{
 			_enableSourceClipping = value;
 		
 			if (_clipSource) {
-				if (_enableSourceClipping) _clipSourceRect = _clipSource.bounds;
+				if (_enableSourceClipping) _clipSourceRect = (_clipSource is GeometryComposition)? (_clipSource as GeometryComposition).childBounds:_clipSource.bounds;
 				_requiresPreRender = true;
 				initChange('enableSourceClipping', !_enableSourceClipping, _enableSourceClipping, this);
 			}
@@ -575,7 +575,8 @@ package com.degrafa.paint{
 		private var _clipSourceRect:Rectangle;
 		/**
 		 * Specifies a Geometry object to use as a clipping area for the fill's source geometry when determining the
-		 * region to be used for the fill. Requires the enableSourceClipping setting to be enabled to have effect
+		 * region to be used for the fill. Requires the enableSourceClipping setting to be enabled to have effect.
+		 * Accepts a GeometryGroup (DisplayObject) as an alternate source for bounds detection.
 		 */
 		public function get clipSource():Object
 		{
@@ -589,8 +590,8 @@ package com.degrafa.paint{
 		public function set clipSource(value:Object):void
 		{
 		//the only permitted clipSource items are GeometryGroup or Geometry
-			
-			if (value != _clipSource && value is Geometry || value is GeometryGroup)
+	
+			if (value != _clipSource && (value is Geometry || value is GeometryGroup))
 			{
 				if (_clipSource )
 				{
@@ -599,12 +600,12 @@ package com.degrafa.paint{
 				}
 				var oldVal:Object;
 				if (value is Geometry) {
-				//	value.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , clipSourceChange);
+
 					value.addEventListener(DegrafaEvent.RENDER , clipSourceChange);
 					//force a boundsCalc if the clipSource Geometry is invalidated:
 					value.preDraw();
 					_clipSourceRect =value.bounds;
-					_clipSourceRect = TransformBase.getRenderedBounds(value as IGeometryComposition);// .bounds;
+					_clipSourceRect = TransformBase.getRenderedBounds(value as IGeometryComposition);
 					oldVal  = _clipSource;
 				} else {
 					//dev note: this is preliminary... an option to use a full GeometryGroup as the clipSource. Untested at this point.
@@ -635,7 +636,10 @@ package com.degrafa.paint{
 			var checkBounds:Rectangle
 			if (event.target is Geometry){
 				//get the transformed (render) bounds for the clipSource object:
-				checkBounds = TransformBase.getRenderedBounds(event.target as IGeometryComposition );
+				//dev note: for GeometryComposition this needs more attention (e.g. if a transform is applied at the composition level), but is a quick fix to get it working:
+				if (event.target is GeometryComposition) checkBounds = (event.target as GeometryComposition).childBounds;
+				else checkBounds = TransformBase.getRenderedBounds(event.target as IGeometryComposition );
+				
 			} else { //a displayObject is being used
 				//dev note: this is preliminary... an option to use a full GeometryGroup as the clipSource. Untested at this point.
 				checkBounds = event.target.getBounds(event.target);
@@ -649,12 +653,13 @@ package com.degrafa.paint{
 		
 			
 		
+
+		private var _targetSetting:uint = 0;
+		[Inspectable(category = "General", enumeration = "none,matchTargetBounds,matchTargetBoundsMaintainAspectRatio,centerToTarget")]
 		/**
 		 * A 'smart'/quick setting for matching fill rendering between source and target. Using this setting overrides - or more precisely, ignores -
 		 * most of the manual settings applied to the fill. Using 'none' enables all the regular manual settings
 		 */
-		private var _targetSetting:uint = 0;
-		[Inspectable(category="General", enumeration="none,matchTargetBounds,matchTargetBoundsMaintainAspectRatio,centerToTarget")]
 		public function get targetSetting():String{
 			return _targetSettings[_targetSetting]; 
 		}
@@ -683,7 +688,6 @@ package com.degrafa.paint{
 			_requiresRedraw = true;
 			_requiresPreRender = true;
 			initChange("source." + event.property , event.oldValue, event.newValue, this);
-		
 		}
 		
 
@@ -724,14 +728,14 @@ package com.degrafa.paint{
 		}
 		
 		
-		private var _disposalQueue:Array = [];
+		private var _disposalQueue:Array = [];	
+		private var _disposalLimit:uint = 20;
 		/**
 		 * A simple means by which to limit the amount of bitmapData this Fill generates.
 		 * Any quantities of bitmapData older than this limit will be disposed.
 		 * We may replace this at some point with a Degrafa bitmapData cache/manager
 		 * or some other centralized way to manage the amount of/GC of bitmapData
 		 */
-		private var _disposalLimit:uint = 20;
 		public function set disposalLimit(val:uint):void
 		{
 			_disposalLimit = val >= 0 ? val:0;
@@ -923,12 +927,11 @@ package com.degrafa.paint{
 	
 
 		/**
-		 * The source used for the Geometry fill.
+		 * The source used for the VectorFill.
 		 * An IGeometryComposition object
 		 **/
 		public function get source():IGeometryComposition { return _source; }
 		public function set source(value:IGeometryComposition):void {
-
 			//no change
 			if (_source== value) return;
 			//no value
@@ -987,7 +990,7 @@ package com.degrafa.paint{
 				strokeoffset = Math.ceil((_requester as Geometry).stroke.weight / 2);
 				// for a zero weight stroke, give it a 1 pixel offset
 				if (!strokeoffset) strokeoffset = 1;
-				rectangle = rectangle.clone(); //don't mess with the original rectangle
+				rectangle = rectangle.clone(); 
 				rectangle.inflate( -strokeoffset, -strokeoffset); //inset by strokeoffset - used for scaling if needed
 				matrix.translate(strokeoffset, strokeoffset); //ditto for rendering
 				_requiresPreRender = true;
@@ -995,9 +998,11 @@ package com.degrafa.paint{
 			if (rectangle && !_rectBuffer.equals(rectangle)) {
 				//we have a different target to draw to. This may force a preRender if we need to.
 				//todo: review targetSetting related conditions and add here if needed
-				if ((_repeatX!=VectorFill.NONE || _repeatX!=VectorFill.REPEAT) && (_repeatY!=VectorFill.NONE || _repeatY!=VectorFill.REPEAT) ) _requiresPreRender = true;
+		
+				if (!(_repeatX==VectorFill.NONE || _repeatX==VectorFill.REPEAT) || !(_repeatY==VectorFill.NONE || _repeatY==VectorFill.REPEAT) ) _requiresPreRender = true;
 				_rectBuffer.topLeft = rectangle.topLeft;
 				_rectBuffer.bottomRight = rectangle.bottomRight;
+
 			}
 				
 			repeat = false;
@@ -1025,12 +1030,13 @@ package com.degrafa.paint{
 				} 
 				else 
 				{ //centre to target
-				
+		
 					if (_enableSourceClipping) preRender(2, 2, _requiresRedraw,null,_clipSourceRect);
 					else preRender(2, 2, _requiresRedraw, null);
 					//if the bitmapdata was scaled to zero in prendering, then exit the fill
 					if (!bitmapData) return;
 					template = bitmapData;
+				
 					
 				}
 				switch(_targetSetting)
@@ -1045,7 +1051,8 @@ package com.degrafa.paint{
 					matrix.translate(-2,-2)
 					if (enableSourceClipping) 	matrix.translate(rectangle.width/2-_clipSourceRect.width/2, rectangle.height/2-_clipSourceRect.height/2);
 					else matrix.translate(rectangle.width/2-sourceBounds.width/2, rectangle.height/2-sourceBounds.height/2);
-
+					//allow repeating in both directions on this setting otherwise ignore.
+					if (_repeatX == VectorFill.REPEAT && _repeatY == VectorFill.REPEAT) repeat = true;
 					
 					break;
 					default:
@@ -1168,17 +1175,16 @@ package com.degrafa.paint{
 			//reset the forcePrerender flag
 			_requiresPreRender  = false;
 		}
-		
+
+		/**
+		* Ends the fill for the graphics context.
+		* 
+		* @param graphics The current context being drawn to.
+		**/
 		public function end(graphics:Graphics):void {
 			graphics.endFill();
 			disposeBitmapData();
-		//testing code:	
-		/*	graphics.lineStyle(0, 0xff0000, .1);
-			var renderingRect:Rectangle = (_enableSourceClipping)? _clipSourceRect.clone():sourceBounds.clone();
-			renderingRect.offset(_requester.bounds.x-renderingRect.x, _requester.bounds.y-renderingRect.y);
 
-			graphics.drawRect(renderingRect.x,renderingRect.y, renderingRect.width,renderingRect.height);
-		*/
 			if (_requester) _requester = null;
 		}
 		
