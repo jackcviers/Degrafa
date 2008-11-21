@@ -76,16 +76,14 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* Excluded Items
-		**/
+		* Data is required for the IGeometry interface and has no effect here.
+		* @private 
+		**/	
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
 		
-		/**
-		* Data is required for the IGeometry interface and has no effect here.
-		* @private 
-		**/	
+	
 		private function invalidate():void {
 			
 			//simple for now: re-apply any formatting changes to the whole text content
@@ -206,13 +204,11 @@ package com.degrafa.geometry{
 
 		}
 		
-		
+		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle {
-			
-			//NOTE :: GD shold this not be handled here locally?
 			return commandStack.bounds;
 		}
 
@@ -278,8 +274,21 @@ package com.degrafa.geometry{
 			} else {
 					//size into regular settings
 					_transformBeforeRender = false;
-					if (isNaN(_width)) _width = textField.width;
-					if (isNaN(_height)) _height = textField.height;
+					if (isNaN(_width)) {
+						invalidate();
+						_width = textField.width }
+					else {
+						//fixed width setting
+						textField.width = width;
+						_autoSizeField = false;
+					}
+					if (isNaN(_height)) {
+						invalidate();
+						_height = textField.height;
+					} else {
+						textField.height = height;
+						_autoSizeField = false;
+					}
 					textField.x = x;
 					textField.y = y
 

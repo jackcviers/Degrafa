@@ -329,7 +329,6 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle {
-			//NOTE :: GD shold this not be handled here locally?
 			return commandStack.bounds;
 		}
 
