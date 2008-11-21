@@ -433,6 +433,7 @@ package com.degrafa.geometry.layout
 		[Bindable]
 		/**
 		* The display object that defines the coordinate system to use.
+		* Dev Note:: Not yet implemented as of Beta 3. 
 		**/
 		public function get targetCoordinateSpace():DisplayObject{
 			if(!_targetCoordinateSpace){return null;}
@@ -444,46 +445,6 @@ package com.degrafa.geometry.layout
 				invalidated = true;
 			}
 		}
-		
-		/**
-		* The final offset x value of the layout.
-		**/
-		public var xOffset:Number=0;
-		
-		/**
-		* The final offset y value of the layout.
-		**/
-		public var yOffset:Number=0;
-		
-		/**
-		* The minimum x of the objects bounds befor layout.
-		*/
-		public var xMin:Number;
-		
-		/**
-		* The minimum y of the objects bounds befor layout.
-		*/
-		public var yMin:Number;
-		
-		/**
-		* The maximum x of the objects bounds befor layout.
-		*/
-		public var xMax:Number;
-		
-		/**
-		* The maximum y of the objects bounds befor layout.
-		*/
-		public var yMax:Number;
-		
-		/**
-		* The calculated x ratio by which to multiply points at render time.
-		*/
-		public var xMultiplier:Number; 
-		
-		/**
-		* The calculated y ratio by which to multiply points at render time.
-		*/
-		public var yMultiplier:Number;
 				
 		/**
 		* An object to derive this objects properties from. When specified this 

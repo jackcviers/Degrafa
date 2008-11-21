@@ -129,7 +129,7 @@ package com.degrafa{
 		}
 		
 		/**
-		* Returns the bounds for this objects children 
+		* Returns the tight bounds for this objects children 
 		* not including this object.
 		**/
 		public function get childBounds():Rectangle{

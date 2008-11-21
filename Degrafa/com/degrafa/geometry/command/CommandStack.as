@@ -32,8 +32,6 @@ package com.degrafa.geometry.command{
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	import com.degrafa.transform.TransformBase;
-	import flash.display.Sprite;
-	import mx.core.Application;
 	
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -66,9 +64,7 @@ package com.degrafa.geometry.command{
 		//TODO this has to be made private eventually otherwise we can lose 
 		//previous and next references
 		public var source:Array = [];
-		
-		public var lengthIsValid:Boolean;
-		
+				
 		public var owner:Geometry;
 		public var parent:CommandStackItem;
 				
@@ -123,12 +119,10 @@ package com.degrafa.geometry.command{
 				}
 			} 
 			else {
-
 				if (owner._layoutMatrix){  
 					owner._layoutMatrix = null;
 				}
-
-				}
+			}
 		
 
 			var trans:Boolean = (owner.transformContext || (owner.transform && !owner.transform.isIdentity));
@@ -158,7 +152,6 @@ package com.degrafa.geometry.command{
 			//exit if no command stack
 			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
 			
-
 			//init the decorations if required
 			if(owner.hasDecorators){
 				for each (var item:IDecorator in owner.decorators){
@@ -214,16 +207,8 @@ package com.degrafa.geometry.command{
 						}
 					} 
 				}
-				//debug:
-			//	var temp:Rectangle;
-			//	temp = Sprite(displayObject).getBounds(Sprite(displayObject));
-			//	graphics.clear();
-			//	graphics.lineStyle(3, 0x0000ff, .4)
-			//	graphics.drawRect(temp.x, temp.y, temp.width, temp.height)
-
-
-				
-			//	maybe there's a stroke on some owners at this point:
+			
+				//	maybe there's a stroke on some owners at this point:
 				owner.initStroke(graphics, rc);
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
 		
@@ -283,9 +268,7 @@ package com.degrafa.geometry.command{
 					renderCommandStack(graphics,rc,_cursor);
 				}
 			}
-			
 		}
-		
 		
 		
 		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics, viaCommandStack:Boolean=false, rc:Rectangle=null):void{
@@ -331,7 +314,7 @@ package com.degrafa.geometry.command{
 
 			var mat:Matrix
 			if (owner is IDisplayObjectProxy){
-			//padding with transparent pixel border
+				//padding with transparent pixel border
 				bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
 				mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
 				
@@ -343,44 +326,39 @@ package com.degrafa.geometry.command{
 			bitmapData.draw(source, mat, null, null, clipTo, true);
 			mat.invert();
 
-		if (!viaCommandStack) {
-		var tempMat:Matrix 
-			if (owner.hasFilters &&!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy ) {
-				//adjust for scale- downscale to fit filters in the same bounds:
-
-				mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
-				context.beginBitmapFill(bitmapData, mat,false,true);
-				context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
-				context.endFill();
+			if (!viaCommandStack) {
+				var tempMat:Matrix 
+				if (owner.hasFilters &&!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy ) {
+					//adjust for scale- downscale to fit filters in the same bounds:
+	
+					mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
+					context.beginBitmapFill(bitmapData, mat,false,true);
+					context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
+					context.endFill();
+				} else {
+					//draw at filtered size
+	
+					context.beginBitmapFill(bitmapData, mat,false,true);
+					context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
+					context.endFill();
+				}
 			} else {
-				//draw at filtered size
-
-				context.beginBitmapFill(bitmapData, mat,false,true);
-				context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
-				context.endFill();
+				if (transMatrix) {
+					var temp:Matrix
+					if (owner is IDisplayObjectProxy ) {
+						if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
+							mat.concat(CommandStack.currentTransformMatrix)
+	
+						} else {
+	
+							mat.concat( currentTransformMatrix);
+							transMatrix = currentTransformMatrix;
+						}
+					} else mat.concat(transMatrix);
 			}
-		} else {
-			if (transMatrix) {
-				var temp:Matrix
-				if (owner is IDisplayObjectProxy ) {
-					if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
-						mat.concat(CommandStack.currentTransformMatrix)
-
-					} else {
-
-						mat.concat( currentTransformMatrix);
-						transMatrix = currentTransformMatrix;
-					}
-				} else mat.concat(transMatrix);
-		}
-		//debug outline:
-		//	context.lineStyle(1, 0xff0000, .5);
-			context.beginBitmapFill(bitmapData, mat, false, true);
-			renderCommandStack(context, rc, new DegrafaCursor(this.source))
-
-			
-		}
-			
+				context.beginBitmapFill(bitmapData, mat, false, true);
+				renderCommandStack(context, rc, new DegrafaCursor(this.source))
+			}
 		}
 		
 		private function updateToFilterRectangle(filterRect:Rectangle,source:DisplayObject):Rectangle{
@@ -479,6 +457,8 @@ package com.degrafa.geometry.command{
 					item=processDelegateArray(_globalRenderDelegateStart,item,graphics,cursor.currentIndex);
 				}
 				
+				if(item.skip){continue;}
+				
 				with(item){	
 					switch(type){
 						case CommandStackItem.MOVE_TO:
@@ -553,7 +533,7 @@ package com.degrafa.geometry.command{
 							}
 							break;
 	        			case CommandStackItem.DELEGATE_TO:
-	        				item.delegate(graphics,rc,this);
+	        				item.delegate(this,item,graphics,cursor.currentIndex);
 	        				break;
 	        			
 	        			//recurse if required
@@ -599,7 +579,6 @@ package com.degrafa.geometry.command{
 		* item in this command stack.
 		**/
 		public function get lastNonCommandStackItem():CommandStackItem {
-			if (!source.length && parent) return parent.parent.lastNonCommandStackItem;
 			var i:int = source.length-1;
 			while (i > 0) {
 				if(source[i].type != CommandStackItem.COMMAND_STACK){
@@ -635,13 +614,51 @@ package com.degrafa.geometry.command{
 			return null;
 		}
 		
-		public function get transformBounds():Rectangle{
-			var tempBounds:Rectangle = TransformBase.transformBounds(_bounds.clone(),transMatrix);
-			return tempBounds;
-		}
-		private var invalidated:Boolean = true;
+		private var _invalidated:Boolean = true;
 		/**
-		* The calculated bounds for this object.
+		* Specifies whether bounds for this object is to be re calculated.
+		* It will only get recalculated when bounds is requested. 
+		**/
+		public function get invalidated():Boolean{
+			return _invalidated;
+		}
+		public function set invalidated(value:Boolean):void{
+			if(_invalidated !=value){
+				_invalidated = value;
+				
+				if(_invalidated){
+					lengthInvalidated =true;
+				}
+			}
+		}
+		
+		private var _lengthInvalidated:Boolean = true;
+		/**
+		* Specifies whether the path length for this object is to be re calculated.
+		* It will only get recalculated when pathLength is requested. 
+		**/
+		public function get lengthInvalidated():Boolean{
+			return _lengthInvalidated;
+		}
+		public function set lengthInvalidated(value:Boolean):void{
+			if(_lengthInvalidated !=value){
+				_lengthInvalidated = value;
+			}
+		} 
+		
+		/**
+		* Returns a transformed version of this objects bounds. If no transform 
+		* is specified bounds is returned.
+		**/
+		public function get transformBounds():Rectangle{
+			if(transMatrix){
+				return TransformBase.transformBounds(_bounds.clone(),transMatrix);
+			}
+			return _bounds;
+		}
+		
+		/**
+		* The calculated non transformed bounds for this object.
 		*/		
 		private var _bounds:Rectangle=new Rectangle();
 		
@@ -651,8 +668,9 @@ package com.degrafa.geometry.command{
 			else {
 				_bounds.setEmpty();
 				for each(var item:CommandStackItem in source) {
-
+					if(item.bounds){
 						_bounds = _bounds.union(item.bounds);
+					}
 				}
 				invalidated = false;
 				if (_bounds.height!=0.0001) _bounds.height = Number(_bounds.height.toPrecision(3));
@@ -663,26 +681,13 @@ package com.degrafa.geometry.command{
 			return _bounds;
 		}
 		
-		private function addBounds(item:CommandStackItem):void {
-			//** CHANGE HERE *** 
-			//leaving old code here for now		
-			/*
-			if(item){
-				item.calcBounds();
-			}
-			
-			if(!_bounds || _bounds.isEmpty()){
-				_bounds = item.bounds;
-			}
-			else{
-				_bounds = _bounds.union(item.bounds);
-			}
-			*/
-		}
-		
+		/**
+		* Resets the bounds for this command stack.
+		**/
 		public function resetBounds():void{
 			if(_bounds){
 				_bounds.setEmpty();
+				invalidated = true;
 			}
 		}
 		
@@ -696,9 +701,7 @@ package com.degrafa.geometry.command{
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			source[itemIndex].indexInParent = itemIndex;
-			//** CHANGE HERE *** 	
-			//	addBounds(source[itemIndex]);
-			
+		
 			return source[itemIndex];
 		}
 		
@@ -712,11 +715,10 @@ package com.degrafa.geometry.command{
 			//update the related items (previous and next)
 			updateItemRelations(source[itemIndex],itemIndex);
 			
-			//** CHANGE HERE *** 	
-			//	addBounds(source[itemIndex]);
 			source[itemIndex].indexInParent = itemIndex;
 			source[itemIndex].parent = this;
-			lengthIsValid = false;
+			
+			invalidated = true;
 			
 			return source[itemIndex];
 		}
@@ -732,10 +734,9 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			source[itemIndex].indexInParent = itemIndex;
 			source[itemIndex].parent = this;
-			//** CHANGE HERE *** 	
-			//addBounds(source[itemIndex]);
 			
-			lengthIsValid = false;
+			invalidated = true;
+			
 			return source[itemIndex];
 		}
 		
@@ -744,10 +745,7 @@ package com.degrafa.geometry.command{
 		* And returns the array of added CURVE_TO objects.
 		**/	
 		public function addCubicBezierTo(x0:Number,y0:Number,cx:Number,cy:Number,cx1:Number,cy1:Number,x1:Number,y1:Number,tolerance:int=1):Array{
-			
-			lengthIsValid = false;
 			return GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1,x1,y1,1,this);
-			
 		}
 		
 		/**
@@ -761,6 +759,7 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			source[itemIndex].indexInParent = itemIndex;
 			source[itemIndex].parent = this;
+			
 			return source[itemIndex];
 		}
 		
@@ -775,9 +774,9 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			source[itemIndex].indexInParent = itemIndex;
 			source[itemIndex].parent = this;
-			//** CHANGE HERE *** 		
-			//	addBounds(source[itemIndex]);
 			
+			invalidated = true;
+						
 			return source[itemIndex];
 		}
 		
@@ -792,12 +791,37 @@ package com.degrafa.geometry.command{
 			updateItemRelations(source[itemIndex],itemIndex);
 			value.indexInParent = itemIndex;
 			value.parent = this;
-			//** CHANGE HERE *** 	
-			//	addBounds(source[itemIndex]);
-						
-			if(value.type != CommandStackItem.COMMAND_STACK){
-				lengthIsValid = false;
+									
+			invalidated = true;
+			
+			return source[itemIndex];
+			
+		}
+		
+		/**
+		* Addes a commandStackItem at the specific location in the source.
+		* if index is not specified then the item is appended to the end. 
+		**/		
+		public function addItemAt(value:CommandStackItem,index:int=-1):CommandStackItem{
+			
+			
+			var itemIndex:int = index; 
+			
+			if(itemIndex==-1){
+				itemIndex = source.push(value) - 1;
 			}
+			else{
+				
+				source.splice(itemIndex,0,value);
+				itemIndex +=-1;
+			}
+			
+			//update the related items (previous and next)
+			updateItemRelations(source[itemIndex],itemIndex);
+			value.indexInParent = itemIndex;
+			value.parent = this;
+									
+			invalidated = true;
 			
 			return source[itemIndex];
 			
@@ -850,8 +874,8 @@ package com.degrafa.geometry.command{
 		* Returns the length of the combined path elements.
 		**/
 		public function get pathLength():Number{
-			if(!lengthIsValid){
-				lengthIsValid = true;
+			if(lengthInvalidated){
+				lengthInvalidated = false;
 				
 				//clear prev length
 				_pathLength=0;

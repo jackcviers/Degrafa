@@ -259,39 +259,13 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-		
-		
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			
-			return commandStack.bounds;
-				
-		}
-		
-		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle{
-			return _originalBounds;	
-		}
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/		
-		private function calcBounds():void{
-			if(commandStack.length==0){return;}
-		}
 				
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-				
-				commandStack.resetBounds();
-				
+								
 				//if the last controly and the y are the same add a 
 				//minute offset to avoid a display parasite that 
 				//can sometimes occur from this
@@ -302,13 +276,10 @@ package com.degrafa.geometry{
 				}
 				
 				commandStack.length=0;
-				//add a MoveTo at the start of the commandStack rendering chain
+				
+				//add a MoveTo at the start of the commandStack 
+				//rendering chain
 				commandStack.addMoveTo(x0,y0);
-			
-				//fill the quad array with curve to segments 
-				//which we'll use to draw and calc the bounds
-				/*GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1+cy1Offset
-				,x1,y1,1,commandStack);	*/
 				
 				commandStack.addCubicBezierTo(x0,y0,cx,cy,cx1,cy1+cy1Offset
 				,x1,y1,1);
@@ -317,7 +288,6 @@ package com.degrafa.geometry{
 					commandStack.addLineTo(x0,y0);	
 				}
 								
-				calcBounds();
 				invalidated = false;
 			}
 			
@@ -352,9 +322,10 @@ package com.degrafa.geometry{
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 							
 			//re init if required
-			preDraw();
+		 	if (invalidated) preDraw(); 
 			
-			calculateLayout();
+			//init the layout in this case done after predraw.
+			if (_layoutConstraint) calculateLayout();
 						
 			super.draw(graphics, (rc)? rc:bounds);
 			

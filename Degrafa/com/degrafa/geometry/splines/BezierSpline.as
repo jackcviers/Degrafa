@@ -26,14 +26,20 @@ package com.degrafa.geometry.splines{
 	 
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
+	import com.degrafa.core.collections.GraphicPointCollection;
 	import com.degrafa.geometry.CubicBezier;
-	import com.degrafa.geometry.Polyline;
+	import com.degrafa.geometry.Geometry;
 	import com.degrafa.geometry.splines.math.*;
 	
 	import flash.display.Graphics;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	
+	import mx.events.PropertyChangeEvent;
   	
+  	[DefaultProperty("points")]	
+  	
+  	[Bindable]
 	/**
  	* The BezierSpline can be used for drawing of a smooth curve through 
  	* multiple points, with some shape control over the curve via a tension 
@@ -41,7 +47,7 @@ package com.degrafa.geometry.splines{
  	* control, optional closed-path control, and velocity control 
  	* (arc-length parameterization). 
  	**/
-  	public class BezierSpline extends Polyline implements IGeometry{
+  	public class BezierSpline extends Geometry implements IGeometry{
 		
 		// FastBezier instance for each cubic segment
 		private var _bezier:Array=new Array();                    
@@ -78,7 +84,7 @@ package com.degrafa.geometry.splines{
 		private var _minSegLength:Number;
 		private var _interpS:Array= new Array();
 		private var _interpT:Array= new Array();
-		private var _points:Array;
+		//private var _points:Array;
 		private var _arcLengthAtSegments:Array=new Array();
 
 		/**
@@ -89,20 +95,128 @@ package com.degrafa.geometry.splines{
 		* @since 1.0
 		*
 		*/
-	    public function BezierSpline(){
+	    public function BezierSpline(points:Array=null){
 	    	super();
-	    }
-		
-		override public function set data(value:String):void{
-			super.data = value;
-			
-			//setup the cage
-			_controlCage.knots  = points;
-			
-			//add the control points
-			for each (var point:Point in points){
-				_bezier.push(new CubicBezier());
+			if(points){
+				this.points=points;
 			}
+	    }
+					
+		/**
+		* Spline short hand data value.
+		* 
+		* <p>The spline data property expects a list of space seperated points. For example
+		* "10,20 30,35". </p>
+		* 
+		* @see Geometry#data
+		* 
+		**/
+		override public function set data(value:String):void{
+			if(super.data != value){
+				super.data = value;
+			
+				//parse the string on the space
+				var pointsArray:Array = value.split(" ");
+				
+				//create a temporary point array
+				var pointArray:Array=[];
+				var pointItem:Array;
+				 
+				//and then create a point struct for each resulting pair
+				//eventually throw excemption is not matching properly
+				var i:int = 0;
+				var length:int = pointsArray.length;
+				for (; i< length;i++){
+					pointItem = String(pointsArray[i]).split(",");
+					
+					//skip past blank items as there may have been bad 
+					//formatting in the value string, so make sure it is 
+					//a length of 2 min	
+					if(pointItem.length==2){
+						pointArray.push(new GraphicPoint(pointItem[0],pointItem[1]));
+					}
+				}
+				
+				//set the points property
+				points=pointArray;
+								
+				//setup the cage
+				_controlCage.knots  = points;
+				
+				//add the control points
+				for each (var point:Point in points){
+					_bezier.push(new CubicBezier());
+				}
+			
+				invalidated = true;
+				
+				
+			}
+		}
+		
+		private var _points:GraphicPointCollection;
+		[Inspectable(category="General", arrayType="com.degrafa.IGraphicPoint")]
+		[ArrayElementType("com.degrafa.IGraphicPoint")]
+		/**
+		* A array of points that describe this polyline.
+		**/
+		public function get points():Array{
+			initPointsCollection();
+			return _points.items;
+		}
+		public function set points(value:Array):void{			
+			initPointsCollection();
+			_points.items = value;
+						
+			invalidated = true;
+		
+		}
+		
+		/**
+		* Access to the Degrafa point collection object for this polyline.
+		**/
+		public function get pointCollection():GraphicPointCollection{
+			initPointsCollection();
+			return _points;
+		}
+		
+		/**
+		* Initialize the point collection by creating it and adding the event listener.
+		**/
+		private function initPointsCollection():void{
+			if(!_points){
+				_points = new GraphicPointCollection();
+				
+				//add a listener to the collection
+				if(enableEvents){
+					_points.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+				}
+			}
+		}
+		
+		private var _autoClose:Boolean;
+		/**
+		* Specifies if this polyline is to be automatically closed. 
+		* If true a line is drawn to the first point.
+		**/
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get autoClose():Boolean{
+			return _autoClose;
+		}
+		public function set autoClose(value:Boolean):void{
+			if(_autoClose != value){
+				_autoClose = value;
+				invalidated = true;
+			}
+		}
+		
+		/**
+		* Principle event handler for any property changes to a 
+		* geometry object or it's child objects.
+		**/
+		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
+			invalidated = true;
+			super.propertyChangeHandler(event);
 		}
 				
 	    public function get length():Number{ 
@@ -116,11 +230,16 @@ package com.degrafa.geometry.splines{
 		public function get tension():uint { 
 	    	return _tension;       
 	    }    
-	    public function set tension(_t:uint):void{
-	      	var t:Number = Math.max(0,_t);
+	    public function set tension(value:uint):void{
+	      	var t:Number = Math.max(0,value);
 	      	t = Math.min(5,t);
 	      	_controlCage.tension = t;
-	      	_tension = _t;
+	      	
+	      	if(_tension != t){
+	      		_tension = t;
+	      		invalidated = true;
+	      	}
+	      	
 	    }
 	    
 	    
@@ -131,31 +250,44 @@ package com.degrafa.geometry.splines{
 		public function get quality():uint { 
 	    	return _quality;       
 	    }   
-	    public function set quality(_t:uint):void{
-	      	var t:Number = Math.max(0,_t);
+	    public function set quality(value:uint):void{
+	      	var t:Number = Math.max(0,value);
+	      	
 	      	t = Math.min(3,t);
-	    	_quality    = t;  	
+	    	
+	    	if(_quality != t){
+	    		_quality = t;
+	    		invalidated = true;
+	    	}
+	    	  	
 	    }
+	    
+	    
+	    //other options not yet working
+	    //AUTO,DUPLICATE,EXPLICIT,CHORD_LENGTH,ARC_LENGTH,UNIFORM,FIRST,LAST,POLAR
 	    
 	    private var _parameterization:String="UNIFORM";
 	    /**
 	    * Spline parameterization, arc-length or uniform.
 	    **/
-	    [Inspectable(category="General", enumeration="AUTO,DUPLICATE,EXPLICIT,CHORD_LENGTH,ARC_LENGTH,UNIFORM,FIRST,LAST,POLAR", defaultValue="UNIFORM")]
+	    [Inspectable(category="General", enumeration="AUTO,ARC_LENGTH,UNIFORM", defaultValue="UNIFORM")]
 		public function get parameterization():String{ 
 	    	return _parameterization;       
 	    }
-	    public function set parameterization(_s:String):void{
+	    public function set parameterization(value:String):void{
 	    	
-	    	_parameterization = _s
-	    	
-	    	//map the const
-	    	_s= Consts[_s];
-	    	
-	    	if( _s == Consts.ARC_LENGTH || _s == Consts.UNIFORM ){
-	        	_param = _s;
+	    	if(_parameterization != value){
+		    	_parameterization = value
+		    	
+		    	//map the const
+		    	value= Consts[value];
+		    	
+		    	if( value == Consts.ARC_LENGTH || value == Consts.UNIFORM ){
+		        	_param = value;
+		        }
+	        	
 	        	invalidated = true;
-	     	}
+	    	}
 	     	
 	    }
 	    
@@ -169,22 +301,24 @@ package com.degrafa.geometry.splines{
 		/**
 		* Adds a new point to the bezier curve.
 		**/
-	    public function addControlPoint( _xCoord:Number, _yCoord:Number ):void{
-	    	if( !isNaN(_xCoord) && !isNaN(_yCoord) ){
-	        	points.push(new GraphicPoint(_xCoord, _yCoord));
+	    public function addControlPoint(x:Number,y:Number):void{
+	    	if( !isNaN(x) && !isNaN(y) ){
+	        	points.push(new GraphicPoint(x,y));
 	        	
 	        	_index = points.length-1;
 	        
 	        	if( _index > 0 ){
 	          		var b:CubicBezier = new CubicBezier();
-	          		//_bezier[_index-1] = b;
-	          		
 	          		_bezier.push(b);
 	        	}
+	        	
+	        	invalidated =true;
 	      	} 
 	    }
 		
-		//todo jason. may rather use a points.length = 0 for the arrays
+		/**
+		* Resets the spline to it's initial state
+		**/
 	    public function reset():void{
 		    points.splice(0);
 		    for( var i:uint=0; i<_bezier.length; ++i )
@@ -193,7 +327,7 @@ package com.degrafa.geometry.splines{
 	      	_bezier.splice(0);
 	      	_interpS.splice(0);
 	      	_interpT.splice(0);
-	      	_points.splice(0);
+	      	points.splice(0);
 	      	_arcLengthAtSegments.splice(0);
 	
 	      	_count      = 0;
@@ -218,16 +352,7 @@ package com.degrafa.geometry.splines{
 	 
 	      	return _bezier[_index].getY(_t);
 	    }
-	    
-	    private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object or 
-		* the current layout bounds if a layout constraint exists.
-		**/
-		override public function get bounds():Rectangle{
-			return commandStack.bounds;
-		}
-		
+	    		
 		/**
 		* Performs the specific layout work required by this Geometry.
 		* @param childBounds the bounds to be layed out. If not specified a rectangle
@@ -462,12 +587,12 @@ package com.degrafa.geometry.splines{
 		
 	        	_interpS.splice(0);
 	        	_interpT.splice(0);
-	        	_points.splice(0);
+	        	points.splice(0);
 	                 
 	        	// number of interpolation points per segment - min segment length gets four, everything else is proportional (up to a limit)
 	       		for( var i:uint=0; i<_arcLengthAtSegments.length; ++i ){
 	        		var ratio:Number = Math.floor(_arcLengthAtSegments[i]/_minSegLength);
-	          		_points[i] = Math.min( 12, 4*ratio);
+	          		points[i] = Math.min( 12, 4*ratio);
 	        	}
 	
 	        	var normalize:Number = 1.0/_arcLength;
@@ -485,7 +610,7 @@ package com.degrafa.geometry.splines{
 		        for( i=1; i<k-1; i++ ){
 		        	// get t-value at this knot for uniform parameterization
 		          	var t:Number    = Number(i)*knotsInv;
-		          	var pt:Number   = _points[i-1]+1;
+		          	var pt:Number   = points[i-1]+1;
 		          	var count:uint  = uint(pt-1);
 		          	var inc:Number  = 1.0/pt;
 		          	var mult:Number = inc;
@@ -506,7 +631,7 @@ package com.degrafa.geometry.splines{
 		        }
 	        
 	
-		        pt = _points[k-2]+1;
+		        pt = points[k-2]+1;
 		        count = uint(pt-1);
 		        inc = 1.0/pt;
 		        mult = inc;
@@ -537,7 +662,7 @@ package com.degrafa.geometry.splines{
 	        	}
 	      	}
 	
-	      	start = start == 0 ? 1 : _points[start-1];
+	      	start = start == 0 ? 1 : points[start-1];
 	      
 	      	// determine specific lookup interval in the segment
 	      	for( var i:uint=start; i<_interpS.length; ++i ){

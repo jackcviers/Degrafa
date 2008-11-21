@@ -48,6 +48,7 @@ package com.degrafa.geometry{
 	import flash.events.Event;
 	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
@@ -215,12 +216,9 @@ package com.degrafa.geometry{
 					if(displayObject is IContainer){
 						displayObject.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 					}
-					
 				}
 			}
-			
 			_isRootGeometry = true;
-			
 		}
 		
 		/**
@@ -296,11 +294,18 @@ package com.degrafa.geometry{
 			if(_stage){	
 				_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
 			}
+			else{
+				//could have been added runtime
+				if(graphicsTarget.length){
+					if(graphicsTarget[0].stage){
+						_stage = graphicsTarget[0].stage;
+						_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+					}
+				}
+			}
 		}
 		
 		private function processMethodQue(event:Event):void{
-			
-			//trace("TESTING QUE :: ");
 			
 			if(methodQue.length == 0){return;}
 			
@@ -436,13 +441,7 @@ package com.degrafa.geometry{
 					queDraw(container,container.graphics,null)
 					
 				}
-				else{
-					//trace("Redraw Not Required::::");
-				}
-				
-				
 			}
-						
 		}
 		
 		//property that specifies if this is the root geom 
@@ -488,27 +487,7 @@ package com.degrafa.geometry{
 					target.graphics.clear();
 				}
 				_currentGraphicsTarget = target as Sprite;
-				
-				trace("DRAWING::: " +  this);
-				
 				draw(target.graphics,null);				
-				//when drawing to the target ensure we have valid width and height
-				/*if(target is IUIComponent){
-					if(_currentGraphicsTarget.width && _currentGraphicsTarget.height){
-						draw(target.graphics,null);
-					}
-				}
-				else{
-					if(hasLayout){
-						if(target.width && target.height){
-							draw(target.graphics,null);
-						}
-					}
-					else{
-						draw(target.graphics,null);
-					}
-				}*/
-				
 			}
 		}
 		
@@ -524,19 +503,14 @@ package com.degrafa.geometry{
 		
 		//draws to each target as there are changes here or
 		//child changes
-		private  function drawToTargets():void{
+		public function drawToTargets():void{
 			
 			if(_graphicsTarget){
 				for each (var target:Object in _graphicsTarget.items){
-					
 					queDraw(target,target.graphics,null)
-					
-					//drawToTarget(target);
 				}
 			}
-			
 			_currentGraphicsTarget=null;
-			
 		}
 		
 		private var _geometry:GeometryCollection;
@@ -741,17 +715,54 @@ package com.degrafa.geometry{
 	        
 		}
 								
-		//override in subclasses						
+		/**
+		* The tight bounds of this element as represented by a Rectangle.
+		* The value does not include children. 
+		**/
 		public function get bounds():Rectangle{
-			return null;	
+			return commandStack.bounds;
 		}
 		
-		//override in subclasses
-		public function get originalBounds():Rectangle{
-			return null;	
+		/**
+		* Returns a transformed version of this objects bounds as 
+		* represented by a Rectangle. If no transform is specified 
+		* bounds is returned. The value does not include children.
+		**/
+		public function get transformBounds():Rectangle{
+			return commandStack.transformBounds;
 		}
 		
+		protected var _layoutRectangle:Rectangle;
+		/**
+		* Returns the constraint based layout rectangle for this object 
+		* or bounds if no layout constraint is specified.
+		**/
+		public function get layoutRectangle():Rectangle{
+			return (_layoutRectangle)? _layoutRectangle : bounds;
+		} 
+			
+		/**
+		* Returns the point at t(0-1) on this object.
+		**/
+		public function pointAt(t:Number):Point{
+			return commandStack.pathPointAt(t);
+		}
 		
+		/**
+		* Returns the angle of a point t(0-1) on the path.
+		**/
+		public function angleAt(t:Number):Number {
+			return commandStack.pathAngleAt(t);
+		}
+		
+		/**
+		* Returns geometric length of this object. The value does not 
+		* include children.
+		**/
+		public function get geometricLength():Number{
+			return commandStack.pathLength;
+		}
+						
 		/**
 		* Performs any pre calculation that is required to successfully render 
 		* this element. Including bounds calculations and lower level drawing 
@@ -779,12 +790,6 @@ package com.degrafa.geometry{
 		
 		//the current graphics target being rendered to.
 		protected var _currentGraphicsTarget:Sprite;
-		
-		protected var _layoutRectangle:Rectangle;
-
-		public function get layoutRectangle():Rectangle{
-			return (_layoutRectangle)? _layoutRectangle : bounds;
-		} 
 		
 		//for use in fills, and possible future implementation of layout
 		public var _layoutMatrix:Matrix;

@@ -59,7 +59,6 @@ package com.degrafa.geometry{
 			if(points){
 				this.points=points;
 			}
-			
 		}
 		
 		/**
@@ -204,17 +203,7 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-		
 				
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;	
-		}
-		
 		/**
 		* @inheritDoc 
 		**/
@@ -271,10 +260,10 @@ package com.degrafa.geometry{
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
 			//re init if required
-		 	preDraw();
-		 	
-		 	//init the layout in this case done after predraw.
-			calculateLayout();
+		 	if (invalidated) preDraw(); 
+			
+			//init the layout in this case done after predraw.
+			if (_layoutConstraint) calculateLayout();
 			
 			super.draw(graphics,(rc)? rc:bounds);
 	 	}

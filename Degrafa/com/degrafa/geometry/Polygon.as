@@ -194,17 +194,7 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-		
-		
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;	
-		}
-		
+				
 		/**
 		* @inheritDoc 
 		**/

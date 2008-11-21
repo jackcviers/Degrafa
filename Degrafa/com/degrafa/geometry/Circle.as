@@ -153,27 +153,7 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
-			
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object or 
-		* the current layout bounds if a layout constraint exists.
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;
-			
-		}
-		
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			if(commandStack.length==0){return;}
-		}		
-		
-		
+				
 		/**
 		* @inheritDoc 
 		**/
@@ -205,8 +185,6 @@ package com.degrafa.geometry{
 			        centerX + Math.cos(anchorAngle)*radius,
 			        centerY + Math.sin(anchorAngle)*radius)
 				};
-
-				calcBounds();
 				
 				invalidated = false;
 			}
@@ -238,17 +216,28 @@ package com.degrafa.geometry{
 
 			 		super.calculateLayout(tempLayoutRect);	
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
-					//** JASON PLEASE INVESTIGATE
-					//dev note: startup ISSUE here with one test layout for Circle.... when centerX and centerY are defined, but layout sets radius. Initial layoutRectangle has bad x and y settings
+					
+					//dev note: possible startup ISSUE here with one test 
+					//layout for Circle.... when centerX and centerY are 
+					//defined, but layout sets radius. Initial layoutRectangle 
+					//has bad x and y settings
 					if (isNaN(_radius)) {
 						//handle layout defined startup values:
 						_radius = _layoutRectangle.width / 2;
-						//if _centerX and _centerY were defined but radius was not, then the layout is wrong...correct it with the newly created radius.
-						//if _centerX and _centery were not defined, then set the initial values
-						if (isNaN(_centerX)) 	_centerX = layoutRectangle.width / 2 + layoutRectangle.x ;
-						else _layoutRectangle.x -= _radius;
-						if (isNaN(_centerY)) 	_centerY = layoutRectangle.height / 2  + layoutRectangle.y;
-						else _layoutRectangle.y -= _radius;
+						
+						if (isNaN(_centerX)){
+							_centerX = layoutRectangle.width / 2 + layoutRectangle.x;
+						}
+						else{
+							_layoutRectangle.x -= _radius;
+						} 
+						
+						if (isNaN(_centerY)){
+							_centerY = layoutRectangle.height / 2  + layoutRectangle.y;
+						} 	
+						else{
+							_layoutRectangle.y -= _radius;
+						} 
 						
 						invalidated = true;
 					}
@@ -266,8 +255,7 @@ package com.degrafa.geometry{
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{	
 			
-			
-		 	//init the layout
+		 	//init the layout in this case done before predraw.
 			if (hasLayout) calculateLayout();
 			
 			//re init if required

@@ -243,21 +243,19 @@ package com.degrafa.geometry{
 			
 		}		
 		
-		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle{
-			//return _bounds;
-			_bounds=commandStack.bounds
-			return _bounds;	
+			return new Rectangle(x, y, width, height);
 		}
+		
+		private var _permitCornerInversion:Boolean;
+		[Inspectable(category="General", enumeration="true,false")]
 		/**
 		 * If any of the corner radii are negative, the corners with negative values will cut inwards if permitCornerInversion is true. 
 		 * Defaults to false, in which case negative corner radius values represent a zero corner radius.
 		 */
-		private var _permitCornerInversion:Boolean;
-		[Inspectable(category="General", enumeration="true,false")]
 		public function get permitCornerInversion():Boolean {
 			return _permitCornerInversion? true:false;
 		}
@@ -268,7 +266,7 @@ package com.degrafa.geometry{
 			}
 		}
 
-		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
+		private static const TRIG:Number = 0.4142135623730950488016887242097; 
 		
 		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
@@ -327,6 +325,12 @@ package com.degrafa.geometry{
 					bottomLine.y = bottom;
 					leftLine.x = x;
 					leftLine.y = innerTopLeft;
+					
+					//set to skip
+					topRightCorner1.skip = topRightCorner2.skip = topRightRadius? false:true;
+					bottomRightCorner1.skip = bottomRightCorner2.skip = bottomRightRadius? false:true;
+					bottomLeftCorner1.skip = bottomLeftCorner2.skip = bottomLeftRadius? false:true;
+					topLeftCorner1.skip=topLeftCorner2.skip = topLeftRadius? false:true;
 					//corners as necessary
 
 						var cornersplitoffset:Number; 
@@ -337,7 +341,7 @@ package com.degrafa.geometry{
 						var c2y:Number;
 						var x1:Number;
 						var y1:Number;
-						var manipulate:CommandStackItem;
+						//var manipulate:CommandStackItem;
 						//topRightCorner
 						if (topRightRadius) {
 							cornersplitoffset= Math.SQRT1_2 * topRightRadius;
@@ -359,25 +363,17 @@ package com.degrafa.geometry{
 								x1 = innerRightTop + cornersplitoffset;
 								y1 = innerTopRight - cornersplitoffset;
 							}
-								if (!topRightCorner.length) { //create items
-									topRightCorner.addCurveTo(c1x, c1y, x1, y1);
-									topRightCorner.addCurveTo(c2x, c2y, right, innerTopRight)
-								} else {
-									//manipulate:
-									manipulate = topRightCorner.source[0] as CommandStackItem
-									manipulate.cx = c1x;
-									manipulate.cy = c1y;
-									manipulate.x1 = x1;
-									manipulate.y1 = y1;
-									manipulate = manipulate.next;
-									manipulate.cx = c2x;
-									manipulate.cy = c2y;
-									manipulate.x1 = right;
-									manipulate.y1 = innerTopRight;
-								}
-						} else topRightCorner.length = 0;
-	
-						//bottomRightCorner
+									topRightCorner1.cx = c1x;
+									topRightCorner1.cy = c1y;
+									topRightCorner1.x1 = x1;
+									topRightCorner1.y1 = y1;
+									topRightCorner2.cx = c2x;
+									topRightCorner2.cy = c2y;
+									topRightCorner2.x1 = right;
+									topRightCorner2.y1 = innerTopRight;
+							}
+							
+							//bottomRightCorner
 						if (bottomRightRadius) {
 							cornersplitoffset= Math.SQRT1_2 * bottomRightRadius;
 							controlPointOffset = TRIG * bottomRightRadius;
@@ -398,23 +394,16 @@ package com.degrafa.geometry{
 								x1 = innerRightBottom + cornersplitoffset;
 								y1 = innerBottomRight + cornersplitoffset;
 							}
-								if (!bottomRightCorner.length) { //create items
-									bottomRightCorner.addCurveTo(c1x, c1y, x1, y1);
-									bottomRightCorner.addCurveTo(c2x, c2y, innerRightBottom, bottom)
-								} else {
 									//manipulate:
-									manipulate = bottomRightCorner.source[0] as CommandStackItem
-									manipulate.cx = c1x;
-									manipulate.cy = c1y;
-									manipulate.x1 = x1;
-									manipulate.y1 = y1;
-									manipulate = manipulate.next;
-									manipulate.cx = c2x;
-									manipulate.cy = c2y;
-									manipulate.x1 = innerRightBottom;
-									manipulate.y1 = bottom;
-								}
-						} else bottomRightCorner.length = 0;
+									bottomRightCorner1.cx = c1x;
+									bottomRightCorner1.cy = c1y;
+									bottomRightCorner1.x1 = x1;
+									bottomRightCorner1.y1 = y1;
+									bottomRightCorner2.cx = c2x;
+									bottomRightCorner2.cy = c2y;
+									bottomRightCorner2.x1 = innerRightBottom;
+									bottomRightCorner2.y1 = bottom;
+							}
 						
 						//bottomLeftCorner
 						if (bottomLeftRadius) {
@@ -437,23 +426,17 @@ package com.degrafa.geometry{
 								x1 = innerLeftBottom - cornersplitoffset;
 								y1 = innerBottomLeft + cornersplitoffset;
 							}
-								if (!bottomLeftCorner.length) { //create items
-									bottomLeftCorner.addCurveTo(c1x, c1y, x1, y1);
-									bottomLeftCorner.addCurveTo(c2x, c2y, x, innerBottomLeft)
-								} else {
 									//manipulate:
-									manipulate = bottomLeftCorner.source[0] as CommandStackItem
-									manipulate.cx = c1x;
-									manipulate.cy = c1y;
-									manipulate.x1 = x1;
-									manipulate.y1 = y1;
-									manipulate = manipulate.next;
-									manipulate.cx = c2x;
-									manipulate.cy = c2y;
-									manipulate.x1 = x;
-									manipulate.y1 = innerBottomLeft;
-								}
-						} else bottomLeftCorner.length = 0;
+									bottomLeftCorner1.cx = c1x;
+									bottomLeftCorner1.cy = c1y;
+									bottomLeftCorner1.x1 = x1;
+									bottomLeftCorner1.y1 = y1;
+									bottomLeftCorner2.cx = c2x;
+									bottomLeftCorner2.cy = c2y;
+									bottomLeftCorner2.x1 = x;
+									bottomLeftCorner2.y1 = innerBottomLeft;
+							}
+
 						
 						//topLeftCorner
 						if (topLeftRadius) {
@@ -476,47 +459,41 @@ package com.degrafa.geometry{
 								x1 = innerLeftTop - cornersplitoffset;
 								y1 = innerTopLeft - cornersplitoffset;
 							}
-								if (!topLeftCorner.length) { //create items
-									topLeftCorner.addCurveTo(c1x, c1y, x1, y1);
-									topLeftCorner.addCurveTo(c2x, c2y, innerLeftTop, y)
-								} else {
 									//manipulate:
-									manipulate = topLeftCorner.source[0] as CommandStackItem;
-									manipulate.cx = c1x;
-									manipulate.cy = c1y;
-									manipulate.x1 = x1;
-									manipulate.y1 = y1;
-									manipulate = manipulate.next;
-									manipulate.cx = c2x;
-									manipulate.cy = c2y;
-									manipulate.x1 = innerLeftTop;
-									manipulate.y1 = y;
-								}
-						} else topLeftCorner.length = 0;
+									topLeftCorner1.cx = c1x;
+									topLeftCorner1.cy = c1y;
+									topLeftCorner1.x1 = x1;
+									topLeftCorner1.y1 = y1;
+									topLeftCorner2.cx = c2x;
+									topLeftCorner2.cy = c2y;
+									topLeftCorner2.x1 = innerLeftTop;
+									topLeftCorner2.y1 = y;
+							}
 						
 					return commandStack.source[0];
 
 		}
-
-		
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			if (commandStack.length == 0) { return; }
-		}	
 		
 		private var startPoint:CommandStackItem;
 		private var topLine:CommandStackItem;
-		private var topRightCorner:CommandStack;
-		private var rightLine:CommandStackItem;
-		private var bottomRightCorner:CommandStack;
-		private var bottomLine:CommandStackItem;
-		private var bottomLeftCorner:CommandStack;	
-		private var leftLine:CommandStackItem;
-		private var topLeftCorner:CommandStack;
 		
+		private var topRightCorner1:CommandStackItem;
+		private var topRightCorner2:CommandStackItem;
+		
+		private var rightLine:CommandStackItem;
+		
+		private var bottomRightCorner1:CommandStackItem;
+		private var bottomRightCorner2:CommandStackItem;
+		
+		private var bottomLine:CommandStackItem;
+		
+		private var bottomLeftCorner1:CommandStackItem
+		private var bottomLeftCorner2:CommandStackItem
+			
+		private var leftLine:CommandStackItem;
+		
+		private var topLeftCorner1:CommandStackItem;
+		private var topLeftCorner2:CommandStackItem;
 		
 		/**
 		* @inheritDoc 
@@ -526,23 +503,36 @@ package com.degrafa.geometry{
 			
 				if (!commandStack.length) {
 					//one top level item permits a single renderDelegate call
-					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
-					commandStackItem.renderDelegateStart.push(updateCommandStack);
-					var commandStack:CommandStack = commandStackItem.commandStack;
+					//var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
+					
+					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.DELEGATE_TO));
+					commandStackItem.delegate = updateCommandStack;
+										
 					//set up quick references to manipulate items directly
 					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
 					topLine = commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					topRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					topRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					rightLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					bottomRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					bottomRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					bottomLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					bottomLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					bottomLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					leftLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					topLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					topLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 				}
 				updateCommandStack();
 		
-				calcBounds();
 				invalidated = false;
 			}
 			
@@ -601,8 +591,9 @@ package com.degrafa.geometry{
 		**/			
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			
-
+			//init the layout in this case done before predraw.
 		 	if(_layoutConstraint) calculateLayout();
+		 	
 		 	//re init if required
 		 	if (invalidated) preDraw();
 			

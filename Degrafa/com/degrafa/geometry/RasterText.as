@@ -206,11 +206,13 @@ package com.degrafa.geometry{
 
 		}
 		
-		private var _bounds:Rectangle;
+		
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle {
+			
+			//NOTE :: GD shold this not be handled here locally?
 			return commandStack.bounds;
 		}
 
@@ -292,7 +294,9 @@ package com.degrafa.geometry{
 				if(invalidated){
 				
 				commandStack.length=0;
-				//frame it in a rectangle to permit transforms via commandStack (whether this is used or not will depend on the transformBeforeRender setting
+				//frame it in a rectangle to permit transforms via 
+				//commandStack (whether this is used or not will 
+				//depend on the transformBeforeRender setting
 				commandStack.addMoveTo(x, y);
 				commandStack.addLineTo(x+width, y);
 				commandStack.addLineTo(x+width, y+height);
@@ -302,10 +306,7 @@ package com.degrafa.geometry{
 				invalidated = false;
 				
 			}
-
-			
 		}
-		
 		
 		private var _layoutMode:String = "adjust";
 

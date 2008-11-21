@@ -156,29 +156,7 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;	
-		}
-		
-		private var _originalBounds:Rectangle;
-		override public function get originalBounds():Rectangle {
-			return _originalBounds;	
-		}
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			if(commandStack.length==0){return;}
-
-		}	
-		
+						
 		/**
 		* @inheritDoc 
 		**/
@@ -189,8 +167,7 @@ package com.degrafa.geometry{
 				
 				commandStack.addMoveTo(x,y);	
 				commandStack.addLineTo(x,y1);
-			
-				calcBounds();
+		
 				invalidated = false;
 			}
 			
@@ -245,9 +222,11 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/		
-		override public function draw(graphics:Graphics,rc:Rectangle):void{						
-			
+		override public function draw(graphics:Graphics,rc:Rectangle):void{	
+								
+			//init the layout in this case done before predraw.
 			if (_layoutConstraint) calculateLayout();
+			
 			//re init if required
 		 	if (invalidated) preDraw();
 			

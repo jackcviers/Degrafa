@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
-	import com.degrafa.IGeometry;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -61,11 +61,11 @@ package com.degrafa.geometry{
 			
 			super();
 			
-			this.x=x;
-			this.y=y;
-			this.width=width;
-			this.height=height;
-			this.cornerRadius=cornerRadius;
+			if (x) this.x=x;
+			if (y) this.y=y;
+			if (width) this.width=width;
+			if (height) this.height=height;
+			if (cornerRadius)this.cornerRadius=cornerRadius;
 			
 		}
 		
@@ -183,164 +183,229 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		private var _bounds:Rectangle;
+		private var _permitCornerInversion:Boolean;
+		[Inspectable(category="General", enumeration="true,false")]
+		/**
+		 * If any of the corner radii are negative, the corners with negative values will cut inwards if permitCornerInversion is true. 
+		 * Defaults to false, in which case negative corner radius values represent a zero corner radius.
+		 */
+		public function get permitCornerInversion():Boolean {
+			return _permitCornerInversion? true:false;
+		}
+		public function set permitCornerInversion(value:Boolean):void {
+			if (value=!_permitCornerInversion) {
+				_permitCornerInversion = value;
+				invalidated = true;
+			}
+		}
+		
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
-		override public function get bounds():Rectangle{
-			return commandStack.bounds;	
+		override public function get bounds():Rectangle {
+			//exception here for now:
+			return new Rectangle(x, y, width, height);
 		}
 		
-		
-
 		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
 		
 		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
-				var _cornerRadius:Number = cornerRadius;
-				
+			var _cornerRadius:Number = cornerRadius;
 			
+			//use local vars instead of the main getters
+			var x:Number;
+			var y:Number;
+			var width:Number ;
+			var height:Number
+			if (hasLayout && cStack) { //handle layout variant call at render time
+				CommandStack.transMatrix = CommandStack.currentTransformMatrix;
 
-				//use local vars instead of the main getters
-				var x:Number;
-				var y:Number;
-				var width:Number ;
-				var height:Number
-				if (hasLayout && cStack) { //handle layout variant call at render time
-					CommandStack.transMatrix = CommandStack.currentTransformMatrix;
-
-					x = layoutRectangle.x;
-					y = layoutRectangle.y;
-					width = layoutRectangle.width;
-					height = layoutRectangle.height;
-					
-				} else {
-					x = this.x;
-					y = this.y;
-					width = this.width;
-					height = this.height;
-					
-				}
+				x = layoutRectangle.x;
+				y = layoutRectangle.y;
+				width = layoutRectangle.width;
+				height = layoutRectangle.height;
+				
+			} else {
+				x = this.x;
+				y = this.y;
+				width = this.width;
+				height = this.height;
+				
+			}
+			
+			if (!_permitCornerInversion) {
+					if (_cornerRadius<0) _cornerRadius=0;
+			}
+			
+			//set to skip
+			topRightCorner1.skip = topRightCorner2.skip = 
+			bottomRightCorner1.skip = bottomRightCorner2.skip=
+			bottomLeftCorner1.skip = bottomLeftCorner2.skip = 
+			topLeftCorner1.skip=topLeftCorner2.skip = (_cornerRadius)? false:true;
+			
+			if(_cornerRadius){
+				
 				// make sure that width + h are larger than 2*cornerRadius
-		//			if(width>0 && height>0){
-						if (_cornerRadius>Math.min(width, height)/2) {
-							_cornerRadius = Math.min(width, height)/2;
-						}
-			//		} else _cornerRadius = 0;
-	
+				if (Math.abs(_cornerRadius)>Math.min(width, height)/2) {
+					_cornerRadius = Math.min(width, height) / 2 * (_cornerRadius < 0? -1:1);
+				}
+		
 				//round to nearest
 				_cornerRadius = Math.round(_cornerRadius);
-				if (_cornerRadius < 0) _cornerRadius = 0;
-					var bottom:Number = y + height;
-					var right:Number = x + width;
-					var innerRight:Number = right - _cornerRadius;
-					var innerLeft:Number = x + _cornerRadius;
-					var innerTop:Number = y + _cornerRadius;
-					var innerBottom:Number = bottom - _cornerRadius;
-					// manipulate the commandStack but do not invalidate its bounds
-					//basic rectangle:
-					startPoint.x = innerLeft;
-					startPoint.y = y;
-					topLine.x = innerRight;
-					topLine.y = y;
-					rightLine.x = right;
-					rightLine.y = innerBottom;
-					bottomLine.x = innerLeft;
-					bottomLine.y = bottom;
-					leftLine.x = x;
-					leftLine.y = innerTop;
-					//corners if necessary
-					if (_cornerRadius) {	
-						var cornersplitoffset:Number = Math.SQRT1_2 * _cornerRadius;
-						var controlPointOffset:Number = TRIG*_cornerRadius;
-						var innerRightcx:Number = innerRight + controlPointOffset;
-						var innerRightx:Number = innerRight + cornersplitoffset;
-						var innerBottomcy:Number = innerBottom + controlPointOffset;
-						var innerBottomy:Number = innerBottom + cornersplitoffset;
-						var innerLeftcx:Number = innerLeft - controlPointOffset;
-						var innerLeftx:Number = innerLeft - cornersplitoffset;
-						var innerTopcy:Number = innerTop - controlPointOffset;
-						var innerTopy:Number = innerTop - cornersplitoffset;
-						
-						if (!topRightCorner.length) { //create items
-							topRightCorner.addCurveTo(innerRightcx, y, innerRightx, innerTopy);
-							topRightCorner.addCurveTo(right, innerTopcy, right, innerTop)
 
-							bottomRightCorner.addCurveTo(right, innerBottomcy, innerRightx, innerBottomy);
-							bottomRightCorner.addCurveTo(innerRightcx, bottom, innerRight , bottom);
-							
-							bottomLeftCorner.addCurveTo(innerLeftcx, bottom, innerLeftx,innerBottomy);
-							bottomLeftCorner.addCurveTo(x, innerBottomcy, x, innerBottom );
-							
-							topLeftCorner.addCurveTo(x, innerTopcy, innerLeftx, innerTopy);
-							topLeftCorner.addCurveTo(innerLeftcx,y, innerLeft, y);
-						} else { //manipulate
-							topRightCorner.source[0].cx = innerRightcx;
-							topRightCorner.source[0].cy = y;
-							topRightCorner.source[0].x1 = innerRightx;
-							topRightCorner.source[0].y1 = innerTopy;
-							topRightCorner.source[1].cx = right;
-							topRightCorner.source[1].cy = innerTopcy;
-							topRightCorner.source[1].x1 = right;
-							topRightCorner.source[1].y1 = innerTop;
-							
-							bottomRightCorner.source[0].cx = right;
-							bottomRightCorner.source[0].cy = innerBottomcy;
-							bottomRightCorner.source[0].x1 = innerRightx;
-							bottomRightCorner.source[0].y1 = innerBottomy;
-							bottomRightCorner.source[1].cx = innerRightcx;
-							bottomRightCorner.source[1].cy = bottom;
-							bottomRightCorner.source[1].x1 = innerRight;
-							bottomRightCorner.source[1].y1 = bottom;
-							
-							bottomLeftCorner.source[0].cx = innerLeftcx;
-							bottomLeftCorner.source[0].cy = bottom;
-							bottomLeftCorner.source[0].x1 = innerLeftx;
-							bottomLeftCorner.source[0].y1 = innerBottomy;
-							bottomLeftCorner.source[1].cx = x;
-							bottomLeftCorner.source[1].cy = innerBottomcy;
-							bottomLeftCorner.source[1].x1 = x;
-							bottomLeftCorner.source[1].y1 = innerBottom;
-							
-							topLeftCorner.source[0].cx = x;
-							topLeftCorner.source[0].cy = innerTopcy;
-							topLeftCorner.source[0].x1 = innerLeftx;
-							topLeftCorner.source[0].y1 = innerTopy;
-							topLeftCorner.source[1].cx = innerLeftcx;
-							topLeftCorner.source[1].cy = y;
-							topLeftCorner.source[1].x1 = innerLeft;
-							topLeftCorner.source[1].y1 = y;
-							
-						}
+			}
+		
+			var bottom:Number = y + height;
+			var right:Number = x + width;
+			var innerRight:Number = right - Math.abs(_cornerRadius);
+			var innerLeft:Number = x + Math.abs(_cornerRadius);
+			var innerTop:Number = y + Math.abs(_cornerRadius);
+			var innerBottom:Number = bottom - Math.abs(_cornerRadius);
+			
+			// manipulate the commandStack
+			//basic rectangle:
+			startPoint.x = innerLeft;
+			startPoint.y = y;
+			topLine.x = innerRight;
+			topLine.y = y;
+			rightLine.x = right;
+			rightLine.y = innerBottom;
+			bottomLine.x = innerLeft;
+			bottomLine.y = bottom;
+			leftLine.x = x;
+			leftLine.y = innerTop;
+			
+
+			//corners if necessary
+			if (_cornerRadius) {	
+
+				var cornersplitoffset:Number;
+				var controlPointOffset:Number;
+				var innerRightcx:Number;
+				var innerRightx:Number ;
+				var innerBottomcy:Number ;
+				var innerBottomy:Number ;
+				var innerLeftcx:Number ;
+				var innerLeftx:Number ;
+				var innerTopcy:Number ;
+				var innerTopy:Number ;
+				cornersplitoffset = Math.SQRT1_2 * _cornerRadius;
+				controlPointOffset = TRIG * _cornerRadius;
+				
+				if (_cornerRadius>0){
+
+					innerRightcx = innerRight + controlPointOffset;
+					innerRightx = innerRight + cornersplitoffset;
+					innerBottomcy = innerBottom + controlPointOffset;
+					innerBottomy = innerBottom + cornersplitoffset;
+					innerLeftcx = innerLeft - controlPointOffset;
+					innerLeftx = innerLeft - cornersplitoffset;
+					innerTopcy = innerTop - controlPointOffset;
+					innerTopy = innerTop - cornersplitoffset;
+					
+					topRightCorner1.cx = innerRightcx;
+					topRightCorner1.cy = y;
+					topRightCorner1.x1 = innerRightx;
+					topRightCorner1.y1 = innerTopy;
+					topRightCorner2.cx = right;
+					topRightCorner2.cy = innerTopcy;
+					topRightCorner2.x1 = right;
+					topRightCorner2.y1 = innerTop;
+					bottomRightCorner1.cx = right;
+					bottomRightCorner1.cy = innerBottomcy;
+					bottomRightCorner1.x1 = innerRightx;
+					bottomRightCorner1.y1 = innerBottomy;
+					bottomRightCorner2.cx = innerRightcx;
+					bottomRightCorner2.cy = bottom;
+					bottomRightCorner2.x1 = innerRight;
+					bottomRightCorner2.y1 = bottom;
+					bottomLeftCorner1.cx = innerLeftcx;
+					bottomLeftCorner1.cy = bottom;
+					bottomLeftCorner1.x1 = innerLeftx;
+					bottomLeftCorner1.y1 = innerBottomy;
+					bottomLeftCorner2.cx = x;
+					bottomLeftCorner2.cy = innerBottomcy;
+					bottomLeftCorner2.x1 = x;
+					bottomLeftCorner2.y1 = innerBottom;
+					topLeftCorner1.cx = x;
+					topLeftCorner1.cy = innerTopcy;
+					topLeftCorner1.x1 = innerLeftx;
+					topLeftCorner1.y1 = innerTopy;
+					topLeftCorner2.cx = innerLeftcx;
+					topLeftCorner2.cy = y;
+					topLeftCorner2.x1 = innerLeft;
+					topLeftCorner2.y1 = y;
+				} else {
+					innerRightcx = right+ controlPointOffset;
+					innerRightx = right + cornersplitoffset;
+					innerBottomcy = bottom+ controlPointOffset;
+					innerBottomy = bottom + cornersplitoffset;
+					innerLeftcx = x - controlPointOffset;
+					innerLeftx = x - cornersplitoffset;
+					innerTopcy = y - controlPointOffset;
+					innerTopy = y - cornersplitoffset;
+					topRightCorner1.cx = innerRight;
+					topRightCorner1.cy = innerTopcy;
+					topRightCorner1.x1 = innerRightx;
+					topRightCorner1.y1 = innerTopy;
+					topRightCorner2.cx = innerRightcx;
+					topRightCorner2.cy = innerTop;
+					topRightCorner2.x1 = right;
+					topRightCorner2.y1 = innerTop;
+					bottomRightCorner1.cx = innerRightcx;
+					bottomRightCorner1.cy = innerBottom;
+					bottomRightCorner1.x1 = innerRightx;
+					bottomRightCorner1.y1 = innerBottomy;
+					bottomRightCorner2.cx = innerRight;
+					bottomRightCorner2.cy = innerBottomcy;
+					bottomRightCorner2.x1 = innerRight;
+					bottomRightCorner2.y1 = bottom;
+					bottomLeftCorner1.cx = innerLeft;
+					bottomLeftCorner1.cy = innerBottomcy;
+					bottomLeftCorner1.x1 = innerLeftx;
+					bottomLeftCorner1.y1 = innerBottomy;
+					bottomLeftCorner2.cx = innerLeftcx;
+					bottomLeftCorner2.cy = innerBottom;
+					bottomLeftCorner2.x1 = x;
+					bottomLeftCorner2.y1 = innerBottom;
+					topLeftCorner1.cx = innerLeftcx;
+					topLeftCorner1.cy = innerTop
+					topLeftCorner1.x1 = innerLeftx;
+					topLeftCorner1.y1 = innerTopy;
+					topLeftCorner2.cx = innerLeft;
+					topLeftCorner2.cy = innerTopcy;
+					topLeftCorner2.x1 = innerLeft;
+					topLeftCorner2.y1 = y;
+				}
+
+			} 
 						
-					} else {
-						topRightCorner.length = 0;
-						bottomRightCorner.length = 0;
-						bottomLeftCorner.length = 0;
-						topLeftCorner.length = 0;
-					}
-					return commandStack.source[0];
+			return commandStack.source[0];
 
 		}
-
 		
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			if (commandStack.length == 0) { return; }
-		}	
-		
+		private var cornersAdded:Boolean;
 		private var startPoint:CommandStackItem;
 		private var topLine:CommandStackItem;
-		private var topRightCorner:CommandStack;
+		
+		private var topRightCorner1:CommandStackItem;
+		private var topRightCorner2:CommandStackItem;
+		
 		private var rightLine:CommandStackItem;
-		private var bottomRightCorner:CommandStack;
+		
+		private var bottomRightCorner1:CommandStackItem;
+		private var bottomRightCorner2:CommandStackItem;
+		
 		private var bottomLine:CommandStackItem;
-		private var bottomLeftCorner:CommandStack;	
+		
+		private var bottomLeftCorner1:CommandStackItem
+		private var bottomLeftCorner2:CommandStackItem
+			
 		private var leftLine:CommandStackItem;
-		private var topLeftCorner:CommandStack;
+		
+		private var topLeftCorner1:CommandStackItem;
+		private var topLeftCorner2:CommandStackItem;
 		
 		/**
 		* @inheritDoc 
@@ -350,24 +415,37 @@ package com.degrafa.geometry{
 			
 				if (!commandStack.length) {
 					//one top level item permits a single renderDelegate call
-					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
-					commandStackItem.renderDelegateStart.push(updateCommandStack);
-					var commandStack:CommandStack = commandStackItem.commandStack;
+					//var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())) ;	
+					
+					var commandStackItem:CommandStackItem = commandStack.addItem(new CommandStackItem(CommandStackItem.DELEGATE_TO));
+					commandStackItem.delegate = updateCommandStack;
+										
 					//set up quick references to manipulate items directly
 					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
 					topLine = commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					topRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					topRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					rightLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					bottomRightCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					bottomRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					bottomLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					bottomLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					bottomLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 					leftLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
-					topLeftCorner=commandStack.addItem(new CommandStackItem(CommandStackItem.COMMAND_STACK,NaN,NaN,NaN,NaN,NaN,NaN,new CommandStack())).commandStack ;
+					
+					topLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					
 				}
+				
 				updateCommandStack();
-				//commandStack.length=0;
 	
-				calcBounds();
 				invalidated = false;
 			}
 			
@@ -426,8 +504,9 @@ package com.degrafa.geometry{
 		**/		
 		override public function draw(graphics:Graphics,rc:Rectangle):void{			
 			
-		
+			//init the layout in this case done before predraw.
 		 	if(_layoutConstraint) calculateLayout();
+		 	
 		 	//re init if required
 		 	if (invalidated) preDraw();
 		 	

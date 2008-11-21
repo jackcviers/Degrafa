@@ -34,7 +34,7 @@ package com.degrafa.geometry.command{
 	**/
 	public class CommandStackItem{
 		
-		static public const IS_REGISTERED:Boolean = !(	registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem) &&
+		static public const IS_REGISTERED:Boolean = !(	registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem) ||
 														registerClassAlias("flash.geom.Point", Point));	
 
 		
@@ -47,9 +47,7 @@ package com.degrafa.geometry.command{
 		public var type:int;
 		public var id:String;
 		public var reference:String;
-		
-		//invalid flag for bounds
-		public var invalidated:Boolean;
+				
 		//skip flag for rendering
 		public var skip:Boolean;
 		internal var indexInParent:uint;
@@ -107,9 +105,48 @@ package com.degrafa.geometry.command{
 				//on set if this is a command stack then forward to the last item			
 				if (type == CommandStackItem.COMMAND_STACK) {
 					commandStack.lastNonCommandStackItem.next = value;
-				//	CommandStackItem(commandStack.source[commandStack.source.length-1]).next = value;
 				}
+			}
+		}
+		
+		private var _invalidated:Boolean = true;
+		/**
+		* Specifies whether bounds for this object is to be re calculated. 
+		* Only property updates which affect the computation of this 
+		* object set this property. It will only get recalculated 
+		* when bounds is requested.
+		**/
+		public function get invalidated():Boolean{
+			return _invalidated;
+		}
+		public function set invalidated(value:Boolean):void{
+			_invalidated = value;
+			if(_invalidated !=value){
+				_invalidated = value;
 				
+				if(_invalidated){
+					parent.invalidated = _invalidated;
+					lengthInvalidated = _invalidated;
+				}
+			}
+		}
+		
+		private var _lengthInvalidated:Boolean = true;
+		/**
+		* Specifies whether length this object is to be re calculated.
+		* It will only get recalculated when segmentLength is requested. 
+		**/
+		public function get lengthInvalidated():Boolean{
+			return _lengthInvalidated;
+		}
+		public function set lengthInvalidated(value:Boolean):void{
+			_lengthInvalidated = value;
+			if(_lengthInvalidated !=value){
+				_lengthInvalidated = value;
+				
+				if(_lengthInvalidated){
+					parent.lengthInvalidated = value;
+				}
 			}
 		}
 		
@@ -126,26 +163,46 @@ package com.degrafa.geometry.command{
 		* Calculates the bounds for this item.
 		**/
 		public function calcBounds():void{
-	//** CHANGE HERE *** 
-	//some changes to the bounds calculations
+			
 			if(!invalidated){return;}
 			var start:Point
+			
 			//using the previous item calculate the bounds for this object
 			switch(type){
 				
 				case CommandStackItem.MOVE_TO:
+					if (isNaN(_x) || isNaN(_y)) {
+						//no bounds:
+						_bounds = new Rectangle();
+						skip = true;
+						break;
+					}
 					_bounds = new Rectangle(x, y, 0, 0);	
-					break;			
+					break;
+							
 				case CommandStackItem.LINE_TO:
+			        if (isNaN(_x) || isNaN(_y)) {
+						//no bounds:
+						_bounds = new Rectangle();
+						skip = true;
+						break;
+					}
 					start = this.start;
-				
+				    
 					_bounds = new Rectangle(Math.min(x,start.x),Math.min(y,start.y),
 					Math.abs(x - start.x), Math.abs(y - start.y));
 					if (!_bounds.width) _bounds.width = 0.0001;
 					if (!_bounds.height) _bounds.height = 0.0001;
-					break;
-			
+					break;		
+					
 				case CommandStackItem.CURVE_TO:
+
+					if (isNaN(_cx) || isNaN(_cy) || isNaN(_x1)|| isNaN(_y1)) {
+						//no bounds:
+						_bounds = new Rectangle();
+						skip = true;
+						break;
+					}
 					start = this.start;
 					_bounds = GeometryUtils.bezierBounds(start.x, start.y, cx, cy, x1, y1).clone();
 					break;
@@ -156,10 +213,6 @@ package com.degrafa.geometry.command{
 			}
 			invalidated = false;
 			
-			//adjustment for horizontal and vertical lines
-		//	if (_bounds.width == 0) _bounds.width = 0.0001;
-		//	if (_bounds.height == 0) _bounds.height = 0.0001;
-		//	trace(_bounds);
 		}
 		
 				
@@ -169,7 +222,8 @@ package com.degrafa.geometry.command{
 		* you can not set it.
 		**/
 		public function get start():Point{
-			if(_previous){
+			if (_previous) {
+				if (_previous.skip) return (_previous.start);
 				return _previous.end;
 			}
 			else {
@@ -217,6 +271,22 @@ package com.degrafa.geometry.command{
 				y1=value.y;
 			}
 		}
+		
+		/**
+		* Function to be called during the render loop when 
+		* this item is encountered for use with delegate type.
+		*/		
+		private var _delegate:Function;
+		public function get delegate():Function{
+			return _delegate;
+		}
+		public function set delegate(value:Function):void{
+			if(_delegate != value){
+				_delegate = value;
+				invalidated = true;
+			}
+		}
+		
 				
 		/**
 		* Functions to be called during the render loop when 
@@ -248,9 +318,6 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
-		
-		
-		
 		/**
 		* A nested command stack in the case of a command stack type
 		**/
@@ -265,7 +332,6 @@ package com.degrafa.geometry.command{
 				invalidated = true;
 			}
 		}
-		
 		
 		/**
 		 * x coordinate for a LINE_TO or MOVE_TO
@@ -351,7 +417,7 @@ package com.degrafa.geometry.command{
 		**/
 		private var _segmentLength:Number=0;
 		public function get segmentLength():Number{
-			if(!_segmentLength || invalidated){
+			if(!_segmentLength || lengthInvalidated){
 				switch(type){
 					case CommandStackItem.MOVE_TO:
 						_segmentLength =0;
@@ -371,7 +437,6 @@ package com.degrafa.geometry.command{
 				}
 			}
 			return _segmentLength;
-			
 		}
 		
 		/**

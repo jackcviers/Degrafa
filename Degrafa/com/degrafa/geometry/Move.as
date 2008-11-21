@@ -115,16 +115,6 @@ package com.degrafa.geometry{
 			}
 		}
 		
-				
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;
-		}
-		
 		/**
 		* @inheritDoc 
 		**/
@@ -145,7 +135,8 @@ package com.degrafa.geometry{
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{		
 			//re init if required
-		 	preDraw();
+		 	if (invalidated) preDraw();
+		 	
 			super.draw(graphics,(rc)? rc:bounds);
 		}
 		

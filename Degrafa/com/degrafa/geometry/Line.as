@@ -209,35 +209,14 @@ package com.degrafa.geometry{
 			return  Math.atan((y1 - y)/(x1 - x));
 		}
 		
-		private var _bounds:Rectangle;
-		/**
-		* The tight bounds of this element as represented by a Rectangle object. 
-		**/
-		override public function get bounds():Rectangle{
-			//return _bounds;
-			return commandStack.bounds;	
-		}
-		
-		
-		/**
-		* Calculates the bounds for this element. 
-		**/
-		private function calcBounds():void{
-			if(commandStack.length==0){return;}
-		}	
-		
 		/**
 		* @inheritDoc 
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-			
 				commandStack.length=0;
-				
 				commandStack.addMoveTo(x,y);	
 				commandStack.addLineTo(x1,y1);
-			
-				calcBounds();
 				invalidated = false;
 			}
 			
@@ -294,11 +273,12 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{
-		
+			 	
+		 	//init the layout in this case done before predraw.
+			if (_layoutConstraint) calculateLayout();
+			
 			//re init if required
-		 	preDraw();
-		
-			calculateLayout();
+		 	if (invalidated) preDraw();
 		 	
 			super.draw(graphics,(rc)? rc:bounds);
 		}
