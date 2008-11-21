@@ -18,20 +18,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+// Based on Adobe Code
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.states{
-	
-	import com.degrafa.IGeometry;
-	import com.degrafa.core.collections.GeometryCollection;
-	
-	import flash.events.IEventDispatcher;
-		
-	public interface IDegrafaStateClient extends IEventDispatcher, IStateClient ,IGeometry{
-	 	function get isInitialized():Boolean
-   	 	function get states():Array
-   	 	function set states(items:Array):void
-   	 	function get geometry():Array
-   	 	function set geometry(value:Array):void
-   	 	function get geometryCollection():GeometryCollection
-   	}
+	public interface IStateClient{
+		/**
+	    *  The current view state.
+	    */
+	    function get currentState():String;
+	    
+	    /**
+	    *  @private
+	    */
+	    function set currentState(value:String):void;
+	}
 }
