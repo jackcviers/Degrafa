@@ -91,15 +91,15 @@ package com.degrafa.transform{
 			var bl:Point;
 			( tr =tl.clone()).offset(br.x - tl.x, 0);
 			( bl = tl.clone()).offset(0, br.y - tl.y);
-
-			var points:Array = [trans.transformPoint(br),trans.transformPoint(tr),trans.transformPoint(bl)];
+				
+			var points:Array = [trans.transformPoint(tl),trans.transformPoint(br),trans.transformPoint(tr),trans.transformPoint(bl)];
 			tempBounds.setEmpty();
 			tempBounds.topLeft = trans.transformPoint(tl);
 			for each(var p:Point in points)
 			{
-				if (tempBounds.x > p.x) tempBounds.x = p.x;
-				if (tempBounds.y > p.y) tempBounds.y = p.y;
 				if (tempBounds.right < p.x) tempBounds.right = p.x;
+				if (tempBounds.top > p.y) tempBounds.top = p.y;
+				if (tempBounds.left > p.x) tempBounds.left = p.x;
 				if (tempBounds.bottom < p.y) tempBounds.bottom = p.y;
 			}
 			return tempBounds;
