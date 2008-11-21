@@ -303,10 +303,12 @@ package com.degrafa.geometry.splines{
 		**/
 	    public function addControlPoint(x:Number,y:Number):void{
 	    	if( !isNaN(x) && !isNaN(y) ){
-	        	points.push(new GraphicPoint(x,y));
-	        	
+	        	_points.addItem(new GraphicPoint(x,y));
+	        		        	
+	        	_controlCage.knots  = points;
+				
 	        	_index = points.length-1;
-	        
+	        	
 	        	if( _index > 0 ){
 	          		var b:CubicBezier = new CubicBezier();
 	          		_bezier.push(b);
@@ -376,7 +378,7 @@ package com.degrafa.geometry.splines{
 	    override public function preDraw():void{
 	    	if( invalidated ){
 	    		
-	        	if(points.length<1){return;}
+	        	if(!points.length){return;}
 				
 	        	_assignControlPoints();
 	        	
@@ -552,7 +554,7 @@ package com.degrafa.geometry.splines{
 	      	//start and end points of the spline match
 	     
 		 	var l1:uint = points.length-1;
-	     	if(autoClose && points[0].x != points[l1].x && points[0].y != points[l1].y ){
+	     	if(autoClose && ((points[0].x != points[l1].x) || (points[0].y != points[l1].y))){
 	      		//todo jason
 	      		addControlPoint(points[0].x, points[0].y);
 	      	}

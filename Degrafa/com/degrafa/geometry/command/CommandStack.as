@@ -938,6 +938,9 @@ package com.degrafa.geometry.command{
 		* Returns the point at t(0-1) on the path.
 		**/
 		public function pathPointAt(t:Number):Point {
+			
+			if(!source.length){return new Point(0,0);}
+			
 			t = cleant(t);
 			
 			var curLength:Number = 0;
@@ -981,6 +984,9 @@ package com.degrafa.geometry.command{
 		* Returns the angle of a point t(0-1) on the path.
 		**/
 		public function pathAngleAt(t:Number):Number {
+			
+			if(!source.length){return 0;}
+			
 			t = cleant(t);
 			
 			var curLength:Number = 0;
