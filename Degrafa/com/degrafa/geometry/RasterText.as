@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.text.DegrafaTextFormat;
 	
@@ -38,7 +39,8 @@ package com.degrafa.geometry{
 	
 	import mx.events.PropertyChangeEvent;
 	
-	[Exclude(name="data", kind="property")]
+	[Exclude(name = "data", kind = "property")]
+	[Exclude(name="fill", kind="property")]
 		 
 	[Bindable(event = "propertyChange")]
 	
@@ -58,10 +60,14 @@ package com.degrafa.geometry{
 		public var sprite:Sprite = new Sprite();
 		
 		protected var _embedded:Boolean;
-		
+		/**
+		 * <p>The RasterText constructor has no arguments . RasterText does not inherit stroke by default unlike other Geometry items.</p>
+		 */
 		public function RasterText(){
 			super();
-			
+			//by default do not inherit stroke. 
+			inheritStroke = false;
+			inheritFill = false;
 			//this is a dynamic only type text Field non 
 			//editable and no mouse events as it is just 
 			//rendered only and not added to the dispaly list.
@@ -83,7 +89,16 @@ package com.degrafa.geometry{
 		override public function set data(value:String):void{}
 		
 		
-	
+		/**
+		 * This item has no regular fill
+		 */
+		override public function get fill():IGraphicsFill {	return null };
+		override public function set fill(value:IGraphicsFill):void { };
+		
+		
+		/**
+		 * Internal function to update the textfield based on settings
+		 */
 		private function invalidate():void {
 			
 			//simple for now: re-apply any formatting changes to the whole text content
@@ -112,8 +127,10 @@ package com.degrafa.geometry{
 				initChange('autoSizeField', !_autoSizeField, _autoSizeField, this);
 			}
 		}
-		
 		private static var _fontList:Array;
+		/**
+		 * Utility function for checking fonts
+		 */
 		public static function get availableEmbeddedFonts():Array {
 			if (!_fontList) _fontList = [];
 			_fontList = Font.enumerateFonts();

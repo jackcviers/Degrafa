@@ -25,7 +25,7 @@ package com.degrafa.geometry{
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.geom.Matrix;
-
+	import com.degrafa.core.IGraphicsFill;
 	import flash.events.Event;
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -42,7 +42,7 @@ package com.degrafa.geometry{
 	import mx.events.PropertyChangeEvent;
 	
 	[Exclude(name="data", kind="property")]
-		 
+	[Exclude(name="fill", kind="property")]
 	[Bindable(event = "propertyChange")]
 	
 	/**
@@ -70,11 +70,14 @@ package com.degrafa.geometry{
 		/**
 	 	* Constructor.
 	 	*  
-	 	* <p>The RasterImage constructor has no arguments .</p>
+	 	* <p>The RasterImage constructor has no arguments . RasterImage does not inherit stroke by default unlike other Geometry items.</p>
 	 	* 
 	 	*/	
 		public function RasterImage(){
 			super();
+			//default to false for images on stroke inheritance
+			inheritStroke = false;
+			inheritFill = false;
 		}
 		
 		/**
@@ -87,7 +90,12 @@ package com.degrafa.geometry{
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
-
+		/**
+		 * This item has no regular fill
+		 */
+		override public function get fill():IGraphicsFill {	return null };
+		override public function set fill(value:IGraphicsFill):void { };
+		
 		
 		private var _x:Number;
 		/**
