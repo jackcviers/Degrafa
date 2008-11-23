@@ -255,14 +255,42 @@ package com.degrafa.geometry{
 				_cornerRadius = Math.round(_cornerRadius);
 
 			}
-		
+			//apply fix for player rendering bug
+			if ( stroke && stroke.weight < 4  ) {
+				//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
+				//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
+				//dev note: may need to code in player detection here if the rendering issue is corrected in future player versions
+				//dev note:through initial testing this seems fine, but may also need to test for x+width and y+height being on a pixel boundaries as well
+				var adjx:Number = 0;
+				var adjy:Number = 0;
+				var adjbase:Number = 0.15;
+			
+				var under:Boolean = x < Math.round(x);
+				var diff:Number;
+				if ((diff = Math.abs(x -Math.round(x ))) < adjbase) {
+					adjx = (adjbase-diff)* (under?-1:1);
+					x += adjx;
+					//apply the offset on the rendered width
+					//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
+					//	width -= adjx;
+				}
+				under = y < Math.round(y);
+				if ((diff = Math.abs(y -Math.round(y ))) < adjbase) {
+					adjy = (adjbase-diff)* (under?-1:1);
+					y += adjy;
+					//apply the offset on the rendered height
+					//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
+					//	height -= adjy;
+				}
+			}
+
 			var bottom:Number = y + height;
 			var right:Number = x + width;
 			var innerRight:Number = right - Math.abs(_cornerRadius);
 			var innerLeft:Number = x + Math.abs(_cornerRadius);
 			var innerTop:Number = y + Math.abs(_cornerRadius);
 			var innerBottom:Number = bottom - Math.abs(_cornerRadius);
-			
+
 			// manipulate the commandStack
 			//basic rectangle:
 			startPoint.x = innerLeft;
@@ -294,7 +322,6 @@ package com.degrafa.geometry{
 				controlPointOffset = TRIG * _cornerRadius;
 				
 				if (_cornerRadius>0){
-
 					innerRightcx = innerRight + controlPointOffset;
 					innerRightx = innerRight + cornersplitoffset;
 					innerBottomcy = innerBottom + controlPointOffset;
@@ -303,7 +330,6 @@ package com.degrafa.geometry{
 					innerLeftx = innerLeft - cornersplitoffset;
 					innerTopcy = innerTop - controlPointOffset;
 					innerTopy = innerTop - cornersplitoffset;
-					
 					topRightCorner1.cx = innerRightcx;
 					topRightCorner1.cy = y;
 					topRightCorner1.x1 = innerRightx;
@@ -335,7 +361,7 @@ package com.degrafa.geometry{
 					topLeftCorner2.cx = innerLeftcx;
 					topLeftCorner2.cy = y;
 					topLeftCorner2.x1 = innerLeft;
-					topLeftCorner2.y1 = y;
+					topLeftCorner2.y1 = y;/**/
 				} else {
 					innerRightcx = right+ controlPointOffset;
 					innerRightx = right + cornersplitoffset;
