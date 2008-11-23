@@ -40,10 +40,14 @@ package com.degrafa.geometry{
  	*  The RoundedRectangle element draws a rounded rectangle using the specified x,y,
  	*  width, height and corner radius.
  	*  
- 	*  @see http://samples.degrafa.com/RoundedRectangle/RoundedRectangle.html
+ 	*  @see http://degrafa.org/source/RoundedRectangle/RoundedRectangle.html
  	*  
  	**/
-	public class RoundedRectangle extends Geometry implements IGeometry{
+	public class RoundedRectangle extends Geometry implements IGeometry {
+		/**
+		 *  private constant used to avoid unnecessary trignometry calculations
+		 */
+		private static const TRIG:Number = 0.4142135623730950488016887242097; 
 		
 		/**
 	 	* Constructor.
@@ -203,12 +207,21 @@ package com.degrafa.geometry{
 		* The tight bounds of this element as represented by a Rectangle object. 
 		**/
 		override public function get bounds():Rectangle {
-			//exception here for now:
+			//exception here for now, not using commandStack bounds:
 			return new Rectangle(x, y, width, height);
 		}
 		
-		private static const TRIG:Number = 0.4142135623730950488016887242097; //tan(22.5 degrees)
-		
+	
+		/**
+		 * private internal function to update the values in the commandStack for rendering. 
+		 * This approach is taken to enforce the cornerRadius rules under layout. This method handles the corner calculations and variants with cornerInversion settings
+		 * called from the render pipeline in CommandStack and also in preDraw for when layout is not active.
+		 * @param	cStack
+		 * @param	item
+		 * @param	graphics
+		 * @param	currentIndex
+		 * @return
+		 */
 		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
 			var _cornerRadius:Number = cornerRadius;
@@ -254,15 +267,15 @@ package com.degrafa.geometry{
 				//round to nearest
 				_cornerRadius = Math.round(_cornerRadius);
 
-			}
+			}	
+			
+			var adjx:Number = 0;
+			var adjy:Number = 0;
 			//apply fix for player rendering bug
 			if ( stroke && stroke.weight < 4  ) {
 				//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
 				//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
-				//dev note: may need to code in player detection here if the rendering issue is corrected in future player versions
-				//dev note:through initial testing this seems fine, but may also need to test for x+width and y+height being on a pixel boundaries as well
-				var adjx:Number = 0;
-				var adjy:Number = 0;
+		
 				var adjbase:Number = 0.15;
 			
 				var under:Boolean = x < Math.round(x);
@@ -270,22 +283,16 @@ package com.degrafa.geometry{
 				if ((diff = Math.abs(x -Math.round(x ))) < adjbase) {
 					adjx = (adjbase-diff)* (under?-1:1);
 					x += adjx;
-					//apply the offset on the rendered width
-					//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
-					//	width -= adjx;
 				}
 				under = y < Math.round(y);
 				if ((diff = Math.abs(y -Math.round(y ))) < adjbase) {
 					adjy = (adjbase-diff)* (under?-1:1);
 					y += adjy;
-					//apply the offset on the rendered height
-					//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
-					//	height -= adjy;
 				}
 			}
-
-			var bottom:Number = y + height;
-			var right:Number = x + width;
+			//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
+			var bottom:Number = y + height-adjy;
+			var right:Number = x + width-adjx;
 			var innerRight:Number = right - Math.abs(_cornerRadius);
 			var innerLeft:Number = x + Math.abs(_cornerRadius);
 			var innerTop:Number = y + Math.abs(_cornerRadius);

@@ -41,10 +41,15 @@ package com.degrafa.geometry{
  	*  width, height and top left radius, top right radius, bottom left radius and bottom right 
  	*  radius.
  	*  
- 	*  @see http://samples.degrafa.com/RoundedRectangleComplex/RoundedRectangleComplex.html
+ 	*  @see http://degrafa.org/source/RoundedRectangleComplex/RoundedRectangleComplex.html
  	*  
  	**/	
 	public class RoundedRectangleComplex extends Geometry implements IGeometry{
+		/**
+		 *  private constant used to avoid unnecessary trignometry calculations
+		 */
+		private static const TRIG:Number = 0.4142135623730950488016887242097; 
+		
 		
 		/**
 	 	* Constructor.
@@ -266,8 +271,17 @@ package com.degrafa.geometry{
 			}
 		}
 
-		private static const TRIG:Number = 0.4142135623730950488016887242097; 
-		
+
+		/**
+		 * private internal function to update the values in the commandStack for rendering. 
+		 * This approach is taken to enforce the cornerRadius rules under layout. This method handles the corner calculations and variants with cornerInversion settings
+		 * called from the render pipeline in CommandStack and also in preDraw for when layout is not active.
+		 * @param	cStack
+		 * @param	item
+		 * @param	graphics
+		 * @param	currentIndex
+		 * @return
+		 */
 		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
 			
 				//use local vars instead of the main getters
@@ -304,36 +318,32 @@ package com.degrafa.geometry{
 						if (bottomLeftRadius < 0) bottomLeftRadius = 0;
 						if (bottomRightRadius < 0) bottomRightRadius = 0;
 					}
+					
+					var adjx:Number = 0;
+					var adjy:Number = 0;
 					//apply fix for player rendering bug
 					if ( stroke && stroke.weight < 4  &&(topLeftRadius||topRightRadius||bottomLeftRadius||bottomRightRadius) ) {
 						//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
 						//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
 						//dev note: may need to code in player detection here to skip this if the rendering issue is corrected in future player versions
-						//dev note:through initial testing this seems fine, but may also need to test for x+width and y+height being on a pixel boundaries as well
-						var adjx:Number = 0;
-						var adjy:Number = 0;
+					
+						
 						var adjbase:Number = 0.15;
 						var under:Boolean = x < Math.round(x);
 						var diff:Number;
 						if ((diff = Math.abs(x -Math.round(x ))) < adjbase) {
 							adjx = (adjbase-diff)* (under?-1:1);
 							x += adjx;
-							//apply the offset on the rendered width
-							//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
-							//	width -= adjx;
 						}
 						under = y < Math.round(y);
 						if ((diff = Math.abs(y -Math.round(y ))) < adjbase) {
 							adjy = (adjbase-diff)* (under?-1:1);
 							y += adjy;
-							//apply the offset on the rendered height
-							//dev note: removed this for now as it wasn't helping under some circumstances (e.g. rotation in multiples on 90 degrees)
-							//	height -= adjy;
 						}
 					}
-					
-					var bottom:Number = y + height;
-					var right:Number = x + width;
+					//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
+					var bottom:Number = y + height -adjx;
+					var right:Number = x + width -adjy;
 					var innerRightTop:Number = right - Math.abs(topRightRadius);
 					var innerRightBottom:Number = right - Math.abs(bottomRightRadius);
 					var innerLeftTop:Number = x + Math.abs(topLeftRadius);
