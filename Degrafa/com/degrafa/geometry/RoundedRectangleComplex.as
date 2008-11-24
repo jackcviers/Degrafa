@@ -255,7 +255,7 @@ package com.degrafa.geometry{
 			return new Rectangle(x, y, width, height);
 		}
 		
-		private var _permitCornerInversion:Boolean;
+		private var _permitCornerInversion:uint;
 		[Inspectable(category="General", enumeration="true,false")]
 		/**
 		 * If any of the corner radii are negative, the corners with negative values will cut inwards if permitCornerInversion is true. 
@@ -266,7 +266,7 @@ package com.degrafa.geometry{
 		}
 		public function set permitCornerInversion(value:Boolean):void {
 			if (value=!_permitCornerInversion) {
-				_permitCornerInversion = value;
+				_permitCornerInversion = value?1:0;
 				invalidated = true;
 			}
 		}
@@ -322,23 +322,38 @@ package com.degrafa.geometry{
 					var adjx:Number = 0;
 					var adjy:Number = 0;
 					//apply fix for player rendering bug
-					if ( stroke && stroke.weight < 4  &&(topLeftRadius||topRightRadius||bottomLeftRadius||bottomRightRadius) ) {
-						//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
-						//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
-						//dev note: may need to code in player detection here to skip this if the rendering issue is corrected in future player versions
-					
-						
+					if ( stroke && stroke.weight < 4  ) {
+					//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
+					//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
 						var adjbase:Number = 0.15;
-						var under:Boolean = x < Math.round(x);
+						var under:Boolean;
 						var diff:Number;
-						if ((diff = Math.abs(x -Math.round(x ))) < adjbase) {
+						if ((stroke.weight != 2 &&  (diff = Math.abs(x -Math.round(x ))) < adjbase) ) {
+							under== x < Math.round(x);
 							adjx = (adjbase-diff)* (under?-1:1);
 							x += adjx;
+						} else {
+							if (stroke.weight == 2) { //variation - artefact seems to be centered around midpixel values with stroke.weight==2
+								under = x < Math.round(x * 2 ) / 2;
+								if ((diff = Math.abs(x -Math.round(x * 2 ) / 2)) < adjbase) {
+									adjx = (adjbase-diff)* (under?-1:1);
+									x += adjx;
+								}
+							}
 						}
+						
 						under = y < Math.round(y);
-						if ((diff = Math.abs(y -Math.round(y ))) < adjbase) {
+						if (stroke.weight!=2 && (diff = Math.abs(y -Math.round(y ))) < adjbase) {
 							adjy = (adjbase-diff)* (under?-1:1);
 							y += adjy;
+						} else {
+						if (stroke.weight == 2) { //variation - artefact seems to be centered around midpixel values with stroke.weight==2
+							if ((diff = Math.abs(y -Math.round(y * 2 ) / 2)) < adjbase) {
+								under = y < Math.round(y * 2 ) / 2;
+								adjy = (adjbase-diff)* (under?-1:1);
+								y += adjx;
+								}
+							}
 						}
 					}
 					//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
@@ -644,7 +659,6 @@ package com.degrafa.geometry{
 		* object will derive it's unspecified properties from the passed object.
 		**/
 		public function set derive(value:RoundedRectangleComplex):void{
-			
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke;}
 			if (!_x){_x = value.x;}
@@ -655,7 +669,7 @@ package com.degrafa.geometry{
 			if (!_bottomRightRadius){_bottomRightRadius = value.bottomRightRadius;}
 			if (!_topLeftRadius){_topLeftRadius = value.topLeftRadius;}
 			if (!_topRightRadius) { _topRightRadius = value.topRightRadius; }
-			
+			if (isNaN(_permitCornerInversion)) { _permitCornerInversion = value.permitCornerInversion?1:0; }
 		}
 		
 	}

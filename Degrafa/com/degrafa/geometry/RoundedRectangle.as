@@ -187,7 +187,7 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		private var _permitCornerInversion:Boolean;
+		private var _permitCornerInversion:uint;
 		[Inspectable(category="General", enumeration="true,false")]
 		/**
 		 * If any of the corner radii are negative, the corners with negative values will cut inwards if permitCornerInversion is true. 
@@ -198,7 +198,7 @@ package com.degrafa.geometry{
 		}
 		public function set permitCornerInversion(value:Boolean):void {
 			if (value=!_permitCornerInversion) {
-				_permitCornerInversion = value;
+				_permitCornerInversion = value?1:0;
 				invalidated = true;
 			}
 		}
@@ -273,23 +273,40 @@ package com.degrafa.geometry{
 			var adjy:Number = 0;
 			//apply fix for player rendering bug
 			if ( stroke && stroke.weight < 4  ) {
-				//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
-				//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
-		
+			//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
+			//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
 				var adjbase:Number = 0.15;
-			
-				var under:Boolean = x < Math.round(x);
+				var under:Boolean;
 				var diff:Number;
-				if ((diff = Math.abs(x -Math.round(x ))) < adjbase) {
+				if ((stroke.weight != 2 &&  (diff = Math.abs(x -Math.round(x ))) < adjbase) ) {
+					under== x < Math.round(x);
 					adjx = (adjbase-diff)* (under?-1:1);
 					x += adjx;
+				} else {
+					if (stroke.weight == 2) { //variation - artefact seems to be centered around midpixel values with stroke.weight==2
+						under = x < Math.round(x * 2 ) / 2;
+						if ((diff = Math.abs(x -Math.round(x * 2 ) / 2)) < adjbase) {
+							adjx = (adjbase-diff)* (under?-1:1);
+							x += adjx;
+						}
+					}
 				}
+				
 				under = y < Math.round(y);
-				if ((diff = Math.abs(y -Math.round(y ))) < adjbase) {
+				if (stroke.weight!=2 && (diff = Math.abs(y -Math.round(y ))) < adjbase) {
 					adjy = (adjbase-diff)* (under?-1:1);
 					y += adjy;
+				} else {
+				if (stroke.weight == 2) { //variation - artefact seems to be centered around midpixel values with stroke.weight==2
+					if ((diff = Math.abs(y -Math.round(y * 2 ) / 2)) < adjbase) {
+						under = y < Math.round(y * 2 ) / 2;
+						adjy = (adjbase-diff)* (under?-1:1);
+						y += adjx;
+						}
+					}
 				}
 			}
+			
 			//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
 			var bottom:Number = y + height-adjy;
 			var right:Number = x + width-adjx;
@@ -418,7 +435,6 @@ package com.degrafa.geometry{
 
 		}
 		
-		private var cornersAdded:Boolean;
 		private var startPoint:CommandStackItem;
 		private var topLine:CommandStackItem;
 		
@@ -558,7 +574,8 @@ package com.degrafa.geometry{
 			if (!_y){_y = value.y;}
 			if (!_width){_width = value.width;}
 			if (!_height){_height = value.height;}
-			if (!_cornerRadius){_cornerRadius = value.cornerRadius;}
+			if (!_cornerRadius) { _cornerRadius = value.cornerRadius; }
+			if (isNaN(_permitCornerInversion)) { _permitCornerInversion = value.permitCornerInversion?1:0; }
 		}
 		
 	}
