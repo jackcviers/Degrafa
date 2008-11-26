@@ -28,6 +28,10 @@ package com.degrafa.core.utils{
 	* A helper utility class for color conversion.
 	**/
 	public class ColorUtil{
+		
+		/**
+		* Resolves the color value passed to a valid hex value.
+		**/
 		public static function resolveColor(value:Object, none:uint = 0):uint {
 			if(value is uint){
 				if (value.toString(16).length==3){
@@ -115,6 +119,7 @@ package com.degrafa.core.utils{
 		* Allows an comma-separated list of three numerical or 
 		* percent values that are then converted to a hex value. 
 		**/
+		
 		/**
 		* Converts an RGB percentage comma separated list 
 		* to a decimal color value. Expected order is R,G,B.

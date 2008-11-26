@@ -178,11 +178,33 @@ package com.degrafa.geometry.stencil{
 		* of (0,0,1,1) is used. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
-			
 			if(_layoutConstraint){
-				
-				super.calculateLayout();
-				_layoutRectangle = _layoutConstraint.layoutRectangle;
+				if (_layoutConstraint.invalidated){
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					
+					//default to bounds if no width or height is set
+					//and we have layout
+					if(isNaN(_layoutConstraint.width)){
+						tempLayoutRect.width = bounds.width;
+					}
+					 
+					if(isNaN(_layoutConstraint.height)){
+						tempLayoutRect.height = bounds.height;
+					}
+					
+					if(isNaN(_layoutConstraint.x)){
+			 			tempLayoutRect.x = bounds.x;
+			 		}
+			 		
+			 		if(isNaN(_layoutConstraint.y)){
+			 			tempLayoutRect.y = bounds.y;
+			 		}
+			 		
+					super.calculateLayout(tempLayoutRect);
+						
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+			 	
+				}
 			}
 		}
 				

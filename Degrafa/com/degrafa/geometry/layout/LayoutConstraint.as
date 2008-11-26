@@ -59,7 +59,6 @@ package com.degrafa.geometry.layout
 		* Defines the x location (top left) of the layout.
 		*/
 		public function get x():Number {
-			if(!_x){return 0;}
 			return _x;
 		}
 		public function set x(value:Number):void {
@@ -108,7 +107,6 @@ package com.degrafa.geometry.layout
 		* Defines the y location (top left) of the layout.
 		*/
 		public function get y():Number {
-			if(!_y){return 0;}
 			return _y;
 		}
 		public function set y(value:Number):void {
@@ -164,7 +162,6 @@ package com.degrafa.geometry.layout
 		* property also accepts a percent value for example 75%.
 		*/
 		public function get width():Number {
-			if(!_width){return 0;}
 			return _width;
 		}
 		public function set width(value:Number):void {
@@ -240,7 +237,6 @@ package com.degrafa.geometry.layout
 		* property also accepts a percent value for example 75%.
 		*/
 		public function get height():Number {
-			if(!_height){return 0;}
 			return _height;
 		}
 		public function set height(value:Number):void {
@@ -507,11 +503,11 @@ package com.degrafa.geometry.layout
 			_layoutRectangle = childBounds.clone();
 			
 			//Setup the size and position is none set already
-			if(!_width){
+			if(isNaN(_width)){
 				_width=(layoutRectangle.width)? layoutRectangle.width:1;
 			}
 			
-			if(!_height){
+			if(isNaN(_height)){
 				_height=(layoutRectangle.height)? layoutRectangle.height:1;
 			}
 			

@@ -70,13 +70,13 @@ package com.degrafa.geometry{
  	**/	
 	public class Geometry extends DegrafaObject implements IDegrafaObject, 
 	IGeometryComposition, IDegrafaStateClient, ISimpleStyleClient {
-				
+		
+		private var _invalidated:Boolean;
 		/**
 		* Specifies whether this object is to be re calculated 
 		* on the next cycle. Only property updates which affect the 
 		* computation of this object set this property
 		**/
-		private var _invalidated:Boolean;
 		public function get invalidated():Boolean{
 			return _invalidated;
 		}
@@ -90,6 +90,9 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		/**
+		* Returns true if this Geometry object is invalidated
+		**/
 		public function get isInvalidated():Boolean{
 			return _invalidated;
 		} 
@@ -112,7 +115,7 @@ package com.degrafa.geometry{
 		/**
 		* Controls the visibility of this geometry object. If true, the geometry is visible.
 		*
-		* When set to false this geometry object will be pre computed but not drawn.
+		* When set to false this geometry object will be pre computed nor drawn.
 		**/	
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get visible():Boolean{
@@ -219,11 +222,11 @@ package com.degrafa.geometry{
 				}
 			}
 			_isRootGeometry = true;
+		
+			
 		}
 		
-		/**
-		* METHOD QUE WORK
-		**/
+		//METHOD QUE WORK
 		
 		/**
 		* NOTE :: All this code can be moved into the DisplayObjectCollection post b3. 
@@ -305,6 +308,7 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		
 		private function processMethodQue(event:Event):void{
 			
 			if(methodQue.length == 0){return;}
@@ -339,15 +343,15 @@ package com.degrafa.geometry{
 		private var targetDictionary:Dictionary=new Dictionary(true);
 		
 		//return the data stored for the given target				
-		public function requestTarget(value:UIComponent):Object{
+		private function requestTarget(value:UIComponent):Object{
 			return targetDictionary[value];
 		}	
 		
-		public function removeTarget(value:UIComponent):void{
+		private function removeTarget(value:UIComponent):void{
 			delete targetDictionary[value];
 		}
 		
-		public function addUpdateTarget(value:UIComponent,data:Object):void{
+		private function addUpdateTarget(value:UIComponent,data:Object):void{
 			if(!targetDictionary[value]){
 				targetDictionary[value] = []
 				targetDictionary[value].data = data;
@@ -384,11 +388,7 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		
-				
-		//stored for when there is no layout and we need to draw one time.
-		private var initialRenderComplete:Boolean=false;
-				
+						
 		private function onTargetChange(event:Event):void{
 			
 			//see if it's there
@@ -449,14 +449,13 @@ package com.degrafa.geometry{
 		//the only on with a target array and set in the targets 
 		//setter
 		private var _isRootGeometry:Boolean=false;
+		/**
+		* Returns true if this Geometry object is a root Geometry Object.
+		**/
 		public function get isRootGeometry():Boolean{
 			return _isRootGeometry;
 		}
-		
-		/**
-		* END METHOD QUE WORK
-		**/
-						
+										
 		/**
 		* Access to the Degrafa target collection object for this geometry object.
 		**/
@@ -481,6 +480,9 @@ package com.degrafa.geometry{
 		
 		
 		//draws to a single target
+		/**
+		* @private
+		**/
 		private  function drawToTarget(target:Object):void{
 			if(target){
 				if(autoClearGraphicsTarget){
@@ -491,6 +493,9 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		/**
+		* Clears all graphics targets specified in the graphicsTarget array.
+		**/
 		public function clearGraphicsTargets():void{
     		if(graphicsTarget){
 				for each (var target:Object in graphicsTarget){
@@ -501,8 +506,9 @@ package com.degrafa.geometry{
 			}
 	    }
 		
-		//draws to each target as there are changes here or
-		//child changes
+		/**
+		* Requests a draw for each graphics target specified in the graphicsTarget array.
+		**/
 		public function drawToTargets():void{
 			
 			if(_graphicsTarget){
@@ -732,7 +738,11 @@ package com.degrafa.geometry{
 			return commandStack.transformBounds;
 		}
 		
+		/**
+		* @private
+		**/
 		protected var _layoutRectangle:Rectangle;
+		
 		/**
 		* Returns the constraint based layout rectangle for this object 
 		* or bounds if no layout constraint is specified.
@@ -772,11 +782,11 @@ package com.degrafa.geometry{
 		public function preDraw():void{
 			//overriden by subclasses
 		}
-		
-		/**
-		* An Array of flash rendering commands that make up this element. 
-		**/
+				
 		private var _commandStack:CommandStack;
+		/**
+		* Provides access to the command stack. 
+		**/
 		public function get commandStack():CommandStack{
 			
 			if(!_commandStack)
@@ -788,10 +798,15 @@ package com.degrafa.geometry{
 			_commandStack=value;
 		}
 		
-		//the current graphics target being rendered to.
+		/**
+		* @private
+		* The current graphics target being rendered to.
+		**/
 		protected var _currentGraphicsTarget:Sprite;
 		
-		//for use in fills, and possible future implementation of layout
+		/**
+		* Access to the layout matrix if this Geometry has layout.
+		**/
 		public var _layoutMatrix:Matrix;
 		
 		/**
@@ -859,24 +874,24 @@ package com.degrafa.geometry{
 			//don't draw unless visible
 			if(!visible){return;}
 			
-			//commandStack.owner = this;
 			commandStack.draw(graphics,rc);
 			
 			endDraw(graphics);
          
   		}		
   		
-  		/**********************************************************
-  		* Decoration related.
-  		**********************************************************/
+  		//Decoration related.
   		
+  		/**
+		* Returns true if this Geometry has decorators.
+		**/
   		public var hasDecorators:Boolean;
   		
   		private var _decorators:DecoratorCollection;
 		[Inspectable(category="General", arrayType="com.degrafa.decorators.IDecorator")]
 		[ArrayElementType("com.degrafa.decorators.IDecorator")]
 		/**
-		* A array of IGraphicsFill objects.
+		* A array of IDecorator objects to be applied on this Geometry.
 		**/
 		public function get decorators():Array{
 			initDecoratorsCollection();
@@ -896,7 +911,7 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* Access to the Degrafa fill collection object for this graphic object.
+		* Access to the Decorator collection object for this Geometry object.
 		**/
 		public function get decoratorCollection():DecoratorCollection{
 			initDecoratorsCollection();
@@ -916,26 +931,24 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-		/**********************************************************
-  		* END Decoration related.
-  		**********************************************************/
+		
+		//END Decoration related.
   		
-  		/**********************************************************
-  		* Transform related.
-  		**********************************************************/
-  		/**
-		 * A reference to the transformation matrix context within which local transforms will be applied.
-		 * Similar in concept to the concatenatedMatrix on a flash DisplayObjects transform property.
-		 */
+  		//Transform related.
+  		
+  		
 		private var _transformContext:Matrix;
-		public function get transformContext():Matrix
-		{
+		/**
+		* A reference to the transformation matrix context within which local transforms will be applied.
+		* Similar in concept to the concatenatedMatrix on a flash DisplayObjects transform property.
+		*/
+		public function get transformContext():Matrix{
 			return _transformContext;
 		}
-		public function set transformContext(value:Matrix):void
-		{
+		public function set transformContext(value:Matrix):void{
 			_transformContext = value;
 		}
+		
 		private var _transform:ITransform;
 		/**
 		* Defines the transform object that will be used for 
@@ -971,16 +984,16 @@ package com.degrafa.geometry{
 			}
 			
 		}
-		/**********************************************************
-  		* END Transform related.
-  		**********************************************************/
+		//END Transform related.
   		
   		
-  		/**********************************************************
-  		* Layout related.
-  		**********************************************************/
-  		  		
+  		//Layout related.
+  		
+  		/**
+  		* @private
+  		**/ 		
   		protected var _layoutConstraint:LayoutConstraint;
+		
 		/**
 		* The layout constraint that is used for positioning/sizing this geometry object.
 		**/
@@ -1016,36 +1029,62 @@ package com.degrafa.geometry{
 			
 		}
 				
-		//is layout present
+		/**
+		* Returns true if this Geometry has layout.
+		**/
 		public var hasLayout:Boolean;
 				
-		/**
-		* START LAYOUT PROXY PROPERTIES ::
-		* The below are proxy properties for contraint based layout. Depending on the 
-		* object some of these are overrideen in the respective Geometry subclass. 
-		* For example width on a RegularRectangle.
-		**/
+		//START LAYOUT PROXY PROPERTIES ::
+		//The below are proxy properties for contraint based layout. Depending on the 
+		//object some of these are overrideen in the respective Geometry subclass. 
+		//For example width on a RegularRectangle.
 		
 		//x,y,width,height are different as we need a getter and a setter
 		[PercentProxy("percentWidth")]
+		/**
+		* Defines the width of the layout.
+		* Once left (or percentLeft) or right (or percentRight)
+		* is set, the width value no longer applies. If
+		* percentWidth exists when width is set, percentWidth
+		* will be overridden and be given a value of NaN. This 
+		* property also accepts a percent value for example 75%.
+		*/
 		public function get width():Number{
 			return (hasLayout)? _layoutConstraint.width:NaN;
 		}
 		public function set width(value:Number):void{
 			layoutConstraint.width = value;
 		}
+		
+		/**
+		* When set, the width of the layout will be
+		* set as the value of this property multiplied
+		* by the containing width.
+		* A value of 0 represents 0% and 1 represents 100%
+		* a value of 75 represents 75%.
+		*/
 		public function get percentWidth():Number{
 			return (hasLayout)? layoutConstraint.percentWidth:NaN;
 		}
 		public function set percentWidth(value:Number):void{
 			layoutConstraint.percentWidth = value;
 		}
+		
+		/**
+		* The maximum width that can be applied
+		* to the layout.
+		*/
 		public function get maxWidth():Number{
 			return (hasLayout)? layoutConstraint.maxWidth:NaN;
 		}
 		public function set maxWidth(value:Number):void{
 			layoutConstraint.maxWidth = value;
 		}
+		
+		/**
+		* The minimum width that can be applied
+		* to the layout.
+		*/
 		public function get minWidth():Number{
 			return (hasLayout)? layoutConstraint.minWidth:NaN;
 		}
@@ -1054,6 +1093,14 @@ package com.degrafa.geometry{
 		}
 		
 		[PercentProxy("percentHeight")]
+		/**
+		* Defines the height of the layout boundary.
+		* Once top (or percentTop) or bottom (or percentBottom)
+		* is set, the width value no longer applies. If
+		* percentWidth exists when width is set, percentWidth
+		* will be overridden and be given a value of NaN. This 
+		* property also accepts a percent value for example 75%.
+		*/
 		public function get height():Number{
 			return (hasLayout)? layoutConstraint.height:NaN;
 		}
@@ -1061,90 +1108,169 @@ package com.degrafa.geometry{
 			layoutConstraint.height = value;
 		}
 		
+		/**
+		* When set, the height of the layout will be
+		* set as the value of this property multiplied
+		* by the containing height.
+		* A value of 0 represents 0% and 1 represents 100%
+		* a value of 75 represents 75%.
+		*/
 		public function get percentHeight():Number{
 			return (hasLayout)? layoutConstraint.percentHeight:NaN;
 		}
 		public function set percentHeight(value:Number):void{
 			layoutConstraint.percentHeight = value;
 		}
+		
+		/**
+		* The maximum height that can be applied
+		* to the layout.
+		*/
 		public function get maxHeight():Number{
 			return (hasLayout)? layoutConstraint.maxHeight:NaN;
 		}
 		public function set maxHeight(value:Number):void{
 			layoutConstraint.maxHeight = value;
 		}
+		
+		/**
+		* The minimum height that can be applied
+		* to the layout.
+		*/
 		public function get minHeight():Number{
 			return (hasLayout)? layoutConstraint.minHeight:NaN;
 		}
 		public function set minHeight(value:Number):void{
 			layoutConstraint.minHeight = value;
 		}
+		
+		/**
+		* Defines the x location (top left) of the layout.
+		*/
 		public function get x():Number{
 			return (hasLayout)? layoutConstraint.x:NaN;
 		}
 		public function set x(value:Number):void{
 			layoutConstraint.x = value;
 		}
+		
+		/**
+		* The maximum x location that can be applied
+		* to the layout.
+		*/
 		public function get maxX():Number{
 			return (hasLayout)? layoutConstraint.maxX:NaN;
 		}
 		public function set maxX(value:Number):void{
 			layoutConstraint.maxX = value;
 		}
+		
+		/**
+		* The minimum x location that can be applied
+		* to the layout.
+		*/
 		public function get minX():Number{
 			return (hasLayout)? layoutConstraint.minX:NaN;
 		}
 		public function set minX(value:Number):void{
 			layoutConstraint.minX = value;
 		}
+		
+		/**
+		* Defines the y location (top left) of the layout.
+		*/
 		public function get y():Number{
 			return (hasLayout)? layoutConstraint.y:NaN;
 		}
 		public function set y(value:Number):void{
 			layoutConstraint.y = value;
 		}
+		
+		/**
+		* The maximum y location that can be applied
+		* to the layout.
+		*/
 		public function get maxY():Number{
 			return (hasLayout)? layoutConstraint.maxY:NaN;
 		}
 		public function set maxY(value:Number):void{
 			layoutConstraint.maxY = value;
 		}
+		
+		/**
+		* The minimum y location that can be applied
+		* to the layout.
+		*/
 		public function get minY():Number{
 			return (hasLayout)? layoutConstraint.minY:NaN;
 		}
 		public function set minY(value:Number):void{
 			layoutConstraint.minY = value;
 		}
+		
+		/**
+		 * When set, if left or right is not set, the layout
+		 * will be centered horizontally offset by the numeric
+		 * value of this property.
+		 */
 		public function get horizontalCenter():Number{
 			return (hasLayout)? layoutConstraint.horizontalCenter:NaN;
 		}
 		public function set horizontalCenter(value:Number):void{
 			layoutConstraint.horizontalCenter = value;
 		}
+		
+		/**
+		* When set, if top or bottom is not set, the layout
+		* will be centered vertically offset by the numeric
+		* value of this property.
+		*/
 		public function get verticalCenter():Number{
 			return (hasLayout)? layoutConstraint.verticalCenter:NaN;
 		}
 		public function set verticalCenter(value:Number):void{
 			layoutConstraint.verticalCenter = value;
 		}
+		
+		/**
+		* When set, the top of the layout will be located
+		* offset from the top of it's parent.
+		*/
 		public function get top():Number{
 			return (hasLayout)? layoutConstraint.top:NaN;
 		}
 		public function set top(value:Number):void{
 			layoutConstraint.top = value;
 		}
+		
+		/**
+		* When set, the bottom of the layout will be located
+		* offset from the bottom of it's parent.
+		*/
 		public function get bottom():Number{
 			return (hasLayout)? layoutConstraint.bottom:NaN;
 		}
 		public function set bottom(value:Number):void{
 			layoutConstraint.bottom = value;
 		}
+		
+		/**
+		 * When set, the left of the layout will be located
+		 * offset by the value of this property multiplied
+		 * by the containing width.
+		 */
 		public function get left():Number{
 			return (hasLayout)? layoutConstraint.left:NaN;
 		}
 		public function set left(value:Number):void{
 			layoutConstraint.left = value;
 		}
+		
+		/**
+		* When set, the right of the layout will be located
+		* offset by the value of this property multiplied
+		* by the containing width.
+		*/
 		public function get right():Number{
 			return (hasLayout)? layoutConstraint.right:NaN;
 		}
@@ -1153,6 +1279,13 @@ package com.degrafa.geometry{
 		}
 		
 		[Inspectable(category="General", enumeration="true,false")]
+		/**
+		* When true, the size of the layout will always
+		* maintain an aspect ratio relative to the ratio
+		* of the current width and height properties, even
+		* if those properties are not in control of the
+		* height and width of the layout.
+		*/
 		public function get maintainAspectRatio():Boolean{
 			return (hasLayout)? layoutConstraint.maintainAspectRatio:false;
 		}
@@ -1161,21 +1294,33 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* END LAYOUT PROXY PROPERTIES ::
+		* The display object that defines the coordinate system to use.
+		* Dev Note:: Not yet implemented as of Beta 3. 
 		**/
+		public function get targetCoordinateSpace():DisplayObject{
+			return (hasLayout)? layoutConstraint.targetCoordinateSpace:null;
+		}
+		public function set targetCoordinateSpace(value:DisplayObject):void {
+			layoutConstraint.targetCoordinateSpace = value;
+		}
 		
-		/**********************************************************
-  		* END Layout related.
-  		**********************************************************/
+		//END LAYOUT PROXY PROPERTIES
+		
+		//END Layout related.
   		
-  		/**********************************************************
-  		* Trigger related.
-  		**********************************************************/
+  		//Trigger related.
+  		
+  		/**
+		* Returns true if this Geometry has triggers.
+		**/
   		public var hasTriggers:Boolean;
   		
   		private var _triggers:Array= [];
 	    [Inspectable(arrayType="com.degrafa.triggers.ITrigger")]
 	    [ArrayElementType("com.degrafa.triggers.ITrigger")]
+	    /**
+	    * An array of ITrigger objects that this Geometry object will use.
+	    **/
 	    public function get triggers():Array{
 	    	return _triggers;
 	    }
@@ -1195,19 +1340,18 @@ package com.degrafa.geometry{
 			else{
 				hasTriggers = false;
 			}
-			
-	    }
+		}
 	    
-    	/**********************************************************
-  		* End Trigger related.
-  		**********************************************************/
+    	//End Trigger related.
   		
-  		/**********************************************************
-  		* State related.
-  		**********************************************************/
+  		//State related.
+  		
   		private var _currentState:String="";
 	   
 	    [Bindable("currentStateChange")]
+	    /**
+	    * The current view state.
+	    **/
 	    public function get currentState():String{
 	        return (stateManager) ? stateManager.currentState:"";
 	    }
@@ -1216,13 +1360,20 @@ package com.degrafa.geometry{
 	        stateManager.currentState = value;
 	    }
 		
+		
 		private var stateManager:StateManager;
 		
+		/**
+		* Returns true if this Geometry has states.
+		**/
 		public var hasStates:Boolean;
 		
 		private var _states:Array= [];
 	    [Inspectable(arrayType="com.degrafa.states.State")]
 	    [ArrayElementType("com.degrafa.states.State")]
+	    /**
+		* An array of states defined for this Geometry.
+		**/
 	    public function get states():Array{
 	    	return _states;
 	    }
@@ -1256,7 +1407,7 @@ package com.degrafa.geometry{
 	 	
 		private var _state:String;
 		/**
-		* The state at which to draw this object
+		* The state at which to draw this object. This property is specific to Skinning.
 		**/
 		public function get state():String{
 			return _state;
@@ -1267,7 +1418,7 @@ package com.degrafa.geometry{
 		
 		private var _stateEvent:String;
 		/**
-		* The state event at which to draw this object
+		* The state event at which to draw this object. This property is specific to Skinning.
 		**/
 		public function get stateEvent():String{
 			return _stateEvent;
@@ -1276,35 +1427,38 @@ package com.degrafa.geometry{
 			_stateEvent = value;
 		}
 		
-	 	/**********************************************************
-  		* END state related.
-  		**********************************************************/
-   	
-   		/**********************************************************
-  		* Style related.
-  		**********************************************************/
+	 	//END state related.
+  		
+   		//Style related.
+   		
   		private var _styleName:Object;
+  		/**
+  		* The css style name associated with this Geometry. Not yet fully implemented as of Beta 3.
+  		**/
   		public function get styleName():Object{
   			return _styleName;
   		} 
    		public function set styleName(value:Object):void{
    			_styleName=value;
    		} 
-
+		
+		/**
+		* Called when the value of a style property is changed.
+		**/
 		public function styleChanged(styleProp:String):void{
 			//handle change
 		} 
-  		/**********************************************************
-  		* END Style related.
-  		**********************************************************/
-   		
-   		/**********************************************************
-  		* Filter / Display object related. 
-  		* 
-  		* Any setting of the below items indicate a requirement for a display
-  		* object to be used at render time.
-  		**********************************************************/
+		
+  		//END Style related.
   		
+   		//Filter / Display object related. 
+  		 
+  		//Any setting of the below items indicate a requirement for a display
+  		//object to be used at render time.
+  		
+  		/**
+		* Returns true if this Geometry has filters.
+		**/
   		public var hasFilters:Boolean;
   		
    		/**
@@ -1313,6 +1467,9 @@ package com.degrafa.geometry{
 		private var _filters:FilterCollection;
 		[Inspectable(category="General", arrayType="flash.filters.BitmapFilter")]
 		[ArrayElementType("flash.filters.BitmapFilter")]
+		/**
+		* An array of BitmapFilter objects applied to this Geometry.
+		**/
 		public function get filters():Array{
 			initFilterCollection();
 			return _filters.items;
@@ -1353,14 +1510,12 @@ package com.degrafa.geometry{
 				}
 			}
 		}
-		/**********************************************************
-  		* End Filter related.
-  		**********************************************************/
+		
+		//End Filter related.
   		
-  		/**********************************************************
-  		* Blend Mode related.
-  		**********************************************************/
-		//private var _blendMode:String=undefined;
+  		//Blend Mode related.
+  		
+  		//private var _blendMode:String=undefined;
 		//[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
 		/**
 		* The blend mode which is used to render the geometry to the target.
@@ -1382,14 +1537,11 @@ package com.degrafa.geometry{
 			
 		}*/
 		
-		/**********************************************************
-  		* End Blend Mode related.
-  		**********************************************************/
+		//End Blend Mode related.
   		
-  		/**********************************************************
-  		* Clipping related.
-  		**********************************************************/
-		private var _clippingRectangle:Rectangle=null;
+  		//Clipping related.
+  		
+  		private var _clippingRectangle:Rectangle=null;
 		/**
 		* A clipping rectangle to use when rendering this geometry.
 		*/
@@ -1407,14 +1559,11 @@ package com.degrafa.geometry{
 				initChange("clippingRectangle",oldValue,_clippingRectangle,this);
 			}
 		}
-		/**********************************************************
-  		* Clipping related.
-  		**********************************************************/
+		//Clipping related.
   		
-  		/**********************************************************
-  		* Mask related.
-  		**********************************************************/
-		private var _mask:IGeometryComposition;
+  		//Mask related.
+  		
+  		private var _mask:IGeometryComposition;
 		/**
 		* A separate geometry object to use as a mask when rendering this geometry.
 		*/
@@ -1433,10 +1582,7 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		/**********************************************************
-  		* End mask related.
-  		**********************************************************/
+		//End mask related.
   		
-		
   	}
 }

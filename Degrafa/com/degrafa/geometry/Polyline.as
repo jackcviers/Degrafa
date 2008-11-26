@@ -241,10 +241,24 @@ package com.degrafa.geometry{
 		
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
-					super.calculateLayout(new Rectangle(
-			 		(_x)? _x:0,
-			 		(_y)? _y:0,
-			 		1,1));
+					
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					
+					//default to bounds if no width or height is set
+					//and we have layout
+					if(isNaN(_layoutConstraint.width)){
+						tempLayoutRect.width = bounds.width;
+					}
+					 
+					if(isNaN(_layoutConstraint.height)){
+						tempLayoutRect.height = bounds.height;
+					}
+					
+					tempLayoutRect.x = (_x)? _x:0;
+					tempLayoutRect.y = (_y)? _y:0;
+					
+					super.calculateLayout(tempLayoutRect);
+						
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
 	
 				}

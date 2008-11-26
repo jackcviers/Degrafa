@@ -93,6 +93,9 @@ package com.degrafa.geometry{
 				
 				super.data = value;
 				
+				//clear the data
+				commandStack.length = 0;
+				
 				/**
 				* Parse the path data using svg commands:
 				* ClosePath = z
@@ -424,6 +427,10 @@ package com.degrafa.geometry{
 		public function set segments(value:Array):void{
 			initSegmentsCollection();
 			_segments.items = value;
+			
+			//do initial invalidation
+			invalidated = true;
+				
 		}
 		
 		/**
@@ -455,6 +462,7 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
+			invalidated = true;
 			super.propertyChangeHandler(event);
 		}
 		
@@ -507,7 +515,6 @@ package com.degrafa.geometry{
 			//rebuild an array of flash commands and 
 			//recalculate the bounds if required	
 			if(invalidated){
-				commandStack.length=0;
 				buildFlashCommandStack();
 				invalidated = false;
 			}
@@ -523,7 +530,28 @@ package com.degrafa.geometry{
 
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
-					super.calculateLayout();
+					
+					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
+					
+					//default to bounds if no width or height is set
+					//and we have layout
+					if(isNaN(_layoutConstraint.width)){
+						tempLayoutRect.width = bounds.width;
+					}
+					 
+					if(isNaN(_layoutConstraint.height)){
+						tempLayoutRect.height = bounds.height;
+					}
+					
+					if(isNaN(_layoutConstraint.x)){
+			 			tempLayoutRect.x = bounds.x;
+			 		}
+			 		
+			 		if(isNaN(_layoutConstraint.y)){
+			 			tempLayoutRect.y = bounds.y;
+			 		}
+			 		
+					super.calculateLayout(tempLayoutRect);
 						
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
 			 	
