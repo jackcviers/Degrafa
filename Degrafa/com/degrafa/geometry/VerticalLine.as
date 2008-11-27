@@ -186,17 +186,15 @@ package com.degrafa.geometry{
 
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,0.0001,0.0001);
 									
-					if(_y1-y){
-			 			tempLayoutRect.height = Math.abs(_y1-_y);
+					if(!isNaN(_y1) || !isNaN(_y)){
+			 			if (_y1?_y1:0 - _y?_y:0) tempLayoutRect.height = Math.abs(_y1?_y1:0 - _y?_y:0);
+						tempLayoutRect.y = Math.min(_y?_y:0,_y1?_y1:0);
 			 		}
 			 		
 			 		if(_x){
 			 			tempLayoutRect.x = _x;
 			 		}
 			 		
-			 		if(_y || _y1){
-			 			tempLayoutRect.y = Math.min(_y,_y1);
-			 		}
 
 			 		super.calculateLayout(tempLayoutRect);	
 					//update the local layoutRectangle

@@ -233,20 +233,20 @@ package com.degrafa.geometry{
 				if (_layoutConstraint.invalidated){
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,0.0001,0.0001);
 					
-					if(_x1-x){
-			 			tempLayoutRect.width = Math.abs(_x1-_x);
+					if(!isNaN(_x1) || !isNaN(_x)){
+			 			if (_x1?_x1:0-_x?_x:0) tempLayoutRect.width = Math.abs(_x1?_x1:0-_x?_x:0);
 			 		}
 					
-					if(_y1-y){
-			 			tempLayoutRect.height = Math.abs(_y1-_y);
+					if(!isNaN(_y1) || !isNaN(_y)){
+			 			if (_y1?_y1:0-_y?_y:0) tempLayoutRect.height = Math.abs(_y1?_y1:0-_y?_y:0);
 			 		}
 			 		
-			 		if(_x){
-			 			tempLayoutRect.x = _x;
+			 		if(!isNaN(_x) || !isNaN(_x1)){
+			 			tempLayoutRect.x = Math.min(_x?_x:0,_x1?_x1:0);
 			 		}
 			 		
-			 		if(_y){
-			 			tempLayoutRect.y = _y;
+			 		if(!isNaN(_y) || !isNaN(_y1)){
+			 			tempLayoutRect.y = Math.min(_y?_y:0,_y1?_y1:0);
 			 		}
 			 				 		
 			 		super.calculateLayout(tempLayoutRect);	

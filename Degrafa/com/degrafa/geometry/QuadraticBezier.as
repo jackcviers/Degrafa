@@ -249,8 +249,24 @@ package com.degrafa.geometry{
 			
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
-					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-							 		
+					var tempLayoutRect:Rectangle = new Rectangle(0, 0, 1, 1);
+					
+					if(isNaN(_layoutConstraint.width)){
+						tempLayoutRect.width = bounds.width;
+					}
+					 
+					if(isNaN(_layoutConstraint.height)){
+						tempLayoutRect.height = bounds.height;
+					}
+					
+					if(isNaN(_layoutConstraint.x)){
+			 			tempLayoutRect.x = bounds.x;
+			 		}
+			 		
+			 		if(isNaN(_layoutConstraint.y)){
+			 			tempLayoutRect.y = bounds.y;
+					}
+					
 			 		super.calculateLayout(tempLayoutRect);	
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
 				}

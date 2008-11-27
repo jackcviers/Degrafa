@@ -180,14 +180,11 @@ package com.degrafa.geometry{
 				
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,0.0001,0.0001);
 					
-					if(_x1 -_x){
-			 			tempLayoutRect.width = Math.abs(_x1-_x);
+					if(!isNaN(_x1) || !isNaN(_x)){
+			 			if (_x1?_x1:0 - _x?_x:0) tempLayoutRect.width = Math.abs(_x1?_x1:0 - _x?_x:0);
+						tempLayoutRect.x = Math.min(_x?_x:0,_x1?_x1:0);
 			 		}
 							 		
-			 		if(_x){
-			 			tempLayoutRect.x = _x;
-			 		}
-			 		
 			 		if(_y){
 			 			tempLayoutRect.y = _y;
 			 		}
