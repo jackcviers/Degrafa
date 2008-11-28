@@ -22,8 +22,15 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.utils.ColorUtil;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.text.DegrafaTextFormat;
+	import com.degrafa.paint.SolidFill;
+	import com.degrafa.paint.SolidStroke;
+	import flash.display.Shape;
+	import flash.filters.BlurFilter;
+	import flash.geom.Matrix;
 	
 	import flash.accessibility.AccessibilityProperties;
 	import flash.display.DisplayObject;
@@ -40,7 +47,7 @@ package com.degrafa.geometry{
 	import mx.events.PropertyChangeEvent;
 	
 	[Exclude(name = "data", kind = "property")]
-	[Exclude(name="fill", kind="property")]
+
 		 
 	[Bindable(event = "propertyChange")]
 	
@@ -55,9 +62,14 @@ package com.degrafa.geometry{
 	public class RasterText extends Geometry implements IDisplayObjectProxy{
 		
 		//Store the textField internally so that properties are proxied
-		public var textField:TextField = new TextField()
+		protected var textField:TextField = new TextField();
 		
-		public var sprite:Sprite = new Sprite();
+		protected var sprite:Sprite = new Sprite();
+		protected var internalMaskee:Shape;
+		protected var internalbackground:Shape=new Shape();
+		
+		static public const ADJUST:String = "adjust";
+		static public const SCALE:String = "scale";
 		
 		protected var _embedded:Boolean;
 		/**
@@ -72,12 +84,11 @@ package com.degrafa.geometry{
 			//editable and no mouse events as it is just 
 			//rendered only and not added to the dispaly list.
 			
-			//Note:: might be worth keeping the old text object as well .. after all and depending.
-			
 			textField.selectable = false;
 			textField.mouseEnabled = false;
 			//though heavy handed this is required to get around 
 			//a bug when copying the bitmapdata.
+			sprite.addChild(internalbackground);
 			sprite.addChild(textField);
 		}
 		
@@ -88,34 +99,50 @@ package com.degrafa.geometry{
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
-		
+		private var _fill:IGraphicsFill;
 		/**
-		 * This item has no regular fill
+		 * The Color of this RasterText can be set using a SolidFill only. It is used for referencing the text color. Any other Fill types are currently ignored. As a convenience
+		 * the regular textfield textColor property is channeled through this object, so it can be used in place of assigning a fill - it also permits color expression in colorkey and alternate formats (e.g. "red")
 		 */
-		override public function get fill():IGraphicsFill {	return null };
-		override public function set fill(value:IGraphicsFill):void { };
+		override public function set fill(value:IGraphicsFill):void { 
+			super.fill = value;
+			_fill = super.fill;
+		};
+
+		override public function get fill():IGraphicsFill { 
+			if (!super.fill) super.fill = new SolidFill(0, 1);
+			return super.fill;
+		};
 		
 		
 		/**
 		 * Internal function to update the textfield based on settings
+		 * @private 
 		 */
-		private function invalidate():void {
-			
+		private function updateTextField():void {
+	
+			if (fill is SolidFill) textField.textColor = uint(SolidFill(fill).color);
+			else {textField.textColor = 0;}
 			//simple for now: re-apply any formatting changes to the whole text content
 			textField.text = textField.text;
 			if(autoSizeField){
 				textField.width = textField.textWidth +4;
 				textField.height = textField.textHeight +4;
+				_width = textField.width;
+				_height = textField.height;
 			}
-			invalidated = true;
 		}
 		
+		
+		private var _autoSizeField:Boolean=true;
 		/**
 		* Autosize the text field to text size. When set to true the 
 		* TextField object will size to fit the height and width of 
-		* the text.
+		* the text. If layout is active on this object and its layoutMode is set to "adjust", then this
+		* setting will be overridden by the layout constraints. If layoutMode is set to "scale" then layout scaling will be applied after
+		* the textfield has been autosized to its contents.
 		**/
-		private var _autoSizeField:Boolean=true;
+
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get autoSizeField():Boolean{
 			return _autoSizeField;
@@ -123,7 +150,7 @@ package com.degrafa.geometry{
 		public function set autoSizeField(value:Boolean):void {
 			if (value!=_autoSizeField){
 				_autoSizeField = value;
-				invalidate();
+				invalidated = true;
 				initChange('autoSizeField', !_autoSizeField, _autoSizeField, this);
 			}
 		}
@@ -175,7 +202,7 @@ package com.degrafa.geometry{
 		
 		private var _width:Number;
 		/**
-		* The width of the text element.
+		* The width of the text element. This may change depending on autoSizeField settings (true) and/or layoutMode settings (adjust).
 		**/
 		[PercentProxy("percentWidth")]
 		override public function get width():Number{
@@ -192,7 +219,7 @@ package com.degrafa.geometry{
 		
 		private var _height:Number;
 		/**
-		* The height of the text element.
+		* The height of the text element. This may change depending on autoSizeField settings (true) and/or layoutMode settings (adjust).
 		**/
 		[PercentProxy("percentHeight")]
 		override public function get height():Number{
@@ -206,6 +233,69 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		/**
+		* Initialise the stroke/border for this RasterText object. Typically only called by draw 
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds.  
+		**/
+		override public function initStroke(graphics:Graphics, rc:Rectangle):void {
+				
+			if (border) {
+				super.initStroke(graphics, rc);
+			}
+			else{
+				graphics.lineStyle();
+			}
+		}
+		
+		/**
+		* Initialise the fill for RasterText. This overrides Geometry to implement a specific combination
+		* for RasterText.
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds.  
+		**/
+		override public function initFill(graphics:Graphics, rc:Rectangle):void {
+			if (background && _backgroundFill ) {
+				internalbackground.graphics.clear();
+				_backgroundFill.begin(internalbackground.graphics, rc);
+				internalbackground.graphics.drawRect(rc.x, rc.y, rc.width, rc.height);
+			}
+			if (!(_fill is SolidFill)) {
+				if (!internalMaskee) {
+					internalMaskee = new Shape();
+					sprite.addChild(internalMaskee)
+				}
+				internalMaskee.graphics.clear();
+				super.initFill(internalMaskee.graphics, rc);
+				var cacheLayout:Matrix = CommandStack.currentLayoutMatrix.clone();
+				var cacheTrans:Matrix = CommandStack.currentTransformMatrix.clone();
+				commandStack.simpleRender(internalMaskee.graphics, rc);
+
+				if (CommandStack.currentTransformMatrix) {
+					cacheTrans.invert()
+					internalMaskee.transform.matrix = cacheTrans;
+				}
+				else internalMaskee.transform.matrix.identity();// = new Matrix();
+				internalMaskee.cacheAsBitmap = true;
+				//dev note: consider applying a slight blur to device fonts for 'Antialiasing'
+			//	if (availableEmbeddedFonts.indexOf(_fontFamily) == -1) {
+			///		textField.filters = [new BlurFilter(2,2,3)];
+			//	}
+				textField.cacheAsBitmap = true;
+				internalMaskee.mask = textField;
+			} else {
+				if (internalMaskee) {
+					internalMaskee.graphics.clear();
+					textField.cacheAsBitmap = false;
+					internalMaskee.cacheAsBitmap = false;
+					internalMaskee.mask = null;
+				}
+			
+			}
+	
+		}
 		
 		/**
 		* Returns this objects bitmapdata.
@@ -215,7 +305,7 @@ package com.degrafa.geometry{
 			if (!textField.textWidth || !textField.textHeight){
 				return null;
 			} 
-			
+
 			//for now just return the textField
 			return sprite;
 
@@ -228,17 +318,17 @@ package com.degrafa.geometry{
 		override public function get bounds():Rectangle {
 			return commandStack.bounds;
 		}
-
 		
+		private var _layoutinited:Boolean;
 		/**
 		* Performs the specific layout work required by this Geometry.
 		* @param childBounds the bounds to be layed out. If not specified a rectangle
 		* of (0,0,1,1) is used or the most appropriate size is calculated. 
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
-			invalidate()
+			
 			if(_layoutConstraint){
-				if (_layoutConstraint.invalidated){
+				if (_layoutConstraint.invalidated) {
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
 				
 					if(_width){
@@ -281,7 +371,9 @@ package com.degrafa.geometry{
 						} 
 					}else {
 						if (layoutMode == "scale" ) {
-
+							_width = _layoutRectangle.width=Math.ceil(_layoutRectangle.width+(_layoutRectangle.x-(_x = _layoutRectangle.x=Math.floor(_layoutRectangle.x))));
+							_height = _layoutRectangle.height=Math.ceil(_layoutRectangle.height+(_layoutRectangle.y-(_y = _layoutRectangle.y=Math.floor(_layoutRectangle.y))));
+				
 						//dev note: under development
 						}
 			 	}
@@ -292,24 +384,26 @@ package com.degrafa.geometry{
 					//size into regular settings
 					_transformBeforeRender = false;
 					if (isNaN(_width)) {
-						invalidate();
+						updateTextField();
 						_width = textField.width }
 					else {
 						//fixed width setting
+					if (!_autoSizeField && !_layoutinited )	{
 						textField.width = width;
-						_autoSizeField = false;
+					}
+
 					}
 					if (isNaN(_height)) {
-						invalidate();
+						updateTextField();
 						_height = textField.height;
 					} else {
-						textField.height = height;
-						_autoSizeField = false;
+						if (!_autoSizeField && !_layoutinited)	textField.height = height;
 					}
 					textField.x = x;
 					textField.y = y
-
-					invalidated = true;
+				
+					invalidated = true;	
+					_layoutinited = true;
 				}
 		}
 		
@@ -328,9 +422,7 @@ package com.degrafa.geometry{
 				commandStack.addLineTo(x+width, y+height);
 				commandStack.addLineTo(x, y + height);
 				commandStack.addLineTo(x, y);
-
 				invalidated = false;
-				
 			}
 		}
 		
@@ -341,8 +433,14 @@ package com.degrafa.geometry{
 		 * that layout adjusts the size of the text field instead of scaling it. A 'scale' option will be available
 		 * in a future release.
 		 */
+		[Inspectable(category="General", enumeration="adjust,scale")]
 		public function get layoutMode():String {
 			return _layoutMode;
+		}
+		public function set layoutMode(value:String):void {
+			if (_layoutMode != value && (['adjust','scale']).indexOf(value)!=-1) {
+				initChange('layoutMode',_layoutMode,_layoutMode=value,this)
+			}
 		}
 
 		private var _transformBeforeRender:Boolean;
@@ -362,12 +460,12 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
-    	override public function draw(graphics:Graphics,rc:Rectangle):void{
-
+    	override public function draw(graphics:Graphics, rc:Rectangle):void {
+	
+			if (invalidated) updateTextField();
     		calculateLayout();
 			preDraw()
-			super.draw(graphics, rc);
-			
+			super.draw(graphics, (rc)? rc:bounds);		
     	}
     			
     	
@@ -382,94 +480,90 @@ package com.degrafa.geometry{
 		* 
 		* @see flash.text.TextFormat
 		**/
-		private var _textFormat:DegrafaTextFormat=new DegrafaTextFormat();
-		public function get textFormat():DegrafaTextFormat{
+		private var _textFormat:DegrafaTextFormat;
+		public function get textFormat():DegrafaTextFormat {
+			if(!_textFormat){
+				textFormat = new DegrafaTextFormat();
+			}
 			return _textFormat;
 		}
-		public function set textFormat(value:DegrafaTextFormat):void{
-			_textFormat = value;
-			
-			_textFormat.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
-						
-			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+		
+		public function set textFormat(value:DegrafaTextFormat):void {
+			if (_textFormat != value) {
+				
+			if(_textFormat){
+					if(_textFormat.hasEventManager){
+						_textFormat.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+			if(enableEvents){	
+				value.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler, false, 0, true);
+			}
+				textField.defaultTextFormat = value.textFormat;
+				invalidated = true;
+				initChange('textFormat',_textFormat,_textFormat = value,this)
+			}
 		}
-		
-		
+
 		
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
-			
-			//update locally
-			textField.defaultTextFormat = _textFormat.textFormat;	
-			invalidate();		
-			
+
+		if (_textFormat)	textField.defaultTextFormat = _textFormat.textFormat;	
+	
+			invalidated = true;
 			//carry on to the super.
 			super.propertyChangeHandler(event);
 			
 		}
 		
 		/**
-		* The name of the font for text in this text format, as a string.
+		* The name of the font for text in this text format, as a string. If the font is a registered embedded font, then embedFonts is 
+		* automatically set to true, otherwise to false.
 		* 
 		* @see flash.text.TextFormat 
 		**/
-		private var _fontFamily:String;
+		private var _fontFamily:String="_sans";
 		public function set fontFamily(value:String):void {
-			var oldval:String = _fontFamily;
-			_fontFamily = value;
-			_textFormat.font = _fontFamily;
-			if (availableEmbeddedFonts.indexOf(value)!=-1) {
-				textField.embedFonts = true;
-			}
-			else {
-				textField.embedFonts = false;
+			if (textFormat.font!=_fontFamily){
+				
+				if (availableEmbeddedFonts.indexOf(value)!=-1) {
+					textField.embedFonts = true;
+				}
+				else {
+					textField.embedFonts = false;
+				}
+				_embedded = textField.embedFonts;
+				_fontFamily = value;
+				textFormat.font = _fontFamily;
+				textField.defaultTextFormat = _textFormat.textFormat;
+			//	invalidated = true;
 			}
 			
-			_embedded = textField.embedFonts;
-			textField.defaultTextFormat = _textFormat.textFormat;
-
-			invalidate();
 		}
+		
 		public function get fontFamily():String{
 			return _fontFamily;
 		}
 		
+	
 		
-		/**
-		* Indicates the color of the text. 
-		* 
-		* @see flash.text.TextFormat 
-		**/
-		private var _color:uint;
-		public function set color(value:uint):void {
-			if (_color != value) {
-				var oldval:uint = _color;
-				_color = value;
-				_textFormat.color = _color;
-				textField.defaultTextFormat = _textFormat.textFormat;
-				invalidate();
-			}
-		}
-		public  function get color():uint{
-			return _color;
-		}
-		  
+		
+		private var _fontSize:Number;  
     	/**
 		* The point size of text in this text format.
 		* 
 		* @see flash.text.TextFormat
 		**/
-		private var _fontSize:Number;
 		public function set fontSize(value:Number):void{
 			_fontSize = value;
-			_textFormat.size = _fontSize;
+			textFormat.size = _fontSize;
 			//Adobe recommendations in livedocs:
 			textField.antiAliasType = (_fontSize > 48)? AntiAliasType.NORMAL:AntiAliasType.ADVANCED;
-			//not sure yet if this helps?
+
 			if (textField.antiAliasType == AntiAliasType.ADVANCED) textField.gridFitType = GridFitType.PIXEL;
 						
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get fontSize():Number{
 			return _fontSize;
@@ -484,9 +578,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="normal,bold", defaultValue="normal")]
 		public function set fontWeight(value:String):void{
 			_fontWeight = value;
-			_textFormat.bold = _bold = (_fontWeight == "bold") ? true: false;
+			textFormat.bold = _bold = (_fontWeight == "bold") ? true: false;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get fontWeight():String{
 			return _fontWeight;
@@ -502,9 +596,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="center,justify,left,right", defaultValue="left")]
 		public function set align(value:String):void{
 			_align = value;
-			_textFormat.align = _align;
+			textFormat.align = _align;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get align():String{
 			return _align;
@@ -518,9 +612,9 @@ package com.degrafa.geometry{
 		private var _blockIndent:Object;
 		public function set blockIndent(value:Object):void{
 			_blockIndent = value;
-			_textFormat.blockIndent = _blockIndent;
+			textFormat.blockIndent = _blockIndent;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get blockIndent():Object{
 			return _blockIndent;
@@ -535,9 +629,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="true,false")]
 		public function set bold(value:Boolean):void{
 			_bold = value;
-			_textFormat.bold = _bold;
+			textFormat.bold = _bold;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get bold():Boolean{
 			return _bold;
@@ -551,9 +645,9 @@ package com.degrafa.geometry{
 		private var _bullet:Object;
 		public function set bullet(value:Object):void{
 			_bullet = value;
-			_textFormat.bullet = _bullet;
+			textFormat.bullet = _bullet;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get bullet():Object{
 			return _bullet;
@@ -565,11 +659,11 @@ package com.degrafa.geometry{
 		* @see flash.text.TextFormat
 		**/
 		private var _indent:Object;
-		public function set indent(value:Object):void{
+		public function set indent(value:Object):void {
 			_indent = value;
-			_textFormat.indent = _indent;
+			textFormat.indent = _indent;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get indent():Object{
 			return _indent;
@@ -584,9 +678,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="true,false")]
 		public function set italic(value:Boolean):void{
 			_italic = value;
-			_textFormat.italic = _italic;
+			textFormat.italic = _italic;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get italic():Boolean{
 			return _italic;
@@ -601,9 +695,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="true,false")]
 		public function set kerning(value:Boolean):void{
 			_kerning = value;
-			_textFormat.kerning = _indent;
+			textFormat.kerning = _indent;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get kerning():Boolean{
 			return _kerning;
@@ -617,9 +711,9 @@ package com.degrafa.geometry{
 		private var _leading:int;
 		public function set leading(value:int):void{
 			_leading = value;
-			_textFormat.leading = _leading;
+			textFormat.leading = _leading;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get leading():int{
 			return _leading;
@@ -633,9 +727,9 @@ package com.degrafa.geometry{
 		private var _leftMargin:Number;
 		public function set leftMargin(value:Number):void{
 			_leftMargin = value;
-			_textFormat.leftMargin = _leftMargin;
+			textFormat.leftMargin = _leftMargin;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get leftMargin():Number{
 			return _leftMargin;
@@ -649,9 +743,9 @@ package com.degrafa.geometry{
 		private var _letterSpacing:Number;
 		public function set letterSpacing(value:Number):void{
 			_letterSpacing = value;
-			_textFormat.letterSpacing = _letterSpacing;
+			textFormat.letterSpacing = _letterSpacing;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get letterSpacing():Number{
 			return _letterSpacing;
@@ -665,9 +759,9 @@ package com.degrafa.geometry{
 		private var _rightMargin:Number;
 		public function set rightMargin(value:Number):void{
 			_rightMargin = value;
-			_textFormat.rightMargin = _rightMargin;
+			textFormat.rightMargin = _rightMargin;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get rightMargin():Number{
 			return _rightMargin;
@@ -680,11 +774,13 @@ package com.degrafa.geometry{
 		* @see flash.text.TextFormat
 		**/
 		private var _size:Number;
-		public function set size(value:Number):void{
-			_size = value;
-			_textFormat.size = _fontSize = _size;
+		public function set size(value:Number):void {
+			if (textFormat.size!=value){
+			textFormat.size = _fontSize = value;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
+			_size = value;
+			}
 		}
 		public function get size():Number{
 			return _size;
@@ -699,9 +795,9 @@ package com.degrafa.geometry{
 		private var _tabStops:Array;
 		public function set tabStops(value:Array):void{
 			_tabStops = value;
-			_textFormat.tabStops = _tabStops;
+			textFormat.tabStops = _tabStops;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get tabStops():Array{
 			return _tabStops;
@@ -716,9 +812,9 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="true,false")]
 		public function set underline(value:Boolean):void{
 			_underline = value;
-			_textFormat.underline = _underline;
+			textFormat.underline = _underline;
 			textField.defaultTextFormat = _textFormat.textFormat;
-			invalidate();
+			invalidated = true;
 		}
 		public function get underline():Boolean{
 			return _underline;
@@ -733,8 +829,9 @@ package com.degrafa.geometry{
 		public function get accessibilityProperties():AccessibilityProperties {
 			return textField.accessibilityProperties;
 		}
-		public function set accessibilityProperties(value:AccessibilityProperties):void{
-			textField.accessibilityProperties = value;
+		public function set accessibilityProperties(value:AccessibilityProperties):void {
+			if (value!=textField.accessibilityProperties)
+			initChange("accessibilityProperties", textField.accessibilityProperties, textField.accessibilityProperties = value, this);
 		}
 		/**
 		* alpha property for the textField. 
@@ -744,8 +841,9 @@ package com.degrafa.geometry{
 		public function get alpha():Number{
 			return textField.alpha;
 		} 
-    	public function set alpha(value:Number):void{
-    		textField.alpha = value;
+    	public function set alpha(value:Number):void {
+			if (value!=textField.alpha)
+			initChange("alpha", textField.alpha, textField.alpha = value, this);
     	}
     	/**
 		* antiAliasType property for the textField. 
@@ -756,8 +854,9 @@ package com.degrafa.geometry{
 		public function get antiAliasType():String {
 			return textField.antiAliasType;
 		}
-   	 	public function set antiAliasType(value:String):void{
-   	 		textField.antiAliasType = value;
+   	 	public function set antiAliasType(value:String):void {
+			if (value!=textField.antiAliasType)
+			initChange("antiAliasType", textField.antiAliasType, textField.antiAliasType = value, this);
    	 	} 
     	/**
 		* autoSize property for the textField. 
@@ -768,33 +867,61 @@ package com.degrafa.geometry{
 		public function get autoSize():String{
 			return textField.autoSize;
 		} 
-    	public function set autoSize(value:String):void{
-    		textField.autoSize=value;
+    	public function set autoSize(value:String):void {
+			if (value!=textField.autoSize)
+			initChange("autoSize", textField.autoSize, textField.autoSize = value, this);
     	}
+		
+		
+		
+		private var _backgroundFill:IGraphicsFill;
 		/**
-		* background property for the textField. 
+		* A Degrafa Fill used in the background of this RasterText area.
+		* 
+		**/
+		public function get backgroundFill():IGraphicsFill{
+			return _backgroundFill;
+		} 
+    	public function set backgroundFill(value:IGraphicsFill):void {
+			if (value != _backgroundFill) {
+				if (_backgroundFill) _backgroundFill.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+				value.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+				initChange("backgroundFill", _backgroundFill, _backgroundFill = value, this);
+			}
+    	} 
+		
+		private var _background:Boolean;
+		/**
+		* background property for the textField. Activates the backgroundFill.
 		* 
 		* @see flash.text.TextField
 		**/
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get background():Boolean{
-			return textField.background;
+			return _background;
 		} 
-    	public function set background(value:Boolean):void{
-    		textField.background=value;
+    	public function set background(value:Boolean):void {
+			if (value!=_background)
+			initChange("background", _background, _background = value, this);
     	} 
 		
 		/**
-		* backgroundColor property for the textField. 
+		* Similar to backgroundColor property for the textField. A shortcut setting for backgroundFill's color property. If used, and a non-SolidFill (e.g gradientFill) is currently being
+		* used as a backgroundFill, then this will force creation of a new SolidFill in its place.
 		* 
 		* @see flash.text.TextField
 		**/
-		public function get backgroundColor():uint{
-			return textField.backgroundColor;
+		public function get backgroundColor():Object{
+			return (_backgroundFill is SolidFill)? (_backgroundFill as SolidFill).color:null;
 		} 
-   		public function set backgroundColor(value:uint):void{
-   			textField.backgroundColor = value;
+   		public function set backgroundColor(value:Object):void {
+			if (_backgroundFill is SolidFill) (_backgroundFill as SolidFill).color = value;
+			else { backgroundFill = new SolidFill(value, 1) };
+	
    		} 
+		
+		
+		private var _border:Boolean;
 		/**
 		* border property for the textField. 
 		* 
@@ -802,21 +929,28 @@ package com.degrafa.geometry{
 		**/
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get border():Boolean{
-			return textField.border;
+			return _border;
 		} 
-	    public function set border(value:Boolean):void{
-	    	textField.border = value;
+	    public function set border(value:Boolean):void {
+			if (value!=_border)
+			initChange("border", _border, _border = value, this);
 	    }
 		/**
-		* borderColor property for the textField. 
+		* borderColor property for the textField. This property has additional support for extended Degrafa color specifications, for example "red" as a color key.
 		* 
 		* @see flash.text.TextField
 		**/
-		public function get borderColor():uint{
+		public function get borderColor():Object{
 			return textField.borderColor;
 		} 
-    	public function set borderColor(value:uint):void{
-    		textField.borderColor = value;
+    	public function set borderColor(value:Object):void {
+			
+			var newval:uint = ColorUtil.resolveColor(value);
+			if (stroke is SolidStroke) SolidStroke(stroke).color = value;
+			else stroke = new SolidStroke(value, 1, 0);
+			
+		//	if (newval!=textField.borderColor)
+		//	initChange("borderColor", textField.borderColor, textField.borderColor = newval, this);
     	}
 		/**
 		* condenseWhite property for the textField. 
@@ -827,8 +961,9 @@ package com.degrafa.geometry{
 		public function get condenseWhite():Boolean{
 			return textField.condenseWhite;
 		} 
-	    public function set condenseWhite(value:Boolean):void{
-	    	textField.condenseWhite = value;
+	    public function set condenseWhite(value:Boolean):void {
+			if (value!=textField.condenseWhite)
+			initChange("condenseWhite", textField.condenseWhite, textField.condenseWhite = value, this);
 	    } 
 		
 		//either made private and the formazt options moved to this class(align etc.. or 
@@ -836,8 +971,9 @@ package com.degrafa.geometry{
 		private function get defaultTextFormat():TextFormat{
 			return textField.defaultTextFormat
 		} 
-    	private function set defaultTextFormat(value:TextFormat):void{
-    		textField.defaultTextFormat = value;
+    	private function set defaultTextFormat(value:TextFormat):void {
+			if (value!=textField.defaultTextFormat)
+			initChange("defaultTextFormat", textField.defaultTextFormat, textField.defaultTextFormat = value, this);
     	}
     	/**
 		* embedFonts property for the textField. setting the fontFamily can also change this setting in RasterText.
@@ -848,8 +984,9 @@ package com.degrafa.geometry{
     	public function get embedFonts():Boolean{
     		return textField.embedFonts;
     	}
-    	public function set embedFonts(value:Boolean):void{
-    		textField.embedFonts = value;
+    	public function set embedFonts(value:Boolean):void {
+			if (value!=textField.embedFonts)
+			initChange("embedFonts", textField.embedFonts, textField.embedFonts = value, this);
     	}
         /**
 		* gridFitType property for the textField. 
@@ -860,8 +997,9 @@ package com.degrafa.geometry{
 	    public function get gridFitType():String{
 	    	return textField.gridFitType;
 	    } 
-    	public function set gridFitType(value:String):void{
-    		textField.gridFitType = value;
+    	public function set gridFitType(value:String):void {
+			if (value!=textField.gridFitType)
+			initChange("gridFitType", textField.gridFitType, textField.gridFitType = value, this);
     	} 
         /**
 		* htmlText property for the textField. 
@@ -871,8 +1009,9 @@ package com.degrafa.geometry{
 		public function get htmlText():String{
 			return textField.htmlText;
 		} 
-    	public function set htmlText(value:String):void{
-    		textField.htmlText = value;
+    	public function set htmlText(value:String):void {
+			if (value!=textField.htmlText)
+			initChange("htmlText", textField.htmlText, textField.htmlText = value, this);
     	}
         /**
 		* length property for the textField. 
@@ -891,8 +1030,9 @@ package com.degrafa.geometry{
     	public function get multiline():Boolean{
     		return textField.multiline;
     	} 
-    	public function set multiline(value:Boolean):void{
-    		textField.multiline = true;
+    	public function set multiline(value:Boolean):void {
+			if (value!=textField.multiline)
+			initChange("multiline", textField.multiline, textField.multiline = value, this);
     	} 
 		/**
 		* numLines property for the textField. 
@@ -910,8 +1050,9 @@ package com.degrafa.geometry{
 		public function get sharpness():Number{
 			return textField.sharpness;
 		} 
-    	public function set sharpness(value:Number):void{
-    		textField.sharpness =value;
+    	public function set sharpness(value:Number):void {
+			if (value!=textField.sharpness)
+			initChange("sharpness", textField.sharpness, textField.sharpness = value, this);
     	} 
 		/**
 		* styleSheet property for the textField. 
@@ -921,8 +1062,13 @@ package com.degrafa.geometry{
 		public function get styleSheet():StyleSheet{
 			return textField.styleSheet;
 		} 
-    	public function set styleSheet(value:StyleSheet):void{
-    		textField.styleSheet = value;
+    	public function set styleSheet(value:StyleSheet):void {
+			if (value != textField.styleSheet) {
+				var oldSS:StyleSheet = textField.styleSheet;
+				textField.styleSheet = value;
+				invalidated = true;
+				initChange("styleSheet", oldSS, textField.styleSheet, this);
+			}
     	}
     	/**
 		* text property for the textField. 
@@ -934,10 +1080,10 @@ package com.degrafa.geometry{
 		} 
    		public function set text(value:String):void {
 			if (value != textField.text) {
-			var oldVal:String = textField.text;
-   			textField.text=value;
-   			invalidate();
-		
+				var oldVal:String = textField.text;
+				textField.text = value;	
+				invalidated = true;
+				initChange("text",oldVal, textField.text, this);
 			}
    		} 
 
@@ -947,19 +1093,20 @@ package com.degrafa.geometry{
 		* @see flash.text.TextField
 		**/ 		
 		public function get textColor():uint{
-			return textField.textColor;
+			return (_fill is SolidFill) ? uint((_fill as SolidFill).color):null;// textField.textColor;
 		} 
     	public function set textColor(value:uint):void{
-    		textField.textColor = value;
+			if (!(_fill is SolidFill) || value != uint((_fill as SolidFill).color)) {
+				if (_fill is SolidFill) (_fill as SolidFill).color = value;
+				else fill = new SolidFill(value, 1);
+			//initChange("textColor", textField.textColor, textField.textColor = value, this);
+			}
     	} 
     	/**
 		* textHeight property for the textField. 
 		* 
 		* @see flash.text.TextField
 		**/ 	
-		public function get textHeight():Number{
-			return textField.textHeight;
-		}	
 		public function get textWidth():Number{
 			return textField.textWidth;
 		} 
@@ -971,8 +1118,9 @@ package com.degrafa.geometry{
 		public function get thickness():Number{
 			return textField.thickness;
 		} 
-	    public function set thickness(value:Number):void{
-	    	textField.thickness = value;
+	    public function set thickness(value:Number):void {
+			if (value!=textField.thickness && value>=-200 && value<=200)
+			initChange("thickness", textField.thickness, textField.thickness = value, this);
 	    } 
     	/**
 		* wordWrap property for the textField. 
@@ -983,8 +1131,9 @@ package com.degrafa.geometry{
 		public function get wordWrap():Boolean{
 			return textField.wordWrap;
 		} 
-    	public function set wordWrap(value:Boolean):void{
-    		textField.wordWrap = value;
+    	public function set wordWrap(value:Boolean):void {
+			if (value!=textField.wordWrap)
+			initChange("wordWrap", textField.wordWrap, textField.wordWrap = value, this);
     	} 
     		
 	}
