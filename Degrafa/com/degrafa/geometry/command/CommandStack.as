@@ -210,6 +210,7 @@ package com.degrafa.geometry.command{
 			
 				//	maybe there's a stroke on some owners at this point:
 				owner.initStroke(graphics, rc);
+				owner.initFill(graphics, rc);
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
 		
 			}
@@ -233,15 +234,19 @@ package com.degrafa.geometry.command{
 						//dev note: need to change this mask is only redrawn when necessary
 						if (!_maskRender) _maskRender = new Shape();
 						_maskRender.graphics.clear();
+						
 						//cache the current settings as rendering the mask will alter them
-						var cacheLayout:Matrix = currentLayoutMatrix.clone();
-						var cacheTransform:Matrix = currentTransformMatrix.clone();
-						var cacheCombo:Matrix = transMatrix.clone();
+						var cacheLayout:Matrix = currentLayoutMatrix? currentLayoutMatrix.clone():null;
+						var cacheTransform:Matrix = currentTransformMatrix? currentTransformMatrix.clone():null;
+						var cacheCombo:Matrix = transMatrix? transMatrix.clone():null;
 						owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+
 						//restore cached settings
 						currentLayoutMatrix = cacheLayout;
 						currentTransformMatrix = cacheTransform;
 						transMatrix = cacheCombo;
+						_maskRender.cacheAsBitmap = true;
+						_fxShape.cacheAsBitmap = true;
 						_fxShape.mask = _maskRender;
 					} else if (_fxShape.mask) _fxShape.mask = null;
 																						
@@ -435,7 +440,12 @@ package com.degrafa.geometry.command{
 				invalidated = true;
 			}
 		}
-				
+	     
+		
+		
+	    public function simpleRender(graphics:Graphics, rc:Rectangle):void {
+			renderCommandStack(graphics, rc, new DegrafaCursor(this.source));
+		}
 		/**
 		* Principle render loop. Use delgates to override specific items
 		* while the render loop is processing.
