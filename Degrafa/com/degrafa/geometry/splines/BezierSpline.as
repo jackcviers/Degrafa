@@ -158,7 +158,7 @@ package com.degrafa.geometry.splines{
 		[Inspectable(category="General", arrayType="com.degrafa.IGraphicPoint")]
 		[ArrayElementType("com.degrafa.IGraphicPoint")]
 		/**
-		* A array of points that describe this polyline.
+		* A array of points that describe this spline.
 		**/
 		public function get points():Array{
 			initPointsCollection();
@@ -173,7 +173,7 @@ package com.degrafa.geometry.splines{
 		}
 		
 		/**
-		* Access to the Degrafa point collection object for this polyline.
+		* Access to the Degrafa point collection object for this spline.
 		**/
 		public function get pointCollection():GraphicPointCollection{
 			initPointsCollection();
@@ -196,7 +196,7 @@ package com.degrafa.geometry.splines{
 		
 		private var _autoClose:Boolean;
 		/**
-		* Specifies if this polyline is to be automatically closed. 
+		* Specifies if this spline is to be automatically closed. 
 		* If true a line is drawn to the first point.
 		**/
 		[Inspectable(category="General", enumeration="true,false")]
