@@ -119,7 +119,7 @@ package com.degrafa.geometry.splines{
 		* @description 	Method: getCage(_i:Number) - draw the control cages
 		*
 		* @param _i:Number - Control-cage index (i-th segment, not i-th knot), zero based
-		* @return Nothing
+		* @return CubicCage - reference to control cage for cubic bezier curve at the specified segment.
 		*
 		* @since 1.0
 		*
@@ -148,7 +148,7 @@ package com.degrafa.geometry.splines{
 	        	if( _cage[i] == undefined )
 	          	_cage[i] = new CubicCage();
 	      	}
-	
+	     
 		    // Hint:  How could you insert extra knots at each end (like Catmull-Rom splines) in a manner such that
 		    // the bisector normal computations produced the same set of points as the reflection computations.
 		    // It would be a bit quicker and you could compress the following code structure into one method.  It's

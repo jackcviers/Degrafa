@@ -30,8 +30,8 @@ package com.degrafa.geometry.splines{
 	/**
 	* Helper class used by various spline Geometry.
 	**/
-  	public class CubicCage{
-  		
+  	public class CubicCage
+  	{	
     	// properties
     	public var P0X:Number;
     	public var P1X:Number;
@@ -42,28 +42,48 @@ package com.degrafa.geometry.splines{
     	public var P2Y:Number;
     	public var P3Y:Number;
 
-    	public function CubicCage(){
+    	public function CubicCage()
+    	{
       		init();
     	}
   
-	    public function init():void{
-	    	P0X = 0;
-	      	P1X = 0;
-	      	P2X = 0;
-	      	P3X = 0;
-	      	P0Y = 0;
-	      	P1Y = 0;
-	      	P2Y = 0;
-	      	P3Y = 0;
+	    public function init():void
+	    {
+	     	P0X = 0;
+	      P1X = 0;
+	      P2X = 0;
+	      P3X = 0;
+	      P0Y = 0;
+	      P1Y = 0;
+	      P2Y = 0;
+	      P3Y = 0;
 	    }
-
-    	public function draw(_s:Shape, _c:Number):void{
-    		var g:Graphics = _s.graphics;
-      		g.lineStyle(0, _c, 100);
-      		g.moveTo(P0X, P0Y);
-      		g.lineTo(P1X, P1Y);
-      		g.lineTo(P2X, P2Y);
-      		g.lineTo(P3X, P3Y);
+ 
+     public function toString():String
+     {
+       var myStr:String = "";
+       myStr           += formatPoint(P0X, P0Y);
+       myStr           += formatPoint(P1X, P1Y);
+       myStr           += formatPoint(P2X, P2Y);
+       myStr           += formatPoint(P3X, P3Y);
+       
+       return myStr;
+     }
+     
+     // used primarily for visual debugging, allowing each control cage to be drawn to check in- and out-tangents
+    	public function draw(_s:Shape, _c:Number):void
+    	{
+    	 	var g:Graphics = _s.graphics;
+      	g.lineStyle(0, _c, 100);
+      	g.moveTo(P0X, P0Y);
+      	g.lineTo(P1X, P1Y);
+      	g.lineTo(P2X, P2Y);
+      	g.lineTo(P3X, P3Y);
     	}
-	}
+    	
+    	private function formatPoint(_pX:Number, _pY:Number):String
+    	{
+    	  return " ("+ _pX.toString() + "," + _pY.toString() + ") ";
+    	}
+	  }
 }

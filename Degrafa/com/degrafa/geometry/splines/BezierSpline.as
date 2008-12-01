@@ -32,6 +32,7 @@ package com.degrafa.geometry.splines{
 	import com.degrafa.geometry.splines.math.*;
 	
 	import flash.display.Graphics;
+	import flash.display.Shape;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -49,7 +50,7 @@ package com.degrafa.geometry.splines{
  	**/
   	public class BezierSpline extends Geometry implements IGeometry{
 		
-		// FastBezier instance for each cubic segment
+		// CubicBezier instance for each cubic segment
 		private var _bezier:Array=new Array();                    
 		
 		// local parameter value corresponding to input parameter value
@@ -140,17 +141,15 @@ package com.degrafa.geometry.splines{
 				//set the points property
 				points=pointArray;
 								
-				//setup the cage
+				// Set the knot reference so that BezierSplineControl knows how to compute control points for each Bezier curve to ensure C-1 continuity at the knots
 				_controlCage.knots  = points;
 				
-				//add the control points
+				//add the cubic bezier curves for each segment
 				for each (var point:Point in points){
 					_bezier.push(new CubicBezier());
 				}
-			
+			 
 				invalidated = true;
-				
-				
 			}
 		}
 		
@@ -158,7 +157,7 @@ package com.degrafa.geometry.splines{
 		[Inspectable(category="General", arrayType="com.degrafa.IGraphicPoint")]
 		[ArrayElementType("com.degrafa.IGraphicPoint")]
 		/**
-		* A array of points that describe this spline.
+		* A array of points that describe this polyline.
 		**/
 		public function get points():Array{
 			initPointsCollection();
@@ -173,7 +172,7 @@ package com.degrafa.geometry.splines{
 		}
 		
 		/**
-		* Access to the Degrafa point collection object for this spline.
+		* Access to the Degrafa point collection object for this polyline.
 		**/
 		public function get pointCollection():GraphicPointCollection{
 			initPointsCollection();
@@ -196,18 +195,21 @@ package com.degrafa.geometry.splines{
 		
 		private var _autoClose:Boolean;
 		/**
-		* Specifies if this spline is to be automatically closed. 
+		* Specifies if this polyline is to be automatically closed. 
 		* If true a line is drawn to the first point.
 		**/
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get autoClose():Boolean{
 			return _autoClose;
 		}
-		public function set autoClose(value:Boolean):void{
-			if(_autoClose != value){
-				_autoClose = value;
-				invalidated = true;
-			}
+		public function set autoClose(value:Boolean):void
+		{
+			 if( _autoClose != value )
+			 {
+				  _autoClose          = value;
+				  _controlCage.CLOSED = value;   // BezierSplineControl needs to know whether or not the control cages are constructed with automatic closure
+				  invalidated         = true;
+			 }
 		}
 		
 		/**
@@ -261,10 +263,6 @@ package com.degrafa.geometry.splines{
 	    	}
 	    	  	
 	    }
-	    
-	    
-	    //other options not yet working
-	    //AUTO,DUPLICATE,EXPLICIT,CHORD_LENGTH,ARC_LENGTH,UNIFORM,FIRST,LAST,POLAR
 	    
 	    private var _parameterization:String="UNIFORM";
 	    /**
@@ -578,7 +576,6 @@ package com.degrafa.geometry.splines{
 	      		//todo jason
 	      		addControlPoint(points[0].x, points[0].y);
 	      	}
-	      	
 	
 	      	_controlCage.construct();
 	    
@@ -698,6 +695,5 @@ package com.degrafa.geometry.splines{
 	      
 	    	return 0;
 	    }
-    
 	}
 }
