@@ -91,7 +91,7 @@ package com.degrafa.geometry{
 		override public function set data(value:String):void{}
 		
 		/**
-		 * This item has no regular fill
+		 * This item currently has no regular fill. We may add this to behave as a background fill (visible through transparent pixels in the image) in the future.
 		 */
 		override public function get fill():IGraphicsFill {	return null };
 		override public function set fill(value:IGraphicsFill):void { };
@@ -172,8 +172,7 @@ package com.degrafa.geometry{
 			//provide the container object
 			return sprite;
 		}
-		
-		
+
 		
 		
 		/**
@@ -223,6 +222,10 @@ package com.degrafa.geometry{
 			//cache original values:
 			_contentWidth = sprite.width;
 			_contentHeight = sprite.height;
+			//if there were no explicit assigned width and height, use the content's width and height
+				if (isNaN(_width)) _width = _contentWidth;
+				if (isNaN(_height)) _height = _contentHeight;
+			invalidated = true;
 		}
 		
 		/**
@@ -244,7 +247,6 @@ package com.degrafa.geometry{
 		
 		private var target:DisplayObject;
 		public function set source(value:Object):void {
-
 			var oldValue:Object = _internalDO;
 			
 			target = null;
@@ -278,10 +280,8 @@ package com.degrafa.geometry{
 				initChange("source", oldValue, _internalDO, this);
 				return;
 			}
-			//var sprite:DisplayObject;
 			if (value is Class)
 			{
-
 				target= new value() as DisplayObject;
 	
 			}
@@ -319,6 +319,7 @@ package com.degrafa.geometry{
 			{
 				_internalDO  = null;
 				if (sprite.numChildren) sprite.removeChildAt(0);
+				invalidated = true;
 				if (oldValue!=null)	initChange("source", oldValue, null, this);
 				return;
 			}
@@ -326,6 +327,7 @@ package com.degrafa.geometry{
 			if( target != null)
 			{
 				swapInContent(target as DisplayObject)
+				invalidated = true;
 				initChange("source", oldValue, _internalDO, this);
 			}
 		
@@ -392,20 +394,23 @@ package com.degrafa.geometry{
 		* @inheritDoc 
 		**/
 		override public function preDraw():void {
+
 				if(invalidated){
-	
+				
 				commandStack.length=0;
 				//frame it in a rectangle to permit transforms 
 				//(whether this is used or not will depend on the 
 				//transformBeforeRender setting
-				commandStack.addMoveTo(_x, _y);
-				commandStack.addLineTo(_x+_width, _y);
-				commandStack.addLineTo(_x+_width, _y+_height);
-				commandStack.addLineTo(_x, _y + _height);
-				commandStack.addLineTo(_x, _y);
+				commandStack.addMoveTo(x, y);
+				commandStack.addLineTo(x+_width, y);
+				commandStack.addLineTo(x+_width, y+_height);
+				commandStack.addLineTo(x, y + _height);
+				commandStack.addLineTo(x, y);
 				invalidated = false;
-
 			}
+           
+
+
 		}
 		
 		
@@ -441,15 +446,15 @@ package com.degrafa.geometry{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
-    	override public function draw(graphics:Graphics,rc:Rectangle):void{
-			if (!_internalDO) return;
-			
+    	override public function draw(graphics:Graphics, rc:Rectangle):void {
+			if (!_internalDO || _internalDO.getBounds(_internalDO).isEmpty()) return;
 			//init the layout in this case done after predraw.
-			if (_layoutConstraint) calculateLayout();
+			 calculateLayout();
 			
-			if (invalidated) preDraw()
-			
-			super.draw(graphics,rc);
+			if (invalidated) preDraw();
+	
+			super.draw(graphics, rc?rc:bounds);
+
     	}
     			
     	

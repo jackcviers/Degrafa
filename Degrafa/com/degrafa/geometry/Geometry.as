@@ -559,7 +559,7 @@ package com.degrafa.geometry{
 			}
 		}
 				
-		private var _stroke:IGraphicsStroke;
+		protected var _stroke:IGraphicsStroke;
 		/**
 		* Defines the stroke object that will be used for 
 		* rendering this geometry object.
@@ -591,7 +591,7 @@ package com.degrafa.geometry{
 			}	
 		}
 		
-		private var _fill:IGraphicsFill;
+		protected var _fill:IGraphicsFill;
 		/**
 		* Defines the fill object that will be used for 
 		* rendering this geometry object.
@@ -688,10 +688,12 @@ package com.degrafa.geometry{
 			if (_stroke) {
 					//same approach as used for fills: it's required for transform inheritance by some strokes
 				if (_stroke is ITransformablePaint) (_stroke as ITransformablePaint).requester = this;
-	        	_stroke.apply(graphics,(rc)? rc:null);
+	        	_stroke.apply(graphics, (rc)? rc:null);
+				CommandStack.currentStroke = _stroke;
 	        }
 			else{
 				graphics.lineStyle();
+				CommandStack.currentStroke = null;
 			}
 			
 		}
@@ -717,7 +719,8 @@ package com.degrafa.geometry{
 				//we can't pass a reference to the requesting Geometry in the method signature with IFill - its required for transform inheritance by some fills
 				if (_fill is ITransformablePaint) (_fill as ITransformablePaint).requester = this;
 	        	_fill.begin(graphics, (rc) ? rc:null);	
-	        }
+				CommandStack.currentFill = _fill;
+	        } else CommandStack.currentFill = null;
 	        
 		}
 								

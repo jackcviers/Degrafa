@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
@@ -180,6 +181,41 @@ package com.degrafa.paint{
 			_requester = value;
 		}
 		 
+		
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		public function get lastRectangle():Rectangle {
+			return _lastRect.clone();
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		
+		/**
+		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
+		 * then to an alternate context. If no
+		 */
+		public function get restartFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+		if (!_lastContext) return function(alternate:Graphics = null):void { 
+				if (alternate) alternate.beginFill(copy[0], copy[1]);
+			}
+		else {
+			return function(alternate:Graphics = null):void {
+					if (alternate) alternate.beginFill(copy[0], copy[1]);
+					else last.beginFill(copy[0], copy[1]);
+				}
+			}
+		}
 		/**
 		* Begins the fill for the graphics context.
 		* 
@@ -189,8 +225,15 @@ package com.degrafa.paint{
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			
 			//ensure that all defaults are in fact set these are temp until fully tested
-			if(isNaN(_alpha)){_alpha=1;}
+			if (isNaN(_alpha)) { _alpha = 1; }
 			
+			
+		//	CommandStack.currentFill = this;// ["beginFill", [color as uint, alpha]];
+			_lastArgs.length = 0;
+			_lastArgs[0] = color as uint;
+			_lastArgs[1] = alpha;
+			_lastContext = graphics;
+			_lastRect = rc;
 			graphics.beginFill(color as uint,alpha);						
 		}
 		

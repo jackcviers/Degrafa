@@ -26,6 +26,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.core.Measure;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
@@ -552,22 +553,19 @@ package com.degrafa.paint{
 			//original:	if (bitmapData == null && target != null)
 			if( target != null)
 			{
-				//trace('dispobj')
-			//	if (target is UIComponent) trace('UIComponent')
 				//handle displayObjects with zero width and height
 				if (!target.width || !target.height)
 				{
-					//trace('check')
 					//check the bounds and if they're not empty use them.
 					var tempRect:Rectangle = target.getBounds(target);
-					//trace(target is Text)
+
 					if (!tempRect.isEmpty())
 					{
 						bitmapData = new BitmapData(Math.ceil(tempRect.width), Math.ceil(tempRect.height), true, 0);
 						bitmapData.draw(target, new Matrix(1, 0, 0, 1, -tempRect.x, -tempRect.y));
 					} else bitmapData = null;
 				} else {
-					//trace('ok')
+
 				bitmapData = new BitmapData(target.width, target.height, true, 0);
 				bitmapData.draw(target);
 				}
@@ -584,7 +582,43 @@ package com.degrafa.paint{
 			_requester = value;
 		}
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		public function get lastRectangle():Rectangle {
+			return (_lastRect)?_lastRect.clone():null;
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		/**
+		 * Provides quick access to a cached function for restarting the last used fill either in the last used context, or, if a context is provided as an argument,
+		 * then to an alternate context. If no last used context is available then this will do nothing;
+		 */
+		public function get restartFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+		if (!_lastContext) {
+			return function(alternate:Graphics = null):void { 
+				//if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
+			}
+			}
+		else {
+			return function(alternate:Graphics = null):void {
+					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
+					else last.beginBitmapFill.apply(last,copy);
+				}
+			}
+		}
+		
+		
+		public function begin(graphics:Graphics, rc:Rectangle):void {
 			
 			if(!bitmapData) {
 				return;
@@ -599,11 +633,11 @@ package com.degrafa.paint{
 			var matrix:Matrix = new Matrix();
 			
 
-			matrix.translate(rectangle.x, rectangle.y);
+			matrix.translate(rc.x, rc.y);
 			// deal with stretching
 			if(repeatX == BitmapFill.STRETCH || repeatY == BitmapFill.STRETCH) {
-				var stretchX:Number = repeatX == STRETCH ? rectangle.width : template.width;
-				var stretchY:Number = repeatY == STRETCH ? rectangle.height : template.height;
+				var stretchX:Number = repeatX == STRETCH ? rc.width : template.width;
+				var stretchY:Number = repeatY == STRETCH ? rc.height : template.height;
 				if(target) {
 					target.width = stretchX;
 					target.height = stretchY;
@@ -622,24 +656,24 @@ package com.degrafa.paint{
 			// deal with spacing
 			if(repeatX == BitmapFill.SPACE || repeatY == BitmapFill.SPACE) {
 				// todo: account for rounding issues here
-				var spaceX:Number = repeatX == BitmapFill.SPACE ? Math.round((rectangle.width % template.width) / int(rectangle.width/template.width)) : 0;
-				var spaceY:Number = repeatY == BitmapFill.SPACE ? Math.round((rectangle.height % template.height) / int(rectangle.height/template.height)) : 0;
+				var spaceX:Number = repeatX == BitmapFill.SPACE ? Math.round((rc.width % template.width) / int(rc.width/template.width)) : 0;
+				var spaceY:Number = repeatY == BitmapFill.SPACE ? Math.round((rc.height % template.height) / int(rc.height/template.height)) : 0;
 				var pattern:BitmapData = new BitmapData(Math.round(spaceX+template.width), Math.round(spaceY+template.height), true, 0);
 				pattern.copyPixels(template, template.rect, new Point(Math.round(spaceX/2), Math.round(spaceY/2)));
 				template = pattern;
 			} 
 			
 			if(repeatX == BitmapFill.NONE || repeatX == BitmapFill.REPEAT) {
-				positionX = _offsetX.relativeTo(rectangle.width-template.width)
+				positionX = _offsetX.relativeTo(rc.width-template.width)
 			}
 			
 			if(repeatY == BitmapFill.NONE || repeatY == BitmapFill.REPEAT) {
-				positionY = _offsetY.relativeTo(rectangle.height-template.height)
+				positionY = _offsetY.relativeTo(rc.height-template.height)
 			}
 				
 			// deal with repeating (or no-repeating rather)
 			if(repeatX == BitmapFill.NONE || repeatY == BitmapFill.NONE) {
-				var area:Rectangle = new Rectangle(1, 1, rectangle.width, rectangle.height);
+				var area:Rectangle = new Rectangle(1, 1, rc.width, rc.height);
 				var areaMatrix:Matrix = new Matrix();
 				
 				if(repeatX == BitmapFill.NONE) {
@@ -686,7 +720,7 @@ package com.degrafa.paint{
 			if (_transform && ! _transform.isIdentity) {
 				
 					tempmat= new Matrix();
-					regPoint = _transform.getRegPointForRectangle(rectangle);
+					regPoint = _transform.getRegPointForRectangle(rc);
 					tempmat.translate(-regPoint.x,-regPoint.y);
 					tempmat.concat(_transform.transformMatrix);
 					tempmat.translate( regPoint.x,regPoint.y);
@@ -699,6 +733,15 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
+		//	CommandStack.currentFill = this;
+			_lastArgs.length = 0;
+			_lastArgs[0] = template;
+			_lastArgs[1] = matrix;
+			_lastArgs[2] = repeat;
+			_lastArgs[3] = smooth;
+			_lastContext = graphics;
+			_lastRect = rc;
+		//	CommandStack.currentFill = ["beginBitmapFill",[template, matrix, repeat, smooth]];
 			graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}
 		

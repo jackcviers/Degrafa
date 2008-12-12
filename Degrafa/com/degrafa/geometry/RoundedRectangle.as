@@ -265,14 +265,14 @@ package com.degrafa.geometry{
 				}
 		
 				//round to nearest
-				_cornerRadius = Math.round(_cornerRadius);
+			//	_cornerRadius = Math.round(_cornerRadius);
 
 			}	
 			
 			var adjx:Number = 0;
 			var adjy:Number = 0;
 			//apply fix for player rendering bug
-			if ( stroke && stroke.weight < 4  ) {
+			if ( stroke && stroke.weight < 4 &&!stroke.pixelHinting  ) {
 			//player rendering bug workaround: make sure the coords are offset from integer pixel values by at least 3 twips
 			//this seems to solve an anti-aliasing error with small stroke weights that is very obvious for RoundedRectangles
 				var adjbase:Number = 0.15;
@@ -306,7 +306,7 @@ package com.degrafa.geometry{
 					}
 				}
 			}
-			
+		
 			//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
 			var bottom:Number = y + height-adjy;
 			var right:Number = x + width-adjx;

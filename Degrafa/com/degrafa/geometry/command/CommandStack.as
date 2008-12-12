@@ -26,6 +26,8 @@
 package com.degrafa.geometry.command{
 	
 	import com.degrafa.core.collections.DegrafaCursor;
+	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.decorators.IDecorator;
 	import com.degrafa.decorators.IRenderDecorator;
 	import com.degrafa.geometry.Geometry;
@@ -49,13 +51,17 @@ package com.degrafa.geometry.command{
 	* through this process at draw time. The command stack provides convenient access 
 	* to all commands that make up the drawing of the Geometry and helper methods.
 	**/
-	public class CommandStack{
+	final public class CommandStack{
 	
 		static public const IS_REGISTERED:Boolean = !registerClassAlias("com.degrafa.geometry.command.CommandStack", CommandStack);	
 		
 		static public var transMatrix:Matrix=new Matrix();
 		static public var currentLayoutMatrix:Matrix=new Matrix();
 		static public var currentTransformMatrix:Matrix = new Matrix();
+		
+		static public var currentStroke:IGraphicsStroke;
+		static public var currentFill:IGraphicsFill;
+		static public var currentContext:Graphics;
 		
 		//single references to point objects used for internal calculations:
 		static private var transXY:Point=new Point();
@@ -102,17 +108,13 @@ package com.degrafa.geometry.command{
 			if (layout){
 				//give DisplayObjectProxies the ability to define their own bounds
 				var tempRect:Rectangle = (owner is IDisplayObjectProxy)?owner.bounds:bounds;
-
 				if (!tempRect.equals(owner.layoutRectangle) ) {	
 						currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
 						currentLayoutMatrix.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
 						currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
-
 						owner._layoutMatrix = currentLayoutMatrix.clone();
 						transMatrix = currentLayoutMatrix.clone();
-	
 					} else {
-
 						layout = false;
 						owner._layoutMatrix = null;
 						currentLayoutMatrix.identity();
@@ -141,7 +143,25 @@ package com.degrafa.geometry.command{
 				currentTransformMatrix.identity();
 				if (!layout) transMatrix = null;
 			}
-
+		}
+		
+		
+		private function initDecorators():void {
+			for each (var item:IDecorator in owner.decorators){
+				item.initialize(this);
+				if(item is IRenderDecorator){
+					hasRenderDecoration = true;
+				}
+			}
+		}
+		
+		private function endDecorators():void {
+			for each (var item:IDecorator in owner.decorators){
+				item.end(this);
+				if(item is IRenderDecorator){
+					hasRenderDecoration = true;
+				}
+			}
 		}
 		
 		/**
@@ -152,18 +172,7 @@ package com.degrafa.geometry.command{
 			//exit if no command stack
 			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
 			
-			//init the decorations if required
-			if(owner.hasDecorators){
-				for each (var item:IDecorator in owner.decorators){
-					
-					item.initialize(this);
-					
-					if(item is IRenderDecorator){
-						hasRenderDecoration = true;
-					}
-				}
-			}
-
+			currentContext = graphics;
 			//setup requirements before the render
 			predraw()
 			
@@ -171,7 +180,6 @@ package com.degrafa.geometry.command{
 				if(!IDisplayObjectProxy(owner).displayObject){
 					return;
 				}
-				
 				
 				var displayObject:DisplayObject = IDisplayObjectProxy(owner).displayObject;
 				//apply the filters
@@ -187,12 +195,8 @@ package com.degrafa.geometry.command{
 						if (!IDisplayObjectProxy(owner).transformBeforeRender) {
 							//scale layoutmode only, without a pretransformed capture: scale before capture to bitmapData:
 							transObject.transform.matrix = CommandStack.currentLayoutMatrix;
-	
-				
 						} else {
-
 							if (IDisplayObjectProxy(owner).layoutMode == 'scale') {
-						
 								transObject.transform.matrix = CommandStack.transMatrix;
 							}
 						    else {
@@ -209,8 +213,11 @@ package com.degrafa.geometry.command{
 				}
 			
 				//	maybe there's a stroke on some owners at this point:
-				owner.initStroke(graphics, rc);
-				owner.initFill(graphics, rc);
+				if (owner.stroke) owner.initStroke(graphics, rc);
+				else currentStroke = null;
+				if (owner.fill) owner.initFill(graphics, rc);
+				else currentFill = null;
+				if (owner.hasDecorators) initDecorators();
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
 		
 			}
@@ -249,13 +256,18 @@ package com.degrafa.geometry.command{
 						_fxShape.cacheAsBitmap = true;
 						_fxShape.mask = _maskRender;
 					} else if (_fxShape.mask) _fxShape.mask = null;
-																						
+											
 					//setup the stroke
-					owner.initStroke(_fxShape.graphics,rc);
-					
+				if (owner.stroke)	owner.initStroke(_fxShape.graphics,rc);
+				else currentStroke=null;	
 					//setup the fill
-					owner.initFill(_fxShape.graphics,rc);
-					
+				if (owner.fill)	owner.initFill(_fxShape.graphics, rc);
+				else currentFill = null;
+						//init the decorations if required
+					if (owner.hasDecorators) initDecorators();
+					lineTo = _fxShape.graphics.lineTo;
+					curveTo = _fxShape.graphics.curveTo;
+					moveTo = _fxShape.graphics.moveTo;
 					renderCommandStack(_fxShape.graphics,rc,_cursor);
 					
 
@@ -264,18 +276,30 @@ package com.degrafa.geometry.command{
 				
 				}
 				else {
+
 					//setup the stroke
-					owner.initStroke(graphics,rc);
-					
+					if (owner.stroke)	owner.initStroke(graphics, rc);
+					else currentStroke=null;
+
 					//setup the fill
-					owner.initFill(graphics,rc);
-					
-					renderCommandStack(graphics,rc,_cursor);
+					if (owner.fill) owner.initFill(graphics, rc);
+					else currentFill=null;
+
+					//init the decorations if required
+					if (owner.hasDecorators) initDecorators();
+					lineTo = graphics.lineTo;
+					curveTo = graphics.curveTo;
+					moveTo = graphics.moveTo;
+					renderCommandStack(graphics, rc, _cursor);
+					if (owner.hasDecorators) endDecorators();
 				}
 			}
 		}
 		
-		
+		/**
+		 * 
+		 * @private
+		 */
 		private function renderBitmapDatatoContext(source:DisplayObject,context:Graphics, viaCommandStack:Boolean=false, rc:Rectangle=null):void{
 			
 			if(!source){return;}
@@ -336,13 +360,14 @@ package com.degrafa.geometry.command{
 				if (owner.hasFilters &&!sourceRect.equals(filteredRect) && owner is IDisplayObjectProxy ) {
 					//adjust for scale- downscale to fit filters in the same bounds:
 	
-					mat= new Matrix(sourceRect.width/filteredRect.width,0,0,sourceRect.height/filteredRect.height,mat.tx,mat.ty)
+					mat = new Matrix(sourceRect.width / filteredRect.width, 0, 0, sourceRect.height / filteredRect.height, mat.tx, mat.ty);
+					context.lineStyle();
 					context.beginBitmapFill(bitmapData, mat,false,true);
 					context.drawRect(Math.floor(sourceRect.x),Math.floor(sourceRect.y), Math.ceil(sourceRect.width), Math.ceil(sourceRect.height));
 					context.endFill();
 				} else {
 					//draw at filtered size
-	
+					context.lineStyle();
 					context.beginBitmapFill(bitmapData, mat,false,true);
 					context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
 					context.endFill();
@@ -353,15 +378,16 @@ package com.degrafa.geometry.command{
 					if (owner is IDisplayObjectProxy ) {
 						if (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode=="scale") {
 							mat.concat(CommandStack.currentTransformMatrix)
-	
 						} else {
-	
 							mat.concat( currentTransformMatrix);
 							transMatrix = currentTransformMatrix;
 						}
 					} else mat.concat(transMatrix);
 			}
 				context.beginBitmapFill(bitmapData, mat, false, true);
+				lineTo = context.lineTo;
+				curveTo = context.curveTo;
+				moveTo = context.moveTo;
 				renderCommandStack(context, rc, new DegrafaCursor(this.source))
 			}
 		}
@@ -382,7 +408,7 @@ package com.degrafa.geometry.command{
 		private var hasRenderDecoration:Boolean;
 		//called from render loop if the geometry has an IRenderDecorator
 		private function delegateGraphicsCall(methodName:String,graphics:Graphics,x:Number=0,y:Number=0,cx:Number=0,cy:Number=0,x1:Number=0,y1:Number=0):*{
-			//permit each decoration to do work on the current segment			
+			//permit each decoration to do work on the current segment	
 			for each (var item:IRenderDecorator in owner.decorators){
 				switch(methodName){
 					case "moveTo":
@@ -441,9 +467,14 @@ package com.degrafa.geometry.command{
 			}
 		}
 	     
-		
+		private var lineTo:Function;
+		private var moveTo:Function;
+		private var curveTo:Function;
 		
 	    public function simpleRender(graphics:Graphics, rc:Rectangle):void {
+			lineTo = graphics.lineTo;
+			curveTo = graphics.curveTo;
+			moveTo = graphics.moveTo;
 			renderCommandStack(graphics, rc, new DegrafaCursor(this.source));
 		}
 		/**
@@ -476,12 +507,11 @@ package com.degrafa.geometry.command{
 								transXY.x = x; 
 								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								
 								if(hasRenderDecoration){
 									delegateGraphicsCall("moveTo",graphics,transXY.x, transXY.y);
 								}
 								else{
-									graphics.moveTo(transXY.x, transXY.y);
+									moveTo(transXY.x, transXY.y);
 								}
 							}
 							else{
@@ -489,7 +519,7 @@ package com.degrafa.geometry.command{
 									delegateGraphicsCall("moveTo",graphics,x, y);
 								}
 								else{
-									graphics.moveTo(x,y);
+									moveTo(x,y);
 								}
 							}
 							break;
@@ -498,21 +528,19 @@ package com.degrafa.geometry.command{
 								transXY.x = x; 
 								transXY.y = y;
 								transXY = transMatrix.transformPoint(transXY);
-								
 								if(hasRenderDecoration){
 									delegateGraphicsCall("lineTo",graphics,transXY.x, transXY.y);
 								}
 								else{
-									graphics.lineTo(transXY.x, transXY.y);
+									lineTo(transXY.x, transXY.y);
 								}
-								
 							} 
 							else{
 								if(hasRenderDecoration){
 									delegateGraphicsCall("lineTo",graphics,x, y);
 								}
 								else{
-									graphics.lineTo(x,y);
+									lineTo(x,y);
 								}
 							}
 							break;
@@ -524,21 +552,19 @@ package com.degrafa.geometry.command{
 								transCP.y = cy;
 								transXY = transMatrix.transformPoint(transXY);
 								transCP = transMatrix.transformPoint(transCP);
-								
 								if(hasRenderDecoration){
 									delegateGraphicsCall("curveTo",graphics,0,0,transCP.x,transCP.y,transXY.x,transXY.y);
 								}
 								else{
-									graphics.curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
+									curveTo(transCP.x,transCP.y,transXY.x,transXY.y);
 								}
-								
 							} 
 							else{
 								if(hasRenderDecoration){
 									delegateGraphicsCall("curveTo",graphics,0,0,cx,cy,x1,y1);
 								}
 								else{
-									graphics.curveTo(cx,cy,x1,y1);
+									curveTo(cx,cy,x1,y1);
 								}
 							}
 							break;
@@ -571,17 +597,13 @@ package com.degrafa.geometry.command{
 		* Updates the item with the correct previous and next reference
 		**/
 		private function updateItemRelations(item:CommandStackItem,index:int):void{
-			
 			item.previous = (index>0)? source[index-1]:null;
-			
 			if(item.previous){
 				if(item.previous.type == CommandStackItem.COMMAND_STACK){
 					item.previous = item.previous.commandStack.lastNonCommandStackItem;
 				}
-			
 				item.previous.next = (item.type == CommandStackItem.COMMAND_STACK)? item.commandStack.firstNonCommandStackItem:item;
 			}
-			
 		}
 		
 		/**
@@ -599,7 +621,6 @@ package com.degrafa.geometry.command{
 				}
 				i--
 			}
-			
 			return source[0];
 		}
 		
@@ -678,14 +699,13 @@ package com.degrafa.geometry.command{
 			else {
 				_bounds.setEmpty();
 				for each(var item:CommandStackItem in source) {
-					if(item.bounds){
+					if (item.bounds) {
 						_bounds = _bounds.union(item.bounds);
 					}
 				}
 				invalidated = false;
 				if (_bounds.height!=0.0001) _bounds.height = Number(_bounds.height.toPrecision(3));
 				if (_bounds.width != 0.0001) _bounds.width = Number(_bounds.width.toPrecision(3));
-
 				if (_bounds.isEmpty()) invalidated = true;
 			}
 			return _bounds;
@@ -898,6 +918,23 @@ package com.degrafa.geometry.command{
 			}
 			return _pathLength;
 		}
+		
+		private var _transformedPathLength:Number=0;
+		/**
+		* Returns the  transformed length of the combined path elements. This is a preliminary implementation and requires optimization.
+		**/
+		public function get transformedPathLength():Number{
+				//clear prev length
+				_transformedPathLength=0;
+				
+				var item:CommandStackItem;
+				
+				for each (item in source){
+					_transformedPathLength += item.transformedLength;
+				}
+			return _transformedPathLength;
+		}
+		
 		
 		/**
 		* Returns the first commandStackItem objetc that has length

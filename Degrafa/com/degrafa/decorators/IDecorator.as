@@ -30,5 +30,6 @@ package com.degrafa.decorators{
 	**/
 	public interface IDecorator{
 		function initialize(stack:CommandStack):void;
+		function end(stack:CommandStack):void;
 	}
 }

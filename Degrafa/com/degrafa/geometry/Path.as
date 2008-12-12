@@ -21,10 +21,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+//	import com.degrafa.core.utils.CloneUtil;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.SegmentsCollection;
 	import com.degrafa.geometry.segment.*;
 	import com.degrafa.geometry.utilities.*;
+//	import com.degrafa.paint.SolidFill;
+//	import flash.utils.setTimeout;
 	
 	import flash.display.Graphics;
 	import flash.geom.Point;
@@ -567,32 +571,35 @@ package com.degrafa.geometry{
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-		 	
+		 
 		 	//re init if required
 		 	if (invalidated) preDraw(); 
 			
 			//init the layout in this case done after predraw.
 			if (_layoutConstraint) calculateLayout();
-			
+	//		var s:uint = getTimer();
 			super.draw(graphics, (rc)? rc:bounds);
+	//		trace(getTimer()-s)
 	    }
 		
-		
+
 		/**
 		* An object to derive this objects properties from. When specified this 
 		* object will derive it's unspecified properties from the passed object.
 		**/
 		public function set derive(value:Path):void{
-			
+		/*
+		if (!isInitialized || !value.isInitialized) {
+			setTimeout(function():void { derive = value }, 1);
+			return;
+		}*/
 			if (!fill){fill=value.fill;}
-			if (!stroke){stroke = value.stroke}
-			
-			if (!_segments && value.segments.length!=0){
+			if (!stroke) { stroke = value.stroke }
+
+			if (!_segments && value.segments.length != 0) {
 				segments = value.segments;
-				invalidated = true;
+				commandStack.source = value.commandStack.source;
 			};
-						
 		}
-		
 	}
 }

@@ -26,7 +26,6 @@
 
 package com.degrafa.states{
 
-	import com.degrafa.geometry.Geometry;
 	
 	public interface IOverride{
 		function initialize():void

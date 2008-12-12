@@ -94,6 +94,12 @@ package com.degrafa.paint{
 			}
 		}
 		
+		//interface requirements
+		public function get restartFunction():Function { return null };
+		public function get lastArgs():Array { return null };
+		public function get lastRectangle():Rectangle { return null };;
+		
+		//
 		
 		//reference to the requesting geometry
 		private var _requester:IGeometryComposition;

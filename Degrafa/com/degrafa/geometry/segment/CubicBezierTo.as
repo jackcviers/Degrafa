@@ -306,7 +306,7 @@ package com.degrafa.geometry.segment{
 						nlpx,nlpy,
 						1,_commandStackItem.commandStack);*/
 				}
-				if (!_commandStackItem.commandStack.length) //trace('err')
+		//	if (!_commandStackItem.commandStack.length) trace('err')
 				
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;

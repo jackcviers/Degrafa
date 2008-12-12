@@ -36,7 +36,9 @@ package com.degrafa.core{
 			
 		function set requester(value:IGeometryComposition ):void;
 	
-
+		function get restartFunction():Function;
+		function get lastArgs():Array;
+		function get lastRectangle():Rectangle;
 	
 	}
 }

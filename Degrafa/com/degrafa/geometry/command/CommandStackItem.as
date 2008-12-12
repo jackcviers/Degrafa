@@ -22,6 +22,7 @@
 package com.degrafa.geometry.command{
 	
 	import com.degrafa.geometry.utilities.GeometryUtils;
+	import flash.geom.Matrix;
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -32,10 +33,10 @@ package com.degrafa.geometry.command{
 	* It also serves as an injection point for decoration. Like the CommandStack it provides management and 
 	* helper methods. 
 	**/
-	public class CommandStackItem{
+	final public class CommandStackItem{
 		
 		static public const IS_REGISTERED:Boolean = !(	registerClassAlias("com.degrafa.geometry.command.CommandStackItem", CommandStackItem) ||
-														registerClassAlias("flash.geom.Point", Point));	
+		registerClassAlias("flash.geom.Point", Point)|| registerClassAlias("flash.geom.Rectangle", Rectangle));	
 
 		
 		public static const MOVE_TO:int=0;
@@ -150,10 +151,13 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
+		
+		
+		private var _bounds:Rectangle;
 		/**
 		* The calculated bounds for this object.
 		*/		
-		private var _bounds:Rectangle;
+	
 		public function get bounds():Rectangle {
 			if (invalidated) calcBounds();
 			return _bounds;
@@ -438,6 +442,32 @@ package com.degrafa.geometry.command{
 			}
 			return _segmentLength;
 		}
+		
+		public function get transformedLength():Number {
+			if (!CommandStack.transMatrix) return segmentLength;
+			var t:Matrix = CommandStack.transMatrix;
+			if(!_segmentLength || lengthInvalidated){
+				switch(type){
+					case CommandStackItem.MOVE_TO:
+						return 0;
+						break;		
+					case CommandStackItem.LINE_TO:
+						return lineLength(t.transformPoint(start),t.transformPoint(end));
+						break;
+					case CommandStackItem.CURVE_TO:
+						return curveLength(5,t.transformPoint(start),t.transformPoint(control),t.transformPoint(end));
+						break;
+					case CommandStackItem.COMMAND_STACK:
+						return commandStack.transformedPathLength;
+						break;
+					default:
+						//_segmentLength =0;
+						break;		
+				}
+			}
+			return 0;
+		}
+		
 		
 		/**
 		* Returns the point on this segment at t (0-1)

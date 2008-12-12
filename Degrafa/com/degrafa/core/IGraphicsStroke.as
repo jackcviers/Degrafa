@@ -46,6 +46,11 @@ package com.degrafa.core{
 		function get caps():String;
 		function set caps(value:String):void;
 		
-		function apply(graphics:Graphics,rc:Rectangle):void 
+		function apply(graphics:Graphics, rc:Rectangle):void 
+		
+		function get reApplyFunction():Function;
+		function get lastArgs():Array;
+		function get lastRectangle():Rectangle;
+		
 	}
 }

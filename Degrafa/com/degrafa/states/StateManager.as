@@ -25,7 +25,6 @@
 //modified for degrafa
 package com.degrafa.states{
 	
-	import com.degrafa.geometry.Geometry;
 	
 	import mx.events.FlexEvent;
 	import mx.events.StateChangeEvent;

@@ -38,11 +38,28 @@ package com.degrafa.decorators{
 		//overridden in sub classes
 		/**
 		* Called during render setup and provides the opportunity to add 
-		* item delegates. To be overridden in sub classes.
+		* item delegates or perform other initialization tasks. 
+		* Decorators should use this to reset any tracking variables back to their
+		* original state, as the same decorator may have been used previously
+		* and there is no 'end' call at the completion of the rendering phase.
+		* To be overridden in sub classes.
 		**/
 		public function initialize(stack:CommandStack):void{
 			
 			//walk the stack to add the delegates
+			
+		}
+		
+		//overridden in sub classes
+		/**
+		* Called at the end of the render phase for the current object.
+		* Provides opportunity to perform any post-decoration tasks, including any cleanup/reset activities before next request.
+		* To be overridden in sub classes.
+		**/
+		/**/
+		public function end(stack:CommandStack):void{
+			
+			//perform any post-decoration tasks, including any reset activities before next request
 			
 		}
 		

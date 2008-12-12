@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.utils.ColorUtil;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.paint.palette.PaletteEntry;
 	
 	import flash.display.Graphics;
@@ -315,6 +316,41 @@ package com.degrafa.paint{
 			}
 		}
 		
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		public function get lastRectangle():Rectangle {
+			return _lastRect.clone();
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		
+		/**
+		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
+		 * then to an alternate context. If no
+		 */
+		public function get reApplyFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+			if (!_lastContext) return function(alternate:Graphics = null,altArgs:Array=null):void { 
+				//	if (alternate) alternate.lineStyle(copy[0], copy[1]);
+				}
+			else {
+			return function(alternate:Graphics = null, altArgs:Array = null):void {
+					var local:Array = altArgs?altArgs:copy;
+					if (alternate) alternate.lineStyle.apply(alternate, local);
+					else last.lineStyle.apply(last, local);
+				}
+			}
+		}
 		/**
  		* Applies the properties to the specified Graphics object.
  		* 
@@ -336,11 +372,32 @@ package com.degrafa.paint{
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
-				graphics.lineStyle(weight,color as uint,alpha, pixelHinting,scaleMode);
+				graphics.lineStyle(weight, color as uint, alpha, pixelHinting, scaleMode);
+				CommandStack.currentStroke = this;
+				_lastArgs.length = 0;
+				_lastArgs[0] = weight;
+				_lastArgs[1] = color as uint;
+				_lastArgs[2] = alpha;
+				_lastArgs[3] = pixelHinting;
+				_lastArgs[4] = scaleMode;
+				_lastContext = graphics;
+				_lastRect = rc;
 			}
 			else{
 				graphics.lineStyle(weight,color as uint,alpha,pixelHinting,
-					scaleMode, caps, joints,miterLimit);
+					scaleMode, caps, joints, miterLimit);
+				_lastArgs.length = 0;
+				_lastArgs[0] = weight;
+				_lastArgs[1] = color as uint;
+				_lastArgs[2] = alpha;
+				_lastArgs[3] = pixelHinting;
+				_lastArgs[4] = scaleMode;
+				_lastArgs[5] = caps;
+				_lastArgs[6] = joints;
+				_lastArgs[7] = miterLimit;
+				_lastContext = graphics;
+				_lastRect = rc;
+			//	CommandStack.currentStroke = this;
 			}
 					
 		}

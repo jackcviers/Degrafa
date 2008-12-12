@@ -22,6 +22,7 @@
 package com.degrafa.paint {
 	
 	import com.degrafa.core.IGraphicsStroke;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.transform.ITransform;
 	import flash.geom.Point;
@@ -187,6 +188,49 @@ package com.degrafa.paint {
 			
 		}
 		
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		override public function get lastRectangle():Rectangle {
+			return _lastRect.clone();
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		override public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		
+		/**
+		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
+		 * then to an alternate context. If no
+		 */
+		public function get reApplyFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+			if (!_lastContext) return function(alternate:Graphics = null,altArgs:Array=null):void { 
+				//	if (alternate) alternate.lineStyle(copy[0], copy[1]);
+				}
+			else {
+			return function(alternate:Graphics = null,altArgs:Array=null):void {
+					var local:Array = altArgs?altArgs:copy;
+					if (alternate) {
+						alternate.lineStyle.apply(alternate, local[0]);
+						alternate.lineGradientStyle.apply(alternate, local[1]);
+					}
+					else {
+						last.lineStyle.apply(last, local[0]);
+						last.lineGradientStyle.apply(last, local[1]);
+					}
+				}
+			}
+		}
+		
+	//	override public function get reStartFunction(graphics:Graphics=null):void {}
 		/**
  		* Applies the properties to the specified Graphics object.
  		* 
@@ -213,7 +257,8 @@ package com.degrafa.paint {
 				var yp:Number = 1 - xp;
 				processEntries((rc.width)*xp + (rc.height)*yp);
 			} else {
-				matrix=null;
+				matrix = null;
+		//		trace('null mat')
 			}
 		
 
@@ -245,12 +290,22 @@ package com.degrafa.paint {
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
-				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode);
+				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode);
+				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode];
+				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
+
+				//CommandStack.currentStroke = this;// ["lineStyle", [weight, 0, 1, pixelHinting, scaleMode], "lineGradientStyle", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
 			}
 			else{
-				graphics.lineStyle(weight,0,1, pixelHinting,scaleMode,caps, joints, miterLimit);
+				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit);
+				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit];
+				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
+			//	CommandStack.currentStroke = this;// ["lineStyle", [weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit], "lineGradientStyle", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
+
 			}
-			
+			_lastContext = graphics;
+			_lastRect = rc;
+		//	CommandStack.currentStroke = this;
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}

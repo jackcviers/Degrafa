@@ -35,6 +35,17 @@ package com.degrafa.decorators{
 			super();
 		}
 		
+		
+		//override in sub classes.
+		/**
+		* A test, which is used to skip a particular decorator if it determines its current state is not valid or would
+		* not have an effect based on its current settings. A decorator is not executed if this returns false at the time it would
+		* normally be executed.
+		**/
+		public function get isValid():Boolean {
+			return true;
+		}
+		
 		//override in sub classes.
 		/**
 		*  moveTo proxy method. The graphics property is the current context being rendered to.

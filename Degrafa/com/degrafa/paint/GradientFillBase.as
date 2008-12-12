@@ -24,6 +24,7 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.collections.GradientStopsCollection;
 	import com.degrafa.core.ITransformablePaint;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
@@ -243,6 +244,42 @@ package com.degrafa.paint{
 			_requester = value;
 		}
 		
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		public function get lastRectangle():Rectangle {
+			return _lastRect.clone();
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		
+		/**
+		 * Provides quick access to a cached function for restarting the last used fill either in the last used context, or, if a context is provided as an argument,
+		 * then to an alternate context. If no last used context is available then this will do nothing;
+		 */
+		public function get restartFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+		if (!_lastContext) {
+			
+			return function(alternate:Graphics = null):void { 
+				//if (alternate) alternate.beginGradientFill(alternate, copy);
+			}
+			}
+		else {
+			return function(alternate:Graphics = null):void {
+					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
+					else last.beginGradientFill.apply(last,copy);
+				}
+			}
+		}
 		/**
 		* Begins the fill for the graphics context.
 		* 
@@ -251,7 +288,7 @@ package com.degrafa.paint{
 		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			var matrix:Matrix;
-			
+
 			//ensure that all defaults are in fact set these are temp until fully tested
 			if(!_angle){_angle=0;}
 			if(!_focalPointRatio){_focalPointRatio=0;}
@@ -291,6 +328,20 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
+		//	CommandStack.currentFill = this;
+			_lastArgs.length = 0;
+			_lastArgs[0] = gradientType;
+			_lastArgs[1] = _colors;
+			_lastArgs[2] = _alphas;
+			_lastArgs[3] = _ratios;
+			_lastArgs[4] = matrix;
+			_lastArgs[5] = spreadMethod;
+			_lastArgs[6] = interpolationMethod;
+			_lastArgs[7] = focalPointRatio;
+			_lastContext = graphics;
+			_lastRect = rc;
+			
+			//["beginGradientFill", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}

@@ -24,9 +24,12 @@ package com.degrafa.paint{
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.ITransformablePaint;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
+	import flash.geom.Point;
 	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -50,7 +53,7 @@ package com.degrafa.paint{
 	 * Used to render multiple, layered IGraphicsFill objects as a single fill.
 	 * This allows complex background graphics to be rendered with a single drawing pass.
 	 */
-	public class ComplexFill extends DegrafaObject implements IGraphicsFill, IBlend{
+	public class ComplexFill extends DegrafaObject implements IGraphicsFill, IBlend, ITransformablePaint{
 		
 		//*********************************************
 		// Constructor
@@ -132,20 +135,56 @@ package com.degrafa.paint{
 			_requester = value;
 		}
 		
+		private var _lastRect:Rectangle;
+		/**
+		 * Provides access to the last rectangle that was relevant for this fill.
+		 */
+		public function get lastRectangle():Rectangle {
+			return (_lastRect)?_lastRect.clone():null;
+		}
+		private var _lastContext:Graphics;
+		private var _lastArgs:Array = [];
+		/**
+		 * Provide access to the lastArgs array
+		 */
+		public function get lastArgs():Array {
+			return _lastArgs;
+		}
+		/**
+		 * Provides quick access to a cached function for restarting the last used fill either in the last used context, or, if a context is provided as an argument,
+		 * then to an alternate context. If no last used context is available then this will do nothing;
+		 */
+		public function get restartFunction():Function {
+			var copy:Array = _lastArgs.concat();
+			var last:Graphics = _lastContext;
+		if (!_lastContext) {
+			return function(alternate:Graphics = null):void { 
+				//if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
+			}
+			}
+		else {
+			return function(alternate:Graphics = null):void {
+					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
+					else last.beginBitmapFill.apply(last,copy);
+				}
+			}
+		}
+		
+		
 		//*********************************************
 		// Public Methods
 		//*********************************************
 		
-		public function begin(graphics:Graphics, rectangle:Rectangle):void {
+		public function begin(graphics:Graphics, rc:Rectangle):void {
 			// todo: optimize with more cacheing
-			if(rectangle.width > 0 && rectangle.height > 0 && _fills != null && _fills.length > 0) {
+			if(rc.width > 0 && rc.height > 0 && _fills != null && _fills.length > 0) {
 				if (_fills.length == 1) { // short cut
-					if (_fills[0] is IGraphicsFill) (_fills[0] as IGraphicsFill).requester = _requester;
-					(_fills[0] as IFill ).begin(graphics, rectangle);
+					if (_fills[0] is ITransformablePaint) (_fills[0] as ITransformablePaint).requester = _requester;
+					(_fills[0] as IFill ).begin(graphics, rc);
 				} else {
-					var matrix:Matrix = new Matrix(1, 0, 0, 1, rectangle.x*-1, rectangle.y*-1);
-					if(fillsChanged || bitmapData == null || Math.ceil(rectangle.width) != bitmapData.width || Math.ceil(rectangle.height) != bitmapData.height) { // cacheing
-						bitmapData = new BitmapData(Math.ceil(rectangle.width), Math.ceil(rectangle.height), true, 0);
+					var matrix:Matrix = new Matrix(1, 0, 0, 1, rc.x*-1, rc.y*-1);
+					if(fillsChanged || bitmapData == null || Math.ceil(rc.width) != bitmapData.width || Math.ceil(rc.height) != bitmapData.height) { // cacheing
+						bitmapData = new BitmapData(Math.ceil(rc.width), Math.ceil(rc.height), true, 0);
 						var g:Graphics = shape.graphics;
 						g.clear();
 						var lastType:String;
@@ -155,14 +194,14 @@ package com.degrafa.paint{
 									bitmapData.draw(shape, matrix,null,null,null,true);
 								}
 								g.clear();
-								fill.begin(g, rectangle);
-								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+								fill.begin(g, rc);
+								g.drawRect(rc.x, rc.y, rc.width, rc.height);
 								fill.end(g);
 								bitmapData.draw(shape, matrix, null, (fill as IBlend).blendMode,null,true);
 								lastType = "blend";
 							} else {
-								fill.begin(g, rectangle);
-								g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+								fill.begin(g, rc);
+								g.drawRect(rc.x, rc.y, rc.width, rc.height);
 								fill.end(g);
 								lastType = "fill";
 							}
@@ -174,12 +213,35 @@ package com.degrafa.paint{
 						fillsChanged = false;
 					}
 					matrix.invert();
-					var transformRequest:ITransform;
-					if (_requester && (transformRequest  = (_requester as Geometry).transform)) {
-						matrix.concat(transformRequest.getTransformFor(_requester));
-						//remove the requester reference
-						_requester = null;
-					}
+						//handle layout transforms - only renderLayouts so far
+			if (_requester && (_requester as Geometry).hasLayout) {
+					var geom:Geometry = _requester as Geometry;
+					if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+				}
+			
+			if (_transform && ! _transform.isIdentity) {
+					var regPoint:Point ;
+					var tempmat:Matrix = new Matrix();
+					regPoint = _transform.getRegPointForRectangle(rc);
+					tempmat.translate(-regPoint.x,-regPoint.y);
+					tempmat.concat(_transform.transformMatrix);
+					tempmat.translate( regPoint.x,regPoint.y);
+					matrix.concat(tempmat);
+				}
+				
+			var transformRequest:ITransform;
+			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+				else matrix.concat((_requester as Geometry).transformContext);
+				//remove the requester reference
+				_requester = null;
+			}
+
+				//	CommandStack.currentFill = this;
+					_lastArgs.length = 0;
+					_lastArgs[0] = bitmapData;
+					_lastArgs[1] = matrix;
+					_lastRect = rc;
 					graphics.beginBitmapFill(bitmapData, matrix);
 				}
 			}
@@ -193,6 +255,37 @@ package com.degrafa.paint{
 			fillsChanged = true;
 		}
 		
+		
+		protected var _transform:ITransform;
+		/**
+		* Defines the transform object that will be used for 
+		* altering this gradientfill object.
+		**/
+		public function get transform():ITransform{
+			return _transform;
+		}
+		public function set transform(value:ITransform):void{
+			
+			if(_transform != value){
+			
+				var oldValue:Object=_transform;
+			
+				if(_transform){
+					if(_transform.hasEventManager){
+						_transform.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					}
+				}
+								
+				_transform = value;
+				
+				if(enableEvents){	
+					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+				}
+				//call local helper to dispatch event
+				initChange("transform",oldValue,_transform,this);
+			}
+			
+		}
 		
 		//********************************************
 		// Private Methods

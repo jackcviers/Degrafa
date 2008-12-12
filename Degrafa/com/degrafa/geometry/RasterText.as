@@ -73,7 +73,7 @@ package com.degrafa.geometry{
 		
 		protected var _embedded:Boolean;
 		/**
-		 * <p>The RasterText constructor has no arguments . RasterText does not inherit stroke by default unlike other Geometry items.</p>
+		 * <p>The RasterText constructor has no arguments . RasterText does not inherit stroke or fill by default unlike other Geometry items.</p>
 		 */
 		public function RasterText(){
 			super();
@@ -99,10 +99,11 @@ package com.degrafa.geometry{
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
-		private var _fill:IGraphicsFill;
+	//	private var _fill:IGraphicsFill;
 		/**
-		 * The Color of this RasterText can be set using a SolidFill only. It is used for referencing the text color. Any other Fill types are currently ignored. As a convenience
+		 * The Fill of this RasterText is represented by a SolidFill if the textColor property is used. As a convenience
 		 * the regular textfield textColor property is channeled through this object, so it can be used in place of assigning a fill - it also permits color expression in colorkey and alternate formats (e.g. "red")
+		 * If you wish to use Gradient or other Fill types, they should be assigned directly to the fill property as usual, and the textColor setting not used.
 		 */
 		override public function set fill(value:IGraphicsFill):void { 
 			super.fill = value;
@@ -206,7 +207,10 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentWidth")]
 		override public function get width():Number{
-			if(!_width){return (hasLayout)? 1:0;}
+			if (isNaN(_width)) {
+				if (hasLayout) return 1;
+				updateTextField();
+				}
 			return _width;
 		}
 		override public function set width(value:Number):void{
@@ -223,7 +227,10 @@ package com.degrafa.geometry{
 		**/
 		[PercentProxy("percentHeight")]
 		override public function get height():Number{
-			if(!_height){return (hasLayout)? 1:0;}
+			if (isNaN(_height)) {
+				if (hasLayout) return 1;
+				updateTextField();
+			}
 			return _height;
 		}
 		override public function set height(value:Number):void{
@@ -299,6 +306,7 @@ package com.degrafa.geometry{
 		
 		/**
 		* Returns this objects bitmapdata.
+		* @private
 		**/
 		public function get displayObject():DisplayObject{
 			
@@ -437,11 +445,11 @@ package com.degrafa.geometry{
 		public function get layoutMode():String {
 			return _layoutMode;
 		}
-		public function set layoutMode(value:String):void {
+	/*	public function set layoutMode(value:String):void {
 			if (_layoutMode != value && (['adjust','scale']).indexOf(value)!=-1) {
 				initChange('layoutMode',_layoutMode,_layoutMode=value,this)
 			}
-		}
+		}*/
 
 		private var _transformBeforeRender:Boolean;
 
