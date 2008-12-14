@@ -25,70 +25,91 @@
 //modified for degrafa
 package com.degrafa.states{
 
-import flash.events.EventDispatcher;
-
-import mx.events.FlexEvent;
-
-//--------------------------------------
-//  Other metadata
-//--------------------------------------
+	import flash.events.EventDispatcher;
 	
+	import mx.events.FlexEvent;
+	
+	//--------------------------------------
+	//  Other metadata
+	//--------------------------------------
+		
 	[IconFile("State.png")]
-
-[Event(name="enterState", type="mx.events.FlexEvent")]
-[Event(name="exitState", type="mx.events.FlexEvent")]
-
-[DefaultProperty("overrides")]
-
-public class State extends EventDispatcher{
-
-	public function State(){
-		super();
-				
-	}
 	
-	public var stateManager:StateManager;
-	 
-	private var initialized:Boolean = false;
-
-	[Inspectable(category="General")]
-	public var basedOn:String;
-
-	[Inspectable(category="General")]
-	public var name:String;
-
-	[ArrayElementType("com.degrafa.states.IOverride")]
-	[Inspectable(category="General")]
-	public var overrides:Array = [];
-
-    /**
-     *  @private
-     *  Initialize this state and all of its overrides.
-     */
-    public function initialize():void{
-    	if (!initialized){
-    		initialized = true;
-    		for (var i:int = 0; i < overrides.length; i++){
-    			overrides[i].initialize();
-    		}
-    	}
-    }
-
-    /**
-     *  @private
-     *  Dispatches the "enterState" event.
-     */
-	public function dispatchEnterState():void{
-		dispatchEvent(new FlexEvent(FlexEvent.ENTER_STATE));
+	[Event(name="enterState", type="mx.events.FlexEvent")]
+	[Event(name="exitState", type="mx.events.FlexEvent")]
+	
+	[DefaultProperty("overrides")]
+	
+	/**
+	* The State class defines a view state, a particular view of a object.
+	**/
+	public class State extends EventDispatcher{
+		
+		/**
+		* Constructor.
+		**/
+		public function State(){
+			super();
+					
+		}
+		
+		/**
+		* Access to the degrafa state manager.
+		**/	
+		public var stateManager:StateManager;
+		 
+		private var initialized:Boolean = false;
+			
+		/**
+		* The name of the view state upon which this view state is based
+		**/
+		[Inspectable(category="General")]
+		public var basedOn:String;
+	
+		
+		/**
+		* The name of the view state. In skins it is common to use the 
+		* skin name the state is to be applied to for example upSkin. 
+		**/
+		[Inspectable(category="General")]
+		public var name:String;
+	
+		/**
+		* The overrides for this view state, as an Array of objects that 
+		* implement the IOverride interface.
+		**/
+		[ArrayElementType("com.degrafa.states.IOverride")]
+		[Inspectable(category="General")]
+		public var overrides:Array = [];
+	
+	    /**
+	     *  @private
+	     *  Initialize this state and all of its overrides.
+	     */
+	    public function initialize():void{
+	    	if (!initialized){
+	    		initialized = true;
+	    		for (var i:int = 0; i < overrides.length; i++){
+	    			overrides[i].initialize();
+	    		}
+	    	}
+	    }
+	
+	    /**
+	     *  @private
+	     *  Dispatches the "enterState" event.
+	     */
+		public function dispatchEnterState():void{
+			dispatchEvent(new FlexEvent(FlexEvent.ENTER_STATE));
+		}
+	
+	    /**
+	     *  @private
+	     *  Dispatches the "exitState" event.
+	     */
+		public function dispatchExitState():void{
+			dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
+		}
 	}
-
-    /**
-     *  @private
-     *  Dispatches the "exitState" event.
-     */
-	public function dispatchExitState():void{
-		dispatchEvent(new FlexEvent(FlexEvent.EXIT_STATE));
-	}
-}
 
 }

@@ -23,8 +23,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //modified for degrafa
-package com.degrafa.states
-{
+package com.degrafa.states{
+	
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.Geometry;
 	
@@ -33,9 +33,16 @@ package com.degrafa.states
 	//--------------------------------------
 	
 	[IconFile("RemoveChild.png")]
-
+	
+	/**
+	* The RemoveChild class removes a Geomerty object, such as a Circle, 
+	* from a target as part of a view state.
+	**/
 	public class RemoveChild implements IOverride{
 		
+		/**
+		* The child to remove from the view.
+		**/
 		public var target:IDegrafaStateClient;
 		
 		private var oldParent:IDegrafaStateClient;
@@ -43,15 +50,22 @@ package com.degrafa.states
 		
 		private var removed:Boolean;
 		
-		public function RemoveChild(target:IDegrafaStateClient = null)
-		{
+		/**
+		* Constructor.
+		**/
+		public function RemoveChild(target:IDegrafaStateClient = null){
 			this.target = target;
 		}
 
+		/**
+		* Initializes the override.
+		**/
 		public function initialize():void {}
 		
-		public function apply(parent:IDegrafaStateClient):void
-		{
+		/**
+		* Applies the override.
+		**/
+		public function apply(parent:IDegrafaStateClient):void{
 			removed = false;
 			
 			if(Geometry(target).parent){
@@ -73,8 +87,10 @@ package com.degrafa.states
 			removed = true;
 		}
 		
-		public function remove(parent:IDegrafaStateClient):void
-		{
+		/**
+		* Removes the override.
+		**/
+		public function remove(parent:IDegrafaStateClient):void{
 			oldParent.geometryCollection.addItemAt(target as IGeometry, oldIndex);
 
 			var tempGeometry:Array=[] 

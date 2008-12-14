@@ -22,6 +22,11 @@
 // Based on Adobe Code
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.states{
+	
+	/**
+	* The IStateClient interface defines the interface that 
+	* components must implement to support view states. 
+	**/
 	public interface IStateClient{
 		/**
 	    *  The current view state.

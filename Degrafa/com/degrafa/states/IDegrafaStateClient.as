@@ -25,7 +25,11 @@ package com.degrafa.states{
 	import com.degrafa.core.collections.GeometryCollection;
 	
 	import flash.events.IEventDispatcher;
-		
+	
+	/**
+	* The interface that Degrafa objects must implement to take part 
+	* in the states system.
+	**/	
 	public interface IDegrafaStateClient extends IEventDispatcher, IStateClient ,IGeometry{
 	 	function get isInitialized():Boolean
    	 	function get states():Array

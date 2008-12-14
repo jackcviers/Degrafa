@@ -23,8 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //modified for degrafa
-package com.degrafa.states
-{
+package com.degrafa.states{
 	
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.Geometry;
@@ -36,26 +35,49 @@ package com.degrafa.states
 	[IconFile("AddChild.png")]
 	
 	[DefaultProperty("target")]
-	public class AddChild implements IOverride
-	{
+	
+	/**
+	* The AddChild class adds a child Geometry object, such as a Circle, 
+	* to the target as part of a view state.
+	**/
+	public class AddChild implements IOverride{
+		
+		/**
+		* The object relative to which the child is added.
+		**/
 		public var relativeTo:IDegrafaStateClient;
+		
+		/**
+		* The child to be added.
+		**/
 		public var target:IDegrafaStateClient;
 		
+		/**
+		* The position of the child.
+		**/
 		public var position:String;
 		
 		private var _added:Boolean;
 		
-		public function AddChild(relativeTo:IDegrafaStateClient = null, target:IDegrafaStateClient = null, position:String = "lastChild")
-		{
+		/**
+		* Constructor.
+		**/
+		public function AddChild(relativeTo:IDegrafaStateClient = null, target:IDegrafaStateClient = null, position:String = "lastChild"){
 			this.relativeTo = relativeTo;
         	this.target = target;
         	this.position = position;
 		}
-
+		
+		/**
+		* Initializes the override.
+		**/
 		public function initialize():void {}
 		
-		public function apply(parent:IDegrafaStateClient):void
-		{
+		/**
+		* Applies the override.
+		**/
+		public function apply(parent:IDegrafaStateClient):void{
+			
 			var obj:IDegrafaStateClient = relativeTo ? relativeTo : parent;
 			
 			_added = false;
@@ -99,8 +121,10 @@ package com.degrafa.states
 	        
 		}
 		
-		public function remove(parent:IDegrafaStateClient):void
-		{
+		/**
+		* Removes the override.
+		**/
+		public function remove(parent:IDegrafaStateClient):void{
 			var obj:IDegrafaStateClient = relativeTo ? relativeTo : parent;
 			
 			parent.geometryCollection.removeItem(target  as IGeometry);

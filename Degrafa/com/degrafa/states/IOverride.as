@@ -26,7 +26,10 @@
 
 package com.degrafa.states{
 
-	
+	/**
+	* The IOverride interface is used for view state overrides. All entries 
+	* in the State class overrides property array must implement this interface.
+	**/
 	public interface IOverride{
 		function initialize():void
 		function apply(parent:IDegrafaStateClient):void;
