@@ -32,14 +32,13 @@ package com.degrafa.repeaters
 	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
-	
-	//--------------------------------------
-	//  Other metadata
-	//--------------------------------------
-	
+		
 	[IconFile("GeometryRepeater.png")]
-
-	//[DefaultProperty("sourceGeometry")]
+	
+	/**
+	* The GeometryRepeater repeates geometry objects. For each item 
+	* repeated values can be modified through an array of PropertyModifiers.
+	**/		
 	public class GeometryRepeater extends Geometry implements IGeometry {
 		
 		private var _sourceGeometry:Geometry;
@@ -48,16 +47,19 @@ package com.degrafa.repeaters
 	
 		[Inspectable]
 		public var renderOnFinalIteration:Boolean=false;
-	
+		
+		/**
+		* GeometryRepeater constructor takes no arguments.
+		**/
 		public function GeometryRepeater(){
 			super();
 		}
 		
-		/**
-		* Denotes how many time object will be repeated
-		* 
-		**/
+		
 		private var _count:int=1;
+		/**
+		* Denotes how many times object will be repeated.
+		**/
 		public function set count(value:int):void {
 			var oldValue:int=_count;
 			_count=value;
@@ -67,10 +69,12 @@ package com.degrafa.repeaters
 		public function get count():int { return _count; }	
 		
 		
-		/**
-		* Contains a collection of RepeaterModifiers that will be used to repeat instances of the repeaterObject;
-		**/
+		
 		private var _modifiers:RepeaterModifierCollection;
+		/**
+		* Contains a collection of RepeaterModifiers that will be used to 
+		* repeat instances of the repeaterObject.
+		**/
 		[Inspectable(category="General", arrayType="com.degrafa.repeaters.IRepeaterModifier")]
 		[ArrayElementType("com.degrafa.repeaters.IRepeaterModifier")]
 		public function get modifiers():Array{
@@ -109,21 +113,11 @@ package com.degrafa.repeaters
 		* geometry object or it's child objects.
 		**/
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
-		//	trace("Geometry Repeater: " + event.property + " has changed");
 			if(_isDrawing || this.suppressEventProcessing==true) {
 				this.invalidated=true;
 				return;
 			} 
-			// getting here means a modifier has changed after treating the items that changed we need to dispatch
-			// so that it works it's way up to start the draw cycle.
-			/*if (!parent){
-                dispatchEvent(event)
-                draw(null,null);
-            } 
-            else{
-                dispatchEvent(event)
-            }*/
-            super.propertyChangeHandler(event);
+		    super.propertyChangeHandler(event);
 		}
 		
 
@@ -133,12 +127,16 @@ package com.degrafa.repeaters
 		}
 		
 		
+		/**
+		* Begins the draw phase for geometry objects. All geometry objects 
+		* override this to do their specific rendering.
+		* 
+		* @param graphics The current context to draw to.
+		* @param rc A Rectangle object used for fill bounds. 
+		**/
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
-			
 			if(!this.isInitialized){return;}
-	//		trace("GeometryRepeater draw()");
 			_isDrawing=true;
-			
 			
 			//We need to do this before we reset our objects states
 			calcBounds();
@@ -149,16 +147,11 @@ package com.degrafa.repeaters
 			var isSuppressed:Boolean=suppressEventProcessing;
 			
 			suppressEventProcessing=true;
-			//Clone source geometery to reset it
-			//var tempSourceObject:Geometry=CloneUtil.clone(_sourceGeometry);
-
-			
+						
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
-
 			for (var i:int=0; i<_count; i++) {
 				
 				//Apply our modifiers
-
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
 					DegrafaObject(modifier).parent=this;
 					DegrafaObject(modifier).suppressEventProcessing=true;
@@ -167,13 +160,10 @@ package com.degrafa.repeaters
 				}
 
 				//Draw out our changed object
-				//super.draw(graphics,rc);
-				
 				if ((renderOnFinalIteration==true && (i==_count-1)) || !renderOnFinalIteration) {
 				
 					if(graphics){
 	                    super.draw(graphics,rc);
-	                   // super.endDraw(graphics);
 	                }
 	                else{
 	                    
@@ -185,18 +175,13 @@ package com.degrafa.repeaters
 	                                    targetItem.graphics.clear();
 	                                }
 	                                super.draw(targetItem.graphics,rc);
-	                               // super.endDraw(targetItem.graphics);
 	                            }
 	                        }
 	                    }
-	                    
-	                }//
+	                }
 	  			 }
-				
 			}
-			
-		
-			
+				
 			//End modifications (which returns the object to its original state
 			for each (modifier in _modifiers.items) {
 				modifier.end();
@@ -208,11 +193,6 @@ package com.degrafa.repeaters
 			_isDrawing=false;
 			
 			this.invalidated=false;
-
-			//See if we have been invalidated while drawing
-		//	if (this.invalidated) draw(graphics,rc);
-			
-		//	trace("elapsed draw time: " + String(getTimer()-t));
 		}
 		
 		/**
@@ -220,7 +200,6 @@ package com.degrafa.repeaters
 		 * as it would put us in an endless loop with the draw function
 		 */
 	    override public function dispatchEvent(evt:Event):Boolean{
-	//    	trace("GeometryRepeater: " + evt.type);
 	    	if(suppressEventProcessing || _isDrawing){
 	        	evt.stopImmediatePropagation();
 	        	this.invalidated=true;
@@ -238,17 +217,12 @@ package com.degrafa.repeaters
 			_bounds.y=y;
 			_bounds.width=width;
 			_bounds.height=height;
-			
-			/*for (var i:int=0;i<geometry.length;i++) {
-				 if (Geometry(geometry[i]).bounds!=null)  //This isn't going to work well for lines :) 
-					_bounds.union(Geometry(geometry[i]).bounds);
-			}*/
-			//trace("bounds.width: " + bounds.width + " bounds.height: " + bounds.height);
 		}
 		
 		//*******
 		//temporary until bounds for this is figured out
 		private var _x:Number;
+		
 		/**
 		* The x-axis coordinate of the upper left point of the regular rectangle. If not specified 
 		* a default value of 0 is used.
@@ -311,8 +285,5 @@ package com.degrafa.repeaters
 				invalidated = true;
 			}
 		}
-		
-		
-		
 	}
 }

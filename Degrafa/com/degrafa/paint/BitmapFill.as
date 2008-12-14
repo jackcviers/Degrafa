@@ -236,12 +236,12 @@ package com.degrafa.paint{
 			}
 		}
 		
-		/**
-		 * How the bitmap repeats horizontally.
-		 * Valid values are "none", "repeat", "space", and "stretch".
-		 * @default "repeat"
-		 */
 		private var _repeatX:String = "repeat";
+		/**
+		* How the bitmap repeats horizontally.
+		* Valid values are "none", "repeat", "space", and "stretch".
+		* @default "repeat"
+		*/
 		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
 		[Bindable(event="propertyChange")]
 		public function get repeatX():String{ 
@@ -262,13 +262,12 @@ package com.degrafa.paint{
 			
 		}
 		
-		
-		/**
-		 * How the bitmap repeats vertically.
-		 * Valid values are "none", "repeat", "space", and "stretch".
-		 * @default "repeat"
-		 */
 		private var _repeatY:String = "repeat";
+		/**
+		* How the bitmap repeats vertically.
+		* Valid values are "none", "repeat", "space", and "stretch".
+		* @default "repeat"
+		*/
 		[Inspectable(category = "General", enumeration = "none,repeat,space,stretch")]
 		[Bindable(event="propertyChange")]
 		public function get repeatY():String{ 
@@ -289,13 +288,12 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _rotation:Number = 0;
 		/**
 		* The number of degrees to rotate the bitmap.
 		* Valid values range from 0.0 to 360.0.
 		* @default 0
 		*/
-		private var _rotation:Number = 0;
 		[Bindable(event="propertyChange")]
 		public function get rotation():Number {
 			return _rotation;
@@ -316,14 +314,13 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _scaleX:Number = 1;
 		/**
-		 * The percent to horizontally scale the bitmap when filling, from 0.0 to 1.0.
-		 * If 1.0, the bitmap is filled at its natural size.
-		 * @default 1.0
-		 */
-	 	private var _scaleX:Number = 1;
-		[Bindable(event="propertyChange")]
+		* The percent to horizontally scale the bitmap when filling, from 0.0 to 1.0.
+		* If 1.0, the bitmap is filled at its natural size.
+		* @default 1.0
+		*/
+	 	[Bindable(event="propertyChange")]
 		public function get scaleX():Number {
 			return _scaleX; 
 		}
@@ -343,13 +340,12 @@ package com.degrafa.paint{
 			
 		}
 		
-		
-		/**
-		 * The percent to vertically scale the bitmap when filling, from 0.0 to 1.0.
-		 * If 1.0, the bitmap is filled at its natural size.
-		 * @default 1.0
-		 */
 		private var _scaleY:Number = 1;
+		/**
+		* The percent to vertically scale the bitmap when filling, from 0.0 to 1.0.
+		* If 1.0, the bitmap is filled at its natural size.
+		* @default 1.0
+		*/
 		[Bindable(event="propertyChange")]
 		public function get scaleY():Number { 
 			return _scaleY; 
@@ -370,12 +366,11 @@ package com.degrafa.paint{
 		
 		}
 		
-		
-		/**
-		 * A flag indicating whether to smooth the bitmap data when filling with it.
-		 * @default false
-		 */
 		private var _smooth:Boolean = false; 
+		/**
+		* A flag indicating whether to smooth the bitmap data when filling with it.
+		* @default false
+		*/
 		[Inspectable(category = "General", enumeration = "true,false")]
 		[Bindable(event="propertyChange")]
 		public function get smooth():Boolean{
@@ -398,11 +393,11 @@ package com.degrafa.paint{
 		}
 		
 		//EXTERNAL BITMAP SUPPORT
-		/**
-		 * A support property for binding to in the event of an external loading wait.
-		 * permits a simple binding to indicate that the wait is over
-		 */
 		private var _waiting:Boolean;
+		/**
+		* A support property for binding to in the event of an external loading wait.
+		* permits a simple binding to indicate that the wait is over
+		*/
 		[Bindable("externalDataPropertyChange")] 
 		public function get waiting():Boolean
 		{
@@ -423,7 +418,7 @@ package com.degrafa.paint{
 		 * @param	evt an ExternalDataAsset.STATUS_READY event
 		 */
 		private function externalBitmapHandler(evt:Event):void {
-	//TODO: consider passing all ExternalBitmapData events through here and redispatching from BitmapFill		
+			//TODO: consider passing all ExternalBitmapData events through here and redispatching from BitmapFill		
 			switch(evt.type)
 			{
 			case ExternalDataAsset.STATUS_READY:
@@ -434,6 +429,7 @@ package com.degrafa.paint{
 			break;
 			}
 		}
+		
 		/**
 		 * Optional loadingLocation reference. Only relevant when a subsequent source assignment is made as 
 		 * a url string. Using a LoadingLocation simplifies management of loading from external domains
@@ -575,8 +571,10 @@ package com.degrafa.paint{
 		}
 		
 		
-		//reference to the requesting geometry
 		private var _requester:IGeometryComposition;
+		/**
+		* reference to the requesting geometry
+		**/
 		public function set requester(value:IGeometryComposition):void
 		{
 			_requester = value;
@@ -589,14 +587,17 @@ package com.degrafa.paint{
 		public function get lastRectangle():Rectangle {
 			return (_lastRect)?_lastRect.clone():null;
 		}
+		
 		private var _lastContext:Graphics;
 		private var _lastArgs:Array = [];
+		
 		/**
 		 * Provide access to the lastArgs array
 		 */
 		public function get lastArgs():Array {
 			return _lastArgs;
 		}
+		
 		/**
 		 * Provides quick access to a cached function for restarting the last used fill either in the last used context, or, if a context is provided as an argument,
 		 * then to an alternate context. If no last used context is available then this will do nothing;
@@ -617,7 +618,9 @@ package com.degrafa.paint{
 			}
 		}
 		
-		
+		/**
+		* Begins the bitmap fill.
+		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 			
 			if(!bitmapData) {
@@ -741,10 +744,13 @@ package com.degrafa.paint{
 			_lastArgs[3] = smooth;
 			_lastContext = graphics;
 			_lastRect = rc;
-		//	CommandStack.currentFill = ["beginBitmapFill",[template, matrix, repeat, smooth]];
+			//	CommandStack.currentFill = ["beginBitmapFill",[template, matrix, repeat, smooth]];
 			graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}
 		
+		/**
+		* Ends the bitmap fill.
+		**/
 		public function end(graphics:Graphics):void {
 			graphics.endFill();
 		}

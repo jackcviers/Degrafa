@@ -97,7 +97,7 @@ package com.degrafa.paint{
 		private var shape:Shape;
 		private var bitmapData:BitmapData;
 		
-		private var _blendMode:String;
+		
 		private var _fills:Array; // property backing var
 		private var fillsChanged:Boolean; // dirty flag
 		
@@ -106,6 +106,12 @@ package com.degrafa.paint{
 		// Public Properties
 		//**************************************
 		
+		private var _blendMode:String="normal";
+		/**
+		* Blend mode effect to use for this fill.
+		* You may use any constant provided in the flash.display.BlendMode class.
+		**/
+		[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")]
 		public function get blendMode():String { return _blendMode; }
 		public function set blendMode(value:String):void {
 			if(_blendMode != value) {
@@ -128,8 +134,11 @@ package com.degrafa.paint{
 		}
 		
 		
-		//reference to the requesting geometry
+		
 		private var _requester:IGeometryComposition;
+		/**
+		 * Reference to the requesting geometry.
+		 **/
 		public function set requester(value:IGeometryComposition):void
 		{
 			_requester = value;
@@ -174,7 +183,9 @@ package com.degrafa.paint{
 		//*********************************************
 		// Public Methods
 		//*********************************************
-		
+		/**
+		* Begins the complex fill.
+		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 			// todo: optimize with more cacheing
 			if(rc.width > 0 && rc.height > 0 && _fills != null && _fills.length > 0) {
@@ -247,10 +258,16 @@ package com.degrafa.paint{
 			}
 		}
 		
+		/**
+		* Ends the complex fill.
+		**/
 		public function end(graphics:Graphics):void {
 			graphics.endFill();
 		}
 		
+		/**
+		* Refreshs the complex fill.
+		**/
 		public function refresh():void {
 			fillsChanged = true;
 		}

@@ -44,7 +44,9 @@ package  com.degrafa.paint.palette{
 		
 				
 		private var _name:String;
-		//override so this can be explicitly set
+		/**
+		* The name value for this item.
+		**/
 		override public function get name():String{
 			return _name;
 		}
@@ -53,7 +55,9 @@ package  com.degrafa.paint.palette{
 		}
 		
 		private var _value:Object;
-		
+		/**
+		* The value for this item typically a color but can be of other types.
+		**/
 		public function get value():Object{
 			return _value;
 		}

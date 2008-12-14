@@ -19,19 +19,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.repeaters 
-{
+package com.degrafa.repeaters{
 	import flash.geom.Rectangle;
 	
-	public interface IRepeaterModifier
-	{
+	/**
+	* IRepeaterModifier is the base interface for objects 
+	* qualifying as property modifiers.
+	**/ 
+	public interface IRepeaterModifier{
 		function beginModify(sourceObject:Object):void
 		function apply():void
 		function end():void
 		function get iteration():Number;
-
-		
 	}
-	
-
 }

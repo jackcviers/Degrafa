@@ -58,19 +58,16 @@ package com.degrafa.paint{
 			
 		}
 		
-		// property backing vars
-		private var _blendMode:String;
-		private var _fill:IFill;
-		
 		
 		//**************************************
 		// Public Properties
 		//**************************************
-		
+		private var _blendMode:String="normal";
 		/**
 		 * The blendMode used to render this layer in a ComplexFill.
 		 * You may use any constant provided in the flash.display.BlendMode class.
 		 */
+		[Inspectable(category="General", enumeration="normal,layer,multiply,screen,lighten,darken,difference,add,subtract,invert,alpha,erase,overlay,hardlight", defaultValue="normal")] 
 		public function get blendMode():String { return _blendMode; }
 		public function set blendMode(value:String):void {
 			if(_blendMode != value) {
@@ -78,6 +75,7 @@ package com.degrafa.paint{
 			}
 		}
 		
+		private var _fill:IFill;
 		/**
 		 * The IFill which this BlendFill wraps.
 		 */
@@ -101,8 +99,11 @@ package com.degrafa.paint{
 		
 		//
 		
-		//reference to the requesting geometry
+		
 		private var _requester:IGeometryComposition;
+		/**
+		 * Reference to the requesting geometry.
+		 **/
 		public function set requester(value:IGeometryComposition):void
 		{
 			_requester = value;
@@ -112,7 +113,9 @@ package com.degrafa.paint{
 		//*****************************************
 		// Public Methods
 		//*****************************************
-		
+		/**
+		* Begins the blend fill.
+		**/
 		public function begin(graphics:Graphics, rectangle:Rectangle):void {
 			if (fill != null) {
 			if (fill is ITransformablePaint)	(fill as ITransformablePaint).requester = _requester;
@@ -121,6 +124,9 @@ package com.degrafa.paint{
 			}
 		}
 		
+		/**
+		* Ends the blend fill.
+		**/
 		public function end(graphics:Graphics):void {
 			if (fill != null) {
 				fill.end(graphics);
