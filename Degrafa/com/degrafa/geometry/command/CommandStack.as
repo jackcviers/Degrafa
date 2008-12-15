@@ -207,16 +207,16 @@ package com.degrafa.geometry.command{
 									transObject.transform.matrix = tempMat;
 								} else transObject.transform.matrix = CommandStack.currentTransformMatrix;
 							}
-							/**/
+							
 						}
 					} 
 				}
 			
-				//	maybe there's a stroke on some owners at this point:
-				if (owner.stroke) owner.initStroke(graphics, rc);
-				else currentStroke = null;
-				if (owner.fill) owner.initFill(graphics, rc);
-				else currentFill = null;
+				//	maybe there are paint settings on some owners at this point:
+				//setup the stroke
+				owner.initStroke(graphics, rc);
+				//setup the fill
+				owner.initFill(graphics, rc);
 				if (owner.hasDecorators) initDecorators();
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
 		
@@ -258,18 +258,17 @@ package com.degrafa.geometry.command{
 					} else if (_fxShape.mask) _fxShape.mask = null;
 											
 					//setup the stroke
-				if (owner.stroke)	owner.initStroke(_fxShape.graphics,rc);
-				else currentStroke=null;	
+					owner.initStroke(graphics, rc);
 					//setup the fill
-				if (owner.fill)	owner.initFill(_fxShape.graphics, rc);
-				else currentFill = null;
-						//init the decorations if required
+					owner.initFill(graphics, rc);
+
+					//init the decorations if required
 					if (owner.hasDecorators) initDecorators();
 					lineTo = _fxShape.graphics.lineTo;
 					curveTo = _fxShape.graphics.curveTo;
 					moveTo = _fxShape.graphics.moveTo;
 					renderCommandStack(_fxShape.graphics,rc,_cursor);
-					
+					if (owner.hasDecorators) endDecorators();
 
 					//blit the data to the destination context
 					renderBitmapDatatoContext(_fxShape,graphics)
@@ -278,12 +277,9 @@ package com.degrafa.geometry.command{
 				else {
 
 					//setup the stroke
-					if (owner.stroke)	owner.initStroke(graphics, rc);
-					else currentStroke=null;
-
+					owner.initStroke(graphics, rc);
 					//setup the fill
-					if (owner.fill) owner.initFill(graphics, rc);
-					else currentFill=null;
+					owner.initFill(graphics, rc);
 
 					//init the decorations if required
 					if (owner.hasDecorators) initDecorators();
