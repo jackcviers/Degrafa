@@ -36,6 +36,10 @@
 	<component id="RadialGradientStroke" class="com.degrafa.paint.RadialGradientStroke"/>
 	<component id="SolidFill" class="com.degrafa.paint.SolidFill"/>
 	<component id="SolidStroke" class="com.degrafa.paint.SolidStroke"/>
+	
+	<!--standard decorators-->
+	<component id="SVGDashLine" class="com.degrafa.decorators.standard.SVGDashLine"/>
+	<component id="SloppyLineDecorator" class="com.degrafa.decorators.standard.SloppyLineDecorator"/>
 			
 	<!--geometry-->
 	<component id="AdvancedRectangle" class="com.degrafa.geometry.AdvancedRectangle"/>
