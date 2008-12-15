@@ -217,7 +217,7 @@ package com.degrafa.geometry.command{
 				owner.initStroke(graphics, rc);
 				//setup the fill
 				owner.initFill(graphics, rc);
-				if (owner.hasDecorators) initDecorators();
+				//if (owner.hasDecorators) initDecorators();
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
 		
 			}
@@ -258,9 +258,9 @@ package com.degrafa.geometry.command{
 					} else if (_fxShape.mask) _fxShape.mask = null;
 											
 					//setup the stroke
-					owner.initStroke(graphics, rc);
+					owner.initStroke(_fxShape.graphics, rc);
 					//setup the fill
-					owner.initFill(graphics, rc);
+					owner.initFill(_fxShape.graphics, rc);
 
 					//init the decorations if required
 					if (owner.hasDecorators) initDecorators();
@@ -365,7 +365,7 @@ package com.degrafa.geometry.command{
 					//draw at filtered size
 					context.lineStyle();
 					context.beginBitmapFill(bitmapData, mat,false,true);
-					context.drawRect(filteredRect.x,filteredRect.y, filteredRect.width, filteredRect.height);
+					context.drawRect(filteredRect.x, filteredRect.y, filteredRect.width, filteredRect.height);
 					context.endFill();
 				}
 			} else {
