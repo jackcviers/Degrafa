@@ -305,7 +305,7 @@ package com.degrafa.paint{
 				processEntries(rc.width * xp + rc.height * yp);
 				
 			}
-			//handle layout transforms - only renderLayouts so far
+			//handle layout transforms 
 			if (_requester && (_requester as Geometry).hasLayout) {
 					var geom:Geometry = _requester as Geometry;
 					if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
@@ -328,7 +328,6 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-		//	CommandStack.currentFill = this;
 			_lastArgs.length = 0;
 			_lastArgs[0] = gradientType;
 			_lastArgs[1] = _colors;
@@ -340,8 +339,6 @@ package com.degrafa.paint{
 			_lastArgs[7] = focalPointRatio;
 			_lastContext = graphics;
 			_lastRect = rc;
-			
-			//["beginGradientFill", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
 			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}

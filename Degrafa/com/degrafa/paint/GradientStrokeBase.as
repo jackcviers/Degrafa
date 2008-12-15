@@ -206,7 +206,7 @@ package com.degrafa.paint {
 		}
 		
 		/**
-		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
+		 * Provides access to a cached function for restarting the last used fill either in the same context, or , if context is provided as an argument,
 		 * then to an alternate context. If no
 		 */
 		public function get reApplyFunction():Function {
@@ -230,7 +230,7 @@ package com.degrafa.paint {
 			}
 		}
 		
-	//	override public function get reStartFunction(graphics:Graphics=null):void {}
+
 		/**
  		* Applies the properties to the specified Graphics object.
  		* 
@@ -258,7 +258,6 @@ package com.degrafa.paint {
 				processEntries((rc.width)*xp + (rc.height)*yp);
 			} else {
 				matrix = null;
-		//		trace('null mat')
 			}
 		
 
@@ -293,19 +292,14 @@ package com.degrafa.paint {
 				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode);
 				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode];
 				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
-
-				//CommandStack.currentStroke = this;// ["lineStyle", [weight, 0, 1, pixelHinting, scaleMode], "lineGradientStyle", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
 			}
 			else{
 				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit);
 				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit];
 				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
-			//	CommandStack.currentStroke = this;// ["lineStyle", [weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit], "lineGradientStyle", [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio]];
-
 			}
 			_lastContext = graphics;
 			_lastRect = rc;
-		//	CommandStack.currentStroke = this;
 			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}

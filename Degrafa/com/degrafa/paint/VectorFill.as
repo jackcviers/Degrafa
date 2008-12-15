@@ -125,13 +125,14 @@ package com.degrafa.paint{
 			
 		}
 		
+		
+		private var _originX:Number = 0;
 		/**
 		* The horizontal origin for the VectorFill.
 		* The VectorFill is offset so that this point appears at the origin.
 		* Scaling and rotation of the VectorFill are performed around this point.
 		* @default 0
 		*/
-		private var _originX:Number = 0;
 		public function get originX():Number { 
 			return _originX; 
 		}
@@ -152,13 +153,13 @@ package com.degrafa.paint{
 		}
 		
 		
+		private var _originY:Number = 0;
 		/**
 		* The vertical origin for the VectorFill.
 		* The VectorFill is offset so that this point appears at the origin.
 		* Scaling and rotation of the rendered Geometry are performed around this point.
 		* @default 0
 		*/
-		private var _originY:Number = 0;
 		public function get originY():Number { 
 			return _originY; 
 		}
@@ -177,13 +178,12 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _offsetX:Measure = new Measure();
 		/**
-		* How far the Geometry is horizontally offset from the origin.
+		* How far the VectorFill is horizontally offset from the origin.
 		* This adjustment is performed after rotation and scaling.
 		* @default 0
 		*/
-		private var _offsetX:Measure = new Measure();
 		public function get offsetX():Number { 
 			return _offsetX.value; 
 		}
@@ -214,12 +214,13 @@ package com.degrafa.paint{
 		}
 		
 		
+		private var _offsetY:Measure = new Measure();		
 		/**
 		 * How far the Geometry is vertically offset from the origin.
 		 * This adjustment is performed after rotation and scaling.
 		 * @default 0
 		 */
-		private var _offsetY:Measure = new Measure();
+
 		public function get offsetY():Number { 
 			return _offsetY.value; 
 		}
@@ -249,12 +250,13 @@ package com.degrafa.paint{
 			}
 		}
 		
+		private var _repeatX:String = "repeat";
 		/**
 		 * How the Geometry repeats horizontally.
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
-		private var _repeatX:String = "repeat";
+
 		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
 		
 		public function get repeatX():String{ 
@@ -274,13 +276,13 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _repeatY:String = "repeat";		
 		/**
 		 * How the Geometry repeats vertically.
 		 * Valid values are "none", "repeat", "space", and "stretch".
 		 * @default "repeat"
 		 */
-		private var _repeatY:String = "repeat";
+
 		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
 		public function get repeatY():String{ 
 			return _repeatY; 
@@ -299,14 +301,13 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _rotation:Number = 0;		
 		/**
 		* The number of degrees to rotate the Geometry.
 		* Valid values range from 0.0 to 360.0.
 		* @default 0
 		*/
-		private var _rotation:Number = 0;
-		
+
 		public function get rotation():Number {
 			return _rotation;
 		}
@@ -325,13 +326,13 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+	 	private var _scaleX:Number = 1;		
 		/**
 		 * The percent to horizontally scale the Geometry when filling, from 0.0 to 1.0.
 		 * If 1.0, the Geometry is filled at its natural size.
 		 * @default 1.0
 		 */
-	 	private var _scaleX:Number = 1;
+
 		public function get scaleX():Number {
 			return _scaleX; 
 		}
@@ -348,13 +349,13 @@ package com.degrafa.paint{
 			
 		}
 		
-		
+		private var _scaleY:Number = 1;		
 		/**
 		 * The percent to vertically scale the Geometry when filling, from 0.0 to 1.0.
 		 * If 1.0, the Geometry is filled at its natural size.
 		 * @default 1.0
 		 */
-		private var _scaleY:Number = 1;
+
 		public function get scaleY():Number { 
 			return _scaleY; 
 		}
@@ -374,12 +375,12 @@ package com.degrafa.paint{
 		
 		}
 		
-		
+		private var _smooth:Boolean = true; 		
 		/**
 		 * A flag indicating whether to smooth the bitmap data when filling with it.
 		 * @default true
 		 */
-		private var _smooth:Boolean = true; 
+
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get smooth():Boolean{
 			return _smooth; 
@@ -400,16 +401,16 @@ package com.degrafa.paint{
 			}
 			
 		}
-		
+	
+		private var _filters:FilterCollection;
 		/**
 		 * A collection of filters to apply to the geometry source being used for the fill.
 		 */
-		//TODO: investigate event dispatching extended filters for Degrafa.
-		private var _filters:FilterCollection;
 		[Inspectable(category="General", arrayType="flash.filters.BitmapFilter")]
 		[ArrayElementType("flash.filters.BitmapFilter")]
 		public function get filters():Array{
-			initFilterCollection();
+			initFilterCollection();	
+			//TODO: investigate bindable filters for Degrafa.
 			return _filters.items;
 		}
 		
@@ -443,10 +444,10 @@ package com.degrafa.paint{
 			}
 		}
 		
+		private var _enableFilters:Boolean;
 		/**
 		 * Specifies whether to use enable any filters assigned to this Fill
 		 */
-		private var _enableFilters:Boolean;
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableFilters():Boolean
 		{
@@ -468,11 +469,11 @@ package com.degrafa.paint{
 			}
 		}
 		
-		
+		private var _enableBackground:Boolean;		
 		/**
 		 * Specifies whether to use the solidFillBackGround SolidFill (if set) when rendering
 		 */
-		private var _enableBackground:Boolean;
+
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableBackground():Boolean
 		{
@@ -490,10 +491,12 @@ package com.degrafa.paint{
 			}
 			}
 		}
+		
+		
+		private var _solidFillBackground:SolidFill;		
 		/**
 		 * A SolidFill instance to use when rendering 
 		 */
-		private var _solidFillBackground:SolidFill;
 		public function get solidFillBackground():SolidFill
 		{
 			if (_solidFillBackground) return _solidFillBackground;
@@ -527,11 +530,11 @@ package com.degrafa.paint{
 			}
 		}
 		
+		private var _insetFromStroke:Boolean;		
 		/**
 		 * whether the fillrendering bounds are determined by insetting from half the stroke width of the target or not.
 		 * this setting only has effect when used to fill degrafa target geometry otherwise it is ignored.
 		 */
-		private var _insetFromStroke:Boolean;
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get insetFromStroke():Boolean
 		{
@@ -546,12 +549,14 @@ package com.degrafa.paint{
 				initChange("insetFromStroke", !_insetFromStroke, _insetFromStroke, this);
 			}
 		}
+		
+		
+		private var _enableSourceClipping:Boolean;		
 		/**
 		 * Specifies whether to use a the bounds of the clipSource Geometry object to clip the bounds of the fill
 		 * from the rendered version of the source Geometry. If set to true and no clipSource has been assigned to this
 		 * fill, then this setting is of no effect.
 		 */
-		private var _enableSourceClipping:Boolean;
 		[Inspectable(category="General", enumeration="true,false")]
 		public function get enableSourceClipping():Boolean
 		{
@@ -955,9 +960,10 @@ package com.degrafa.paint{
 
 		}
 		
-		
-		//reference to the requesting geometry
-		private var _requester:IGeometryComposition;
+		private var _requester:IGeometryComposition;	
+		/**
+		 * Used to set a temporary reference to the requesting geometry. Mainly for internal use, for transform and layout 'inheritance' by this fill.
+		 */
 		public function set requester(value:IGeometryComposition):void
 		{
 			_requester = value;
@@ -1010,6 +1016,9 @@ package com.degrafa.paint{
 		//track difference in target bounds on subsequent requests
 		private var _rectBuffer:Rectangle=new Rectangle();
 		
+		/**
+		 * begins the VectorFill
+		 */
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 
 			if (rc && (rc.isEmpty() || rc.width*rc.height<1)) return; //no fill
@@ -1212,8 +1221,10 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
+		//	var roundingParams:Array = ["a","b","c","d","tx","ty"];
+		//	for each(var str:String in roundingParams) matrix[str] = Number(matrix[str]).toPrecision(1)
+		//	trace(matrix)
 			graphics.beginBitmapFill(template, matrix, repeat, _smooth );
-	//		CommandStack.currentFill = this;
 			_lastArgs.length = 0;
 			_lastArgs[0] = template;
 			_lastArgs[1] = matrix;
@@ -1227,9 +1238,7 @@ package com.degrafa.paint{
 		}
 
 		/**
-		* Ends the fill for the graphics context.
-		* 
-		* @param graphics The current context being drawn to.
+		* Ends the Vectorfill for the graphics context.
 		**/
 		public function end(graphics:Graphics):void {
 			graphics.endFill();
