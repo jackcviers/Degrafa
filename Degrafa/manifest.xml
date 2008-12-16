@@ -8,6 +8,7 @@
 	<component id="GraphicPoint" class="com.degrafa.GraphicPoint"/>
 	<component id="GraphicPointEX" class="com.degrafa.GraphicPointEX"/>
 	<component id="GraphicText" class="com.degrafa.GraphicText"/>
+	<component id="GraphicTextPlus" class="com.degrafa.GraphicTextPlus"/>
 
 	<!--Transforms-->
 	<component id="Transform" class="com.degrafa.transform.Transform"/>
@@ -59,6 +60,7 @@
 	<component id="RoundedRectangleComplex" class="com.degrafa.geometry.RoundedRectangleComplex"/>
 	<component id="VerticalLine" class="com.degrafa.geometry.VerticalLine"/>
 	<component id="RasterText" class="com.degrafa.geometry.RasterText"/>
+	<component id="RasterTextPlus" class="com.degrafa.geometry.RasterTextPlus"/>
 	<component id="RasterImage" class="com.degrafa.geometry.RasterImage"/>
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
