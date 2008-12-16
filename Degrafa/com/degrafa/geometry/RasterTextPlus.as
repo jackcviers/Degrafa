@@ -99,22 +99,6 @@ package com.degrafa.geometry{
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
-		private var _fill:IGraphicsFill;
-		/**
-		 * The Color of this RasterText can be set using a SolidFill only. It is used for referencing the text color. Any other Fill types are currently ignored. As a convenience
-		 * the regular textfield textColor property is channeled through this object, so it can be used in place of assigning a fill - it also permits color expression in colorkey and alternate formats (e.g. "red")
-		 */
-		override public function set fill(value:IGraphicsFill):void { 
-			super.fill = value;
-			_fill = super.fill;
-		};
-
-		override public function get fill():IGraphicsFill { 
-			if (!super.fill) super.fill = new SolidFill(0, 1);
-			return super.fill;
-		};
-		
-		
 		/**
 		 * Internal function to update the textfield based on settings
 		 * @private 
