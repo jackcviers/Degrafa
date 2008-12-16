@@ -129,9 +129,13 @@ package com.degrafa
 		public function set autoSizeField(value:Boolean):void{
 			_autoSizeField = value;
 			
+			//NOTE: added the 4px offset as the left and bottom was 
+			//being cut off requires investigation.  Was changed
+			//from 5px to 4px to address the "walking text" issue
+			
 			if(text != ""){
-				width = textWidth +5;
-				height = textHeight +5;
+				width = textWidth + 4;
+				height = textHeight + 4;
 			}
 			
 		}
@@ -143,12 +147,13 @@ package com.degrafa
 			
 			super.text = value;
 			
-			//NOTE: added the 5px offset as the left and bottom was 
-			//being cut off requires investigation
+			//NOTE: added the 4px offset as the left and bottom was 
+			//being cut off requires investigation.  Was changed
+			//from 5px to 4px to address the "walking text" issue
 			
 			if(_autoSizeField){
-				width = textWidth +5;
-				height = textHeight +5;
+				width = textWidth + 4;
+				height = textHeight + 4;
 			}
 			
 		}
