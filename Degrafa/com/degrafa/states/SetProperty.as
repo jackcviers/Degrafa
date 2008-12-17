@@ -19,7 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// Based on Adobe Code
+// Based on the Adobe Flex 2 and 3 state implementation and modified for use in 
+// Degrafa.
 ////////////////////////////////////////////////////////////////////////////////
 
 //modified for degrafa
@@ -33,7 +34,11 @@ package com.degrafa.states{
 	
 	[IconFile("SetProperty.png")]
 	/**
-	* The SetProperty class specifies a property value that is in effect only during the parent view state.
+	* The SetProperty class specifies a property value that is in effect 
+	* only during the parent view state.
+	* 
+	* Degrafa states work very much like Flex 2 or 3 built in states. 
+	* For further details reffer to the Flex 2 or 3 documentation. 
 	**/
 	public class SetProperty implements IOverride{
 		

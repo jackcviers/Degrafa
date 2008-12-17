@@ -19,7 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// Based on Adobe Code
+// Based on the Adobe Flex 2 and 3 state implementation and modified for use in 
+// Degrafa.
 ////////////////////////////////////////////////////////////////////////////////
 
 //modified for degrafa
@@ -29,26 +30,43 @@ package com.degrafa.states{
 	import mx.events.FlexEvent;
 	import mx.events.StateChangeEvent;
 	
+	/**
+	* The StateManager manages states for a IDegrafaStateClients. 
+	* This object is not intended to be accessed directly.
+	* 
+	* Degrafa states work very much like Flex 2 or 3 built in states. 
+	* For further details reffer to the Flex 2 or 3 documentation. 
+	**/
 	public class StateManager{
 		
 		private var stateClient:IDegrafaStateClient;
 		
+		/**
+		* Constructor.
+		**/
 		public function StateManager(stateClient:IDegrafaStateClient){
 			
 			this.stateClient = stateClient;
 			
 		}
-		private var _currentState:String;
+		
 		private var requestedCurrentState:String;
 		private var _currentStateChanged:Boolean;
 		
+		private var _currentState:String;
+		/**
+		* The current view state.
+		**/
 		public function get currentState():String{
 	        return _currentStateChanged ? requestedCurrentState : _currentState;
 	    }
 	    public function set currentState(value:String):void{
 	        setCurrentState(value);
 	    }
-	     
+	    
+	    /**
+	    * Sets the current state for this view.
+	    **/ 
 		public function setCurrentState(stateName:String):void{
 			 if (stateName != currentState && !(isBaseState(stateName) && isBaseState(currentState))){
 	            requestedCurrentState = stateName;
@@ -63,10 +81,17 @@ package com.degrafa.states{
 	            }
 	        }
 		}
+		
+		/**
+		* Returns true if the passed state is the base state.
+		**/
 		public function isBaseState(stateName:String):Boolean{
 	    	return !stateName || stateName == "";
     	}
     	
+    	/**
+    	* Commits the current state making it the active state.
+    	**/
 		public function commitCurrentState():void{
         
 	        var commonBaseState:String = findCommonBaseState(_currentState, requestedCurrentState);
@@ -105,7 +130,10 @@ package com.degrafa.states{
 	        stateClient.dispatchEvent(event);
 	
 	    }
-
+		
+		/**
+		* Return the state object with the given name.
+		**/
 	    public function getState(stateName:String):State{
 	        if (!stateClient.states || isBaseState(stateName))
 	            return null;
@@ -117,7 +145,10 @@ package com.degrafa.states{
 	        }
 	        return null;
 	    }
-	
+		
+		/**
+		* Returns the name of the common base state shared between state1 and state2.
+		**/
 	    public function findCommonBaseState(state1:String, state2:String):String{
 	        var firstState:State = getState(state1);
 	        var secondState:State = getState(state2);
@@ -160,7 +191,10 @@ package com.degrafa.states{
 	        
 	        return commonBase;
 	    }
-	
+		
+		/**
+		* Returns an array of base states
+		**/
 	    public function getBaseStates(state:State):Array{
 	        var baseStates:Array = [];
 	        
@@ -173,7 +207,10 @@ package com.degrafa.states{
 	
 	        return baseStates;
 	    }
-	
+		
+		/**
+		* Removes the passed state from the collection of states.
+		**/
 	    public function removeState(stateName:String, lastState:String):void{
 	        var state:State = getState(stateName);
 	
@@ -197,7 +234,10 @@ package com.degrafa.states{
 	                removeState(state.basedOn, lastState);
 	        }
 	    }
-
+		
+		/**
+		* Applys the passed state. Making it the current state.
+		**/
 	    public function applyState(stateName:String, lastState:String):void{
 	        var state:State = getState(stateName);
 	
@@ -219,7 +259,9 @@ package com.degrafa.states{
 	        }
 	    }
 
-    
+    	/**
+    	* Initializes the passed state.
+    	**/
 	    public function initializeState(stateName:String):void{
 	        var state:State = getState(stateName);
 	        

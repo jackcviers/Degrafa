@@ -19,7 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// Based on Adobe Code
+// Based on the Adobe Flex 2 and 3 state implementation and modified for use in 
+// Degrafa.
 ////////////////////////////////////////////////////////////////////////////////
 
 //modified for degrafa
@@ -37,6 +38,9 @@ package com.degrafa.states{
 	/**
 	* The RemoveChild class removes a Geomerty object, such as a Circle, 
 	* from a target as part of a view state.
+	* 
+	* Degrafa states work very much like Flex 2 or 3 built in states. 
+	* For further details reffer to the Flex 2 or 3 documentation. 
 	**/
 	public class RemoveChild implements IOverride{
 		
