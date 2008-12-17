@@ -22,7 +22,7 @@
 // Programmed by:  Jim Armstrong, Singularity (www.algorithmist.net) and 
 // ported by the Degrafa team.
 ////////////////////////////////////////////////////////////////////////////////
-package com.degrafa.geometry.splines.math{
+package com.degrafa.utilities.math{
 	
 	/**
 	* Helper class for advanced math used in various spline Geometry.

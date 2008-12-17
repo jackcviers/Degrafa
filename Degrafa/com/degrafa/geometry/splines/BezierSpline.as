@@ -29,7 +29,7 @@ package com.degrafa.geometry.splines{
 	import com.degrafa.core.collections.GraphicPointCollection;
 	import com.degrafa.geometry.CubicBezier;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.geometry.splines.math.*;
+	import com.degrafa.utilities.math.*;
 	
 	import flash.display.Graphics;
 	import flash.display.Shape;

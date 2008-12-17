@@ -24,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.splines{
 	
-	import com.degrafa.geometry.splines.math.*;
+	import com.degrafa.utilities.math.*;
 	import flash.display.Shape;
   
   	/**
