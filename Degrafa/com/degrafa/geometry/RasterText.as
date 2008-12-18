@@ -99,7 +99,7 @@ package com.degrafa.geometry{
 		override public function get data():String{return "";}
 		override public function set data(value:String):void{}
 		
-	//	private var _fill:IGraphicsFill;
+
 		/**
 		 * The Fill of this RasterText is represented by a SolidFill if the textColor property is used. As a convenience
 		 * the regular textfield textColor property is channeled through this object, so it can be used in place of assigning a fill - it also permits color expression in colorkey and alternate formats (e.g. "red")
@@ -135,13 +135,13 @@ package com.degrafa.geometry{
 		}
 		
 		
-		private var _autoSizeField:Boolean=true;
+		private var _autoSizeField:Boolean=false;
 		/**
-		* Autosize the text field to text size. When set to true the 
-		* TextField object will size to fit the height and width of 
-		* the text. If layout is active on this object and its layoutMode is set to "adjust", then this
-		* setting will be overridden by the layout constraints. If layoutMode is set to "scale" then layout scaling will be applied after
-		* the textfield has been autosized to its contents.
+		* Autosize the text field to text size. Default value is false. When set to true the 
+		* TextField object will size to fit the height and width of the text. If layout is active on this object 
+		* and its layoutMode is set to "adjust", then this setting will be overridden by the layout constraints. 
+		* If layoutMode is set to "scale" then layout scaling will be applied after
+		* the textfield has been autosized to its contents (not yet available, planned for future release)
 		**/
 
 		[Inspectable(category="General", enumeration="true,false")]
@@ -241,7 +241,8 @@ package com.degrafa.geometry{
 		}
 		
 		/**
-		* Initialise the stroke/border for this RasterText object. Typically only called by draw 
+		* Initialise the stroke/border for this RasterText object. Typically only called by draw.
+		* RasterText only has a visible border stroke if the border property is set to true.
 		* 
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
@@ -268,6 +269,8 @@ package com.degrafa.geometry{
 				internalbackground.graphics.clear();
 				_backgroundFill.begin(internalbackground.graphics, rc);
 				internalbackground.graphics.drawRect(rc.x, rc.y, rc.width, rc.height);
+			} else {
+				internalbackground.graphics.clear();
 			}
 			if (!(_fill is SolidFill)) {
 				if (!internalMaskee) {
@@ -294,6 +297,7 @@ package com.degrafa.geometry{
 				internalMaskee.mask = textField;
 			} else {
 				if (internalMaskee) {
+
 					internalMaskee.graphics.clear();
 					textField.cacheAsBitmap = false;
 					internalMaskee.cacheAsBitmap = false;
@@ -420,7 +424,7 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void {
 				if(invalidated){
-				
+				updateTextField();
 				commandStack.length=0;
 				//frame it in a rectangle to permit transforms via 
 				//commandStack (whether this is used or not will 
@@ -956,10 +960,8 @@ package com.degrafa.geometry{
 			var newval:uint = ColorUtil.resolveColor(value);
 			if (stroke is SolidStroke) SolidStroke(stroke).color = value;
 			else stroke = new SolidStroke(value, 1, 0);
-			
-		//	if (newval!=textField.borderColor)
-		//	initChange("borderColor", textField.borderColor, textField.borderColor = newval, this);
     	}
+		
 		/**
 		* condenseWhite property for the textField. 
 		* 
@@ -1101,13 +1103,12 @@ package com.degrafa.geometry{
 		* @see flash.text.TextField
 		**/ 		
 		public function get textColor():uint{
-			return (_fill is SolidFill) ? uint((_fill as SolidFill).color):null;// textField.textColor;
+			return (_fill is SolidFill) ? uint((_fill as SolidFill).color):null;
 		} 
     	public function set textColor(value:uint):void{
 			if (!(_fill is SolidFill) || value != uint((_fill as SolidFill).color)) {
 				if (_fill is SolidFill) (_fill as SolidFill).color = value;
 				else fill = new SolidFill(value, 1);
-			//initChange("textColor", textField.textColor, textField.textColor = value, this);
 			}
     	} 
     	/**
