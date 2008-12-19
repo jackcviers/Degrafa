@@ -42,6 +42,7 @@ package com.degrafa.repeaters
 	public class GeometryRepeater extends Geometry implements IGeometry {
 		
 		private var _sourceGeometry:Geometry;
+		private var _bounds:Rectangle;  
 		private var _isDrawing:Boolean=false;
 	
 		[Inspectable]
@@ -68,6 +69,15 @@ package com.degrafa.repeaters
 		public function get count():int { return _count; }	
 		
 		
+		/**
+		 * Returns current iteration for a draw cycle
+		 * -1 if not currently drawing
+		 */
+		 public function get iteration():int {
+		 	return _curIteration;
+		 }
+		
+		private var _curIteration:int=-1;
 		
 		private var _modifiers:RepeaterModifierCollection;
 		/**
@@ -121,11 +131,6 @@ package com.degrafa.repeaters
 		
 
 		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
-		private var _bounds:Rectangle; 
-		/**
-		* The tight bounds of this element as represented by a Rectangle.
-		* The value does not include children. 
-		**/
 		override public function get bounds():Rectangle {
 			return _bounds
 		}
@@ -155,8 +160,11 @@ package com.degrafa.repeaters
 			//Create a loop that iterates through our modifiers at each stage and applies the modifications to the object
 			for (var i:int=0; i<_count; i++) {
 				
+				_curIteration=i;
+				
 				//Apply our modifiers
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
+			//		trace("modifying");
 					DegrafaObject(modifier).parent=this;
 					DegrafaObject(modifier).suppressEventProcessing=true;
 					if (i==0) modifier.beginModify(geometryCollection);
@@ -168,6 +176,8 @@ package com.degrafa.repeaters
 				
 					if(graphics){
 	                    super.draw(graphics,rc);
+	         //           trace("repeater drawing");
+	                   // super.endDraw(graphics);
 	                }
 	                else{
 	                    
@@ -195,6 +205,8 @@ package com.degrafa.repeaters
 			suppressEventProcessing=isSuppressed;
 			
 			_isDrawing=false;
+			
+			_curIteration=-1;
 			
 			this.invalidated=false;
 		}
@@ -263,7 +275,6 @@ package com.degrafa.repeaters
 		/**
 		* The width of the regular rectangle.
 		**/
-		[PercentProxy("percentWidth")]
 		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
@@ -280,7 +291,6 @@ package com.degrafa.repeaters
 		/**
 		* The height of the regular rectangle.
 		**/
-		[PercentProxy("percentHeight")]
 		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
