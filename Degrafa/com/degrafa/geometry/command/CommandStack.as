@@ -76,7 +76,7 @@ package com.degrafa.geometry.command{
 				
 		private var _fxShape:Shape;
 		private var _maskRender:Shape;
-
+		private var _container:Sprite;
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
@@ -164,6 +164,10 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
+		
+		private var hasmask:Boolean;
+		private var hasfilters:Boolean;
+
 		/**
 		* Initiates the render phase.
 		**/
@@ -207,7 +211,6 @@ package com.degrafa.geometry.command{
 									transObject.transform.matrix = tempMat;
 								} else transObject.transform.matrix = CommandStack.currentTransformMatrix;
 							}
-							
 						}
 					} 
 				}
@@ -228,10 +231,13 @@ package com.degrafa.geometry.command{
 				
 				//setup the temporary shape to draw to in place 
 				//of the passsed graphics context
-				var hasmask:Boolean = (owner.mask!=null);
-				if(owner.hasFilters || hasmask){
+				hasmask = (owner.mask != null);
+				hasfilters = (owner.hasFilters);
+				if(hasfilters || hasmask){
 					if (!_fxShape){
 						_fxShape = new Shape();
+						_container = new Sprite();
+						_container.addChild(_fxShape);
 					}
 					else{
 						_fxShape.graphics.clear();
@@ -239,21 +245,23 @@ package com.degrafa.geometry.command{
 					
 					if (hasmask) {
 						//dev note: need to change this mask is only redrawn when necessary
-						if (!_maskRender) _maskRender = new Shape();
+						if (!_maskRender) {_maskRender = new Shape();
+							_container.addChild(_maskRender);
+						}
 						_maskRender.graphics.clear();
+				
 						
 						//cache the current settings as rendering the mask will alter them
 						var cacheLayout:Matrix = currentLayoutMatrix? currentLayoutMatrix.clone():null;
 						var cacheTransform:Matrix = currentTransformMatrix? currentTransformMatrix.clone():null;
 						var cacheCombo:Matrix = transMatrix? transMatrix.clone():null;
 						owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
-
+						_maskRender.cacheAsBitmap =  (owner.maskMode == 'alpha');
+						_fxShape.cacheAsBitmap = (owner.maskMode == 'alpha');
 						//restore cached settings
 						currentLayoutMatrix = cacheLayout;
 						currentTransformMatrix = cacheTransform;
 						transMatrix = cacheCombo;
-						_maskRender.cacheAsBitmap = true;
-						_fxShape.cacheAsBitmap = true;
 						_fxShape.mask = _maskRender;
 					} else if (_fxShape.mask) _fxShape.mask = null;
 											
@@ -271,7 +279,7 @@ package com.degrafa.geometry.command{
 					if (owner.hasDecorators) endDecorators();
 
 					//blit the data to the destination context
-					renderBitmapDatatoContext(_fxShape,graphics)
+					renderBitmapDatatoContext(_container,graphics)
 				
 				}
 				else {
@@ -308,7 +316,7 @@ package com.degrafa.geometry.command{
 			var filteredRect:Rectangle = sourceRect.clone();
 
 
-			if (owner.hasFilters) {
+			if (hasfilters) {
 				source.filters = owner.filters;
 				filteredRect.x = filteredRect.y = 0;
 				filteredRect.width = Math.ceil(filteredRect.width);
@@ -426,9 +434,7 @@ package com.degrafa.geometry.command{
 			for each (var delegate:Function in delegates){
 				item = delegate(this,item,graphics,currentIndex);
 			}
-			
 			return item;
-			
 		}
 		
 		/**
@@ -436,9 +442,9 @@ package com.degrafa.geometry.command{
 		* each item is about to be rendered. Individual item 
 		* delegates take precedence if both are set
 		*/		
-		private var _globalRenderDelegateStart:Array=[];
+		private var _globalRenderDelegateStart:Array;
 		public function get globalRenderDelegateStart():Array{
-			return _globalRenderDelegateStart;
+			return _globalRenderDelegateStart?_globalRenderDelegateStart:null;;
 		}
 		public function set globalRenderDelegateStart(value:Array):void{
 			if(_globalRenderDelegateStart != value){
@@ -452,9 +458,9 @@ package com.degrafa.geometry.command{
 		* each item has just been rendered. Individual item 
 		* delegates take precedence if both are set
 		*/	
-		private var _globalRenderDelegateEnd:Array=[];
+		private var _globalRenderDelegateEnd:Array;
 		public function get globalRenderDelegateEnd():Array{
-			return _globalRenderDelegateEnd;
+			return _globalRenderDelegateEnd?_globalRenderDelegateEnd:null;
 		}
 		public function set globalRenderDelegateEnd(value:Array):void{
 			if(_globalRenderDelegateEnd != value){
@@ -485,12 +491,12 @@ package com.degrafa.geometry.command{
 				item = cursor.current;				
 												
 				//defer to the start delegate if one found
-				if (item.renderDelegateStart.length !=0){
+				if (item.renderDelegateStart){
 					item=processDelegateArray(item.renderDelegateStart,item,graphics,cursor.currentIndex);
 				}
 				
 				//process any global type items
-				if (_globalRenderDelegateStart.length !=0){
+				if (_globalRenderDelegateStart){
 					item=processDelegateArray(_globalRenderDelegateStart,item,graphics,cursor.currentIndex);
 				}
 				
@@ -577,12 +583,12 @@ package com.degrafa.geometry.command{
     			}
     			    							
 				//defer to the end delegate if one found
-				if (item.renderDelegateEnd.length !=0){
+				if (item.renderDelegateEnd){
 					item=processDelegateArray(item.renderDelegateEnd,item,graphics,cursor.currentIndex);
 				}
 				
 				//process any global type items
-				if (_globalRenderDelegateEnd.length !=0){
+				if (_globalRenderDelegateEnd){
 					item=processDelegateArray(_globalRenderDelegateEnd,item,graphics,cursor.currentIndex);
 				}
 				

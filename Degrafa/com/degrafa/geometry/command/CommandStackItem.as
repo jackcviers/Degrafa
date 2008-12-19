@@ -291,12 +291,12 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
-				
+		private var _renderDelegateStart:Array;		
 		/**
 		* Functions to be called during the render loop when 
 		* this item is about to be rendered.
 		*/		
-		private var _renderDelegateStart:Array=[];
+
 		public function get renderDelegateStart():Array{
 			return _renderDelegateStart;
 		}
@@ -307,11 +307,12 @@ package com.degrafa.geometry.command{
 			}
 		}
 		
+		private var _renderDelegateEnd:Array;
 		/**
 		* Functions to be called during the render loop when 
 		* this item has just been rendered.
 		*/	
-		private var _renderDelegateEnd:Array=[];
+
 		public function get renderDelegateEnd():Array{
 			return _renderDelegateEnd;
 		}
