@@ -129,8 +129,13 @@ package com.degrafa.repeaters
 		    super.propertyChangeHandler(event);
 		}
 		
-
-		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
+		//TODO
+		//DEV: How should we be calculating bounds 
+		//(by the x/y width/height or dynamically based on the repeaters ??)
+		/**
+		* The tight bounds of this element as represented by a Rectangle.
+		* The value does not include children. 
+		**/
 		override public function get bounds():Rectangle {
 			return _bounds
 		}
@@ -164,7 +169,6 @@ package com.degrafa.repeaters
 				
 				//Apply our modifiers
 				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
-			//		trace("modifying");
 					DegrafaObject(modifier).parent=this;
 					DegrafaObject(modifier).suppressEventProcessing=true;
 					if (i==0) modifier.beginModify(geometryCollection);
@@ -176,8 +180,6 @@ package com.degrafa.repeaters
 				
 					if(graphics){
 	                    super.draw(graphics,rc);
-	         //           trace("repeater drawing");
-	                   // super.endDraw(graphics);
 	                }
 	                else{
 	                    
@@ -275,6 +277,7 @@ package com.degrafa.repeaters
 		/**
 		* The width of the regular rectangle.
 		**/
+		[PercentProxy("percentWidth")]
 		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
@@ -291,6 +294,7 @@ package com.degrafa.repeaters
 		/**
 		* The height of the regular rectangle.
 		**/
+		[PercentProxy("percentHeight")]
 		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;
