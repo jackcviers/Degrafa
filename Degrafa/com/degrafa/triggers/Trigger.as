@@ -25,7 +25,9 @@ package com.degrafa.triggers{
 	import com.degrafa.states.IDegrafaStateClient;
 	
 	import flash.events.IEventDispatcher;
-	
+	/**
+	* Trigger is the base class that other triggers extend from.  
+	**/
 	public class Trigger extends DegrafaObject{
 		
 		/**

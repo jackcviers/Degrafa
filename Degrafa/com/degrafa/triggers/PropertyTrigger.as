@@ -30,7 +30,9 @@ package com.degrafa.triggers{
 	//--------------------------------------
 	
 	[IconFile("PropertyTrigger.png")]
-
+	/**
+	* Used for notification of a property change on a source object.
+	**/
 	public class PropertyTrigger extends Trigger implements ITrigger{
 		
 		/**
