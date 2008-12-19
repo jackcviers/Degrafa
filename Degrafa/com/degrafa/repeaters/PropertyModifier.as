@@ -93,31 +93,31 @@ package com.degrafa.repeaters{
 		}
 		public function get property():String { return _property }
 	
-		private var _offset:Object;
+		private var _modifier:Object;
 		/**
-		* This represents how we will be offsetting the property.
+		* This represents how we will be modifierting the property.
 		*/ 
-		public function set offset(value:Object):void {
-			var oldValue:Object=_offset;
-			_offset=value;
-			initChange("offset",oldValue,_offset,this);
+		public function set modifier(value:Object):void {
+			var oldValue:Object=_modifier;
+			_modifier=value;
+			initChange("modifier",oldValue,_modifier,this);
 		}
-		public function get offset():Object { return _offset };
+		public function get modifier():Object { return _modifier };
 		
-		public static var OFFSET_ADD:String="add";
-		public static var OFFSET_NONE:String="none";
-		public static var OFFSET_SUBTRACT:String="subtract";
+		public static var MODIFIER_ADD:String="add";
+		public static var MODIFIER_NONE:String="none";
+		public static var MODIFIER_SUBTRACT:String="subtract";
 		
 		
-		private var _offsetOperator:String="add";
+		private var _modifierOperator:String="add";
 		/**
-		* How to apply the offset for each iteration.
+		* How to apply the modifier for each iteration.
 		*/
 		[Inspectable(category="General", enumeration="add,subtract,none" )]
-		public function set offsetOperator(value:String):void {
-			_offsetOperator=value;
+		public function set modifierOperator(value:String):void {
+			_modifierOperator=value;
 		}
-		public function get offsetOperator():String { return _offsetOperator; }
+		public function get modifierOperator():String { return _modifierOperator; }
 		
 		/**
 		* This tells the modifier that it will be doing iterations and 
@@ -154,34 +154,35 @@ package com.degrafa.repeaters{
 		}
 		
 		/**
-		* This applies our numeric offset or array of offsets to 
+		* This applies our numeric modifier or array of modifiers to 
 		* the property of our geometryObject.
 		*/
 		public function apply():void {
 			
-			var tempOffset:Object;
+		//	trace("applying modifier");
+			var tempModifier:Object;
 			
 			var bounds:Rectangle=new Rectangle();    
 			
-			if (_offset is Array) {
-				tempOffset = offset[_iteration % offset.length];
-				//trace(tempOffset);
+			if (_modifier is Array) {
+				tempModifier = modifier[_iteration % modifier.length];
+				//trace(tempmodifier);
 			}
-			else if (_offset is Function ) {
-				tempOffset=_offset(_iteration,_targetObjects[i][_targetProperties[i]] );
+			else if (_modifier is Function ) {
+				tempModifier=_modifier(_iteration,_targetObjects[i][_targetProperties[i]] );
 			}
 			else {
-				tempOffset=Number(_offset);
+				tempModifier=Number(_modifier);
 			}
 
-			if (_offset!=null) {
+			if (_modifier!=null) {
 				for (var i:int=0;i<_targetObjects.length;i++) {
-					if (_offsetOperator==PropertyModifier.OFFSET_ADD && _iteration>0)
-						_targetObjects[i][_targetProperties[i]]+=Number(tempOffset);
-					else if (_offsetOperator==PropertyModifier.OFFSET_SUBTRACT && _iteration>0)
-						_targetObjects[i][_targetProperties[i]]-=Number(tempOffset);
-					else if (_offsetOperator != PropertyModifier.OFFSET_ADD && _offsetOperator != PropertyModifier.OFFSET_SUBTRACT)
-						_targetObjects[i][_targetProperties[i]]=tempOffset;
+					if (_modifierOperator==PropertyModifier.MODIFIER_ADD && _iteration>0)  
+						_targetObjects[i][_targetProperties[i]]+=Number(tempModifier);
+					else if (_modifierOperator==PropertyModifier.MODIFIER_SUBTRACT && _iteration>0)
+						_targetObjects[i][_targetProperties[i]]-=Number(tempModifier);
+					else if (_modifierOperator != PropertyModifier.MODIFIER_ADD && _modifierOperator != PropertyModifier.MODIFIER_SUBTRACT)
+						_targetObjects[i][_targetProperties[i]]=tempModifier;
 				}
 			}
 			
@@ -191,13 +192,13 @@ package com.degrafa.repeaters{
 		}
 		
 		/**
-		* We want to find the property we are offsetting and cache the property.
+		* We want to find the property we are modifierting and cache the property.
 		* If the sourceObject has changed then we need to find the property again
 		* We store the object in _targetObject
 		* And the property name in _targetProperty
 		* This is an easy way to keep a reference versus trying to cast one.
 		*/
-		private function setTargetProperty(sourceObject:Object):void {
+		private function setTargetProperty(sourceObject:Object):void { 
 
 			//Clear our targets
 			_targetObjects=new Array();
