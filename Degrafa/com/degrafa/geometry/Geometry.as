@@ -695,7 +695,6 @@ package com.degrafa.geometry{
 				graphics.lineStyle();
 				CommandStack.currentStroke = null;
 			}
-			
 		}
 		
 		/**
@@ -876,7 +875,7 @@ package com.degrafa.geometry{
 									
 			//don't draw unless visible
 			if(!visible){return;}
-			
+
 			commandStack.draw(graphics,rc);
 			
 			endDraw(graphics);
@@ -1565,7 +1564,7 @@ package com.degrafa.geometry{
 		//Clipping related.
   		
   		//Mask related.
-  		
+  		private var _maskMode:String;
   		private var _mask:IGeometryComposition;
 		/**
 		* A separate geometry object to use as a mask when rendering this geometry.
@@ -1585,6 +1584,22 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		
+		/**
+		* The mode used when this object is being masked by the geometry assigned to the mask property. 
+		* The value can either be "clip" or "mask". Clip mode is shape based clipping, alpha mode is alpha based masking.
+		*/
+		[Inspectable(category="General", enumeration="alpha,clip")]
+		public function get maskMode():String { 
+			return _maskMode?_maskMode:"clip"; 
+		}
+		public function set maskMode(value:String):void {
+			if (_mask != value && (value == "alpha" || value=="clip")) {
+				//only fire propertyChange event if there is a mask assigned.
+				if (_mask) initChange("maskMode", maskMode, _maskMode = value, this);
+				else _maskMode = value
+			}
+		}
 		//End mask related.
   		
   	}
