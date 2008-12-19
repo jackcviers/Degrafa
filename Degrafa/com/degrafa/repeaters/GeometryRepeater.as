@@ -42,7 +42,6 @@ package com.degrafa.repeaters
 	public class GeometryRepeater extends Geometry implements IGeometry {
 		
 		private var _sourceGeometry:Geometry;
-		private var _bounds:Rectangle;  
 		private var _isDrawing:Boolean=false;
 	
 		[Inspectable]
@@ -122,6 +121,11 @@ package com.degrafa.repeaters
 		
 
 		//DEV: How should we be calculating bounds (by the x/y width/height or dynamically based on the repeaters ??)
+		private var _bounds:Rectangle; 
+		/**
+		* The tight bounds of this element as represented by a Rectangle.
+		* The value does not include children. 
+		**/
 		override public function get bounds():Rectangle {
 			return _bounds
 		}
@@ -259,6 +263,7 @@ package com.degrafa.repeaters
 		/**
 		* The width of the regular rectangle.
 		**/
+		[PercentProxy("percentWidth")]
 		override public function get width():Number{
 			if(!_width){return 0;}
 			return _width;
@@ -275,6 +280,7 @@ package com.degrafa.repeaters
 		/**
 		* The height of the regular rectangle.
 		**/
+		[PercentProxy("percentHeight")]
 		override public function get height():Number{
 			if(!_height){return 0;}
 			return _height;

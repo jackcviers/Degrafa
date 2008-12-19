@@ -1,5 +1,26 @@
-package com.degrafa.triggers
-{
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
+package com.degrafa.triggers{
+	
 	import flash.events.Event;
 	
 	import mx.binding.utils.ChangeWatcher;
@@ -10,16 +31,18 @@ package com.degrafa.triggers
 	
 	[IconFile("PropertyTrigger.png")]
 
-	public class PropertyTrigger extends Trigger implements ITrigger
-	{
-		public function PropertyTrigger()
-		{
+	public class PropertyTrigger extends Trigger implements ITrigger{
+		
+		/**
+		* Constructor.
+		**/
+		public function PropertyTrigger(){
 			super();
 		}
 		
 		private var _property:String;
 		/**
-		* The event on the target we are listening for
+		* The property on the source to be watched for changes.
 		**/
 		public function get property():String{
 			return _property;
@@ -31,8 +54,10 @@ package com.degrafa.triggers
 		}
 		
 		private var _autoRestoreState:Boolean=true;
-		//if true (default) will set the state to the old state
-		//when rule test is false
+		/**
+		* If true will set the state to the old state
+		* when rule test is false.
+		**/
 		public function get autoRestoreState():Boolean{
 			return _autoRestoreState;
 		}
@@ -41,10 +66,12 @@ package com.degrafa.triggers
 		}
 		
 		private var _propertyValue:String;
-		//property value is used as an initial rule and is optional
-		//when set the value being set on the target property must be equal
-		//to this value before the trigger will occure. If not set this 
-		//test is ignored
+		/**
+		* Property value is used as an initial rule and is optional
+		* when set the value being set on the target property must be equal
+		* to this value before the trigger will occure. If not set this
+		* test is ignored.
+		**/
 		public function get propertyValue():String{
 			return _propertyValue;
 		}
@@ -54,10 +81,12 @@ package com.degrafa.triggers
 			initTrigger();
 		}
 		
-		
+		//internal change watcher
 		private var changeWatcher:ChangeWatcher; 
 		
-		//setup the listener uses a weak reff
+		/**
+		* Sets up a ChangeWatcher for the property on the source specified.
+		**/
 		override protected function initTrigger():void{
 			if(!source || !property){return;}
 			
@@ -72,7 +101,9 @@ package com.degrafa.triggers
 			
 		}
 		
-		//clear the listener
+		/**
+		* Clears the ChangeWatcher for the property on the source specified.
+		**/
 		override protected function clearTrigger():void{
 			if(changeWatcher){
 				changeWatcher.unwatch();
@@ -82,6 +113,7 @@ package com.degrafa.triggers
 		//store the old state for a false value
 		private var oldState:String="";
 		
+		//executes the trigger when a change takes place.
 		private function executeTrigger(event:Event):void{
 			
 			var result:Boolean=true;

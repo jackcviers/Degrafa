@@ -1,19 +1,41 @@
-package com.degrafa.triggers
-{
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008 The Degrafa Team : http://www.Degrafa.com/team
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+////////////////////////////////////////////////////////////////////////////////
+package com.degrafa.triggers{
+	
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.states.IDegrafaStateClient;
 	
 	import flash.events.IEventDispatcher;
 	
-	public class Trigger extends DegrafaObject
-	{
-		public function Trigger()
-		{
-		}
+	public class Trigger extends DegrafaObject{
+		
+		/**
+		* Constructor.
+		**/
+		public function Trigger(){}
 
 		private var _triggerParent:IDegrafaStateClient;
 		/**
-		* The parent for this trigger. At the moment a geometry object or a skin.
+		* The parent for this trigger. A valide IDegrafaStateClient.
 		**/
 		public function get triggerParent():IDegrafaStateClient{
 			return _triggerParent;
@@ -29,7 +51,8 @@ package com.degrafa.triggers
 		
 		private var _source:IEventDispatcher;
 		/**
-		* The target we are listening to
+		* The source of the property or event we want to be notified about. 
+		* Any valid IEventDispatcher.
 		**/
 		public function get source():IEventDispatcher{
 			return _source;
@@ -76,9 +99,16 @@ package com.degrafa.triggers
 			_setState = value;
 		}
 		
+		/**
+		* Inits the trigger overrideen by subclasses.
+		**/
 		protected function initTrigger():void{
 			//overridden
 		}
+		
+		/**
+		* Clears the trigger overrideen by subclasses.
+		**/
 		protected function clearTrigger():void{
 			//overridden
 		}
