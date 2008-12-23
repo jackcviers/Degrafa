@@ -26,14 +26,13 @@ package com.degrafa.geometry.splines{
 	 
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
+	import com.degrafa.IGraphicPoint;
 	import com.degrafa.core.collections.GraphicPointCollection;
 	import com.degrafa.geometry.CubicBezier;
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.utilities.math.*;
 	
 	import flash.display.Graphics;
-	import flash.display.Shape;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	import mx.events.PropertyChangeEvent;
@@ -140,16 +139,6 @@ package com.degrafa.geometry.splines{
 				
 				//set the points property
 				points=pointArray;
-								
-				// Set the knot reference so that BezierSplineControl knows how to compute control points for each Bezier curve to ensure C-1 continuity at the knots
-				_controlCage.knots  = points;
-				
-				//add the cubic bezier curves for each segment
-				for each (var point:Point in points){
-					_bezier.push(new CubicBezier());
-				}
-			 
-				invalidated = true;
 			}
 		}
 		
@@ -166,9 +155,8 @@ package com.degrafa.geometry.splines{
 		public function set points(value:Array):void{			
 			initPointsCollection();
 			_points.items = value;
-						
+			
 			invalidated = true;
-		
 		}
 		
 		/**
@@ -360,7 +348,7 @@ package com.degrafa.geometry.splines{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 
-			if(_layoutConstraint){
+			/*if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
 					
@@ -387,6 +375,24 @@ package com.degrafa.geometry.splines{
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
 			 	
 				}
+			}*/
+		}
+		
+		//reset the knots and reset the beziers
+		private function initPoints():void{
+			
+			if(!points.length){return;}
+			
+			// Set the knot reference so that BezierSplineControl knows how 
+			//to compute control points for each Bezier curve to ensure 
+			//C-1 continuity at the knots
+			_controlCage.knots  = points;
+			
+			_bezier.length=0;
+			
+			//add the cubic bezier curves for each segment
+			for each (var point:IGraphicPoint in points){
+				_bezier.push(new CubicBezier());
 			}
 		}
 		
@@ -397,6 +403,12 @@ package com.degrafa.geometry.splines{
 	    	if( invalidated ){
 	    		
 	        	if(!points.length){return;}
+				
+				//exit if point count is to low.
+				if((points.length-1)<2){return;}
+				
+				//init the points
+				initPoints()
 				
 	        	_assignControlPoints();
 	        	
@@ -441,6 +453,7 @@ package com.degrafa.geometry.splines{
 			if (_layoutConstraint) calculateLayout();	
 	    
 	     	super.draw(graphics,(rc)? rc:bounds);
+	     		     	
 	    }
 	    
 	    
@@ -582,7 +595,6 @@ package com.degrafa.geometry.splines{
 	      	for( var i:uint=0; i<_bezier.length-1; ++i ){
 	        	var c:CubicCage  = _controlCage.getCage(i);
 	        	var b:CubicBezier = _bezier[i];
-			
 				b.x0 =c.P0X;
 				b.y0 =c.P0Y;
 				b.cx=c.P1X;
@@ -591,6 +603,7 @@ package com.degrafa.geometry.splines{
 				b.cy1=c.P2Y;
 				b.x1=c.P3X;	
 				b.y1=c.P3Y;
+	        	
 		  	}
 	
 	      	invalidated = false;
