@@ -55,6 +55,7 @@
 	<component id="Polygon" class="com.degrafa.geometry.Polygon"/>
 	<component id="Polyline" class="com.degrafa.geometry.Polyline"/>
 	<component id="QuadraticBezier" class="com.degrafa.geometry.QuadraticBezier"/>
+	<component id="AdvancedQuadraticBezier" class="com.degrafa.geometry.AdvancedQuadraticBezier"/>
 	<component id="RegularRectangle" class="com.degrafa.geometry.RegularRectangle"/>
 	<component id="RoundedRectangle" class="com.degrafa.geometry.RoundedRectangle"/>
 	<component id="RoundedRectangleComplex" class="com.degrafa.geometry.RoundedRectangleComplex"/>
