@@ -348,7 +348,7 @@ package com.degrafa.geometry.splines{
 		**/
 		override public function calculateLayout(childBounds:Rectangle=null):void{
 
-			/*if(_layoutConstraint){
+			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated){
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
 					
@@ -375,7 +375,7 @@ package com.degrafa.geometry.splines{
 					_layoutRectangle = _layoutConstraint.layoutRectangle;
 			 	
 				}
-			}*/
+			}
 		}
 		
 		//reset the knots and reset the beziers
