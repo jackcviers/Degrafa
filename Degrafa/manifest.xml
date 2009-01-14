@@ -46,6 +46,7 @@
 	<component id="AdvancedRectangle" class="com.degrafa.geometry.AdvancedRectangle"/>
 	<component id="Circle" class="com.degrafa.geometry.Circle"/>
 	<component id="CubicBezier" class="com.degrafa.geometry.CubicBezier"/>
+	<component id="AdvancedCubicBezier" class="com.degrafa.geometry.AdvancedCubicBezier"/>
 	<component id="Ellipse" class="com.degrafa.geometry.Ellipse"/>
 	<component id="EllipticalArc" class="com.degrafa.geometry.EllipticalArc"/>
 	<component id="HorizontalLine" class="com.degrafa.geometry.HorizontalLine"/>
