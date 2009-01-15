@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 package  com.degrafa.geometry
 {
+	import com.degrafa.IGeometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.events.DegrafaEvent;
@@ -29,16 +30,45 @@ package  com.degrafa.geometry
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
+	
+	import mx.events.PropertyChangeEvent;
 
 	/**
 	 * Unions child geometries into one large closed path
 	 * Note: Child geometries fill and strokes will be ignored
 	 */
-	public class GeometryUnion extends Geometry
+	public class GeometryUnion extends Geometry implements IGeometry
 	{
 		public function GeometryUnion()
 		{
 			super();
+		}
+		
+		/**
+		* Performs the specific layout work required by this Geometry.
+		* @param childBounds the bounds to be layed out. If not specified a rectangle
+		* of (0,0,1,1) is used. 
+		**/
+		override public function calculateLayout(childBounds:Rectangle=null):void{
+			if(_layoutConstraint){
+				if (_layoutConstraint.invalidated){
+					var tempLayoutRect:Rectangle = new Rectangle(x,y,width,height);
+				
+					super.calculateLayout(tempLayoutRect);	
+					_layoutRectangle = _layoutConstraint.layoutRectangle;
+				}
+			}
+		//	this._layoutRectangle=this.commandStack.bounds;
+		}
+		
+	
+		/**
+		* Principle event handler for any property changes to a 
+		* geometry object or it's child objects.
+		**/
+		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
+			super.propertyChangeHandler(event);
+			invalidated=true;
 		}
 								
 		//override to combine geometry
@@ -47,10 +77,12 @@ package  com.degrafa.geometry
 			//predraw each child and grab the command stack adding it to 
 			//this command stack one item at time
 			//Remove any move to operations that would leave the path open and not filled.
+			
 			commandStack.source=new Array();
 			
 			var i:int=0;
 			for each (var item:IGeometryComposition in geometry){
+				item.preDraw();
 				for each (var cmd:CommandStackItem in item.commandStack.source) {
 					if (cmd.type !=CommandStackItem.MOVE_TO || i==0) {
 						commandStack.addItem(cmd);
@@ -63,6 +95,9 @@ package  com.degrafa.geometry
 				}
 
 			}
+			this.commandStack.invalidated=true;
+			var t:Rectangle=this.commandStack.bounds; //Force calc on bounds
+
 		}
 		
 		
@@ -80,8 +115,8 @@ package  com.degrafa.geometry
 						
 		//override for now
 		override public function draw(graphics:Graphics, rc:Rectangle):void{
-			
 			//re init if required
+			calculateLayout();
 		 	preDraw();
 			super.draw(graphics, (rc)? rc:bounds);
 		
