@@ -75,10 +75,30 @@ package com.degrafa.paint {
 			
 		}
 				
+		protected var _degrafaScaling:int;
+		[Inspectable(category="General", enumeration="true,false", defaultValue="false")]
+		/**
+ 		* Determines whether Degrafa transforms will perform additional stroke weight transforms in accordance with the scaleMode setting on this stroke (or not) to scale a stroke.
+		* Default is false in which case degrafa transforms do not affect this stroke's weight.
+ 		* 
+ 		* @see scaleMode
+ 		**/
+		public function get degrafaScaling():Boolean {
+			return (_degrafaScaling<1)
+		}
+		public function set degrafaScaling(value:Boolean):void{			
+			if((_degrafaScaling>0) != value){
+				_degrafaScaling = value?1: -1;
+				//call local helper to dispatch event	
+				initChange("degrafaScaling",!value,value,this);
+			}
+		}
+		
 		protected var _scaleMode:String;
 		[Inspectable(category="General", enumeration="normal,vertical,horizontal,none", defaultValue="normal")]
 		/**
- 		* Specifies how to scale a stroke.
+ 		* Specifies how to scale a stroke. Strokes inside filtered or masked Degrafa geometry objects do not respect this setting for scaling in the native flash renderer 
+		* as they are rasterized before being rendered by Degrafa.
  		* 
  		* @see mx.graphics.Stroke
  		**/
@@ -96,6 +116,7 @@ package com.degrafa.paint {
 				initChange("scaleMode",oldValue,_scaleMode,this);
 			}
 		}
+		
 			
 		protected var _pixelHinting:Boolean = false;
 		[Inspectable(category="General", enumeration="true,false")]
@@ -278,13 +299,43 @@ package com.degrafa.paint {
 				}
 			
 			var transformRequest:ITransform;
+			var weight:Number = this.weight;;
 			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
 				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
 				else matrix.concat((_requester as Geometry).transformContext);
+				//handle degrafa stroke scaling if applicable
+				if (_degrafaScaling > 0 && scaleMode != "none") {
+					var m:Matrix = CommandStack.transMatrix;
+						var s:Number
+						switch(_scaleMode) {
+							case "normal":
+							//discriminant seems to make sense here
+							s = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
+							break;
+							case "vertical":
+							//this seems to provide the same behaviour as the flash native vertical stroke scaling. Not sure if it makes sense with rotation, but best to keep consistent
+							s = m.b + m.d;
+							break;
+							case "horizontal":
+							//this seems to provide the same behaviour as the flash native horizontal stroke scaling. Not sure if it makes sense with rotation, but best to keep consistent
+							s = m.a + m.c;
+							break;
+						}
+						weight *= s;
+					}
 				//remove the requester reference
 				_requester = null;
 			}
 			
+			//handle alpha modification
+			var csAlpha:Number = CommandStack.currentAlpha;
+			var _alphas:Array = this._alphas;
+			if (csAlpha != 1) {
+				_alphas = _alphas.concat();
+				//modify the alphas for the gradient stops:
+				_alphas.forEach(function(el:*, index:uint, arr:Array):void {  arr[index] *= csAlpha }, null);
+				
+			}
 			
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values

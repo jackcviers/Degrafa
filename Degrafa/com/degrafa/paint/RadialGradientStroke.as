@@ -207,7 +207,8 @@ package com.degrafa.paint{
 			if (!_interpolationMethod){_interpolationMethod = value.interpolationMethod;}
 			if (!_focalPointRatio){_focalPointRatio = value.focalPointRatio}
 		
-			if (!_gradientStops && value.gradientStops.length!=0){gradientStops = value.gradientStops};
+			if (!_gradientStops && value.gradientStops.length != 0) { gradientStops = value.gradientStops };
+			if (!_degrafaScaling) {_degrafaScaling = value.degrafaScaling?1:-1}
 		
 		}
 		

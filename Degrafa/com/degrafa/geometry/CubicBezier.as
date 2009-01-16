@@ -113,7 +113,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get x0():Number{
-			if(!_x0){return 0;}
+			if(isNaN(_x0)){return 0;}
 			
 			return _x0;
 		}
@@ -131,7 +131,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y0():Number{
-			if(!_y0){return (hasLayout)? 2:0;}
+			if(isNaN(_y0)){return (hasLayout)? 2:0;}
 			return _y0;
 		}
 		public function set y0(value:Number):void{
@@ -148,7 +148,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get x1():Number{
-			if(!_x1){return (hasLayout)? 2:0;}
+			if(isNaN(_x1)){return (hasLayout)? 2:0;}
 			return _x1;
 		}
 		public function set x1(value:Number):void{
@@ -166,7 +166,7 @@ package com.degrafa.geometry{
 		* a default value of 0 is used.
 		**/
 		public function get y1():Number{
-			if(!_y1){return (hasLayout)? 2:0;}
+			if(isNaN(_y1)){return (hasLayout)? 2:0;}
 			return _y1;
 		}
 		public function set y1(value:Number):void{
@@ -183,7 +183,7 @@ package com.degrafa.geometry{
 		* a default value of 0 or cx1 if specified is used.
 		**/
 		public function get cx():Number{
-			if(!_cx){return (hasLayout)? 1:0;}
+			if(isNaN(_cx)){return (hasLayout)? 1:0;}
 			return _cx;
 		}
 		public function set cx(value:Number):void{
@@ -200,7 +200,7 @@ package com.degrafa.geometry{
 		* a default value of 0 or cy1 if specified is used.
 		**/
 		public function get cy():Number{
-			if(!_cy){return (hasLayout)? .66:0;}
+			if(isNaN(_cy)){return (hasLayout)? .66:0;}
 			return _cy;
 		}
 		public function set cy(value:Number):void{
@@ -217,7 +217,7 @@ package com.degrafa.geometry{
 		* a default value of 0 or cx if specified is used.
 		**/
 		public function get cx1():Number{
-			if(!_cx1){return (hasLayout)? 1:0;}
+			if(isNaN(_cx1)){return (hasLayout)? 1:0;}
 			return _cx1;
 		}
 		public function set cx1(value:Number):void{
@@ -234,7 +234,7 @@ package com.degrafa.geometry{
 		* a default value of 0 or cy if specified is used.
 		**/
 		public function get cy1():Number{
-			if(!_cy1){return (hasLayout)? .66:0;}
+			if(isNaN(_cy1)){return (hasLayout)? .66:0;}
 			return _cy1;
 		}
 		public function set cy1(value:Number):void{
@@ -317,7 +317,8 @@ package com.degrafa.geometry{
 			 		
 			 		if(isNaN(_layoutConstraint.y)){
 			 			tempLayoutRect.y = bounds.y;
-					}		 		
+					}		
+					trace(tempLayoutRect)
 			 		super.calculateLayout(tempLayoutRect);	
 			 					
 					_layoutRectangle = _layoutConstraint.layoutRectangle;

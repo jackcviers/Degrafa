@@ -145,7 +145,6 @@ package com.degrafa.paint{
 		* @param rc A Rectangle object used for stroke bounds. 
  		**/
 		override public function apply(graphics:Graphics,rc:Rectangle):void{
-			
 			if (_x && _y && _width && _height) {
 				if (_coordType == "relative") super.apply(graphics, new Rectangle(rc.x + x, rc.y + y, width, height));
 				else if (_coordType == "ratio") super.apply(graphics, new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height));
@@ -159,7 +158,7 @@ package com.degrafa.paint{
 			else{
 				super.apply(graphics,rc);
 			}
-			
+
 		}
 		
 		/**
@@ -180,7 +179,8 @@ package com.degrafa.paint{
 			if (!_weight) {_weight = value.weight;}
 			if (!_angle){_angle = value.angle;}
 			if (!_interpolationMethod){_interpolationMethod = value.interpolationMethod;}
-			if (!_gradientStops && value.gradientStops.length!=0){gradientStops = value.gradientStops};
+			if (!_gradientStops && value.gradientStops.length != 0) { gradientStops = value.gradientStops };
+			if (!_degrafaScaling) {_degrafaScaling = value.degrafaScaling?1:-1}
 		
 		}
 		

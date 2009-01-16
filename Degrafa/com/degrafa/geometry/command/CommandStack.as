@@ -33,6 +33,7 @@ package com.degrafa.geometry.command{
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.geometry.display.IDisplayObjectProxy;
 	import com.degrafa.geometry.utilities.GeometryUtils;
+	import com.degrafa.GeometryComposition;
 	import com.degrafa.transform.TransformBase;
 	
 	import flash.display.BitmapData;
@@ -65,7 +66,11 @@ package com.degrafa.geometry.command{
 		
 		//single references to point objects used for internal calculations:
 		static private var transXY:Point=new Point();
-		static private var transCP:Point=new Point();
+		static private var transCP:Point = new Point();
+		
+		//paint related stacks
+		static private var ignorePaint:Array;
+		static private var alphaStack:Array=[];
 			
 		//TODO this has to be made private eventually otherwise we can lose 
 		//previous and next references
@@ -73,16 +78,37 @@ package com.degrafa.geometry.command{
 				
 		public var owner:Geometry;
 		public var parent:CommandStackItem;
-				
+			
+		//rasterized rendering support:temporary displayobjects:
 		private var _fxShape:Shape;
 		private var _maskRender:Shape;
 		private var _container:Sprite;
+		private var _original:Sprite;
+		
+		//alpha modifier during render
+		static public function get currentAlpha():Number {
+			if (!alphaStack.length) return 1;
+			return alphaStack[alphaStack.length-1];
+		}
+		static public function stackAlpha(alpha:Number):void {
+			if (!alphaStack.length) alphaStack.push( alpha )
+			else alphaStack.push(alpha*alphaStack[alphaStack.length-1])
+		}
+		static public function unstackAlpha():void {
+			if (!alphaStack.length) {
+				trace('error: unmatched unstackAlpha calls')
+				return;
+			}
+			alphaStack.length--;
+		}
+		
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
 			this.owner = geometry;
 		}
-	
+		
+		
 		
 		/**
 		* Setups the layout and transforms
@@ -108,10 +134,13 @@ package com.degrafa.geometry.command{
 			if (layout){
 				//give DisplayObjectProxies the ability to define their own bounds
 				var tempRect:Rectangle = (owner is IDisplayObjectProxy)?owner.bounds:bounds;
-				if (!tempRect.equals(owner.layoutRectangle) ) {	
-						currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
-						currentLayoutMatrix.scale(owner.layoutRectangle.width/tempRect.width,owner.layoutRectangle.height/tempRect.height);
-						currentLayoutMatrix.translate(owner.layoutRectangle.x, owner.layoutRectangle.y);
+				var layoutRect:Rectangle = owner.layoutRectangle;
+				if (!tempRect.equals(layoutRect) ) {	
+					    if (layoutRect.width!=tempRect.width || layoutRect.height!=tempRect.width){
+							currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
+							currentLayoutMatrix.scale(layoutRect.width / tempRect.width, layoutRect.height / tempRect.height);
+							currentLayoutMatrix.translate(layoutRect.x, layoutRect.y);
+						} else currentLayoutMatrix.translate(layoutRect.x-tempRect.x, layoutRect.y-tempRect.y);
 						owner._layoutMatrix = currentLayoutMatrix.clone();
 						transMatrix = currentLayoutMatrix.clone();
 					} else {
@@ -167,14 +196,17 @@ package com.degrafa.geometry.command{
 		
 		private var hasmask:Boolean;
 		private var hasfilters:Boolean;
+		private var isComp:Boolean;
 
 		/**
 		* Initiates the render phase.
+		* @return true if the final phase of rendering in Geometry (endDraw) should be skipped
 		**/
-		public function draw(graphics:Graphics,rc:Rectangle):void{
+		public function draw(graphics:Graphics, rc:Rectangle):Boolean {
 
-			//exit if no command stack
-			if(source.length==0 && !(owner is IDisplayObjectProxy)){return;}
+		//exit if no command stack on this item, unless owner is a 'Group' style implementation, e.g. GeometryComposition with filters or masking
+		//dev note: should set this up for an interface test rather than specifically for GeometryComposition...consider GeometryRepeater etc
+		if (!(isComp=owner is GeometryComposition && (owner.hasFilters || owner.mask))) if(source.length==0 && !(owner is IDisplayObjectProxy)){return false;}
 			
 			currentContext = graphics;
 			//setup requirements before the render
@@ -182,14 +214,13 @@ package com.degrafa.geometry.command{
 			
 			if((owner is IDisplayObjectProxy)){
 				if(!IDisplayObjectProxy(owner).displayObject){
-					return;
+					return false;
 				}
-				
 				var displayObject:DisplayObject = IDisplayObjectProxy(owner).displayObject;
 				//apply the filters
 				if(owner.hasFilters){
 					displayObject.filters = owner.filters;
-				}
+				} else if (displayObject.filters.length) displayObject.filters = [];
 					
 				if (transMatrix && (IDisplayObjectProxy(owner).transformBeforeRender || (owner._layoutMatrix && IDisplayObjectProxy(owner).layoutMode == 'scale'))) {
 					var transObject:DisplayObject;
@@ -217,17 +248,18 @@ package com.degrafa.geometry.command{
 			
 				//	maybe there are paint settings on some owners at this point:
 				//setup the stroke
-				owner.initStroke(graphics, rc);
+				if (!ignorePaint) owner.initStroke(graphics, rc);
 				//setup the fill
-				owner.initFill(graphics, rc);
+				if (!ignorePaint) owner.initFill(graphics, rc);
 				//if (owner.hasDecorators) initDecorators();
-				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics,!IDisplayObjectProxy(owner).transformBeforeRender,rc);	
+				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics, !IDisplayObjectProxy(owner).transformBeforeRender, rc);	
+				return false;
 		
 			}
 			else{
 					
 				//setup a cursor for the path data interation
-				_cursor=new DegrafaCursor(source)
+				_cursor = new DegrafaCursor(source);
 				
 				//setup the temporary shape to draw to in place 
 				//of the passsed graphics context
@@ -237,57 +269,94 @@ package com.degrafa.geometry.command{
 					if (!_fxShape){
 						_fxShape = new Shape();
 						_container = new Sprite();
-						_container.addChild(_fxShape);
+						_original = new Sprite();
+						_original.addChild(_fxShape);
+						_container.addChild(_original);
 					}
 					else{
 						_fxShape.graphics.clear();
 					}
 					
 					if (hasmask) {
-						//dev note: need to change this mask is only redrawn when necessary
-						if (!_maskRender) {_maskRender = new Shape();
+						//dev note: need to change this so mask is only redrawn when necessary
+						if (!_maskRender) {
+							_maskRender = new Shape();
 							_container.addChild(_maskRender);
 						}
 						_maskRender.graphics.clear();
-				
-						
+						//set the maskSpace implementation:
+						if (owner.maskSpace == "local" && transMatrix) _maskRender.transform.matrix = transMatrix;
+						else _maskRender.transform.matrix =new Matrix();
+
 						//cache the current settings as rendering the mask will alter them
 						var cacheLayout:Matrix = currentLayoutMatrix? currentLayoutMatrix.clone():null;
 						var cacheTransform:Matrix = currentTransformMatrix? currentTransformMatrix.clone():null;
 						var cacheCombo:Matrix = transMatrix? transMatrix.clone():null;
-						owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
-						_maskRender.cacheAsBitmap =  (owner.maskMode == 'alpha');
-						_fxShape.cacheAsBitmap = (owner.maskMode == 'alpha');
-						//restore cached settings
+						
+						//svg clipping for non-zero clip-rule is achieved this way: 
+						if (owner.maskMode == "svgClip") {
+							//match svg clipping behaviour - ensure there is a fill, linestyle is irrelevant:
+							_maskRender.graphics.lineStyle();
+							_maskRender.graphics.beginFill(0, 1);
+							//dev note:	have set ignorePaint up as a simple static stack implementation instead of simple boolean to deal with possibility of subsequent nested clipping activity unsetting it too early
+							//dev note: check whether clipping in svg ignores filters, that probably should be done as it will create rectangular clipping regions instead of the original shape
+							ignorePaint = ignorePaint? ignorePaint.concat(true):[true];
+							owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+							ignorePaint.length--;
+							if (!ignorePaint.length) ignorePaint = null;
+						} else owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+
+						_maskRender.cacheAsBitmap = (owner.maskMode == 'alpha');
+						_original.cacheAsBitmap =  (owner.maskMode == 'alpha');
+						//restore cached transform settings
 						currentLayoutMatrix = cacheLayout;
 						currentTransformMatrix = cacheTransform;
 						transMatrix = cacheCombo;
-						_fxShape.mask = _maskRender;
-					} else if (_fxShape.mask) _fxShape.mask = null;
-											
+						
+						if (hasfilters) {
+							hasfilters = false;
+							_fxShape.filters = owner.filters;
+						} else if (_fxShape.filters.length) _fxShape.filters = [];
+						_original.mask = _maskRender;
+					} else {
+						if (_maskRender) {
+							_maskRender.cacheAsBitmap = false;
+							_maskRender.graphics.clear();
+						}
+						_original.cacheAsBitmap = false;
+						if (_fxShape.mask) _fxShape.mask = null;
+						if (_fxShape.filters.length)_fxShape.filters = [];
+					}
+										
 					//setup the stroke
-					owner.initStroke(_fxShape.graphics, rc);
+					if (!ignorePaint) owner.initStroke(_fxShape.graphics, rc);
 					//setup the fill
-					owner.initFill(_fxShape.graphics, rc);
+					if (!ignorePaint) owner.initFill(_fxShape.graphics, rc);
 
 					//init the decorations if required
+					
 					if (owner.hasDecorators) initDecorators();
-					lineTo = _fxShape.graphics.lineTo;
-					curveTo = _fxShape.graphics.curveTo;
-					moveTo = _fxShape.graphics.moveTo;
-					renderCommandStack(_fxShape.graphics,rc,_cursor);
+						lineTo = _fxShape.graphics.lineTo;
+						curveTo = _fxShape.graphics.curveTo;
+						moveTo = _fxShape.graphics.moveTo;
+					 if (!isComp)	renderCommandStack(_fxShape.graphics, rc, _cursor);
+					 else {
+						//for a GeometryComposition, draw the children
+						owner.endDraw(_fxShape.graphics);
+					 }
+						
 					if (owner.hasDecorators) endDecorators();
 
-					//blit the data to the destination context
-					renderBitmapDatatoContext(_container,graphics)
+					renderBitmapDatatoContext(_container, graphics);
+					return isComp;
 				
 				}
 				else {
 
 					//setup the stroke
-					owner.initStroke(graphics, rc);
+					if (!ignorePaint) owner.initStroke(graphics, rc);
 					//setup the fill
-					owner.initFill(graphics, rc);
+					if (!ignorePaint) owner.initFill(graphics, rc);
 
 					//init the decorations if required
 					if (owner.hasDecorators) initDecorators();
@@ -296,6 +365,7 @@ package com.degrafa.geometry.command{
 					moveTo = graphics.moveTo;
 					renderCommandStack(graphics, rc, _cursor);
 					if (owner.hasDecorators) endDecorators();
+					return false;
 				}
 			}
 		}
@@ -309,8 +379,8 @@ package com.degrafa.geometry.command{
 			if(!source){return;}
 									
 			var sourceRect:Rectangle=source.getBounds(source);
-			
-			if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
+
+			//if (owner.mask) sourceRect = sourceRect.intersection(_maskRender.getBounds(_maskRender));
 
 			if(sourceRect.isEmpty()){return;}
 			var filteredRect:Rectangle = sourceRect.clone();
@@ -335,7 +405,7 @@ package com.degrafa.geometry.command{
 
 			} else {
 				//adjust to pixelbounds:
-				filteredRect.y = Math.floor(filteredRect.y );
+			//	filteredRect.y = Math.floor(filteredRect.y );
 				filteredRect.width = Math.ceil(filteredRect.width +(filteredRect.x -(filteredRect.x = Math.floor(filteredRect.x ))));
 				filteredRect.height = Math.ceil(filteredRect.height +(filteredRect.y-(filteredRect.y = Math.floor(filteredRect.y ))));
 				if (filteredRect.width > 2880 || filteredRect.height > 2880) {
@@ -348,11 +418,12 @@ package com.degrafa.geometry.command{
 			var mat:Matrix
 			if (owner is IDisplayObjectProxy){
 				//padding with transparent pixel border
-				bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
-				mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
+		bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
+			mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
+		//			bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
+		//		mat = new Matrix(1, 0, 0, 1, - filteredRect.x,  - filteredRect.y)
 				
 			} else {
-				
 				bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
 				mat = new Matrix(1, 0, 0, 1, - filteredRect.x,  - filteredRect.y)
 			}
@@ -706,8 +777,8 @@ package com.degrafa.geometry.command{
 					}
 				}
 				invalidated = false;
-				if (_bounds.height!=0.0001) _bounds.height = Number(_bounds.height.toPrecision(3));
-				if (_bounds.width != 0.0001) _bounds.width = Number(_bounds.width.toPrecision(3));
+				if (_bounds.height != 0.0001 && _bounds.height!=int(_bounds.height)) _bounds.height = int(_bounds.height*10000) / 10000; 
+				if (_bounds.width != 0.0001 && _bounds.width!=int(_bounds.width)) _bounds.width = int(_bounds.width*10000) / 10000;
 				if (_bounds.isEmpty()) invalidated = true;
 			}
 			return _bounds;

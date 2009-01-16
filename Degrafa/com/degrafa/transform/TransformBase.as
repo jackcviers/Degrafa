@@ -164,7 +164,7 @@ package com.degrafa.transform{
 		
 		protected var _centerX:Number=NaN;
 		/**
-		* The center point of the transform along the x-axis.
+		* The center point of the transform along the x-axis. This property is ignored if the registrationPoint property has been set.
 		**/
 		public function get centerX():Number{
 			return isNaN(_centerX)? 0:_centerX;
@@ -180,7 +180,7 @@ package com.degrafa.transform{
 		
 		protected var _centerY:Number=NaN;
 		/**
-		* The center point of the transform along the y-axis.
+		* The center point of the transform along the y-axis. This property is ignored if the registrationPoint property has been set.
 		**/
 		public function get centerY():Number {
 			return isNaN(_centerY)? 0:_centerY;

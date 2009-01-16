@@ -35,7 +35,7 @@ package com.degrafa.decorators.standard{
 		* A value representing the accuracy used in determining the length
 		* of curveTo curves.
 		*/
-		public var _curveaccuracy:Number =30;
+		public var _curveaccuracy:Number =6;
 			
 		private var isLine:Boolean = true;
 		private var overflow:Number = 0;

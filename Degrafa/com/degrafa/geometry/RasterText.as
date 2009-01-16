@@ -707,7 +707,7 @@ package com.degrafa.geometry{
 		[Inspectable(category="General", enumeration="true,false")]
 		public function set kerning(value:Boolean):void{
 			_kerning = value;
-			textFormat.kerning = _indent;
+			textFormat.kerning = _kerning;
 			textField.defaultTextFormat = _textFormat.textFormat;
 			invalidated = true;
 		}
@@ -850,10 +850,10 @@ package com.degrafa.geometry{
 		* 
 		* @see flash.text.TextField
 		**/
-		public function get alpha():Number{
+		override public function get alpha():Number{
 			return textField.alpha;
 		} 
-    	public function set alpha(value:Number):void {
+    	override public function set alpha(value:Number):void {
 			if (value!=textField.alpha)
 			initChange("alpha", textField.alpha, textField.alpha = value, this);
     	}

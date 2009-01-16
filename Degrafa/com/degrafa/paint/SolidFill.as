@@ -227,8 +227,12 @@ package com.degrafa.paint{
 			//ensure that all defaults are in fact set these are temp until fully tested
 			if (isNaN(_alpha)) { _alpha = 1; }
 			
+			//handle alpha modification
+			var csAlpha:Number = CommandStack.currentAlpha;
+			var alpha:Number = this.alpha;
+			if (csAlpha != 1) { alpha *= csAlpha;	}
 			
-		//	CommandStack.currentFill = this;// ["beginFill", [color as uint, alpha]];
+
 			_lastArgs.length = 0;
 			_lastArgs[0] = color as uint;
 			_lastArgs[1] = alpha;

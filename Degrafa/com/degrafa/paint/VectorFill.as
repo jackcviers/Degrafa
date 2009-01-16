@@ -1221,9 +1221,7 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-		//	var roundingParams:Array = ["a","b","c","d","tx","ty"];
-		//	for each(var str:String in roundingParams) matrix[str] = Number(matrix[str]).toPrecision(1)
-		//	trace(matrix)
+
 			graphics.beginBitmapFill(template, matrix, repeat, _smooth );
 			_lastArgs.length = 0;
 			_lastArgs[0] = template;

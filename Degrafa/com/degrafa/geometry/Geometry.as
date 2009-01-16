@@ -666,6 +666,7 @@ package com.degrafa.geometry{
 					geometryItem.draw(graphics,null);
 				}
 			}
+			CommandStack.unstackAlpha();
 			dispatchEvent(new DegrafaEvent(DegrafaEvent.RENDER));
 		}		
 		
@@ -834,7 +835,7 @@ package com.degrafa.geometry{
 				}
 				
 				//drawing to a graphicsTarget use that.
-				if(_currentGraphicsTarget){
+				if(_currentGraphicsTarget ){
 					
 					var graphicsTargetRect:Rectangle = _currentGraphicsTarget.getRect(_currentGraphicsTarget);
 					
@@ -864,6 +865,8 @@ package com.degrafa.geometry{
 			}
 		}
 		
+		
+		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
 		* override this to do their specific rendering.
@@ -874,12 +877,12 @@ package com.degrafa.geometry{
 		public function draw(graphics:Graphics,rc:Rectangle):void{
 									
 			//don't draw unless visible
-			if(!visible){return;}
+			if (!visible) { return; }
+			//stack the current alpha value
+			CommandStack.stackAlpha(alpha);
+			//endDraw if not specifically denied from commandStack
+			if (!commandStack.draw(graphics,rc)) endDraw(graphics);
 
-			commandStack.draw(graphics,rc);
-			
-			endDraw(graphics);
-         
   		}		
   		
   		//Decoration related.
@@ -1565,7 +1568,9 @@ package com.degrafa.geometry{
   		
   		//Mask related.
   		private var _maskMode:String;
+		private var _maskSpace:String;
   		private var _mask:IGeometryComposition;
+		
 		/**
 		* A separate geometry object to use as a mask when rendering this geometry.
 		*/
@@ -1585,22 +1590,59 @@ package com.degrafa.geometry{
 		}
 		
 		
+		
+		
 		/**
 		* The mode used when this object is being masked by the geometry assigned to the mask property. 
 		* The value can either be "clip" or "mask". Clip mode is shape based clipping, alpha mode is alpha based masking.
+		* "svgClip" is a mode that mimics svg's clip-path setting with a non-zero clip-rule and userSpaceOnUse clipping units
 		*/
-		[Inspectable(category="General", enumeration="alpha,clip")]
+		[Inspectable(category="General", enumeration="alpha,clip,svgClip")]
 		public function get maskMode():String { 
 			return _maskMode?_maskMode:"clip"; 
 		}
 		public function set maskMode(value:String):void {
-			if (_mask != value && (value == "alpha" || value=="clip")) {
+			if (value == "alpha" || value=="clip" || value=="svgClip") {
 				//only fire propertyChange event if there is a mask assigned.
 				if (_mask) initChange("maskMode", maskMode, _maskMode = value, this);
 				else _maskMode = value
 			}
 		}
+		
+		/**
+		* The coordinate space within which the referenced mask geometry is rendered before being applied as a mask (respecting maskMode)
+		* to this object.
+		*/
+		[Inspectable(category="General", enumeration="local,global")]
+		public function get maskSpace():String { 
+			return _maskSpace?_maskSpace:"local"; 
+		}
+		public function set maskSpace(value:String):void {
+			if (value == "local" || value=="global" ) {
+				//only fire propertyChange event if there is a mask assigned.
+				if (_mask) initChange("maskSpace", maskSpace, _maskSpace = value, this);
+				else _maskSpace = value
+			}
+		}
 		//End mask related.
   		
+		//paint modifiers
+		
+		private var _alpha:Number;
+		/**
+		* The alpha setting that applies to this object. Actual alpha used when rendering reflects this objects parent chain alpha settings. If this object descends from other
+		* geometries with alpha settings less than, the combined effect of the parent alphas is used in conjunction with the setting on this object.
+		*/
+		public function get alpha():Number { 
+			return isNaN(_alpha)?1:_alpha; 
+		}
+		public function set alpha(value:Number):void {
+			if (value !=_alpha ) {
+				initChange("alpha", alpha, _alpha = value, this);
+			}
+		}
+		
+		//end paint modifiers
+		
   	}
 }

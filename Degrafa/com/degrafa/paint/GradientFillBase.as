@@ -328,6 +328,16 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
+			
+			//handle alpha modification
+			var csAlpha:Number = CommandStack.currentAlpha;
+			var _alphas:Array = this._alphas;
+			if (csAlpha != 1) {
+				_alphas = _alphas.concat();
+				//modify the alphas for the gradient stops:
+				_alphas.forEach(function(el:*, index:uint, arr:Array):void { arr[index] *= csAlpha }, null);
+			}
+			
 			_lastArgs.length = 0;
 			_lastArgs[0] = gradientType;
 			_lastArgs[1] = _colors;

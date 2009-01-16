@@ -26,10 +26,11 @@ package com.degrafa.paint{
 	import com.degrafa.core.utils.ColorUtil;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.paint.palette.PaletteEntry;
+	import flash.geom.Point;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
+	import flash.geom.Matrix;
 	import mx.events.PropertyChangeEvent;
 	
 	
@@ -204,10 +205,30 @@ package com.degrafa.paint{
 			
 		}
 				
-		private var _scaleMode:String;
+		protected var _degrafaScaling:int;
+		[Inspectable(category="General", enumeration="true,false", defaultValue="false")]
+		/**
+ 		* Determines whether Degrafa transforms will perform additional stroke weight transforms in accordance with the scaleMode setting on this stroke (or not) to scale a stroke.
+		* Default is false in which case degrafa transforms do not affect this stroke's weight.
+ 		* 
+ 		* @see scaleMode
+ 		**/
+		public function get degrafaScaling():Boolean {
+			return (_degrafaScaling<1)
+		}
+		public function set degrafaScaling(value:Boolean):void{			
+			if((_degrafaScaling>0) != value){
+				_degrafaScaling = value?1: -1;
+				//call local helper to dispatch event	
+				initChange("degrafaScaling",!value,value,this);
+			}
+		}
+		
+		protected var _scaleMode:String;
 		[Inspectable(category="General", enumeration="normal,vertical,horizontal,none", defaultValue="normal")]
 		/**
- 		* Specifies how to scale a stroke.
+ 		* Specifies how to scale a stroke. Strokes inside filtered or masked Degrafa geometry objects do not respect this setting for scaling in the native flash renderer 
+		* as they are rasterized before being rendered by Degrafa.
  		* 
  		* @see mx.graphics.Stroke
  		**/
@@ -222,10 +243,11 @@ package com.degrafa.paint{
 				_scaleMode = value;
 			
 				//call local helper to dispatch event	
-				initChange("joints",oldValue,_scaleMode,this);
+				initChange("scaleMode",oldValue,_scaleMode,this);
 			}
 		}
-			
+		
+		
 		private var _pixelHinting:Boolean = false;
 		[Inspectable(category="General", enumeration="true,false")]
 		/**
@@ -367,8 +389,35 @@ package com.degrafa.paint{
 			if(!_joints){_joints="round";}
 			if(!_miterLimit){_miterLimit=3;}
 			if(!_scaleMode){_scaleMode="normal";}
-			if(!_weight){_weight=1;}
-									
+			if(isNaN(_weight)){_weight=1;}
+			var weight:Number = this.weight;
+			if (_degrafaScaling > 0 && scaleMode != "none") {
+				var m:Matrix = CommandStack.transMatrix;
+				if (m) {
+					var s:Number
+					switch(_scaleMode) {
+						case "normal":
+						//discriminant seems to make sense here
+						s = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
+						break;
+						case "vertical":
+						//this seems to provide the same behaviour as the flash native vertical stroke scaling. Not sure if it makes sense with rotation, but best to keep consistent
+						s = m.b + m.d;
+						break;
+						case "horizontal":
+						//this seems to provide the same behaviour as the flash native horizontal stroke scaling. Not sure if it makes sense with rotation, but best to keep consistent
+						s = m.a + m.c;
+						break;
+					}
+					weight *= s;
+				}
+			}
+			
+			//handle alpha modification
+			var csAlpha:Number = CommandStack.currentAlpha;
+			var alpha:Number = this.alpha;
+			if (csAlpha != 1) { alpha *= csAlpha;	}
+			
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
@@ -397,9 +446,7 @@ package com.degrafa.paint{
 				_lastArgs[7] = miterLimit;
 				_lastContext = graphics;
 				_lastRect = rc;
-			//	CommandStack.currentStroke = this;
-			}
-					
+			}				
 		}
 		
 		/**
@@ -408,14 +455,15 @@ package com.degrafa.paint{
 		**/
 		public function set derive(value:SolidStroke):void{
 						
-			if (isNaN(_alpha)){_alpha = value.alpha}
+			if (isNaN(_alpha)) { _alpha = value.alpha }
 			if (!_caps){_caps = value.caps;}
 			if (!_color){_color = uint(value.color);}
 			if (!_joints){_joints = value.joints;}
 			if (!_miterLimit){_miterLimit = value.miterLimit;}
 			if (!_pixelHinting){_pixelHinting = value.pixelHinting}
 			if (!_scaleMode){_scaleMode = value.scaleMode}
-			if (!_weight){_weight = value.weight}
+			if (!_weight) { _weight = value.weight }
+			if (!_degrafaScaling) {_degrafaScaling = value.degrafaScaling?1:-1}
 			
 		}
 		
