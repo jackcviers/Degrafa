@@ -81,8 +81,8 @@ package com.degrafa
 		* Data is required for the IGeometry interface and has no effect here.
 		* @private 
 		**/	
-		public function get data():String{return "";}
-		public function set data(value:String):void{}
+		public function get data():Object{return null;}
+		public function set data(value:Object):void{}
 		
 		
 		/**

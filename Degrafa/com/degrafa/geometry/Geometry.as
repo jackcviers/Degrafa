@@ -97,17 +97,17 @@ package com.degrafa.geometry{
 			return _invalidated;
 		} 
 								
-		private var _data:String;
+		private var _data:Object;
 		/**
 		* Allows a short hand property setting that is 
 		* specific to and parsed by each geometry object. 
 		* Look at the various geometry objects to learn what 
 		* this setting requires.
 		**/	
-		public function get data():String{
+		public function get data():Object{
 			return _data;
 		}
-		public function set data(value:String):void{
+		public function set data(value:Object):void{
 			_data=value;
 		}
 		
@@ -891,8 +891,16 @@ package com.degrafa.geometry{
 									
 			//don't draw unless visible
 			if (!visible) { return; }
+			
 			//stack the current alpha value
 			CommandStack.stackAlpha(alpha);
+			
+			//Exit if no context specified. Calling draw(null, null) on a geometry
+			//can now be used as a pre calculation phase where the predraw and layout will 
+			//be done but the object will not be rendered. Also avoids the rte when called
+			//with a graphics of null.
+			if(!graphics){return;}
+			
 			//endDraw if not specifically denied from commandStack
 			if (!commandStack.draw(graphics,rc)) endDraw(graphics);
 

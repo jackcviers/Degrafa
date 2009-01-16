@@ -66,17 +66,17 @@ package com.degrafa.skins
 			addEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
 		}
 		
-		private var _data:String;
+		private var _data:Object;
 		/**
 		* Allows a short hand property setting that is 
 		* specific to and parsed by each geometry object. 
 		* Look at the various geometry objects to learn what 
 		* this setting requires.
 		**/	
-		public function get data():String{
+		public function get data():Object{
 			return _data;
 		}
-		public function set data(value:String):void{
+		public function set data(value:Object):void{
 			_data=value;
 		}
 				

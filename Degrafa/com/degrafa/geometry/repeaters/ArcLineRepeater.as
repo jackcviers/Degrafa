@@ -74,7 +74,7 @@ package com.degrafa.geometry.repeaters{
 		}
 
 
-		override public function set data(value:String):void {
+		override public function set data(value:Object):void {
 			//TODO - Talk to Jason about what really needs to get set here.
 		}
 		

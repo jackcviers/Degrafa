@@ -37,7 +37,7 @@ package com.degrafa{
 		function set stroke(value:IGraphicsStroke):void
 		function get fill():IGraphicsFill
 		function set fill(value:IGraphicsFill):void
-		function get data():String
-		function set data(value:String):void
+		function get data():Object
+		function set data(value:Object):void
 	}
 }

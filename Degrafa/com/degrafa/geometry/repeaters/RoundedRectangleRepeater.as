@@ -93,7 +93,7 @@ package com.degrafa.geometry.repeaters{
 		* @see Geometry#data
 		* 
 		**/
-		override public function set data(value:String):void{
+		override public function set data(value:Object):void{
 			
 			if(super.data != value){
 				super.data = value;

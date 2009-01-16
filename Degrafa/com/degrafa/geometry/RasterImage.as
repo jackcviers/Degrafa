@@ -88,8 +88,8 @@ package com.degrafa.geometry{
 		* Data is required for the IGeometry interface and has no effect here.
 		* @private 
 		**/	
-		override public function get data():String{return "";}
-		override public function set data(value:String):void{}
+		override public function get data():Object{return null;}
+		override public function set data(value:Object):void{}
 		
 		/**
 		 * This item currently has no regular fill. We may add this to behave as a background fill (visible through transparent pixels in the image) in the future.

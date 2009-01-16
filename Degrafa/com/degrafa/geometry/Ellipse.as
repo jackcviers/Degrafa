@@ -72,7 +72,7 @@ package com.degrafa.geometry{
 		* @see Geometry#data
 		* 
 		**/
-		override public function set data(value:String):void{
+		override public function set data(value:Object):void{
 			if(super.data != value){
 				super.data = value;
 				//parse the string on the space

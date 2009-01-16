@@ -22,18 +22,14 @@
 package com.degrafa.geometry{
 	
 //	import com.degrafa.core.utils.CloneUtil;
-	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.SegmentsCollection;
 	import com.degrafa.geometry.segment.*;
 	import com.degrafa.geometry.utilities.*;
-//	import com.degrafa.paint.SolidFill;
-//	import flash.utils.setTimeout;
 	
 	import flash.display.Graphics;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.utils.getTimer;
 	
 	import mx.events.PropertyChangeEvent;
 	//--------------------------------------
@@ -92,7 +88,7 @@ package com.degrafa.geometry{
 		* @see http://www.w3.org/TR/SVG/paths.html
 		* 
 		**/	
-		override public function set data(value:String):void{
+		override public function set data(value:Object):void{
 			if(super.data != value){
 				
 				super.data = value;
@@ -112,7 +108,7 @@ package com.degrafa.geometry{
 				* Cubic Bezier = C,c,S,s
 				**/
 
-				var pathDataArray:Array = PathDataToArray(value)
+				var pathDataArray:Array = PathDataToArray(value as String)
 
 				//store the array as we add items and set the segments after 
 				var segmentStack:Array=[];

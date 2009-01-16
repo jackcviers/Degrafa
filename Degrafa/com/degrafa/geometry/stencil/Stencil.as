@@ -129,7 +129,7 @@ package com.degrafa.geometry.stencil{
 						
 					case Stencil.PATH:
 						//create new path to aid us in calculation	
-						var tempPath:Path = new Path(data);
+						var tempPath:Path = new Path(data as String);
 						
 						tempPath.commandStack = new CommandStack(this);
 												

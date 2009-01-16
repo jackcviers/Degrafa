@@ -96,8 +96,8 @@ package com.degrafa.geometry{
 		* Data is required for the IGeometry interface and has no effect here.
 		* @private 
 		**/	
-		override public function get data():String{return "";}
-		override public function set data(value:String):void{}
+		override public function get data():Object{return null;}
+		override public function set data(value:Object):void{}
 		
 		/**
 		 * Internal function to update the textfield based on settings
@@ -830,10 +830,10 @@ package com.degrafa.geometry{
 		* 
 		* @see flash.text.TextField
 		**/
-		public function get alpha():Number{
+		override public function get alpha():Number{
 			return textField.alpha;
 		} 
-    	public function set alpha(value:Number):void {
+    	override public function set alpha(value:Number):void {
 			if (value!=textField.alpha)
 			initChange("alpha", textField.alpha, textField.alpha = value, this);
     	}
