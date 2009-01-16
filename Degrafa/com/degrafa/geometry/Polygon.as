@@ -24,7 +24,6 @@ package com.degrafa.geometry{
 	import com.degrafa.GraphicPoint;
 	import com.degrafa.IGeometry;
 	import com.degrafa.core.collections.GraphicPointCollection;
-	import flash.geom.Point;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -254,43 +253,6 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		
-
-		
-		private var _area:Number;
-		
-		/**
-		 * experimental utility function to return the centroid of this polygon. Candidate for geometryUtils and generalization via commandstack
-		 * ported from source: http://tog.acm.org/GraphicsGems/gemsiv/centroid.c
-		 * STRIKE: returns null if the polygon is degenerate
-		 * returns Point(NaN,NaN) if the polygon is degenerate or if the area is zero and there is no centroid
-		 */
-		public function get centroid():Point {
-			var n:uint;
-			if ((n=points.length)>2) {
-				var j:uint = 0;
-				var i:uint = n - 1;
-				var atmp:Number = 0;
-				var ai:Number = 0;
-				var xtmp:Number = 0;
-				var ytmp:Number = 0;
-				_area = 0;
-				for (; j < n; i = j, j++) {
-					ai = points[i].x * points[j].y - points[j].x * points[i].y;
-					atmp += ai;
-					xtmp += (points[j].x + points[i].x) * ai;
-					ytmp += (points[j].y + points[i].y) * ai;
-				}
-				_area = atmp *.5;
-				if (_area != 0) {
-					var mult:Number = 1 / (atmp * 3);
-					return new Point(xtmp *mult, ytmp *mult);
-				}
-			//	else return new Point(NaN, NaN);
-				}
-		//	else return null;
-			return new Point(NaN, NaN);
-		}
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 

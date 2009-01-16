@@ -41,6 +41,7 @@ package com.degrafa.geometry{
 	import flash.utils.setTimeout;
 	import mx.events.PropertyChangeEvent;
 	
+	
 	[Exclude(name="data", kind="property")]
 	[Exclude(name="fill", kind="property")]
 	[Bindable(event = "propertyChange")]
@@ -190,7 +191,6 @@ package com.degrafa.geometry{
 		  if (val != _waiting  )
 		  {
 			_waiting = val; 
-			initChange('waiting', !_waiting, _waiting, this); 
 			//support binding, but don't use propertyChange to avoid Degrafa redraws for no good reason
 			dispatchEvent(new ExternalDataPropertyChangeEvent(ExternalDataPropertyChangeEvent.EXTERNAL_DATA_PROPERTY_CHANGE, false, false, PropertyChangeEventKind.UPDATE , "waiting", !_waiting, _waiting, this))
 		  }
@@ -269,7 +269,6 @@ package com.degrafa.geometry{
 				if (value.content) {		
 					value = value.content;
 				} else {
-					trace('waiting')
 					value.addEventListener(ExternalDataAsset.STATUS_READY, externalBitmapHandler)
 					waiting = true;
 				return;
@@ -311,7 +310,6 @@ package com.degrafa.geometry{
 							{source = value }, 1);
 							
 					} else {
-						trace('assigning')
 						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
 					}
 					return;
