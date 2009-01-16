@@ -164,6 +164,19 @@ package com.degrafa.geometry{
 		}
 		
 		
+		private var _scaleOnLayout:Boolean=true;
+		/**
+		* When using layout this flag will determine if you want 
+		* Scale to be applied to fit layout rules
+		**/	
+		[Inspectable(category="General", enumeration="true,false")]
+		public function get scaleOnLayout():Boolean{
+			return _scaleOnLayout;
+		}
+		public function set scaleOnLayout(value:Boolean):void{
+			_scaleOnLayout=value;
+		}
+		
 		private var _autoClearGraphicsTarget:Boolean=true;
 		/**
 		* When using a graphicsTarget and if this property is set to true 

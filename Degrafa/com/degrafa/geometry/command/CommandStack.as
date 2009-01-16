@@ -138,7 +138,8 @@ package com.degrafa.geometry.command{
 				if (!tempRect.equals(layoutRect) ) {	
 					    if (layoutRect.width!=tempRect.width || layoutRect.height!=tempRect.width){
 							currentLayoutMatrix.translate( -tempRect.x, -tempRect.y)
-							currentLayoutMatrix.scale(layoutRect.width / tempRect.width, layoutRect.height / tempRect.height);
+							if (owner.scaleOnLayout)
+								currentLayoutMatrix.scale(layoutRect.width / tempRect.width, layoutRect.height / tempRect.height);
 							currentLayoutMatrix.translate(layoutRect.x, layoutRect.y);
 						} else currentLayoutMatrix.translate(layoutRect.x-tempRect.x, layoutRect.y-tempRect.y);
 						owner._layoutMatrix = currentLayoutMatrix.clone();
