@@ -22,6 +22,7 @@
 package com.degrafa.geometry{
 	
 	import com.degrafa.IGeometryComposition;
+	import com.degrafa.IGraphic;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.core.IGraphicSkin;
@@ -135,6 +136,28 @@ package com.degrafa.geometry{
 			
 		}
 		
+		//Dev Note :: Needed to add this speacial case as the parent in 
+		//DegrafaObject is of type IDegrafaObject for type safty.
+	    /**
+		* Provides access to the IGraphic object parent in a nested situation.
+		* Set when this object is at the root of a Degrafa 
+		* IGraphic object such as GeometryGroup.  
+		**/
+		private var _IGraphicParent:IGraphic;
+	    public function get IGraphicParent():IGraphic{
+	    	return _IGraphicParent;
+	    }
+	    public function set IGraphicParent(value:IGraphic):void{
+	    	if (parent==null){
+	    		if(_IGraphicParent != value){
+	    			_IGraphicParent=value;
+	    		}
+	    	} 
+	    }
+	    
+	    
+	    
+	    
 		private var _inheritStroke:Boolean=true;
 		/**
 		* If set to true and no stroke is defined and there is a parent object
@@ -840,18 +863,70 @@ package com.degrafa.geometry{
 				if(!childBounds){
 					childBounds = new Rectangle(0,0,1,1);
 				}
+				
+				//either the layout rect of the parent or the bounds 
+				//if no layout depending on the way the nesting is setup.
+				//so store this as we go through the tests.
+				var idealParentRectangle:Rectangle;
 									
-				//if we have a gerometry parent then layout to bounds
+				//if we have a geometry parent then layout to bounds or layout rectangle
+				//is our first test layoutRectangle call will return either the layout 
+				//rectangle or the bounds if no layout is set.
 				if(parent && parent is Geometry){
-					_layoutConstraint.computeLayoutRectangle(childBounds,Geometry(parent).layoutRectangle);
-					return;
+					//if no valid rect then walk up the stack and try to find one
+					//until the parent is null meaning the root geometry.
+					var currParent:Geometry = Geometry(parent);
+					var lastParent:Geometry;
+					while(currParent){
+						if(!Geometry(parent).layoutRectangle.isEmpty()){
+							idealParentRectangle = currParent.layoutRectangle;
+						}
+						else{
+							//store the last parent reached for next test step
+							lastParent = currParent;
+							currParent = currParent.parent as Geometry;
+						}
+					}
 				}
 				
-				//drawing to a graphicsTarget use that.
-				if(_currentGraphicsTarget ){
-					
+				//this test step will test the last found parent to see if it has a 
+				//IGraphicParent and attemp to use that unless the last parent has a
+				//_currentGraphicsTarget.
+				
+				//DEV Note:: should walk the geom groups eventually as well to find the next 
+				//parent if empty bounds.
+				if(lastParent && !idealParentRectangle){
+					if(!lastParent._currentGraphicsTarget){
+						if(lastParent.IGraphicParent){
+							
+							//we are not the root object and we are not doing the drawing
+							//so we can try to get the bounds from the IGraphic
+							var graphicDisplayObject:DisplayObject = lastParent.IGraphicParent as DisplayObject;
+							
+							var iGraphicsRect:Rectangle = graphicDisplayObject.getRect(graphicDisplayObject);
+							
+							if(iGraphicsRect.isEmpty()){
+								if(graphicDisplayObject.width !=0 || graphicDisplayObject.height !=0){
+									iGraphicsRect.x=graphicDisplayObject.x;
+									iGraphicsRect.y=graphicDisplayObject.y;
+									iGraphicsRect.width=graphicDisplayObject.width;
+									iGraphicsRect.height=graphicDisplayObject.height;
+								}
+							}
+							
+							//test for empty here as even that could have nothing set.
+							if(!iGraphicsRect.isEmpty()){
+								idealParentRectangle=iGraphicsRect.clone();
+							}
+							
+						}
+					}
+				} 
+				
+				
+				//drawing to a _currentGraphicsTarget attempt to use that.
+				if(_currentGraphicsTarget && !idealParentRectangle){
 					var graphicsTargetRect:Rectangle = _currentGraphicsTarget.getRect(_currentGraphicsTarget);
-					
 					//if empty try explicit as the target may not have anything in it
 					//This can happen when you have a percent width/heigh on a canvas and it has no 
 					//fill nor border in these cases there is no update event.
@@ -863,18 +938,22 @@ package com.degrafa.geometry{
 							graphicsTargetRect.height=_currentGraphicsTarget.height;
 						}
 					}
-					
-					_layoutConstraint.computeLayoutRectangle(childBounds, graphicsTargetRect);
-					return; 
+					if(graphicsTargetRect){
+						idealParentRectangle=graphicsTargetRect.clone();
+					}
 				}
 				
-				//default end point for mxml components and skins 
-				//use document as layout parent
-				if(document){
-					_layoutConstraint.computeLayoutRectangle(childBounds,new Rectangle(document.x,
-					document.y,document.width,document.height));
-					return;
+				//add more rules here or above.
+				
+				//fall back to the document as a last effort 
+				if(document && !idealParentRectangle){
+					idealParentRectangle = new Rectangle(document.x,
+					document.y,document.width,document.height);
 				}
+				
+				//finally apply it
+				_layoutConstraint.computeLayoutRectangle(childBounds,idealParentRectangle);
+				
 			}
 		}
 		

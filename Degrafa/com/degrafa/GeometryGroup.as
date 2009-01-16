@@ -21,11 +21,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa{
 	import com.degrafa.core.collections.GeometryCollection;
+	import com.degrafa.geometry.Geometry;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.events.PropertyChangeEvent;
 	
@@ -73,6 +73,11 @@ package com.degrafa{
 			for each (var item:IGeometry in _geometry.items){
 				if(item is IGraphic){
 					addChild(DisplayObject(item));
+				}
+				
+				//set the root geometry IGraphicParent
+				if (item is Geometry){
+					Geometry(item).IGraphicParent = this;
 				}
 			}
 			
