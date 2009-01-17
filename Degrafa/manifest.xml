@@ -75,7 +75,10 @@
 	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
 	<component id="ObtuseTriangleAutoShape" class="com.degrafa.geometry.autoshapes.ObtuseTriangleAutoShape"/>
 	<component id="HexagonAutoShape" class="com.degrafa.geometry.autoshapes.HexagonAutoShape"/>
-		
+	<component id="BoxArrowBasicAutoShape" class="com.degrafa.geometry.autoshapes.BoxArrowBasicAutoShape"/>
+	<component id="CrossAutoShape" class="com.degrafa.geometry.autoshapes.CrossAutoShape"/>
+	<component id="FlowArrowAutoShape" class="com.degrafa.geometry.autoshapes.FlowArrowAutoShape"/>
+	
 	
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
