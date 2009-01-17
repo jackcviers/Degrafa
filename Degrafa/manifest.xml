@@ -74,6 +74,8 @@
 	<component id="BurstAutoShape" class="com.degrafa.geometry.autoshapes.BurstAutoShape"/>
 	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
 	<component id="ObtuseTriangleAutoShape" class="com.degrafa.geometry.autoshapes.ObtuseTriangleAutoShape"/>
+	<component id="HexagonAutoShape" class="com.degrafa.geometry.autoshapes.HexagonAutoShape"/>
+		
 	
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
