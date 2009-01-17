@@ -186,7 +186,7 @@ package com.degrafa.geometry.autoshapes{
 		* An object to derive this objects properties from. When specified this 
 		* object will derive it's unspecified properties from the passed object.
 		**/
-		public function set derive(value:ObtuseTriangleAutoShape):void{
+		public function set derive(value:HexagonAutoShape):void{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
 			if (!_offset){_offset = value.offset}
