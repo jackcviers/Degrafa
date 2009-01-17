@@ -73,7 +73,7 @@
 	<component id="StarAutoShape" class="com.degrafa.geometry.autoshapes.StarAutoShape"/>
 	<component id="BurstAutoShape" class="com.degrafa.geometry.autoshapes.BurstAutoShape"/>
 	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
-	
+	<component id="ObtuseTriangleAutoShape" class="com.degrafa.geometry.autoshapes.ObtuseTriangleAutoShape"/>
 	
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
