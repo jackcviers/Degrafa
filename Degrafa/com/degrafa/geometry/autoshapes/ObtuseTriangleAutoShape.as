@@ -44,9 +44,9 @@ package com.degrafa.geometry.autoshapes{
 		}
 		
 		/**
-		* BurstAutoShape short hand data value.
+		* ObtuseTriangleAutoShape short hand data value.
 		* 
-		* <p>The BurstAutoShape data property expects exactly 1 value an offset</p>
+		* <p>The ObtuseTriangleAutoShape data property expects exactly 1 value an offset</p>
 		* 
 		* @see Geometry#data
 		* 
