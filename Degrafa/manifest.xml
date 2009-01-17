@@ -67,6 +67,14 @@
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 	
+	<!--AutoShapes-->
+	<component id="DonutAutoShape" class="com.degrafa.geometry.autoshapes.DonutAutoShape"/>
+	<component id="RegularPolygonAutoShape" class="com.degrafa.geometry.autoshapes.RegularPolygonAutoShape"/>
+	<component id="StarAutoShape" class="com.degrafa.geometry.autoshapes.StarAutoShape"/>
+	<component id="BurstAutoShape" class="com.degrafa.geometry.autoshapes.BurstAutoShape"/>
+	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
+	
+	
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
 		
