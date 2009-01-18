@@ -311,8 +311,8 @@ package com.degrafa.geometry.command{
 							if (!ignorePaint.length) ignorePaint = null;
 						} else owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
 
-						_maskRender.cacheAsBitmap = (owner.maskMode == 'alpha');
-						_original.cacheAsBitmap =  (owner.maskMode == 'alpha');
+						_original.cacheAsBitmap = _maskRender.cacheAsBitmap = (owner.maskMode == 'alpha');
+
 						//restore cached transform settings
 						currentLayoutMatrix = cacheLayout;
 						currentTransformMatrix = cacheTransform;

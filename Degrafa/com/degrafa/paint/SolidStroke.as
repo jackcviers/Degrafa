@@ -422,7 +422,6 @@ package com.degrafa.paint{
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
 				graphics.lineStyle(weight, color as uint, alpha, pixelHinting, scaleMode);
-				CommandStack.currentStroke = this;
 				_lastArgs.length = 0;
 				_lastArgs[0] = weight;
 				_lastArgs[1] = color as uint;
