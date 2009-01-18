@@ -26,7 +26,7 @@ package com.degrafa.geometry.autoshapes{
 	
 	/**
  	* The ObtuseTriangleAutoShape element draws a obtuse triangle 
- 	* including an offset passed.
+ 	* including an offset1 passed.
  	**/
 	public class ObtuseTriangleAutoShape extends AutoShape{
 		
@@ -36,17 +36,17 @@ package com.degrafa.geometry.autoshapes{
 	 	* <p>The ObtuseTriangleAutoShape constructor accepts 1 optional 
 	 	* argument that defines it's properties.</p>
 	 	* 
-	 	* @param offset A number indicating the offset.
+	 	* @param offset1 A number indicating the offset1.
 	 	*/	
-		public function ObtuseTriangleAutoShape(offset:Number=NaN){
+		public function ObtuseTriangleAutoShape(offset1:Number=NaN){
 			super();
-			if (offset) this.offset=offset;
+			if (offset1) this.offset1=offset1;
 		}
 		
 		/**
 		* ObtuseTriangleAutoShape short hand data value.
 		* 
-		* <p>The ObtuseTriangleAutoShape data property expects exactly 1 value an offset</p>
+		* <p>The ObtuseTriangleAutoShape data property expects exactly 1 value an offset1</p>
 		* 
 		* @see Geometry#data
 		* 
@@ -60,24 +60,24 @@ package com.degrafa.geometry.autoshapes{
 				if (tempArray.length == 1)
 				{	
 					super.data = value;
-					_offset=	tempArray[0];
+					_offset1=	tempArray[0];
 					invalidated = true;
 				}	
 			}
 		} 
 		
-		private var _offset:Number;
+		private var _offset1:Number;
 		/**
-		* The offset for the ObtuseTriangleAutoShape.
+		* The offset1 for the ObtuseTriangleAutoShape.
 		**/
-		public function get offset():Number{
-			if(!_offset){return (hasLayout)? 0:0;}
-			return _offset;
+		public function get offset1():Number{
+			if(!_offset1){return (hasLayout)? 0:0;}
+			return _offset1;
 		}
-		public function set offset(value:Number):void{
+		public function set offset1(value:Number):void{
 			
-			if (_offset != value) {
-				_offset = value;
+			if (_offset1 != value) {
+				_offset1 = value;
 				invalidated = true;
 			}
 		}
@@ -87,23 +87,23 @@ package com.degrafa.geometry.autoshapes{
 		*/
 		private function preDrawPart():void{
 	
-			if (isNaN(_offset) && hasLayout){
+			if (isNaN(_offset1) && hasLayout){
 				if(layoutConstraint.width){
-					_offset = width/2;	
+					_offset1 = width/2;	
 				}
 				else{
-					_offset = 0;
+					_offset1 = 0;
 				}
 			}
 			else{
-				if(isNaN(_offset)){
-					_offset = 0;
+				if(isNaN(_offset1)){
+					_offset1 = 0;
 				}
 			}
 			
 			commandStack.addMoveTo(0,0);
 			commandStack.addLineTo(width,height);
-			commandStack.addLineTo(_offset,height);
+			commandStack.addLineTo(_offset1,height);
 			commandStack.addLineTo(0,0);
 
 			
@@ -186,7 +186,7 @@ package com.degrafa.geometry.autoshapes{
 		public function set derive(value:ObtuseTriangleAutoShape):void{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
-			if (!_offset){_offset = value.offset}
+			if (!_offset1){_offset1 = value.offset1}
 		}
 	}
 }

@@ -26,7 +26,7 @@ package com.degrafa.geometry.autoshapes{
 	
 	/**
  	* The RightTriangleAutoShape element draws a obtuse triangle 
- 	* including an offset passed.
+ 	* including an offset1 passed.
  	**/
 	public class RightTriangleAutoShape extends AutoShape{
 		
@@ -35,7 +35,7 @@ package com.degrafa.geometry.autoshapes{
 	 	*  
 	 	* <p>The RightTriangleAutoShape constructor has no parameters.</p>
 	 	* 
-	 	* @param offset A number indicating the offset.
+	 	* @param offset1 A number indicating the offset1.
 	 	*/	
 		public function RightTriangleAutoShape(){
 			super();
@@ -45,7 +45,7 @@ package com.degrafa.geometry.autoshapes{
 		/**
 		* RightTriangleAutoShape short hand data value.
 		* 
-		* <p>The RightTriangleAutoShape data property expects exactly 1 value an offset</p>
+		* <p>The RightTriangleAutoShape data property expects exactly 1 value an offset1</p>
 		* 
 		* @see Geometry#data
 		* 

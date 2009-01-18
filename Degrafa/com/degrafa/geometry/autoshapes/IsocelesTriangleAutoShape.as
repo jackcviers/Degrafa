@@ -26,7 +26,7 @@ package com.degrafa.geometry.autoshapes{
 	
 	/**
  	* The IsocelesTriangleAutoShape element draws a obtuse triangle 
- 	* including an offset passed.
+ 	* including an offset1 passed.
  	**/
 	public class IsocelesTriangleAutoShape extends AutoShape{
 		

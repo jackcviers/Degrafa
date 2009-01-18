@@ -26,7 +26,7 @@ package com.degrafa.geometry.autoshapes{
 	
 	/**
  	* The CrossAutoShape element draws a hexagon
- 	* including an offset passed.
+ 	* including an offset1 passed.
  	**/
 	public class CrossAutoShape extends AutoShape{
 		
@@ -36,17 +36,17 @@ package com.degrafa.geometry.autoshapes{
 	 	* <p>The CrossAutoShape constructor accepts 1 optional 
 	 	* argument that defines it's properties.</p>
 	 	* 
-	 	* @param offset A number indicating the offset.
+	 	* @param offset1 A number indicating the offset1.
 	 	*/	
-		public function CrossAutoShape(offset:Number=NaN){
+		public function CrossAutoShape(offset1:Number=NaN){
 			super();
-			if (offset) this.offset=offset;
+			if (offset1) this.offset1=offset1;
 		}
 		
 		/**
 		* CrossAutoShape short hand data value.
 		* 
-		* <p>The CrossAutoShape data property expects exactly 1 value an offset</p>
+		* <p>The CrossAutoShape data property expects exactly 1 value an offset1</p>
 		* 
 		* @see Geometry#data
 		* 
@@ -60,24 +60,24 @@ package com.degrafa.geometry.autoshapes{
 				if (tempArray.length == 1)
 				{	
 					super.data = value;
-					_offset=	tempArray[0];
+					_offset1=	tempArray[0];
 					invalidated = true;
 				}	
 			}
 		} 
 		
-		private var _offset:Number;
+		private var _offset1:Number;
 		/**
-		* The offset for the CrossAutoShape.
+		* The offset1 for the CrossAutoShape.
 		**/
-		public function get offset():Number{
-			if(!_offset){return (hasLayout)? 0:0;}
-			return _offset;
+		public function get offset1():Number{
+			if(!_offset1){return (hasLayout)? 0:0;}
+			return _offset1;
 		}
-		public function set offset(value:Number):void{
+		public function set offset1(value:Number):void{
 			
-			if (_offset != value) {
-				_offset = value;
+			if (_offset1 != value) {
+				_offset1 = value;
 				invalidated = true;
 			}
 		}
@@ -87,35 +87,35 @@ package com.degrafa.geometry.autoshapes{
 		*/
 		private function preDrawPart():void{
 	
-			if (isNaN(_offset) && hasLayout){
+			if (isNaN(_offset1) && hasLayout){
 				if(layoutConstraint.width){
-					_offset = width/4;	
+					_offset1 = width/4;	
 				}
 				else{
-					_offset = 0;
+					_offset1 = 0;
 				}
 			}
 			else{
-				if(isNaN(_offset)){
-					_offset = 0;
+				if(isNaN(_offset1)){
+					_offset1 = 0;
 				}
 			}
 			
 			//begin drawing
-			commandStack.addMoveTo(_offset,0);
+			commandStack.addMoveTo(_offset1,0);
 			
-			commandStack.addLineTo(width-_offset,0);
-			commandStack.addLineTo(width-_offset,_offset);
-			commandStack.addLineTo(width,_offset);
-			commandStack.addLineTo(width,height-_offset);
-			commandStack.addLineTo(width-_offset,height-_offset);
-			commandStack.addLineTo(width-_offset,height);
-			commandStack.addLineTo(_offset,height);
-			commandStack.addLineTo(_offset,height-_offset);
-			commandStack.addLineTo(0,height-_offset);
-			commandStack.addLineTo(0,_offset);
-			commandStack.addLineTo(_offset,_offset);
-			commandStack.addLineTo(_offset,0);
+			commandStack.addLineTo(width-_offset1,0);
+			commandStack.addLineTo(width-_offset1,_offset1);
+			commandStack.addLineTo(width,_offset1);
+			commandStack.addLineTo(width,height-_offset1);
+			commandStack.addLineTo(width-_offset1,height-_offset1);
+			commandStack.addLineTo(width-_offset1,height);
+			commandStack.addLineTo(_offset1,height);
+			commandStack.addLineTo(_offset1,height-_offset1);
+			commandStack.addLineTo(0,height-_offset1);
+			commandStack.addLineTo(0,_offset1);
+			commandStack.addLineTo(_offset1,_offset1);
+			commandStack.addLineTo(_offset1,0);
 		}
 
 		/**
@@ -195,7 +195,7 @@ package com.degrafa.geometry.autoshapes{
 		public function set derive(value:CrossAutoShape):void{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
-			if (!_offset){_offset = value.offset}
+			if (!_offset1){_offset1 = value.offset1}
 		}
 	}
 }
