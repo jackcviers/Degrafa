@@ -877,7 +877,7 @@ package com.degrafa.geometry{
 					//until the parent is null meaning the root geometry.
 					var currParent:Geometry = Geometry(parent);
 					var lastParent:Geometry;
-					while(currParent){
+					while(currParent && !idealParentRectangle){
 						if(!Geometry(parent).layoutRectangle.isEmpty()){
 							idealParentRectangle = currParent.layoutRectangle;
 						}
