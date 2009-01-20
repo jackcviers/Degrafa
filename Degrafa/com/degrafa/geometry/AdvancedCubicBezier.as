@@ -236,7 +236,7 @@ package com.degrafa.geometry
         _solver = new Solve2x2();
       }
       
-      // beware nearly or exactly coincident interior interpolation points?
+      // beware nearly or exactly coincident interior interpolation points
       var p:Point = _solver.solve(a11, a12, a21, a22, b1, b2);
       if( _solver.determinant < 0.000001 )
       {
@@ -486,7 +486,7 @@ package com.degrafa.geometry
       // Bx(t) = _x or Bx(t) - _x = 0, or c0x-_x + c1x*t + c2x*t^2 + c3x*t^3 = 0.
 
       getBezierCoef();
-       
+      
       // Find one root - any root - then factor out (t-r) to get a quadratic poly. for the remaining roots
       var f:Function = function(_t:Number):Number { return _t*(_c1X + _t*(_c2X + _t*(_c3X))) + _c0X-_x; }
          
@@ -496,7 +496,7 @@ package com.degrafa.geometry
       // some curves that loop around on themselves may require bisection
       _left        = 0;
       _right       = 1;
-      __bisect(f, _left, _right);
+      __bisect(f, 0, 1);
         
       // experiment with tolerance - but not too tight :)  
       var t0:Number   = _twbrf.findRoot(_left, _right, f, 50, 0.000001);
@@ -556,15 +556,15 @@ package com.degrafa.geometry
     }
     
     // bisect the specified range to isolate an interval with a root.
-    private function __bisect(_f:Function, _left:Number, _right:Number):void
+    private function __bisect(_f:Function, _l:Number, _r:Number):void
     {
-      if( Math.abs(_right-_left) <= _bisectLimit )
+      if( Math.abs(_r-_l) <= _bisectLimit )
       {
         return;
       }
         
-      var left:Number   = _left;
-      var right:Number  = _right;
+      var left:Number   = _l;
+      var right:Number  = _r;
       var middle:Number = 0.5*(left+right);
       if( _f(left)*_f(right) <= 0 )
       {
