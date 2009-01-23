@@ -82,8 +82,8 @@
 	<component id="CrossAutoShape" class="com.degrafa.geometry.autoshapes.CrossAutoShape"/>
 	<component id="FlowArrowAutoShape" class="com.degrafa.geometry.autoshapes.FlowArrowAutoShape"/>
 	<component id="ParallelogramAutoShape" class="com.degrafa.geometry.autoshapes.ParallelogramAutoShape"/>
-	
-	
+	<component id="ArrowAutoShape" class="com.degrafa.geometry.autoshapes.ArrowAutoShape"/>
+		
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
 		
