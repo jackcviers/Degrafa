@@ -372,6 +372,67 @@ package com.degrafa.geometry
       return result;
     }
 
+/**
+* join
+*
+* <p>Given the current <code>AdvancedQuadraticBezier</code> and an arbitrary point, return a new <code>AdvancedQuadraticBezier</code> instance so that the new quadratic
+* Bezier interpolates the input point and matches tangent with the current quadratic Bezier at its origin.  In other words, given the current (x0,y0), (cx,cy), and (x1,y1),
+* return a new <code>AdvancedQuadraticBezier</code> with parameters (w0,u0), (zx,zy), and (w1,u1) so that w0 = x1, u0 = y1, and the segment from (cx,cy) to (x1,y1) and
+* (w0,u0) to (zx,zy) have the same slope.  This is one prelude to a more general quadratic spline.</p>
+*
+* @param _x:Number x-coordinate of final interpolation point of output quadratic Bezier.
+* @param _y:Number y-coordinate of final interpolation point of output quadratic Bezier.
+* @param _tension:uint - reserved for future use
+*
+* @return <code>AdvancedQuadraticBezier</code> reference to quadratic Bezier that can be considered an 'add on' curve to the current quadratic bezier with matching
+* tangents at the join (x1,y1).
+*
+*/
+    public function join(_x:Number, _y:Number, _tension:uint=5):AdvancedQuadraticBezier
+    {
+      // tension parameter not yet implemented
+      var deltaX:Number  = x1 - cx;
+      var deltaX1:Number = _x - x1;
+      var deltaY:Number  = y1 - cy;
+      var m1:Number      = 0;
+      var m2:Number      = 0;
+      var pX:Number      = 0;
+      var pY:Number      = 0;
+      
+      if( deltaX*deltaX1 >= 0 )
+      {
+        if( Math.abs(deltaX) <= 0.000000001 )
+        {
+          // m2 = 0
+          pY = _y;
+          pX = x1;
+        }
+        else if( Math.abs(deltaY) <= 0.000000001 )
+        {
+          // m2 = +inf
+          pX = _x;
+          pY = y1;
+        }
+        else
+        {
+          m1            = deltaY/deltaX;
+          m2            = -1/m1;
+          var b1:Number = y1 - m1*x1;
+          var b2:Number = _y - m2*_x;
+          pX            = (b2-b1)/(m1-m2);
+          pY            = m1*pX + b1;
+        }
+      }
+      else
+      {
+        var m:Number = 4/3;
+        pX           = cx + m*(x1-cx);
+        pY           = cy + m*(y1-cy);
+      }
+      
+      return new AdvancedQuadraticBezier(x1,y1,pX,pY,_x,_y);
+    }
+
     // recompute polynomial coefficients
     private function getBezierCoef():void
     { 
