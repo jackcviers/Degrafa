@@ -385,7 +385,7 @@ package com.degrafa.geometry
 * @param _tension:uint - reserved for future use
 *
 * @return <code>AdvancedQuadraticBezier</code> reference to quadratic Bezier that can be considered an 'add on' curve to the current quadratic bezier with matching
-* tangents at the join (x1,y1).
+* tangents at the join (x1,y1).  Note that the algorithm is not yet complete, so this method should be viewed as experimental.
 *
 */
     public function join(_x:Number, _y:Number, _tension:uint=5):AdvancedQuadraticBezier
@@ -425,6 +425,7 @@ package com.degrafa.geometry
       }
       else
       {
+        // placeholder - this will be replaced by projection as sometimes the indication of direction is not accurate
         var m:Number = 4/3;
         pX           = cx + m*(x1-cx);
         pY           = cy + m*(y1-cy);
