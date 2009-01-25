@@ -21,14 +21,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.autoshapes{
 	
-	import flash.display.Graphics;
-	import flash.geom.Rectangle;
+	//only need one offset here so need to exclude
+	[Exclude(name="offset2", kind="property")]
+	[Exclude(name="offset2Percent", kind="property")]
+	
+	[Exclude(name="offset3", kind="property")]
+	[Exclude(name="offset3Percent", kind="property")]
+	
+	[Exclude(name="offset4", kind="property")]
+	[Exclude(name="offset4Percent", kind="property")]
 	
 	/**
- 	* The TrapezoidAutoShape element draws a obtuse triangle 
- 	* including an offset1 passed.
+ 	* The TrapezoidAutoShape element draws a trapezoid. 
  	**/
-	public class TrapezoidAutoShape extends AutoShape{
+	public class TrapezoidAutoShape extends AutoShapeTypeOffsets{
 		
 		/**
 	 	* Constructor.
@@ -65,121 +71,46 @@ package com.degrafa.geometry.autoshapes{
 				}	
 			}
 		} 
-		
-		private var _offset1:Number;
+				
 		/**
-		* The offset1 for the TrapezoidAutoShape.
-		**/
-		public function get offset1():Number{
-			if(!_offset1){return (hasLayout)? 0:0;}
-			return _offset1;
-		}
-		public function set offset1(value:Number):void{
-			
-			if (_offset1 != value) {
-				_offset1 = value;
-				invalidated = true;
-			}
-		}
-		
-		/**
-		* Draw the objects part(s) based on passed parameters.
+		* Draw the TrapezoidAutoShape part(s) based on the parameters.
 		*/
-		private function preDrawPart():void{
+		override protected function preDrawPart():void{
 	
-			if (isNaN(_offset1) && hasLayout){
+			//store local to calculate
+			var _Offset1:Number=_offset1;
+			
+			//calc desired final offset 1
+			if (isNaN(_Offset1) && hasLayout && isNaN(_offset1Percent)){
 				if(layoutConstraint.width){
-						_offset1 = width/3;		
+						_Offset1 = width/3;		
 				}
 				else{
-					_offset1 = 0;
+					_Offset1 = 0;
 				}
+			}
+			else if (!isNaN(_offset1Percent) && hasLayout){
+				if(_offset1Percent >= 1){
+					_Offset1 = (_offset1Percent/100)*width;
+				}
+				else{
+					_Offset1 = _offset1Percent*width;
+				}		
 			}
 			else{
-				if(isNaN(_offset1)){
-					_offset1 = width/3;	
+				if(isNaN(_Offset1)){
+					_Offset1 = 0;	
 				}
 			}
 			
 			
-			commandStack.addMoveTo(_offset1,0);
-			commandStack.addLineTo(width - _offset1, 0);
+			commandStack.addMoveTo(_Offset1,0);
+			commandStack.addLineTo(width - _Offset1, 0);
 			commandStack.addLineTo(width,height);
 			commandStack.addLineTo(0,height);
-			commandStack.addLineTo(_offset1,0);
-
+			commandStack.addLineTo(_Offset1,0);
 			
 		}
-
-		/**
-		* @inheritDoc 
-		**/
-		override public function preDraw():void{
-			if(invalidated){
-				
-				commandStack.source.length = 0;
-				
-				preDrawPart();
-				
-				invalidated = false;
-			}
-			
-		}
-		
-		
-		/**
-		* Performs the specific layout work required by this Geometry.
-		* @param childBounds the bounds to be layed out. If not specified a rectangle
-		* of (0,0,1,1) is used or the most appropriate size is calculated. 
-		**/
-		override public function calculateLayout(childBounds:Rectangle=null):void{
-			if(_layoutConstraint){
-				if (_layoutConstraint.invalidated){
-					
-					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-					
-					//default to bounds if no width or height is set
-					//and we have layout
-					if(isNaN(_layoutConstraint.width)){
-						tempLayoutRect.width = bounds.width;
-					}
-					 
-					if(isNaN(_layoutConstraint.height)){
-						tempLayoutRect.height = bounds.height;
-					}
-					
-					if(isNaN(_layoutConstraint.x)){
-			 			tempLayoutRect.x = bounds.x;
-			 		}
-			 		
-			 		if(isNaN(_layoutConstraint.y)){
-			 			tempLayoutRect.y = bounds.y;
-			 		}
-			 		
-					super.calculateLayout(tempLayoutRect);
-					_layoutRectangle = _layoutConstraint.layoutRectangle;
-			 		invalidated = true;
-				}
-			}
-		}
-		
-		/**
-		* Begins the draw phase for geometry objects. All geometry objects 
-		* override this to do their specific rendering.
-		* 
-		* @param graphics The current context to draw to.
-		* @param rc A Rectangle object used for fill bounds. 
-		**/
-		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-		 
-		 	//init the layout in this case done before predraw.
-			if (hasLayout) calculateLayout();
-			
-			//re init if required
-			if (invalidated) preDraw();
-	
-			super.draw(graphics, (rc)? rc:bounds);
-	    }
 	    
 	    /**
 		* An object to derive this objects properties from. When specified this 

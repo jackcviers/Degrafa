@@ -21,14 +21,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry.autoshapes{
 	
-	import flash.display.Graphics;
-	import flash.geom.Rectangle;
+	//only need 2 offsets here so need to exclude		
+	[Exclude(name="offset3", kind="property")]
+	[Exclude(name="offset3Percent", kind="property")]
+	
+	[Exclude(name="offset4", kind="property")]
+	[Exclude(name="offset4Percent", kind="property")]
 	
 	/**
- 	* The ArrowAutoShape element draws a down arrow
- 	* including an offset passed.
+ 	* The ArrowAutoShape element draws a basic arrow.
  	**/
-	public class ArrowAutoShape extends AutoShape{
+	public class ArrowAutoShape extends AutoShapeTypeOffsets{
 		
 		/**
 	 	* Constructor.
@@ -70,154 +73,72 @@ package com.degrafa.geometry.autoshapes{
 				}	
 			}
 		} 
-		
-		private var _offset1:Number;
+				
 		/**
-		* The offset1 for the ArrowAutoShape.
-		**/
-		public function get offset1():Number{
-			if(!_offset1){return (hasLayout)? 0:0;}
-			return _offset1;
-		}
-		public function set offset1(value:Number):void{
-			
-			if (_offset1 != value) {
-				_offset1 = value;
-				invalidated = true;
-			}
-		}
-		
-		private var _offset2:Number;
-		/**
-		* The offset1 for the ArrowAutoShape.
-		**/
-		public function get offset2():Number{
-			if(!_offset2){return (hasLayout)? 0:0;}
-			return _offset2;
-		}
-		public function set offset2(value:Number):void{
-			
-			if (_offset2 != value) {
-				_offset2 = value;
-				invalidated = true;
-			}
-		}
-		
-		/**
-		* Draw the objects part(s) based on passed parameters.
+		* Draw the ArrowAutoShape part(s) based on the parameters.
 		*/
-		private function preDrawPart():void{
-	
-			if (isNaN(_offset1) && hasLayout){
+		override protected function preDrawPart():void{
+			
+			//store local to calculate
+			var _Offset1:Number=_offset1;
+			var _Offset2:Number=_offset2;
+			
+			//calc desired final offset 1
+			if (isNaN(_Offset1) && hasLayout && isNaN(_offset1Percent)){
 				if(layoutConstraint.width){
-					_offset1 = height/2;	
+					_Offset1 = height/4;		
 				}
 				else{
-					_offset1 = 0;
+					_Offset1 = 0;
 				}
 			}
+			else if (!isNaN(_offset1Percent) && hasLayout){
+				if(_offset1Percent >= 1){
+					_Offset1 = (_offset1Percent/100)*width;
+				}
+				else{
+					_Offset1 = _offset1Percent*width;
+				}		
+			}
 			else{
-				if(isNaN(_offset1)){
-					_offset1 = 0;
+				if(isNaN(_Offset1)){
+					_Offset1 = 0;	
 				}
 			}
 			
-			if (isNaN(_offset2) && hasLayout){
+			//calc desired final offset 2
+			if (isNaN(_Offset2) && hasLayout && isNaN(_offset2Percent)){
 				if(layoutConstraint.width){
-					_offset2 = width/4;	
+					_Offset2 = width/4;		
 				}
 				else{
-					_offset2 = 0;
+					_Offset2 = 0;
 				}
 			}
+			else if (!isNaN(_offset2Percent) && hasLayout){
+				if(_offset2Percent >= 1){
+					_Offset2 = (_offset2Percent/100)*width;
+				}
+				else{
+					_Offset2 = _offset2Percent*width;
+				}		
+			}
 			else{
-				if(isNaN(_offset2)){
-					_offset2 = 0;
+				if(isNaN(_Offset2)){
+					_Offset2 = 0;	
 				}
 			}
 			
 			//Arrow with point begin drawing
-			commandStack.addMoveTo(0, _offset1);
-            commandStack.addLineTo(_offset2, _offset1);
-            commandStack.addLineTo(_offset2, 0);
-            commandStack.addLineTo(width-_offset2, 0);
-            commandStack.addLineTo(width-_offset2, _offset1);
-            commandStack.addLineTo(width, _offset1);
+			commandStack.addMoveTo(0, _Offset1);
+            commandStack.addLineTo(_Offset2, _Offset1);
+            commandStack.addLineTo(_Offset2, 0);
+            commandStack.addLineTo(width-_Offset2, 0);
+            commandStack.addLineTo(width-_Offset2, _Offset1);
+            commandStack.addLineTo(width, _Offset1);
             commandStack.addLineTo(width/2, height);
-            commandStack.addLineTo(0, _offset1);
+            commandStack.addLineTo(0, _Offset1);
 		}
-
-		/**
-		* @inheritDoc 
-		**/
-		override public function preDraw():void{
-			if(invalidated){
-				
-				commandStack.source.length = 0;
-				
-				preDrawPart();
-				
-				invalidated = false;
-			}
-			
-		}
-		
-		
-		/**
-		* Performs the specific layout work required by this Geometry.
-		* @param childBounds the bounds to be layed out. If not specified a rectangle
-		* of (0,0,1,1) is used or the most appropriate size is calculated. 
-		**/
-		override public function calculateLayout(childBounds:Rectangle=null):void{
-			if(_layoutConstraint){
-				if (_layoutConstraint.invalidated){
-					
-					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-					
-					//default to bounds if no width or height is set
-					//and we have layout
-					if(isNaN(_layoutConstraint.width)){
-						tempLayoutRect.width = bounds.width;
-					}
-					 
-					if(isNaN(_layoutConstraint.height)){
-						tempLayoutRect.height = bounds.height;
-					}
-					
-					if(isNaN(_layoutConstraint.x)){
-			 			tempLayoutRect.x = bounds.x;
-			 		}
-			 		
-			 		if(isNaN(_layoutConstraint.y)){
-			 			tempLayoutRect.y = bounds.y;
-			 		}
-			 		
-					super.calculateLayout(tempLayoutRect);
-					_layoutRectangle = _layoutConstraint.layoutRectangle;
-			 		
-				}
-			}
-		}
-		
-		/**
-		* Begins the draw phase for geometry objects. All geometry objects 
-		* override this to do their specific rendering.
-		* 
-		* @param graphics The current context to draw to.
-		* @param rc A Rectangle object used for fill bounds. 
-		**/
-		override public function draw(graphics:Graphics,rc:Rectangle):void{				
-		 
-		 	//init the layout in this case done before predraw.
-			if (hasLayout) calculateLayout();
-			
-			if (commandStack.length==0){invalidated=true;}
-			
-			//re init if required
-			if (invalidated) preDraw();
-	
-			super.draw(graphics, (rc)? rc:bounds);
-	    }
 	    
 	    /**
 		* An object to derive this objects properties from. When specified this 
@@ -227,6 +148,7 @@ package com.degrafa.geometry.autoshapes{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
 			if (!_offset1){_offset1 = value.offset1}
+			if (!_offset2){_offset2 = value.offset2}
 		}
 	}
 }
