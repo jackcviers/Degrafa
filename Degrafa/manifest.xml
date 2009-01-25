@@ -75,7 +75,6 @@
 	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
 	<component id="ObtuseTriangleAutoShape" class="com.degrafa.geometry.autoshapes.ObtuseTriangleAutoShape"/>
 	<component id="HexagonAutoShape" class="com.degrafa.geometry.autoshapes.HexagonAutoShape"/>
-	<component id="RightTriangleAutoShape" class="com.degrafa.geometry.autoshapes.RightTriangleAutoShape"/>	
 	<component id="IsocelesTriangleAutoShape" class="com.degrafa.geometry.autoshapes.IsocelesTriangleAutoShape"/>	
 	<component id="TrapezoidAutoShape" class="com.degrafa.geometry.autoshapes.TrapezoidAutoShape"/>	
 	<component id="BoxArrowBasicAutoShape" class="com.degrafa.geometry.autoshapes.BoxArrowBasicAutoShape"/>
