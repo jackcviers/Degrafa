@@ -702,9 +702,11 @@ package com.degrafa.paint{
 				//dev note: [optimization] at the moment, switching filters on/off also triggers a redraw below...this is not necessary if it is the only propertyChange
 				// as a redraw is not required, just application or removal of the filters and adjustment of sourceBounds
 				shape.graphics.clear();
-				_source.draw(shape.graphics, _source.bounds);				
+				var settings:Object = CommandStack.getSettingsCache();
+				_source.draw(shape.graphics, _source.bounds);	
+				CommandStack.resetCacheValues(settings);
 				sourceBounds = shape.getBounds(shape);
-
+				
 				//filters, if used, are not included in sourceBounds from the Shape. So we need to add the filter effects to the sourceBounds
 				
 				//dev note: this filter calculation is preliminary and (hopefully) may be able to be done in a more lightweight way:
