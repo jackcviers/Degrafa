@@ -85,15 +85,27 @@ package com.degrafa.geometry.command{
 		private var _container:Sprite;
 		private var _original:Sprite;
 		
-		//alpha modifier during render
+		/**
+		 * The current contextual alpha value that represents nested alpha values during render. This is used during requests from
+		 * paint objects.
+		 */
 		static public function get currentAlpha():Number {
 			if (!alphaStack.length) return 1;
 			return alphaStack[alphaStack.length-1];
 		}
+		/**
+		 * called internally by Geometry during a draw loop to create a nested alpha 'context' 
+		 * dev: this and related methods may change in the future.
+		 * @param	alpha
+		 */
 		static public function stackAlpha(alpha:Number):void {
 			if (!alphaStack.length) alphaStack.push( alpha )
 			else alphaStack.push(alpha*alphaStack[alphaStack.length-1])
 		}
+		/**
+		 * called internally during endDraw from Geometry to remove the local alpha 'context' after any children have rendered
+		 * dev: this and related methods may change in the future.
+		 */
 		static public function unstackAlpha():void {
 			if (!alphaStack.length) {
 				trace('error: unmatched unstackAlpha calls')
@@ -101,6 +113,40 @@ package com.degrafa.geometry.command{
 			}
 			alphaStack.length--;
 		}
+		
+		static private var _cacheable:Array = ['alphaStack', 'currentContext', 'currentFill', 'currentLayoutMatrix', 'currentStroke', 'currentTransformMatrix', 'transMatrix'];
+		/**
+		 * Helper function to permit caching values before nested calls inside a draw/endDraw phase
+		 * dev: this and related methods may change in the future. 
+		 * @return an object holding  cached settings to be re-applied following a nested call
+		 */
+		static  public function getSettingsCache():Object {
+			var ret:Object = { };
+			for each(var item:String in _cacheable) {
+				var iObj:Object = CommandStack[item];
+				if (iObj is Array) {
+						ret[item] = (iObj as Array).concat();
+						continue;
+				}
+				if (iObj is Matrix) {
+					ret[item] = (iObj as Matrix).clone();
+					continue;
+				}
+				ret[item] = CommandStack[item];
+			}
+			return ret;
+		}
+		/**
+		 * Helper function to reapply a set of cached settings to reset the context 
+		 * dev: this and related methods may change in the future.
+		 * @param	values
+		 */
+		static public function resetCacheValues(values:Object):void {
+			for (var item:String in values) {
+				 CommandStack[item]=values[item];
+			}
+		}
+		
 		
 		
 		public function CommandStack(geometry:Geometry = null){
