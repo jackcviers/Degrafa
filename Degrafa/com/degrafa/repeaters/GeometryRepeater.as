@@ -39,6 +39,7 @@ package com.degrafa.repeaters
 	* The GeometryRepeater repeates geometry objects. For each item 
 	* repeated values can be modified through an array of PropertyModifiers.
 	**/		
+	[Event(name="iterationChanged", type="flash.events.Event")]
 	public class GeometryRepeater extends Geometry implements IGeometry {
 		
 		private var _sourceGeometry:Geometry;
@@ -73,6 +74,7 @@ package com.degrafa.repeaters
 		 * Returns current iteration for a draw cycle
 		 * -1 if not currently drawing
 		 */
+		 [Bindable]
 		 public function get iteration():int {
 		 	return _curIteration;
 		 }
@@ -126,7 +128,7 @@ package com.degrafa.repeaters
 				this.invalidated=true;
 				return;
 			} 
-		    super.propertyChangeHandler(event);
+		   super.propertyChangeHandler(event);
 		}
 		
 		//TODO
@@ -140,6 +142,11 @@ package com.degrafa.repeaters
 			return _bounds
 		}
 		
+		override public function preDraw():void {
+			if (invalidated) commandStack.length=0;
+			super.preDraw();
+		}
+		
 		
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
@@ -149,14 +156,16 @@ package com.degrafa.repeaters
 		* @param rc A Rectangle object used for fill bounds. 
 		**/
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
+			
+			preDraw();
+			
 			if(!this.isInitialized){return;}
 			_isDrawing=true;
 			
+			var t:Number=getTimer();
+			
 			//We need to do this before we reset our objects states
 			calcBounds();
-			
-			
-			var t:Number=getTimer();
 			
 			var isSuppressed:Boolean=suppressEventProcessing;
 			
@@ -167,22 +176,26 @@ package com.degrafa.repeaters
 				
 				_curIteration=i;
 				
+				dispatchEvent(new Event("iterationChanged"));
+				
 				//Apply our modifiers
-				for each (var modifier:IRepeaterModifier in _modifiers.items) { 
-					DegrafaObject(modifier).parent=this;
-					DegrafaObject(modifier).suppressEventProcessing=true;
-					if (i==0) modifier.beginModify(geometryCollection);
-					modifier.apply();
+				if (_modifiers) {
+					for each (var modifier:IRepeaterModifier in _modifiers.items) { 
+						DegrafaObject(modifier).parent=this;
+						DegrafaObject(modifier).suppressEventProcessing=true;
+						if (i==0) modifier.beginModify(geometryCollection);
+						modifier.apply();
+					}
 				}
-
 				//Draw out our changed object
 				if ((renderOnFinalIteration==true && (i==_count-1)) || !renderOnFinalIteration) {
 				
 					if(graphics){
-	                    super.draw(graphics,rc);
+						//t=getTimer();
+	                    super.draw(graphics,rc);   
+	                    //trace("GeometeryRepeater.inner Draw = " + (getTimer()-t) + "ms");
 	                }
-	                else{
-	                    
+	                else{     
 	                    if(graphicsTarget){
 	                        for each (var targetItem:Object in graphicsTarget){
 	                            if(targetItem){
@@ -199,9 +212,11 @@ package com.degrafa.repeaters
 			}
 				
 			//End modifications (which returns the object to its original state
-			for each (modifier in _modifiers.items) {
-				modifier.end();
-				DegrafaObject(modifier).suppressEventProcessing=false;
+			if (_modifiers) {
+				for each (modifier in _modifiers.items) {
+					modifier.end();
+					DegrafaObject(modifier).suppressEventProcessing=false;
+				}
 			}
 			
 			suppressEventProcessing=isSuppressed;
@@ -210,7 +225,11 @@ package com.degrafa.repeaters
 			
 			_curIteration=-1;
 			
+			
 			this.invalidated=false;
+
+			//super.endDraw(graphics);
+			//trace("GeometeryRepeater.draw() = " + (getTimer()-t) + "ms");
 		}
 		
 		/**
@@ -218,7 +237,10 @@ package com.degrafa.repeaters
 		 * as it would put us in an endless loop with the draw function
 		 */
 	    override public function dispatchEvent(evt:Event):Boolean{
-	    	if(suppressEventProcessing || _isDrawing){
+	    	
+	    	if (evt.type=="iterationChanged") return eventDispatcher.dispatchEvent(evt);
+	    	
+	    	if(suppressEventProcessing || _isDrawing) {
 	        	evt.stopImmediatePropagation();
 	        	this.invalidated=true;
 	     		return false;

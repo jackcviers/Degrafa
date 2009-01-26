@@ -107,13 +107,14 @@ package com.degrafa.repeaters{
 		public static var MODIFIER_ADD:String="add";
 		public static var MODIFIER_NONE:String="none";
 		public static var MODIFIER_SUBTRACT:String="subtract";
-		
+		public static var MODIFIER_MULTIPLY:String="multiply";
+		public static var MODIFIER_DIVIDE:String="divide";
 		
 		private var _modifierOperator:String="add";
 		/**
 		* How to apply the modifier for each iteration.
 		*/
-		[Inspectable(category="General", enumeration="add,subtract,none" )]
+		[Inspectable(category="General", enumeration="add,subtract,multiply,divide,none" )]
 		public function set modifierOperator(value:String):void {
 			_modifierOperator=value;
 		}
@@ -181,7 +182,11 @@ package com.degrafa.repeaters{
 						_targetObjects[i][_targetProperties[i]]+=Number(tempModifier);
 					else if (_modifierOperator==PropertyModifier.MODIFIER_SUBTRACT && _iteration>0)
 						_targetObjects[i][_targetProperties[i]]-=Number(tempModifier);
-					else if (_modifierOperator != PropertyModifier.MODIFIER_ADD && _modifierOperator != PropertyModifier.MODIFIER_SUBTRACT)
+					else if (_modifierOperator==PropertyModifier.MODIFIER_MULTIPLY && _iteration>0)
+						_targetObjects[i][_targetProperties[i]]*=Number(tempModifier);
+					else if (_modifierOperator==PropertyModifier.MODIFIER_DIVIDE && _iteration>0)
+						_targetObjects[i][_targetProperties[i]]/=Number(tempModifier);
+					else if (_modifierOperator != PropertyModifier.MODIFIER_ADD && _modifierOperator != PropertyModifier.MODIFIER_SUBTRACT && _modifierOperator != PropertyModifier.MODIFIER_MULTIPLY && _modifierOperator != PropertyModifier.MODIFIER_DIVIDE)
 						_targetObjects[i][_targetProperties[i]]=tempModifier;
 				}
 			}
@@ -192,7 +197,7 @@ package com.degrafa.repeaters{
 		}
 		
 		/**
-		* We want to find the property we are modifierting and cache the property.
+		* We want to find the property we are modifying and cache the property.
 		* If the sourceObject has changed then we need to find the property again
 		* We store the object in _targetObject
 		* And the property name in _targetProperty
@@ -224,7 +229,7 @@ package com.degrafa.repeaters{
 				
 				if (targetObject is Geometry) {
 					//We want to make sure we are part of the source object so we dont update properties of other objects
-					if (Geometry(targetObject).parent!=this.parent) continue;
+					if (Geometry(targetObject).parent && Geometry(targetObject).parent!=this.parent) continue;
 					Geometry(targetObject).suppressEventProcessing=true;
 				}
 				else if (targetObject==null) continue;
