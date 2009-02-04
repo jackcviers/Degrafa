@@ -262,7 +262,7 @@ package com.degrafa.geometry{
 			
 		}
 		
-		//METHOD QUE WORK
+		//Method Queue Work
 		
 		/**
 		* NOTE :: All this code can be moved into the DisplayObjectCollection post b3. 
@@ -299,61 +299,64 @@ package com.degrafa.geometry{
 			}
 			
 			//init the draw que
-			initDrawQue();
+			initDrawQueue();
 			
 			//make sure we have not missed one draw cycle chance.
 			
 			//add a draw to the que.
-			queDraw(event.currentTarget,event.currentTarget.graphics,null)
+			queueDraw(event.currentTarget,event.currentTarget.graphics,null)
 			
 		}
 		
 		//target stage refference
 		private var _stage:Stage;
 		
-		private var methodQue:Array=[];
-		private function initDrawQue():void{
+		private var methodQueue:Array=[];
+		private function initDrawQueue():void{
 			//add listener to frame change.
-			_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+			_stage.addEventListener(Event.ENTER_FRAME, processMethodQueue);
 		}
 		
-		//adds a draw to the que
-		private function queDraw(...args):void{
+		//adds a draw to the queue
+		private function queueDraw(...args):void{
 			
-			//make sure we are not already qued up to draw 
+			//make sure we are not already queued up to draw 
 			//to that target otherwise add it
 			
 			//DEV note: could improve perf here
-			for each(var item:Object in methodQue){
-				if(item.args[0] == args[0]){return;}
+			for each(var item:Object in methodQueue){
+				//we only want to add it one time
+				if(item.args[0] == args[0]){
+					return;
+				}
 			}
 			
-			methodQue.push({method:drawToTarget, args:args});
+			methodQueue.push({method:drawToTarget, args:args});
 				
 			if(_stage){	
-				_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+				_stage.addEventListener(Event.ENTER_FRAME, processMethodQueue,false,0,true);
 			}
 			else{
 				//could have been added runtime
 				if(graphicsTarget.length){
 					if(graphicsTarget[0].stage){
 						_stage = graphicsTarget[0].stage;
-						_stage.addEventListener(Event.ENTER_FRAME, processMethodQue);
+						_stage.addEventListener(Event.ENTER_FRAME, processMethodQueue,false,0,true);
 					}
 				}
 			}
 		}
 		
 		
-		private function processMethodQue(event:Event):void{
+		private function processMethodQueue(event:Event):void{
 			
-			if(methodQue.length == 0){return;}
+			if(methodQueue.length == 0){return;}
 			
-			//trace("QUE LENGTH :::" + methodQue.length)
+			//trace("Queue LENGTH :::" + methodQue.length)
 			
 			// make local copy so that new calls get through
-        	var queue:Array = methodQue;
-        	methodQue = [];
+        	var queue:Array = methodQueue;
+        	//methodQueue = [];
         
         	var len:int = queue.length;
 			for (var i:int=0;i<len;i++){
@@ -361,12 +364,14 @@ package com.degrafa.geometry{
 				queue[i].method.apply(null,[queue[i].args[0]]);
 			}
 			
+			methodQueue.length = 0;
+			
 			queue.length=0;
 			
 			//no longer needed as all que items have been processed
 			//will get re added in queDraw() on as needed basis.
-			if(methodQue.length==0 && _stage){
-				_stage.removeEventListener(Event.ENTER_FRAME, processMethodQue);
+			if(methodQueue.length==0 && _stage){
+				_stage.removeEventListener(Event.ENTER_FRAME, processMethodQueue);
 			}
 		}
 		
@@ -474,7 +479,7 @@ package com.degrafa.geometry{
 					addUpdateTarget(container,{oldbounds:bounds,watchers:watchers})
 					
 					//add a draw to the que.
-					queDraw(container,container.graphics,null)
+					queueDraw(container,container.graphics,null)
 					
 				}
 			}
@@ -549,7 +554,7 @@ package com.degrafa.geometry{
 			
 			if(_graphicsTarget){
 				for each (var target:Object in _graphicsTarget.items){
-					queDraw(target,target.graphics,null)
+					queueDraw(target,target.graphics,null)
 				}
 			}
 			_currentGraphicsTarget=null;
@@ -666,6 +671,7 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		protected function propertyChangeHandler(event:PropertyChangeEvent):void{
+			
 			if (!parent){
 				dispatchEvent(event);
 				drawToTargets();	
@@ -841,7 +847,7 @@ package com.degrafa.geometry{
 		* @private
 		* The current graphics target being rendered to.
 		**/
-		protected var _currentGraphicsTarget:Sprite;
+		public var _currentGraphicsTarget:Sprite;
 		
 		/**
 		* Access to the layout matrix if this Geometry has layout.
@@ -944,6 +950,39 @@ package com.degrafa.geometry{
 				}
 				
 				//add more rules here or above.
+				
+				//handle skins this way as they will not always follow the above rules. 
+				if(!idealParentRectangle){
+					var iGraphicsSkinRect:Rectangle = new Rectangle();
+					
+					if(lastParent){
+						if(lastParent.graphicsTarget.length!=0){
+							if (lastParent.graphicsTarget[0] is IGraphicSkin){
+								iGraphicsSkinRect.x=lastParent.graphicsTarget[0].x;
+								iGraphicsSkinRect.y=lastParent.graphicsTarget[0].y;
+								iGraphicsSkinRect.width=lastParent.graphicsTarget[0].width;
+								iGraphicsSkinRect.height=lastParent.graphicsTarget[0].height;
+							}
+							if(iGraphicsSkinRect){
+								idealParentRectangle=iGraphicsSkinRect.clone();
+							}
+						}
+					}
+					else{
+						//if the first graphics taregt is a IGraphicSkin
+						if(graphicsTarget.length!=0){
+							if (graphicsTarget[0] is IGraphicSkin){
+								iGraphicsSkinRect.x=graphicsTarget[0].x;
+								iGraphicsSkinRect.y=graphicsTarget[0].y;
+								iGraphicsSkinRect.width=graphicsTarget[0].width;
+								iGraphicsSkinRect.height=graphicsTarget[0].height;
+							}
+							if(iGraphicsSkinRect){
+								idealParentRectangle=iGraphicsSkinRect.clone();
+							}
+						}
+					}
+				}			
 				
 				//fall back to the document as a last effort 
 				if(document && !idealParentRectangle){
