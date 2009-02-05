@@ -110,26 +110,37 @@ package com.degrafa.transform{
 			var groupOffset:Point = (registrationPoint)? getRegistrationPoint(value):new Point(centerX, centerY);
 			var retMatrix:Matrix = new Matrix();
 		    var currentOffset:Point=new Point();
+			var geomContext:Geometry = (value as Geometry);
+			var context:Matrix = geomContext.transformContext;
 
+			if (!context)
+			{
+				//check the parent hierachy for the closest ancestor with a transform
+				while (geomContext.parent)
+				{
+					geomContext = (geomContext.parent as Geometry);
+					if (geomContext.transform) {
+						context = geomContext.transform.getTransformFor(geomContext);
+						break;
+					}
+				}
+			}
+			
 			for each(var matrix:ITransform in transforms)
 			{
 				if (matrix.hasExplicitSetting()) currentOffset = matrix.getRegPoint(value)
 				else currentOffset = groupOffset.clone();
-//				trace(currentOffset);
-				var xofffset:Number = currentOffset.x;
-				var yofffset:Number = currentOffset.y;
-			
+
 				currentOffset = retMatrix.transformPoint(currentOffset)
-//				trace(matrix+"--->" + currentOffset);
-				
-			//	currentOffset.x += retMatrix.tx;
-			//	currentOffset.y += retMatrix.ty;
-			//	currentOffset.offset(off.x,off.y)
-			//	currentOffset.offset(xofffset, yofffset);// currentOffset.y)
+
 				retMatrix.translate(-currentOffset.x, -currentOffset.y)
 				retMatrix.concat(matrix.transformMatrix);
 				retMatrix.translate(currentOffset.x, currentOffset.y)
+				
+				
 			}
+
+			if (context) retMatrix.concat(context);
 			return retMatrix;
 		}
 		

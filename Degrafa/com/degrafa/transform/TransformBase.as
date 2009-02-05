@@ -304,17 +304,17 @@ package com.degrafa.transform{
 			//this relies on the nested update sequence from parent to children to work in 
 			//a stable way.
 
-			var requester:Geometry = (value as Geometry);
-			var context:Matrix = requester.transformContext;
+			var geomContext:Geometry = (value as Geometry);
+			var context:Matrix = geomContext.transformContext;
 
 			if (!context)
 			{
 				//check the parent hierachy for the closest ancestor with a transform
-				while (requester.parent)
+				while (geomContext.parent)
 				{
-					requester = (requester.parent as Geometry);
-					if (requester.transform) {
-						context = requester.transform.getTransformFor(requester);
+					geomContext = (geomContext.parent as Geometry);
+					if (geomContext.transform) {
+						context = geomContext.transform.getTransformFor(geomContext);
 						break;
 					}
 				}
@@ -325,7 +325,6 @@ package com.degrafa.transform{
 			transMat.concat(transformMatrix);
 			transMat.translate(offset.x, offset.y)
 			
-			//TODO: Something is not working as it should here:
 			if (context) {
 				transMat.concat(context);
 			}
