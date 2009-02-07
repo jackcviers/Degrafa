@@ -270,46 +270,64 @@ package com.degrafa.geometry{
 			}
 		}
 		
-		private function drawBackground(graphics:Graphics, rc:Rectangle):void {
-			var brc:Rectangle = new Rectangle(rc.x + leftWidth, rc.y + topWidth, rc.width - (leftWidth + rightWidth), rc.height - (topWidth + bottomWidth));
-			// draw background
-			backgroundFill.begin(graphics, brc);
-			// todo: more optimizing
-			
-			graphics.moveTo(leftWidth, topWidth + topLeftRadiusY);
-			
-			// top right
-			graphics.lineTo(rc.width - Math.max(rightWidth, topRightRadiusX), topWidth); // top right
-			if(topRightRadiusX > 0 && topRightRadiusX > rightWidth && topRightRadiusY > topWidth){
-				graphics.curveTo(rc.width-rightWidth, topWidth, rc.width - rightWidth, topRightRadiusY);
-			} else {
-				graphics.lineTo(rc.width - rightWidth, Math.max(topWidth, topRightRadiusY));
-			}
-			
-			// bottom right
-			graphics.lineTo(rc.width - rightWidth, rc.height - bottomWidth - bottomRightRadiusY);
-			if(bottomRightRadiusX > 0){
-				graphics.curveTo(rc.width, rc.height, rc.width - bottomRightRadiusX, rc.height - bottomWidth);
-			}
-			
-			// bottom left
-			graphics.lineTo(Math.max(leftWidth, bottomLeftRadiusX), rc.height - bottomWidth);
-			if(bottomLeftRadiusX > 0){
-				graphics.curveTo(leftWidth, rc.height - bottomWidth, leftWidth, rc.height - Math.max(bottomWidth, bottomLeftRadiusY));
-				//Math.max(bottomLeftRadiusX, leftWidth), rc.height - bottomWidth
-				// leftWidth, rc.height - bottomWidth - bottomLeftRadiusY
-			}
-			
-			// top left
-			graphics.lineTo(leftWidth, topWidth + topLeftRadiusY);
-			if(topLeftRadiusX > 0){
-				graphics.curveTo(0, 0, leftWidth + topLeftRadiusX, topWidth);
-			}
-			
-			graphics.lineTo(rc.width - Math.max(rightWidth, topRightRadiusX), topWidth); // top right
-			
-			backgroundFill.end(graphics);
-		}
+        private function drawBackground(graphics : Graphics, rc : Rectangle) : void 
+        {
+            var brc : Rectangle = new Rectangle(rc.x + leftWidth, 
+                                                rc.y + topWidth, 
+                                                rc.width - (leftWidth + rightWidth), 
+                                                rc.height - (topWidth + bottomWidth));
+            
+            // draw background
+            backgroundFill.begin(graphics, brc);
+            // todo: lots more optimizing =D
+
+            //Calculate inner radii
+            var tl_x : Number = topLeftRadiusX - leftWidth;
+            var tl_y : Number = topLeftRadiusY - topWidth;
+
+            var tr_x : Number = topRightRadiusX - rightWidth;
+            var tr_y : Number = topRightRadiusY - topWidth;
+
+            var br_x : Number = bottomRightRadiusX - rightWidth;
+            var br_y : Number = bottomRightRadiusY - bottomWidth;
+
+            var bl_x : Number = bottomLeftRadiusX - leftWidth;
+            var bl_y : Number = bottomLeftRadiusY - bottomWidth;
+
+            //Calculate inner pixel positions
+            var innerTop : Number = topWidth;
+            var innerRight : Number = rc.width - rightWidth;
+            var innerBottom : Number = rc.height - bottomWidth;
+            var innerLeft : Number = leftWidth;
+
+            graphics.moveTo(innerLeft + tl_x, innerTop);
+
+            //Top
+            graphics.lineTo(innerRight - tr_x, innerTop);
+
+            //Top Right
+            graphics.curveTo(innerRight, innerTop, innerRight, innerTop + tr_y);
+
+            //Right
+            graphics.lineTo(innerRight, innerBottom - br_y);
+
+            //Bottom right
+            graphics.curveTo(innerRight, innerBottom, innerRight - br_x, innerBottom);
+
+            //Bottom
+            graphics.lineTo(innerLeft + bl_x, innerBottom);
+
+            //Bottom left
+            graphics.curveTo(innerLeft, innerBottom, innerLeft, innerBottom - bl_y);
+
+            //Left
+            graphics.lineTo(innerLeft, innerTop + tl_y);
+
+            //Top Left
+            graphics.curveTo(innerLeft, innerTop, innerLeft + tl_x, innerTop);
+
+            backgroundFill.end(graphics);
+        }
 		
 		
 		//************************************************************
