@@ -382,54 +382,34 @@ package com.degrafa.geometry
 *
 * @param _x:Number x-coordinate of final interpolation point of output quadratic Bezier.
 * @param _y:Number y-coordinate of final interpolation point of output quadratic Bezier.
-* @param _tension:uint - reserved for future use
+* @param _tension:Number - tension parameter between 0 and 1.  0 produces a near linear curve while 1 produces a curve whose control point is the projection of (_x,_y),
+* onto the vector from (cx,cy) to (x1,y1), unless that point is less than one third the distance from (cx,cy) to (x1,y1).  This may be broken into two parameters in 
+* the future for more control.  Values outside the interval [0,1] are clipped to either 0 or 1.
 *
 * @return <code>AdvancedQuadraticBezier</code> reference to quadratic Bezier that can be considered an 'add on' curve to the current quadratic bezier with matching
-* tangents at the join (x1,y1).  Note that the algorithm is not yet complete, so this method should be viewed as experimental.
+* tangents at the join (x1,y1).
 *
 */
-    public function join(_x:Number, _y:Number, _tension:uint=5):AdvancedQuadraticBezier
+    public function join(_x:Number, _y:Number, _tension:Number=1):AdvancedQuadraticBezier
     {
       // tension parameter not yet implemented
       var deltaX:Number  = x1 - cx;
-      var deltaX1:Number = _x - x1;
       var deltaY:Number  = y1 - cy;
       var m1:Number      = 0;
       var m2:Number      = 0;
       var pX:Number      = 0;
       var pY:Number      = 0;
+      var tension:Number = Math.max(_tension,0);
+      tension            = Math.min(tension,1);
       
-      if( deltaX*deltaX1 >= 0 )
-      {
-        if( Math.abs(deltaX) <= 0.000000001 )
-        {
-          // m2 = 0
-          pY = _y;
-          pX = x1;
-        }
-        else if( Math.abs(deltaY) <= 0.000000001 )
-        {
-          // m2 = +inf
-          pX = _x;
-          pY = y1;
-        }
-        else
-        {
-          m1            = deltaY/deltaX;
-          m2            = -1/m1;
-          var b1:Number = y1 - m1*x1;
-          var b2:Number = _y - m2*_x;
-          pX            = (b2-b1)/(m1-m2);
-          pY            = m1*pX + b1;
-        }
-      }
-      else
-      {
-        // placeholder - this will be replaced by projection as sometimes the indication of direction is not accurate
-        var m:Number = 4/3;
-        pX           = cx + m*(x1-cx);
-        pY           = cy + m*(y1-cy);
-      }
+      // get the t-parameter corresponding to projecting the vector from (_x,_y) to (px,py) onto the vector from (cx,cy) to (x1,y1).  This determines the 'direction'
+      // of the projection point, which we want to test vs. the tension parameter to avoid kinking.
+      var t:Number      = ((_x-cx)*(x1-cx) + (_y-cy)*(y1-cy)) / (deltaX*deltaX + deltaY*deltaY);
+      var target:Number = 1 + tension/3;
+      t                 = t < target ? target : 1 + tension*(t-1); 
+     
+      pX = cx + t*deltaX;
+      pY = cy + t*deltaY;
       
       return new AdvancedQuadraticBezier(x1,y1,pX,pY,_x,_y);
     }
