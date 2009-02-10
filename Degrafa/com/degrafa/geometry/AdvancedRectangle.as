@@ -20,41 +20,41 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
-	
+
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.layout.LayoutConstraint;
-	
+
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
-	
+
 	import mx.graphics.IFill;
 	import mx.graphics.IStroke;
 	import mx.graphics.SolidColor;
 	import mx.graphics.Stroke;
-	
+
 	//--------------------------------------
 	//  Other metadata
 	//--------------------------------------
-	
+
 	[IconFile("AdvancedRectangle.png")]
-	
+
 	/**
 	 * Used by the CSSSkin for graphics rendering.
 	 */
 	public class AdvancedRectangle extends Geometry implements IGeometry{
-		
+
 		public var backgroundFill:IFill;
-		
+
 		public var leftWidth:Number;
 		public var topWidth:Number;
 		public var rightWidth:Number;
 		public var bottomWidth:Number;
-		
+
 		public var leftFill:IFill;
 		public var topFill:IFill;
 		public var rightFill:IFill;
 		public var bottomFill:IFill;
-		
+
 		public var topLeftRadiusX:Number;
 		public var topLeftRadiusY:Number;
 		public var topRightRadiusX:Number;
@@ -63,21 +63,21 @@ package com.degrafa.geometry{
 		public var bottomLeftRadiusY:Number;
 		public var bottomRightRadiusX:Number;
 		public var bottomRightRadiusY:Number;
-		
+
 		public var topLeftFill:IFill;
 		public var topRightFill:IFill;
 		public var bottomLeftFill:IFill;
 		public var bottomRightFill:IFill;
-		
+
 		public function AdvancedRectangle(){
 			super();
 		}
-		
+
 		//Layout is Not yet implemented here so override to avoid mass havoc
 		override public function get layoutConstraint():LayoutConstraint{return null}
 		override public function set layoutConstraint(value:LayoutConstraint):void{}
-		override public function get layoutRectangle():Rectangle{return null} 
-		
+		override public function get layoutRectangle():Rectangle{return null}
+
 		override public function set width(value:Number):void{}
 		override public function set percentWidth(value:Number):void{}
 		override public function set maxWidth(value:Number):void{}
@@ -99,14 +99,14 @@ package com.degrafa.geometry{
 		override public function set left(value:Number):void{}
 		override public function set right(value:Number):void{}
 		override public function set maintainAspectRatio(value:Boolean):void{}
-		
+
 		override public function draw(graphics:Graphics, rc:Rectangle):void {
-			
+
 			// test for simpler drawing methods
 			var isRoundRectComplex:Boolean = topWidth == rightWidth == bottomWidth == leftWidth && topLeftRadiusX == topLeftRadiusY && topRightRadiusX == topRightRadiusY && bottomLeftRadiusX == bottomLeftRadiusY && bottomRightRadiusX == bottomRightRadiusY && isEquivalentSolidFill([topFill,rightFill,bottomFill,leftFill]);
 			var isRoundRect:Boolean = isRoundRectComplex && topLeftRadiusX == topRightRadiusX == bottomLeftRadiusX == bottomRightRadiusX;
 			var isRect:Boolean = isRoundRect && topLeftRadiusX == 0;
-			
+
 			if(isRect || isRoundRect || isRoundRectComplex) {
 				var stroke:IStroke = convertSolidColorToStroke(topFill as SolidColor, topWidth);
 				stroke.apply(graphics);
@@ -131,13 +131,13 @@ package com.degrafa.geometry{
 				drawBackground(graphics, rc);
 			}
 		}
-		
+
 		//**************************************************************************
 		// Drawing Functions
 		//**************************************************************************
 		//private var fill:IFill; // temp
 		//private var weight:Number = 3; // temp
-		
+
 		private function drawLeftBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(leftFill != null) {
 				var rc:Rectangle = new Rectangle(0, topLeftRadiusY, leftWidth, rectangle.height - topLeftRadiusY - bottomLeftRadiusY);
@@ -152,7 +152,7 @@ package com.degrafa.geometry{
 				leftFill.end(graphics);
 			}
 		}
-		
+
 		private function drawTopBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(topFill != null) {
 				var rc:Rectangle = new Rectangle(topLeftRadiusX, 0, rectangle.width - topLeftRadiusX - topRightRadiusX, topWidth);
@@ -167,7 +167,7 @@ package com.degrafa.geometry{
 				topFill.end(graphics);
 			}
 		}
-		
+
 		private function drawRightBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(rightFill != null) {
 				var rc:Rectangle = new Rectangle(0, topRightRadiusY, rightWidth, rectangle.height - topRightRadiusY - bottomRightRadiusY);
@@ -182,7 +182,7 @@ package com.degrafa.geometry{
 				rightFill.end(graphics);
 			}
 		}
-		
+
 		private function drawBottomBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(bottomFill != null) {
 				var rc:Rectangle = new Rectangle(bottomLeftRadiusX, 0, rectangle.width - bottomLeftRadiusX - bottomRightRadiusX, bottomWidth);
@@ -198,12 +198,12 @@ package com.degrafa.geometry{
 				bottomFill.end(graphics);
 			}
 		}
-		
+
 		private function drawTopLeftRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw top left curve
 			if(topLeftRadiusX > 0){
 				//matrix = new Matrix();
-				//matrix.createGradientBox(border.topLeft.x, border.topLeft.y, (-45/180)*Math.PI, 0, 0); 
+				//matrix.createGradientBox(border.topLeft.x, border.topLeft.y, (-45/180)*Math.PI, 0, 0);
 				//graphics.beginGradientFill("linear", [borderLeftColor, borderTopColor], [1, 1], [0, 0xFF], matrix);
 				topLeftFill.begin(graphics, rc);
 				graphics.moveTo(0, topLeftRadiusY);
@@ -215,7 +215,7 @@ package com.degrafa.geometry{
 				//graphics.endFill();
 			}
 		}
-		
+
 		private function drawTopRightRadius(graphics:Graphics, rectangle:Rectangle):void {
 			// draw top right curve
 			if(topRightRadiusX > 0){
@@ -233,12 +233,12 @@ package com.degrafa.geometry{
 				//graphics.endFill();
 			}
 		}
-		
+
 		private function drawBottomLeftRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw bottom left curve
 			if(bottomLeftRadiusX > 0){
 				//matrix = new Matrix();
-				//matrix.createGradientBox(border.bottomLeft.x, border.bottomLeft.y, (45/180)*Math.PI, 0, unscaledHeight - border.bottomLeft.y); 
+				//matrix.createGradientBox(border.bottomLeft.x, border.bottomLeft.y, (45/180)*Math.PI, 0, unscaledHeight - border.bottomLeft.y);
 				//graphics.beginGradientFill("linear", [borderLeftColor, borderBottomColor], [1, 1], [0, 0xFF], matrix);
 				var brc:Rectangle = new Rectangle(0, rc.height - Math.max(bottomWidth, bottomLeftRadiusY), Math.max(leftWidth, bottomLeftRadiusX), Math.max(bottomWidth, bottomLeftRadiusY));
 				bottomLeftFill.begin(graphics, brc);
@@ -251,14 +251,14 @@ package com.degrafa.geometry{
 				//graphics.endFill();
 			}
 		}
-		
+
 		private function drawBottomRightRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw bottom right curve
 			if(bottomRightRadiusX > 0){
 				//matrix = new Matrix();
 				//matrix.createGradientBox(border.bottomRight.x, border.bottomRight.y, (-45/180)*Math.PI, unscaledWidth - border.bottomRight.x, unscaledHeight - border.bottomRight.y);
 				//graphics.beginGradientFill("linear", [borderBottomColor, borderRightColor], [1, 1], [0, 0xFF], matrix);
-				
+
 				bottomRightFill.begin(graphics, rc);
 				graphics.moveTo(rc.width, rc.height - bottomRightRadiusY);
 				graphics.curveTo(rc.width, rc.height, rc.width - bottomRightRadiusX, rc.height);
@@ -269,30 +269,30 @@ package com.degrafa.geometry{
 				//graphics.endFill();
 			}
 		}
-		
-        private function drawBackground(graphics : Graphics, rc : Rectangle) : void 
+
+        private function drawBackground(graphics : Graphics, rc : Rectangle) : void
         {
-            var brc : Rectangle = new Rectangle(rc.x + leftWidth, 
-                                                rc.y + topWidth, 
-                                                rc.width - (leftWidth + rightWidth), 
+            var brc : Rectangle = new Rectangle(rc.x + leftWidth,
+                                                rc.y + topWidth,
+                                                rc.width - (leftWidth + rightWidth),
                                                 rc.height - (topWidth + bottomWidth));
-            
+
             // draw background
             backgroundFill.begin(graphics, brc);
             // todo: lots more optimizing =D
 
             //Calculate inner radii
-            var tl_x : Number = topLeftRadiusX - leftWidth;
-            var tl_y : Number = topLeftRadiusY - topWidth;
+            var tl_x : Number = Math.max(topLeftRadiusX - leftWidth, 0);
+            var tl_y : Number = Math.max(topLeftRadiusY - topWidth, 0);
 
-            var tr_x : Number = topRightRadiusX - rightWidth;
-            var tr_y : Number = topRightRadiusY - topWidth;
+            var tr_x : Number = Math.max(topRightRadiusX - rightWidth, 0);
+            var tr_y : Number = Math.max(topRightRadiusY - topWidth, 0);
 
-            var br_x : Number = bottomRightRadiusX - rightWidth;
-            var br_y : Number = bottomRightRadiusY - bottomWidth;
+            var br_x : Number = Math.max(bottomRightRadiusX - rightWidth, 0);
+            var br_y : Number = Math.max(bottomRightRadiusY - bottomWidth, 0);
 
-            var bl_x : Number = bottomLeftRadiusX - leftWidth;
-            var bl_y : Number = bottomLeftRadiusY - bottomWidth;
+            var bl_x : Number = Math.max(bottomLeftRadiusX - leftWidth, 0);
+            var bl_y : Number = Math.max(bottomLeftRadiusY - bottomWidth, 0);
 
             //Calculate inner pixel positions
             var innerTop : Number = topWidth;
@@ -328,12 +328,12 @@ package com.degrafa.geometry{
 
             backgroundFill.end(graphics);
         }
-		
-		
+
+
 		//************************************************************
 		// Utility Functions
 		//************************************************************
-		
+
 		private function convertSolidColorToStroke(fill:SolidColor, weight:Number):IStroke {
 			if(fill != null) {
 				return new Stroke(fill.color, weight, fill.alpha);
@@ -341,7 +341,7 @@ package com.degrafa.geometry{
 				return new Stroke(0, 0, 0);
 			}
 		}
-		
+
 		private function isEquivalentSolidFill(fills:Array):Boolean {
 			var temp:SolidColor;
 			for each(var fill:IFill in fills) {
@@ -359,6 +359,6 @@ package com.degrafa.geometry{
 			}
 			return true;
 		}
-		
+
 	}
 }
