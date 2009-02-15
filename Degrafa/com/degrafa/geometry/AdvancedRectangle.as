@@ -178,7 +178,7 @@ package com.degrafa.geometry{
 				graphics.lineTo(rectangle.width, rectangle.height - bottomRightRadiusY); // bottom outside
 				graphics.lineTo(rectangle.width - rightWidth, rectangle.height - Math.max(bottomRightRadiusY, bottomWidth));
 				graphics.lineTo(rectangle.width - rightWidth, Math.max(topRightRadiusY, topWidth));
-				graphics.lineTo(rectangle.width, Math.max(topRightRadiusY, topWidth)); // top outside
+				graphics.lineTo(rectangle.width, topRightRadiusY); // top outside
 				rightFill.end(graphics);
 			}
 		}
