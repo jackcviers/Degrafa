@@ -25,8 +25,7 @@
 
 //modified for degrafa
 package com.degrafa.states{
-
-	import com.degrafa.geometry.Geometry;
+	import flash.utils.Dictionary;
 	
 	//--------------------------------------
 	//  Other metadata
@@ -34,39 +33,42 @@ package com.degrafa.states{
 	
 	[IconFile("SetProperty.png")]
 	/**
-	* The SetProperty class specifies a property value that is in effect 
-	* only during the parent view state.
+	* The SetProperties class specifies an array properties and values that 
+	* get modified for this state.
 	* 
 	* Degrafa states work very much like Flex 2 or 3 built in states. 
 	* For further details reffer to the Flex 2 or 3 documentation. 
 	**/
-	public class SetProperty implements IOverride{
+	public class SetProperties implements IOverride{
 		
 		/**
 		* Constructor.
 		**/
-	    public function SetProperty(target:Object = null, name:String = null,value:* = undefined){
+	    public function SetProperties(target:Object = null, names:Array = null,values:Array=null){
 	        this.target = target;
-	        this.name = name;
-	        this.value = value;
+	        this.names = names;
+	        this.values = values;
 	    }
-	
-	    private var oldValue:Object;
+		
+		//stores the old values and properties changed in a name value pair
+		//so they can be reverted on remove.
+	    private var oldValues:Dictionary = new Dictionary(true);
 	    
-		/**
-		* The name of the property to change.
-		**/
-	    public var name:String;
 		
 		/**
-		* The object containing the property to be changed.
+		* An array of property nanmes being changed.
+		**/
+	    public var names:Array;
+		
+		/**
+		* The object containing the properties to be changed.
 		**/
 	    public var target:Object;
 		
 		/**
-		* The new value for the property.
+		* The new values to be applied to the properties list.
 		**/
-	    public var value:*;
+	    public var values:Array;
 		
 		/**
 		* Initializes the override.
@@ -77,66 +79,81 @@ package com.degrafa.states{
 	    * Applies the override.
 	    **/
 	    public function apply(parent:IDegrafaStateClient):void{
+	        
+	        //get the object being modified if no target is passed then
+	        //assume states container (i.e. the passed parent)
 	        var obj:Object = target ? target : parent;
 	        
-	        var propName:String = name;
-	        var newValue:* = value;
-			
-			//make sure the object has the property if not fail gracefully 
-        	//and just continue
-        	if(obj.hasOwnProperty(propName)){
-        		
-        		//Setting a percent value through AS on width doesn’t work even though the property 
-				//has the proxy will not work .. so we need this dirty hack.
-        		if (propName=='width'||propName=='height' && String(newValue).indexOf("%")!=-1){
-        			newValue = Number(String(newValue).replace("%",""));
-				
-					if(propName=='width'){
-						if(obj.hasOwnProperty("percentWidth")){
-							propName = "percentWidth";
-						}
-					}
-					 
-					if(propName=='height'){
-						if(obj.hasOwnProperty("percentHeight")){
-							propName = "percentHeight";
-						}
-					} 
-        		}
-			
-	        	// Remember the current value so it can be restored
-	        	oldValue = obj[propName];
+	        var newValue:*;
+	        var propName:String;
 	        
-	        	// Set new value
-	        	setPropertyValue(obj, propName, newValue, oldValue);
+	        //the name/value arrays should be of equal length
+	        for (var i:int=0;i< names.length;i++){
 	        	
-        	}
-        	
+	        	propName=names[i];
+	        	newValue=values[i];
 	        	
+	        	//make sure the object has the property if not fail gracefully 
+	        	//and just continue
+	        	if(obj.hasOwnProperty(names[i])){
+	        		
+	        		//Setting a percent value through AS on width doesn’t work even though the property 
+    				//has the proxy will not work .. so we need this dirty hack.
+	        		if (propName=='width'||propName=='height' && String(newValue).indexOf("%")!=-1){
+	        			newValue = Number(String(newValue).replace("%",""));
+    				
+						if(propName=='width'){
+							if(obj.hasOwnProperty("percentWidth")){
+								propName = "percentWidth";
+							}
+						}
+						 
+						if(propName=='height'){
+							if(obj.hasOwnProperty("percentHeight")){
+								propName = "percentHeight";
+							}
+						} 
+	        		}
+	        			        		
+	        		//store for later revert
+	        		oldValues[propName] = {name:propName,value:obj[propName]}
+	        		
+	        		//finally set it
+	        		setPropertyValue(obj, propName, newValue, obj[propName]);
+	        		
+	        	}
+	        	else{
+	        		continue;
+	        	}
+	        }
 	    }
-		
+				
 		/**
 		* Removes the override.
 		**/
 	    public function remove(parent:IDegrafaStateClient):void{
 	        var obj:Object = target ? target : parent;
 	        
-	        var propName:String = name;
-	        
-	        // Restore the old value
-	        setPropertyValue(obj, propName, oldValue, oldValue);
+	        // Restore the old values
+	        for each (var item:Object in oldValues){
+	        	setPropertyValue(obj, item.name, item.value, item.value);
+	        }
 	    }
 		
-		
+		//apply the property setting
 	    private function setPropertyValue(obj:Object, name:String, value:*,valueForType:Object):void{
-	        if (valueForType is Number)
+	        	        
+	        if (valueForType is Number){
 	            obj[name] = Number(value);
-	        else if (valueForType is Boolean)
+	        }
+	        else if (valueForType is Boolean){
 	            obj[name] = toBoolean(value);
-	        else
+	        }
+	        else{
 	            obj[name] = value;
+	        }
 	    }
-	
+				
 	    private function toBoolean(value:Object):Boolean{
 	        if (value is String)
 	            return value.toLowerCase() == "true";

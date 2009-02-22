@@ -117,12 +117,12 @@ package com.degrafa.states{
 	        }
 	
 	        _added = true;
-	        	        
+	        
+	        //required so we are sure the parent is reset as required.	        
 	        var tempGeometry:Array=[] 
 	        tempGeometry = tempGeometry.concat(obj.geometryCollection.items);
 	        obj.geometry = tempGeometry;
-	        
-	        
+	        	        
 		}
 		
 		/**
@@ -131,7 +131,7 @@ package com.degrafa.states{
 		public function remove(parent:IDegrafaStateClient):void{
 			var obj:IDegrafaStateClient = relativeTo ? relativeTo : parent;
 			
-			parent.geometryCollection.removeItem(target  as IGeometry);
+			parent.geometryCollection.removeItem(target as IGeometry);
 		}
 	}
 }

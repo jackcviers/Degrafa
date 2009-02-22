@@ -75,7 +75,7 @@ package com.degrafa.states{
 			if(Geometry(target).parent){
 				oldParent = IDegrafaStateClient(Geometry(target).parent); 
 			}
-			else{
+			else{//else it's root
 				oldParent = parent;
 			}
 			
@@ -83,11 +83,7 @@ package com.degrafa.states{
 			
 			oldIndex = oldParent.geometryCollection.getItemIndex(target as IGeometry);
 			oldParent.geometryCollection.removeItem(target as IGeometry);
-			
-			var tempGeometry:Array=[] 
-	        tempGeometry = tempGeometry.concat(parent.geometryCollection.items);
-	        parent.geometry = tempGeometry;
-			
+									
 			removed = true;
 		}
 		
@@ -97,6 +93,7 @@ package com.degrafa.states{
 		public function remove(parent:IDegrafaStateClient):void{
 			oldParent.geometryCollection.addItemAt(target as IGeometry, oldIndex);
 
+			//required so we are sure the parent is reset as required.	
 			var tempGeometry:Array=[] 
 	        tempGeometry = tempGeometry.concat(parent.geometryCollection.items);
 	        parent.geometry = tempGeometry;
