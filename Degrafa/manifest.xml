@@ -128,9 +128,11 @@
 	<!--states-->
 	<component id="State" class="com.degrafa.states.State"/>
 	<component id="SetProperty" class="com.degrafa.states.SetProperty"/>
+	<component id="SetProperties" class="com.degrafa.states.SetProperties"/>
 	<component id="AddChild" class="com.degrafa.states.AddChild"/>
 	<component id="RemoveChild" class="com.degrafa.states.RemoveChild"/>
-		
+	<component id="RemoveChildren" class="com.degrafa.states.RemoveChildren"/>
+			
 	<!--triggers-->
 	<component id="EventTrigger" class="com.degrafa.triggers.EventTrigger"/>
 	<component id="PropertyTrigger" class="com.degrafa.triggers.PropertyTrigger"/>
