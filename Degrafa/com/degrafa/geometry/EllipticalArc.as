@@ -116,6 +116,7 @@ package com.degrafa.geometry{
 		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
+				if (hasLayout) super.x=value
 				invalidated = true;
 			}
 		}
@@ -133,6 +134,7 @@ package com.degrafa.geometry{
 		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
+				if (hasLayout) super.y=value
 				invalidated = true;
 			}
 		}
@@ -184,6 +186,7 @@ package com.degrafa.geometry{
 		override public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
+				if (hasLayout) super.width=value
 				invalidated = true;
 			}
 		}
@@ -201,6 +204,7 @@ package com.degrafa.geometry{
 		override public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
+				if (hasLayout) super.height=value
 				invalidated = true;
 			}
 		}

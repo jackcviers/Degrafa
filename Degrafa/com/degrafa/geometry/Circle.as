@@ -134,6 +134,7 @@ package com.degrafa.geometry{
 		public function set radius(value:Number):void{
 			if(_radius != value){
 				_radius = value;
+				if (hasLayout)super.width= super.height = value*2;
 				invalidated = true;
 			}
 		}

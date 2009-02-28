@@ -97,9 +97,6 @@ package com.degrafa.geometry{
 					_cornerRadius = tempArray[4];
 					invalidated = true;
 				}	
-				
-				
-				
 			}
 		} 
 		
@@ -115,6 +112,7 @@ package com.degrafa.geometry{
 		override public function set x(value:Number):void{
 			if(_x != value){
 				_x = value;
+				if (hasLayout) super.y=value
 				invalidated = true;
 			}
 		}
@@ -132,6 +130,7 @@ package com.degrafa.geometry{
 		override public function set y(value:Number):void{
 			if(_y != value){
 				_y = value;
+				if (hasLayout) super.y=value
 				invalidated = true;
 			}
 		}
@@ -149,6 +148,7 @@ package com.degrafa.geometry{
 		override public function set width(value:Number):void{
 			if(_width != value){
 				_width = value;
+				if (hasLayout) super.width=value
 				invalidated = true;
 			}
 		}
@@ -166,6 +166,7 @@ package com.degrafa.geometry{
 		override public function set height(value:Number):void{
 			if(_height != value){
 				_height = value;
+				if (hasLayout) super.height=value
 				invalidated = true;
 			}
 		}
@@ -305,6 +306,7 @@ package com.degrafa.geometry{
 						}
 					}
 				}
+								
 			}
 		
 			//dev note:through initial testing this seems fine, but may also need to test for being on a pixel boundaries as well
