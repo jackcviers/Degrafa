@@ -655,7 +655,7 @@ package com.degrafa.geometry{
 								
 				_fill = value;
 				
-				if(enableEvents){	
+				if(enableEvents && _fill){	
 					_fill.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
 												
@@ -1120,7 +1120,7 @@ package com.degrafa.geometry{
 								
 				_transform = value;
 				
-				if(enableEvents){	
+				if(enableEvents && _transform){	
 					_transform.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
 				//call local helper to dispatch event
@@ -1722,7 +1722,7 @@ package com.degrafa.geometry{
 				var oldValue:IGeometryComposition=_mask;
 				
 				_mask = value;
-				Geometry(_mask).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+				if (enableEvents && _mask) Geometry(_mask).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
 				//call local helper to dispatch event	
 				initChange("mask", oldValue, _mask, this);
 			}
