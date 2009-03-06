@@ -247,6 +247,8 @@ package com.degrafa.geometry{
 		} 
 		
 		private var target:DisplayObject;
+		//used in actionscript when a remote load is done
+		private var instantiationTimer:uint=5;
 		public function set source(value:Object):void {
 			var oldValue:Object = _internalDO;
 			
@@ -304,11 +306,12 @@ package com.degrafa.geometry{
 				{
 					//if its not a class name, assume url string for an ExternalBitmapData
 					//and wait for isInitialized to check/access loadingLocation mxml assignment
-					if (!isInitialized) {
+					//if not isInitialized after 5 ms, assume actionscript instantiation and not mxml
+					if (!isInitialized && instantiationTimer) {
+							instantiationTimer--;
 						setTimeout(
 							function():void
 							{source = value }, 1);
-							
 					} else {
 						source = ExternalBitmapData.getUniqueInstance(value as String, _loadingLocation);
 					}
