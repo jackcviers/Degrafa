@@ -79,7 +79,8 @@ package com.degrafa.paint{
 		private var bitmapData:BitmapData;
 		private var _externalBitmapData:ExternalBitmapData;
 		private var _loadingLocation:LoadingLocation;
-		
+		//used in actionscript when a remote load is done
+		private var instantiationTimer:uint=5;
 		
 		public function BitmapFill(source:Object = null,loc:LoadingLocation=null){
 			this._loadingLocation = loc;
@@ -525,7 +526,9 @@ package com.degrafa.paint{
 				{
 					//if its not a class name, assume url string for an ExternalBitmapData
 					//and wait for isInitialized to check/access loadingLocation mxml assignment
-					if (!isInitialized) {
+					//if not isInitialized after 5 ms, assume actionscript instantiation and not mxml (5 ms is arbitrary)
+					if (!isInitialized && instantiationTimer) {
+						instantiationTimer--;
 						setTimeout(
 							function():void
 							{source = value }, 1);
