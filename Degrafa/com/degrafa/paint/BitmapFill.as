@@ -30,8 +30,7 @@ package com.degrafa.paint{
 	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.transform.ITransform;
-	import mx.controls.Text;
-	import mx.core.UIComponent;
+	
 	import mx.events.PropertyChangeEventKind;
 	
 	import flash.display.Bitmap;
