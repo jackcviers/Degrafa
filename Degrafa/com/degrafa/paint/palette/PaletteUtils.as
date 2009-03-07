@@ -35,6 +35,11 @@ package com.degrafa.paint.palette{
 		private static var baseScale:Number = 0.7;
 		
 		/**
+	    * Default set of category hues.
+	    */
+	    public static var CATEGORY_HUES:Array = [0, 1/12, 2/12, 3/12, 4/12, 5/12, 6/12, 7/12, 8/12, 9/12, 10/12, 11/12, 1];
+                    
+		/**
 	    * Get the color code for the given red, green, and blue values.
      	*/
 	    public static function rgb(r:int, g:int, b:int):uint{
@@ -156,23 +161,19 @@ package com.degrafa.paint.palette{
 	     * @param b the brightness value to use
 	     * @param a the alpha value to use
 	     */
-	     public static function getCategoryPalette(size:int, 
-	            s1:Number, s2:Number, b:Number,a:int):Array{
-	            	
-	        var colorMap:Array = new Array(size);
-	        var s:Number = s1;
-	        var j:int;
-	        for (var i:int=0; i<size; i++ ) {
-	            j = i % CATEGORY_HUES.length;
-	            if (j == 0)
-	                s = s1 + ((i)/size)*(s2-s1);
-	                
-	            colorMap.push(hsba(CATEGORY_HUES[j],s,b,a));
-	            
-	        }
-	        return colorMap;
-	     }
-	     
+	     public static function getCategoryPalette(size:int,s1:Number, s2:Number, b:Number,a:int):Array{       
+                var colorMap:Array = new Array();
+                var s:Number = s1;
+                var j:int;
+                for (var i:int=0; i<size; i++ ){
+                    j = i % CATEGORY_HUES.length;
+                    if (j == 0)
+                        s = s1 + ((i)/size)*(s2-s1);    
+                    colorMap.push(PaletteUtils.hsba(CATEGORY_HUES[j]*360,s,b,a));
+                }
+            return colorMap;
+         }
+	     	     	     
 	     /**
 	     * Returns a color palette of given size that cycles through
 	     * the hues of the HSB (Hue/Saturation/Brightness) color space.
@@ -182,15 +183,16 @@ package com.degrafa.paint.palette{
 	     * @return the color palette
 	     */
 	     public static function getHSBPalette(size:int, s:Number, b:Number):Array{
-	        var colorMap:Array = new Array(size);
-	        var h:Number;
-	        for (var i:int=0; i<size; i++ ) {
-	            h = (i)/(size-1);
-	            colorMap.push(hsb(h,s,b));
-	        }
-	        return colorMap;
+	        var colorMap:Array = new Array();
+            var h:Number;
+            for (var i:int=0; i<size; i++)
+            {
+                h = (i)/(size-1) * 360;
+                colorMap.push( PaletteUtils.hsb(h,s,b) );
+            }
+            return colorMap;
 	    }
-	    	    
+	    	    	    
 	    /**
 	    * Get the color code for the given grayscale value.
 		*/
@@ -290,14 +292,7 @@ package com.degrafa.paint.palette{
 	        var gray:uint = Math.min(((r+g+b)),0xff) & 0xff;
 	        return a | (gray << 16) | (gray << 8) | gray;
 	    }
-
-		
-
-	  	/**
-	    * Default palette of category hues.
-	    */
-	    public static var CATEGORY_HUES:Array = new Array(0, 1/12, 1/6, 1/3, 1/2, 7/12, 2/3, 5/6, 11/12);
-
+                    
 		/**
 		* Convert hsb color value to rgb.
 		**/
