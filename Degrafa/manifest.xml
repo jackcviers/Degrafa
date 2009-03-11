@@ -65,6 +65,7 @@
 	<component id="RasterTextPlus" class="com.degrafa.geometry.RasterTextPlus"/>
 	<component id="RasterImage" class="com.degrafa.geometry.RasterImage"/>
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
+	<component id="QuadraticSpline" class="com.degrafa.geometry.splines.QuadraticSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 	
 	<!--AutoShapes-->
