@@ -54,7 +54,8 @@ package com.degrafa.geometry{
 	import flash.utils.Dictionary;
 	
 	import mx.binding.utils.ChangeWatcher;
-	import mx.core.UIComponent;
+	import mx.core.IUIComponent;
+	
 	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	import mx.styles.ISimpleStyleClient;
@@ -252,7 +253,7 @@ package com.degrafa.geometry{
 					//required for stand alone player.
 					displayObject.addEventListener(Event.ADDED_TO_STAGE,onTargetRender);
 					
-					if(displayObject is UIComponent){
+					if(displayObject is IUIComponent){
 						displayObject.addEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 					}
 				}
@@ -282,7 +283,7 @@ package com.degrafa.geometry{
 				event.currentTarget.removeEventListener(Event.ADDED_TO_STAGE,onTargetRender);
 				
 				//we may want to do this only for displayobject containers
-				if(event.currentTarget is UIComponent){
+				if(event.currentTarget is IUIComponent){
 					event.currentTarget.removeEventListener(FlexEvent.UPDATE_COMPLETE,onTargetRender);
 				}
 				
@@ -294,8 +295,8 @@ package com.degrafa.geometry{
 			//and setup the layoutChange watcher for the target
 			
 			//Only do this for IContainer. Requires extensive testing.
-			if(event.currentTarget is UIComponent){
-				initLayoutChangeWatcher(event.currentTarget as UIComponent);
+			if(event.currentTarget is IUIComponent){
+				initLayoutChangeWatcher(event.currentTarget as IUIComponent);
 			}
 			
 			//init the draw que
@@ -384,15 +385,15 @@ package com.degrafa.geometry{
 		private var targetDictionary:Dictionary=new Dictionary(true);
 		
 		//return the data stored for the given target				
-		private function requestTarget(value:UIComponent):Object{
+		private function requestTarget(value:IUIComponent):Object{
 			return targetDictionary[value];
 		}	
 		
-		private function removeTarget(value:UIComponent):void{
+		private function removeTarget(value:IUIComponent):void{
 			delete targetDictionary[value];
 		}
 		
-		private function addUpdateTarget(value:UIComponent,data:Object):void{
+		private function addUpdateTarget(value:IUIComponent,data:Object):void{
 			if(!targetDictionary[value]){
 				targetDictionary[value] = []
 				targetDictionary[value].data = data;
@@ -403,7 +404,7 @@ package com.degrafa.geometry{
 		}
 		
 		//this will need to be called in the layout constraint setter as well.
-		private function initLayoutChangeWatcher(container:UIComponent):void{
+		private function initLayoutChangeWatcher(container:IUIComponent):void{
 			
 			//if this root geometry has a constraint based layout
 			//we have to be aware of changes to the target. In this 
@@ -433,7 +434,7 @@ package com.degrafa.geometry{
 		private function onTargetChange(event:Event):void{
 			
 			//see if it's there
-			var object:Object = requestTarget(event.currentTarget as UIComponent);
+			var object:Object = requestTarget(event.currentTarget as IUIComponent);
 			
 			var watchers:Array; 
 			if(object){
@@ -451,7 +452,7 @@ package com.degrafa.geometry{
 						changeWatcher.unwatch();
 					}
 					
-					removeTarget(event.currentTarget as UIComponent)
+					removeTarget(event.currentTarget as IUIComponent)
 					
 					return;
 					
@@ -460,7 +461,7 @@ package com.degrafa.geometry{
 			
 			//compare and update the dictionary
 			if(object){
-				var container:UIComponent = event.currentTarget as UIComponent;
+				var container:IUIComponent = event.currentTarget as IUIComponent;
 				
 				//compare the 2 testing will show if we need to do this test 
 				//as it may only get the event if it has changed. Though in some cases
@@ -479,7 +480,7 @@ package com.degrafa.geometry{
 					addUpdateTarget(container,{oldbounds:bounds,watchers:watchers})
 					
 					//add a draw to the que.
-					queueDraw(container,container.graphics,null)
+					queueDraw(container,Sprite(container).graphics,null)
 					
 				}
 			}
