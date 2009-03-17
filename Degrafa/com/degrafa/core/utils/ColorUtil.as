@@ -33,14 +33,20 @@ package com.degrafa.core.utils{
 		* Resolves the color value passed to a valid hex value.
 		**/
 		public static function resolveColor(value:Object, none:uint = 0):uint {
-			if(value is uint){
-				if (value.toString(16).length==3){
-					return parseColorNotation(value.toString(16));		
+			if (value is uint) {
+				//CHANGE: do not attempt to identify shorthand hex notation from a uint value
+				//this will break some previous code examples with shorthand notation, but needs to be fixed
+				//there is no way to discriminate with certainty if the value is uint when checked
+	
+				/*LEGACY TRACE WARNING CODE*/
+				 if (value.toString(16).length==3){
+					trace('WARNING:  #000'+value +' not assumed to be #'+value+'! If your color definitions contain shorthand hex notation(e.g. #FFF for white) this will no longer be supported/interpreted as shorthand in this and future versions of Degrafa. Please adjust your mxml source code to not assume shorthand hex notation or use older versions of Degrafa. This trace messaage will be removed for version 1 of Degrafa onwards')
+					 //return parseColorNotation(value.toString(16));		
 				}
-				else{
+
 					return value as uint;
 				}
-			} 
+ 
 			else if(value is String){
 				return resolveColorFromString(value as String, none);
 			} 
