@@ -20,7 +20,6 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint.palette{
-	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	
 	[Bindable]
@@ -71,6 +70,8 @@ package com.degrafa.paint.palette{
 				_requestedSize = value;
 			}
 		}
+				
+		protected var currentLength:int=0;
 		
 		/**
 		* Overriden in subclasses. Does the work required to populate the palette.
@@ -81,20 +82,24 @@ package com.degrafa.paint.palette{
 		* Appends the passed array of values to the palette entries array and dictionary.
 		**/
 		protected function appendItems(value:Array):void{
-			for(var i:int =0;i<value.length;i++){
+			
+			var offset:int =currentLength 
+					
+			for(var i:int=0;i<value.length;i++){
 				if(paletteEntries){
-					if(paletteEntries[entryPrefix + i]){
-						paletteEntries[entryPrefix + i].value = value[i];
+					if(paletteEntries[entryPrefix + int(i+offset)]){
+						paletteEntries[entryPrefix + int(i+offset)].value = value[i];
 					}
 					else{
-						paletteEntries[entryPrefix + i] = new PaletteEntry(
-						entryPrefix + i, value[i]);
+						paletteEntries[entryPrefix + int(i+offset)] = new PaletteEntry(
+						entryPrefix + int(i+offset), value[i]);
 					}
 				}
 				else{
-					paletteEntries[entryPrefix + i] = new PaletteEntry(
-					entryPrefix + i, value[i]);
+					paletteEntries[entryPrefix + int(i+offset)] = new PaletteEntry(
+					entryPrefix + int(i+offset), value[i]);
 				}
+				currentLength++;
 			}
 		}
 		

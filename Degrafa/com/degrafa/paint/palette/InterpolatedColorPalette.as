@@ -64,6 +64,21 @@ package com.degrafa.paint.palette{
 			}
 		}
 		
+		private var _colors:Array=[];
+		/**
+		* The ending color to interpolate. 
+		**/
+		public function get colors():Array{
+			return _colors;
+		}
+		public function set colors(value:Array):void{	
+			value = value;
+			if(_colors != value){
+				_colors= value;
+			}
+		}
+		
+		
 		/**
 		* Generates the entries for this palette.
 		**/
@@ -72,7 +87,22 @@ package com.degrafa.paint.palette{
 			//clear the existing palette entries
 			clear();
 			
-			appendItems(PaletteUtils.getInterpolatedPalette(this.requestedSize,colorFrom as uint,colorTo as uint));
+			if(_colors.length!=0){
+				currentLength=0;
+				var itemSizeCount:int = requestedSize/(_colors.length-1)
+				for (var i:int=0;i<_colors.length-1;i++){
+					appendItems(PaletteUtils.getInterpolatedPalette(itemSizeCount,
+					ColorUtil.resolveColor(_colors[i]) as uint,
+					ColorUtil.resolveColor(_colors[i+1]) as uint));
+				}
+			}
+			else{
+				if(colorFrom && colorTo){
+					appendItems(PaletteUtils.getInterpolatedPalette(this.requestedSize,colorFrom as uint,colorTo as uint));
+				}	
+			}
+			
+			
 					
 				
 		}
