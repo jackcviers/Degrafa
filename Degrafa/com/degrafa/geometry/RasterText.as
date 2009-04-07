@@ -28,14 +28,13 @@ package com.degrafa.geometry{
 	import com.degrafa.geometry.text.DegrafaTextFormat;
 	import com.degrafa.paint.SolidFill;
 	import com.degrafa.paint.SolidStroke;
-	import flash.display.Shape;
-	import flash.filters.BlurFilter;
-	import flash.geom.Matrix;
 	
 	import flash.accessibility.AccessibilityProperties;
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
+	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	import flash.text.AntiAliasType;
 	import flash.text.Font;
@@ -45,6 +44,7 @@ package com.degrafa.geometry{
 	import flash.text.TextFormat;
 	
 	import mx.events.PropertyChangeEvent;
+	import mx.styles.StyleManager;
 	
 	[Exclude(name = "data", kind = "property")]
 
@@ -323,6 +323,7 @@ package com.degrafa.geometry{
 
 		}
 		
+		
 		private var _bounds:Rectangle;
 		/**
 		* The tight bounds of this element as represented by a Rectangle object. 
@@ -536,8 +537,7 @@ package com.degrafa.geometry{
 		**/
 		private var _fontFamily:String="_sans";
 		public function set fontFamily(value:String):void {
-			if (textFormat.font!=_fontFamily){
-				
+			if (textFormat.font!=value){
 				if (availableEmbeddedFonts.indexOf(value)!=-1) {
 					textField.embedFonts = true;
 				}
