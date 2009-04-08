@@ -49,6 +49,13 @@ package com.degrafa.geometry.splines{
  	**/
   	public class BezierSpline extends Geometry implements IGeometry{
 		
+		/**
+		 * returns the internally calculated bezier segments
+		 */
+		public function get beziers():Array {
+			return _bezier;
+		}
+		
 		// CubicBezier instance for each cubic segment
 		private var _bezier:Array=new Array();                    
 		
