@@ -500,6 +500,8 @@ package com.degrafa.geometry{
 			//see if any segments are invalid but only if we are not already invalid
 			//we do this as in the case of segments with events disabled we could not 
 			//know otherwise
+			
+			
 			if(!invalidated){
 				//verify
 				var i:int = 0;
@@ -515,6 +517,7 @@ package com.degrafa.geometry{
 			//rebuild an array of flash commands and 
 			//recalculate the bounds if required	
 			if(invalidated){
+				commandStack.length=0;
 				buildFlashCommandStack();
 				invalidated = false;
 			}
