@@ -74,7 +74,7 @@ package com.degrafa.repeaters
 		 * Returns current iteration for a draw cycle
 		 * -1 if not currently drawing
 		 */
-		 [Bindable]
+		 [Bindable(event="iterationChanged")]
 		 public function get iteration():int {
 		 	return _curIteration;
 		 }
