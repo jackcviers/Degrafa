@@ -209,7 +209,7 @@ package com.degrafa.core.collections{
 		protected function _removeItemAt(index:Number):*{
 			//clean up
 			removeListener(items[index]);
-			return splice(index,1)[1];
+			return splice(index,1)[0];
 		}
 		
 		/**
