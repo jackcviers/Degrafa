@@ -44,7 +44,6 @@ package com.degrafa.geometry{
 	import flash.text.TextFormat;
 	
 	import mx.events.PropertyChangeEvent;
-	import mx.styles.StyleManager;
 	
 	[Exclude(name = "data", kind = "property")]
 
@@ -178,8 +177,10 @@ package com.degrafa.geometry{
 		}
 		override public function set x(value:Number):void{
 			if(_x != value){
+				var temp:Number=_x;
 				_x = value;
 				invalidated = true;
+				this.dispatchPropertyChange(true,"x",temp,value,this);
 			}
 		}
 		
@@ -196,8 +197,10 @@ package com.degrafa.geometry{
 		}
 		override public function set y(value:Number):void{
 			if(_y != value){
+				var temp:Number=_y;
 				_y = value;
 				invalidated = true;
+				this.dispatchPropertyChange(true,"y",temp,value,this);
 			}
 		}
 		
