@@ -1093,6 +1093,7 @@ package com.degrafa.geometry{
 		} 
    		public function set text(value:String):void {
 			if (value != textField.text) {
+				if (value == null) value="";
 				var oldVal:String = textField.text;
 				textField.text = value;	
 				invalidated = true;
