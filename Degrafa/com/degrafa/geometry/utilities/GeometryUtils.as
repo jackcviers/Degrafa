@@ -414,6 +414,11 @@ package com.degrafa.geometry.utilities{
 			// find intersection between bezier arms (intersection point calculated as coords sx,xy)
 			dx1= c1x - p1x;
 			dx2 = c2x - p2x;
+			
+			if ((dx1 < 0? -dx1:dx1) < 1e-5) dx1 = 0;
+			if ((dx2 < 0? -dx2:dx2) < 1e-5) dx2 = 0;
+
+			
 			if (p1y == p2y && c1y == p1y && c2y == p2y)
 			{
 				//horizontal line: store it as a lineTo in commandStack
@@ -421,13 +426,26 @@ package com.degrafa.geometry.utilities{
 				returnResult.push(commandStack.addLineTo(p2x, p2y));
 				return returnResult;
 			}
-			if (!dx1 && !dx2 && p1x==p2x)
+			if (!dx1 && !dx2 )
 			{
+				var hDiff:Number = p1x - p2x;
+				if (hDiff < 0) hDiff = -hDiff;
+				if (!hDiff || hDiff<1e-5){
 				//vertical line: store it as a lineTo in commandStack
 				//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
 				returnResult.push(commandStack.addLineTo(p2x, p2y));
 				return returnResult;
-
+				} else {
+					dy = p1y - c1y;
+					if (dy < 0) dy = -dy;
+					if (!dy || dy < 1e-5) {
+						dy = p2y - c2y;
+						if (!dy || dy < 1e-5) {
+							returnResult.push(commandStack.addLineTo(p2x, p2y));
+							return returnResult;
+						}
+					}
+				}
 			}
 			else if (!dx1){
 				sx=p1x;
@@ -444,7 +462,7 @@ package com.degrafa.geometry.utilities{
 				m1 = (c1y - p1y) / dx1;
 				m2 = (c2y - p2y) / dx2;
 		
-			if (Math.abs(m1)==Math.abs(m2))
+			if ((m1<0?-m1:m1)==(m2<0?-m2:m2))
 			{
 				//edge case:
 				//bezier arms are parallel, so: are they colinear with anchors?
@@ -483,18 +501,18 @@ package com.degrafa.geometry.utilities{
 			if (dx * dx + dy * dy > k)
 			{
 				//dev note:these cannot be static external variables for performance gain, as they are required to maintain previous values on return from recusive execution
-				var p01x:Number = (p1x + c1x) * half;
-				var p01y:Number = (p1y + c1y) * half;
-				var p12x:Number= (c1x + c2x) * half;
-				var p12y:Number = (c1y + c2y) * half;				
-				var p23x:Number = (c2x + p2x) * half;
-				var p23y:Number = (c2y + p2y) * half;					
-				var p02x:Number = (p01x + p12x) * half;
-				var p02y:Number= (p01y + p12y) * half;
-				var p13x:Number= (p12x + p23x ) * half;
-				var p13y:Number = (p12y + p23y ) * half;					
-				var p03x:Number= (p02x + p13x) * half;
-				var p03y:Number = (p02y + p13y) * half;	
+				var p01x:Number = (p1x + c1x) * .5;
+				var p01y:Number = (p1y + c1y) * .5;
+				var p12x:Number= (c1x + c2x) * .5;
+				var p12y:Number = (c1y + c2y) * .5;				
+				var p23x:Number = (c2x + p2x) * .5;
+				var p23y:Number = (c2y + p2y) * .5;					
+				var p02x:Number = (p01x + p12x) * .5;
+				var p02y:Number= (p01y + p12y) * .5;
+				var p13x:Number= (p12x + p23x ) * .5;
+				var p13y:Number = (p12y + p23y ) * .5;					
+				var p03x:Number= (p02x + p13x) * .5;
+				var p03y:Number = (p02y + p13y) * .5;	
 				// recursive call to subdivide curve
 				cubicToQuadratic (p1x,p1y,p01x,p01y,p02x,p02y, p03x,p03y,k, commandStack);
 				cubicToQuadratic (p03x,p03y,p13x,p13y,p23x,p23y, p2x,p2y,k, commandStack);	

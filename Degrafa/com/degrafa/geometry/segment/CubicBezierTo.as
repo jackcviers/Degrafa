@@ -227,7 +227,7 @@ package com.degrafa.geometry.segment{
 				
 		private var lastPoint:Point=new Point(NaN,NaN);
 		private var lastControlPoint:Point=new Point(NaN,NaN);
-		private static var _cy1Offset:Number =0.000001;
+
 		/**
 		* Compute the segment adding instructions to the command stack. 
 		**/
@@ -237,10 +237,6 @@ package com.degrafa.geometry.segment{
 			{
 				invalidated= (!lastPoint.equals(this.lastPoint) || !lastControlPoint.equals(this.lastControlPoint))
 			}
-			//if the last controly and the y are the same add a 
-			//minute offset to avoid a display parasite that 
-			//can sometimes occur from this.
-			var cy1Offset:Number = (_cy1 == _y)? _cy1Offset:0;
 			
 			//some early references to the updated last tracking point coords in case we exit early
 			var nlcpx:Number;
@@ -249,11 +245,11 @@ package com.degrafa.geometry.segment{
 			var nlpy:Number;
 			if (_absCoordType)
 			{
-				nlcpx = _cx1; nlcpy = cy1Offset + _cy1; nlpx = _x; nlpy = _y;
+				nlcpx = _cx1; nlcpy =  _cy1; nlpx = _x; nlpy = _y;
 				
 			} else {
 				nlcpx = lastPoint.x + _cx1;
-				nlcpy = lastPoint.y + _cy1 + cy1Offset;;
+				nlcpy = lastPoint.y + _cy1;
 				nlpx = lastPoint.x + _x;
 				nlpy = lastPoint.y + _y;				
 			}
@@ -275,39 +271,16 @@ package com.degrafa.geometry.segment{
 				_commandStackItem.commandStack.length=0;
 							
 				 if(_isShortSequence){
-                        
                         _commandStackItem.commandStack.addCubicBezierTo(lastPoint.x,lastPoint.y,
 						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
-						nlcpx,nlcpy,
-						nlpx,nlpy,
-						1);
-                        
-                        //to be cleaned out after extensive testing                
-						/*GeometryUtils.cubicToQuadratic(
-						lastPoint.x,lastPoint.y,
-						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
-						nlcpx,nlcpy,
-						nlpx,nlpy,
-						1,_commandStackItem.commandStack);*/
+						nlcpx,nlcpy,nlpx,nlpy,1);
 				}
 				else{
-						
 						_commandStackItem.commandStack.addCubicBezierTo(lastPoint.x,lastPoint.y,
 						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
-						nlcpx,nlcpy,
-						nlpx,nlpy,
-						1);
-						
-						//to be cleaned out after extensive testing
-						/*GeometryUtils.cubicToQuadratic(
-						lastPoint.x,lastPoint.y,
-						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
-						nlcpx,nlcpy,
-						nlpx,nlpy,
-						1,_commandStackItem.commandStack);*/
+						nlcpx,nlcpy,nlpx,nlpy,1);
 				}
-		//	if (!_commandStackItem.commandStack.length) trace('err')
-				
+
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;
 				_commandStackItem.end.y = nlpy;

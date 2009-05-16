@@ -265,24 +265,14 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void{
 			if(invalidated){
-								
-				//if the last controly and the y are the same add a 
-				//minute offset to avoid a display parasite that 
-				//can sometimes occur from this
-				var cy1Offset:Number=0;
-				if(cy1Offset==y)
-				{
-					cy1Offset=0.000001;
-				}
-				
+									
 				commandStack.length=0;
 				
 				//add a MoveTo at the start of the commandStack 
 				//rendering chain
 				commandStack.addMoveTo(x0,y0);
 				
-				commandStack.addCubicBezierTo(x0,y0,cx,cy,cx1,cy1+cy1Offset
-				,x1,y1,1);
+				commandStack.addCubicBezierTo(x0,y0,cx,cy,cx1,cy1,x1,y1,1);
 				
 				if(close){
 					commandStack.addLineTo(x0,y0);	
