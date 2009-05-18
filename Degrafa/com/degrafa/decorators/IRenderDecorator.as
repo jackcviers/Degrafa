@@ -26,7 +26,8 @@ package com.degrafa.decorators{
 	/**
 	* IRenderDecorator is the base interface for complex render time decorations. See RenderDecoratorBase.
 	**/
-	public interface IRenderDecorator extends IDecorator{
+	public interface IRenderDecorator extends IDecorator {
+		function get isValid():Boolean;
 		function moveTo(x:Number,y:Number,graphics:Graphics):void
 		function lineTo(x:Number,y:Number,graphics:Graphics):void
 		function curveTo(cx:Number, cy:Number, x:Number, y:Number,graphics:Graphics):void

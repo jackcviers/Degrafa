@@ -462,7 +462,8 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
-			invalidated = true;
+			//invalidated = true;
+			if (_segments && event.source ==_segments ) invalidated = true;
 			super.propertyChangeHandler(event);
 		}
 		
@@ -540,20 +541,19 @@ package com.degrafa.geometry{
 					//and we have layout
 					if(isNaN(_layoutConstraint.width)){
 						tempLayoutRect.width = bounds.width;
-					}
+					} else tempLayoutRect.width=_layoutConstraint.width
 					 
 					if(isNaN(_layoutConstraint.height)){
 						tempLayoutRect.height = bounds.height;
-					}
+					} else tempLayoutRect.height=_layoutConstraint.height
 					
 					if(isNaN(_layoutConstraint.x)){
 			 			tempLayoutRect.x = bounds.x;
-			 		}
+			 		} else tempLayoutRect.y=_layoutConstraint.y
 			 		
 			 		if(isNaN(_layoutConstraint.y)){
 			 			tempLayoutRect.y = bounds.y;
-			 		}
-			 		
+			 		} else tempLayoutRect.y=_layoutConstraint.y
 					super.calculateLayout(tempLayoutRect);
 						
 					_layoutRectangle = _layoutConstraint.layoutRectangle;

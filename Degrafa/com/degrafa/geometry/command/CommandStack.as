@@ -535,17 +535,19 @@ package com.degrafa.geometry.command{
 		//called from render loop if the geometry has an IRenderDecorator
 		private function delegateGraphicsCall(methodName:String,graphics:Graphics,x:Number=0,y:Number=0,cx:Number=0,cy:Number=0,x1:Number=0,y1:Number=0):*{
 			//permit each decoration to do work on the current segment	
-			for each (var item:IRenderDecorator in owner.decorators){
-				switch(methodName){
-					case "moveTo":
-						return item.moveTo(x,y,graphics);
-						break;
-					case "lineTo":
-						return item.lineTo(x,y,graphics);
-						break;
-					case "curveTo":
-						return item.curveTo(cx,cy,x1,y1,graphics);
-						break;		
+			for each (var item:IRenderDecorator in owner.decorators) {
+				if (item.isValid){
+					switch(methodName){
+						case "moveTo":
+							return item.moveTo(x,y,graphics);
+							break;
+						case "lineTo":
+							return item.lineTo(x,y,graphics);
+							break;
+						case "curveTo":
+							return item.curveTo(cx,cy,x1,y1,graphics);
+							break;		
+					}
 				}
 			}
 		}

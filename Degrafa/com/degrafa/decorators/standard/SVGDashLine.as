@@ -46,7 +46,7 @@ package com.degrafa.decorators.standard{
 		private var _dashIndex:uint = 0; //where are we in the _dashArray currently
 		private var _dashVal:Number = 0; //offset from beginning of current dash
 		private var _dashoffset:Number = 0; //dash offset
-		
+		private static var DEFAULT_DASH_PATTERN:Array = [10, 10];
 		
 		
 		public function SVGDashLine(){
@@ -68,7 +68,9 @@ package com.degrafa.decorators.standard{
 		}
 		//is this Decorator valid
 		private var _isValid:Boolean;
-
+		override public function get isValid():Boolean {
+			return _isValid;
+		}
 		
 		/**
 		 * Sets new lengths for dash sizes. Follows SVG rules for dasharray stroke style.
@@ -78,20 +80,22 @@ package com.degrafa.decorators.standard{
 		 * Unlike SVG, only pixel units are supported here. Any non-numeric or negative numeric values are in error.
 		 * @see http://www.w3.org/TR/SVG/painting.html#StrokeProperties
 		 */
-		public function set dashArray(dashArray:Array):void {
-			if (dashArray == _dashArray ) return;
+		public function set dashArray(value:Array):void {
+			if (value == _dashArray ) return;
 			//check for errors
-			for (var i:uint = 0; i < dashArray.length;i++) {
-				if (isNaN(dashArray[i] = parseFloat(dashArray[i])) || dashArray[i]<0) return; //error
+			for (var i:uint = 0; i < value.length;i++) {
+				if (isNaN(value[i] = parseFloat(value[i])) || value[i]<0) return; //error
 			}
 			//if its an odd length, make it even by doubling it
-			if (dashArray.length % 2) {
-				dashArray = dashArray.concat(dashArray);
+			if (value.length % 2) {
+				value = value.concat(value);
 			} 
 			_totalLength = 0;
-			for each(var v:Number in dashArray) _totalLength += v;
+			for each(var v:Number in value) _totalLength += v;
+			if (_totalLength) {
 			_isValid = true;
-			initChange("dashArray", _dashArray, _dashArray = dashArray, this);
+			} else _isValid = false;
+			initChange("dashArray", _dashArray, _dashArray = value, this);
 		}
 		/**
 		 * Gets the current lengths for dash sizes
@@ -99,7 +103,7 @@ package com.degrafa.decorators.standard{
 		 * respectively in that order
 		 */
 		public function get dashArray():Array {
-			return _dashArray?_dashArray:[];
+			return _dashArray?_dashArray:DEFAULT_DASH_PATTERN.concat();
 		}
 		
 	
@@ -113,7 +117,7 @@ package com.degrafa.decorators.standard{
 		}
 		public function set dashOffset(value:Number):void {
 			if (value != _dashoffset) {
-				initChange("dashOffset",_dashoffset,_dashoffset = value,this)
+				initChange("dashOffset", _dashoffset, _dashoffset = value, this);
 			}
 		}
 		
@@ -163,7 +167,8 @@ package com.degrafa.decorators.standard{
 			}	
 			if (_dashArray) {
 				var len:uint = _dashArray.length;
-			}
+			} else _dashArray = DEFAULT_DASH_PATTERN.concat();
+			
 		}
 		
 		

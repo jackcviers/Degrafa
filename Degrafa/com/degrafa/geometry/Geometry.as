@@ -395,7 +395,7 @@ package com.degrafa.geometry{
 		
 		private function addUpdateTarget(value:IUIComponent,data:Object):void{
 			if(!targetDictionary[value]){
-				targetDictionary[value] = []
+				targetDictionary[value] = {}
 				targetDictionary[value].data = data;
 			}
 			else{
