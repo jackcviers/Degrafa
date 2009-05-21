@@ -32,29 +32,28 @@
 // loss of prospective economic advantage, resulting from the use or misuse of this software 
 // program.
 //
-
 //
 
 package com.degrafa.utilities.math
 { 
   public class CubicSpline
   {
-    private static const ONE_SIXTH:Number = 1.0/6.0;
+    protected static const ONE_SIXTH:Number = 1.0/6.0;
     
     // read associated white paper for details on these variables
-    private var __t:Array;
-    private var __y:Array;
-    private var __u:Array;
-    private var __v:Array;
-    private var __h:Array;
-    private var __b:Array;
-    private var __z:Array;
+    protected var __t:Array;
+    protected var __y:Array;
+    protected var __u:Array;
+    protected var __v:Array;
+    protected var __h:Array;
+    protected var __b:Array;
+    protected var __z:Array;
 
-    private var __hInv:Array;             // precomputed h^-1 values
-    private var __delta:Number;           // current x-t(i)
-    private var __knots:Number;           // current knot count
+    protected var __hInv:Array;             // precomputed h^-1 values
+    protected var __delta:Number;           // current x-t(i)
+    protected var __knots:Number;           // current knot count
     
-    private var __invalidate:Boolean;          // true if current coefficients are invalid
+    protected var __invalidate:Boolean;     // true if current coefficients are invalid
 
 /**
 * <code>CubicSpline()</code> Construct a new Cubic Spline instance.
@@ -147,7 +146,7 @@ package com.degrafa.utilities.math
     }
     
     // insert knot at index
-    private function __insert(_xKnot:Number, _yKnot:Number, _indx:Number):void
+    protected function __insert(_xKnot:Number, _yKnot:Number, _indx:Number):void
     {
       for( var i:uint=__knots-1; i>=_indx; i-- )
       { 
@@ -161,7 +160,7 @@ package com.degrafa.utilities.math
     }
 
     // remove knot at index
-    private function __remove(_indx:Number):void
+    protected function __remove(_indx:Number):void
     {
       for( var i:uint=_indx; i<__knots; ++i)
       { 
@@ -315,7 +314,7 @@ package com.degrafa.utilities.math
           }
         }
 
-        var b:Number = (__y[i+1] - __y[i])*__hInv[i] - __h[i]*(__z[i+1] + 2.0*__z[i])*Consts.ONE_SIXTH;
+        var b:Number = (__y[i+1] - __y[i])*__hInv[i] - __h[i]*(__z[i+1] + 2.0*__z[i])*ONE_SIXTH;
         var q:Number = 0.5*__z[i] + __delta*(__z[i+1]-__z[i])*ONE_SIXTH*__hInv[i];
         var r:Number = b + __delta*q;
         var s:Number = __y[i] + __delta*r;
@@ -325,7 +324,7 @@ package com.degrafa.utilities.math
     }
 
     // compute z[i] based on current knots
-    private function __computeZ():void
+    protected function __computeZ():void
     {
       // reference the white paper for details on this code
 

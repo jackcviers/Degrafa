@@ -67,6 +67,7 @@
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
 	<component id="QuadraticSpline" class="com.degrafa.geometry.splines.QuadraticSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
+	<component id="NaturalCubicSpline" class="com.degrafa.geometry.splines.NaturalCubicSpline" />
 	
 	<!--AutoShapes-->
 	<component id="DonutAutoShape" class="com.degrafa.geometry.autoshapes.DonutAutoShape"/>
