@@ -704,7 +704,7 @@ package com.degrafa.geometry{
 			if (stroke && !fill) graphics.moveTo.call(graphics, null, null); 
 
 	        //draw children
-	        if (geometry){
+	        if (_geometry){
 				for each (var geometryItem:IGeometryComposition in geometry){
 					geometryItem.draw(graphics,null);
 				}
