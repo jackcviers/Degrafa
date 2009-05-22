@@ -292,7 +292,54 @@ package com.degrafa.paint.palette{
 	        var gray:uint = Math.min(((r+g+b)),0xff) & 0xff;
 	        return a | (gray << 16) | (gray << 8) | gray;
 	    }
-                    
+        
+        /**
+	    * Adjust the color brightness by a given value. From Adobe Flex.
+	    */
+        public static function adjustBrightness(color:uint, value:Number):uint{
+			var r:Number = Math.max(Math.min(((color >> 16) & 0xFF) + value, 255), 0);
+			var g:Number = Math.max(Math.min(((color >> 8) & 0xFF) + value, 255), 0);
+			var b:Number = Math.max(Math.min((color & 0xFF) + value, 255), 0);
+			return (r << 16) | (g << 8) | b;
+		} 
+		
+		/**
+	    * Adjust the color brightness by a given value. From Adobe Flex.
+	    */
+	    public static function adjustBrightness2(color:uint, value:Number):uint{
+			var r:Number;
+			var g:Number;
+			var b:Number;
+			
+			if (value == 0)
+				return color;
+			
+			if (value < 0)
+			{
+				value = (100 + value) / 100;
+				r = ((color >> 16) & 0xFF) * value;
+				g = ((color >> 8) & 0xFF) * value;
+				b = (color & 0xFF) * value;
+			}
+			else // bright > 0
+			{
+				value /= 100;
+				r = ((color >> 16) & 0xFF);
+				g = ((color >> 8) & 0xFF);
+				b = (color & 0xFF);
+				
+				r += ((0xFF - r) * value);
+				g += ((0xFF - g) * value);
+				b += ((0xFF - b) * value);
+				
+				r = Math.min(r, 255);
+				g = Math.min(g, 255);
+				b = Math.min(b, 255);
+			}
+		
+			return (r << 16) | (g << 8) | b;
+		}
+	        
 		/**
 		* Convert hsb color value to rgb.
 		**/
