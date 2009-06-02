@@ -24,6 +24,7 @@ package com.degrafa.geometry.splines
 	 import com.degrafa.geometry.CubicBezier;
 	 import com.degrafa.geometry.Geometry;
   import com.degrafa.utilities.math.SplineToBezier;
+  import com.degrafa.geometry.utilities.BezierUtils;
 	
 	 import flash.display.Graphics;
 	 import flash.geom.Point;
@@ -110,6 +111,123 @@ package com.degrafa.geometry.splines
 				    points = pointArray;
 			   }
 		  }
+		  
+		 /**
+		  * return an array of quad Bezier approximations to the spline over the specified interval - returns null if values are outside range or
+		  * val2 <= val1 or quadratic approximation is not yet available.
+		  **/
+    override public function approximateInterval(val1:Number, val2:Number):Array
+    {
+      var quads:Array = quadApproximation;
+      if( quads == null )
+      {
+        return quads;
+      }
+      
+      if( val2 <= val1 )
+      {
+        return null;
+      }
+      
+      var knots:Array = points;
+      if( val1 < knots[0].x || val2 > knots[knots.length-1].x )
+      {
+        return null;
+      }
+      
+      var q:Array     = quads[0];
+      var index:Array = quads[1];
+      
+      // find bezier interval for the first and last values
+      var i1:int = 0;
+      var i2:int = 0;
+      for( var i:int=0; i<q.length-1; ++i )
+      {
+        var qb:QuadData = q[i];
+        if( val1 >= qb.x0 )
+        {
+          i1 = i;
+          break;
+        }
+      }
+      
+      for( i=i1; i<q.length; ++i )
+      {
+        qb = q[i]
+        if( val2 <= qb.x1 )
+        {
+          i2 = i;
+          break;
+        }
+      }
+      
+      var approx:Array = [];
+      
+      // subdivision required for first value?
+      qb = q[i1];
+      if( qb.x0 == val1 )
+        approx.push(qb);
+      else
+      {
+        var tParam:Object = BezierUtils.tAtX(qb.x0, qb.y0, qb.cx, qb.cy, qb.x1, qb.y1, val1);
+        
+        // should only be one parameters
+        var t:Number = tParam.t1;
+        if( t >= 0 )
+        {
+          // subdivide at the parameter and take the second Bezier as the first quad in sequence - only need the middle control point, the other two points are already computed
+          var t1:Number = 1.0 - t;
+
+          var cx:Number = t*qb.x1 + t1*qb.cx;
+          var cy:Number = t*qb.y1 + t1*qb.cy;
+
+          approx.push( new QuadData(val1, eval(val1), cx, cy, qb.x1, qb.y1) );
+        }
+        else
+        {
+          // should not happen, but put in a safety valve
+          approx.push(qb);
+        }
+      }
+      
+      // fill out in-between quads
+      if( i2 > i1 )
+      {
+        for( i=i1+1; i<i2; ++i )
+        {
+          approx.push(q[i]);
+        }
+      }
+      
+      // subdivision required for second value?
+      qb = q[i2];
+      if( qb.x1 == val2 )
+        approx.push(qb);
+      else
+      {
+        tParam = BezierUtils.tAtX(qb.x0, qb.y0, qb.cx, qb.cy, qb.x1, qb.y1, val2);
+        
+        // should only be one parameters
+        t = tParam.t1;
+        if( t >= 0 )
+        {
+          // subdivide at the parameter and take the first Bezier as the last quad in sequence - only need the middle control point, the other two points are already computed
+          t1 = 1.0 - t;
+
+          cx = t*qb.cx + t1*qb.x0;
+          cy = t*qb.cy + t1*qb.y0;
+
+          approx.push( new QuadData(qb.x0, qb.y0, cx, cy, val2, eval(val2)) );
+        }
+        else
+        {
+          // should not happen, but put in a safety valve
+          approx.push(qb);
+        }
+      }
+      
+      return approx;
+    }
 	    	    
 		/**
 		* @inheritDoc

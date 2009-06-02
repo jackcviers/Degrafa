@@ -69,7 +69,61 @@ package com.degrafa.geometry.utilities
 * @since 1.0
 *
 */   
-    public function get minDistance():Number { return __dMinimum; }
+    public function get minDistance():Number { return __dMinimum; } 
+    
+/**
+ * Given control and anchor points for a quad Bezier and an x-coordinate between the initial and terminal control points, return the t-parameter(s) at the input x-coordinate
+ * or -1 if no such parameter exists.
+**/
+
+    public static function tAtX(x0:Number, y0:Number, cx:Number, cy:Number, x1:Number, y1:Number, x:Number):Object
+    {
+      // quad. bezier coefficients
+      var c0X:Number = x0;
+      var c1X:Number = 2.0*(cx-x0);
+      var c2X:Number = x0-2.0*cx+x1;
+
+      var c:Number = c0X - x;
+      var b:Number = c1X;
+      var a:Number = c2X;
+      
+      var d:Number = b*b - 4*a*c;
+      if( d < 0 )
+      {
+        return {t1:-1, t2:-1};
+      }
+      
+      if( Math.abs(a) < 0.00000001 )
+      {
+        if( Math.abs(b) < 0.00000001 )
+        {
+          return {t1:-1, t2:-1};
+        }
+        else
+        {
+          return{t1:-c/b, t1:-1};
+        }
+      }
+      
+      d             = Math.sqrt(d);
+      a             = 1/(a + a);
+      var t0:Number = (d-b)*a;
+      var t1:Number = (-b-d)*a;
+      
+      var result:Object = {t1:-1, t2:-1};
+      if( t0 >= 0 && t0 <= 1 )
+        result["t1"] = t0;
+        
+      if( t1 >= 0 && t1 <=1 )
+      {
+        if( t0 <= 0 && t0 <= 1 )
+          result["t2"] = t1;
+        else
+          result["t1"] = t1;
+      }
+        
+      return result;
+    }
     
 /**
 * closestPointToBezier Find the closest point on a quadratic or cubic Bezier curve to an arbitrary point

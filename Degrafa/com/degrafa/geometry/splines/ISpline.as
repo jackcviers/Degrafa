@@ -12,6 +12,10 @@ package com.degrafa.geometry.splines
     function set points(value:Array):void;
     function set knots(value:Object):void;
     
+    // return a quad Bezier approximation to the spline over the specified interval (cartesian or parameteric)
+    function approximateInterval(val1:Number, val2:Number):Array;
+    
+    // add a single control point (knot) to the spline
     function addControlPoint(x:Number,y:Number):void;
     
     // evaluate a cartesian spline at the specified x-coordinate

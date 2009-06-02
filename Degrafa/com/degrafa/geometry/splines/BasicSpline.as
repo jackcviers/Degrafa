@@ -113,6 +113,15 @@ package com.degrafa.geometry.splines
 		  }
 		  
 		  /**
+		  * return an array of quad Bezier approximations to the spline over the specified interval (cartesian or parameteric)
+		  **/
+    public function approximateInterval(val1:Number, val2:Number):Array
+    {
+      // tbd - process varies slightly depending on type of spline - implement in subclass
+      return [];
+    }
+    
+		  /**
 		  * Assign the knot set using a shorthand data value
 		  */
 		  public function set knots(value:Object):void

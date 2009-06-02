@@ -204,7 +204,7 @@ package com.degrafa.utilities.math
               m2 = _spline.derivative(newX);
               o  = __intersect(quad.x0, quad.y0, m1, newX, newY, m2);
        
-              var q1:QuadData = new QuadData(x0, y0, o.px, o.py, x1, y1);
+              var q1:QuadData = new QuadData(x0, y0, o.px, o.py, newX, newY);
               
               // replace existing quad
               q[i]        = q1;
