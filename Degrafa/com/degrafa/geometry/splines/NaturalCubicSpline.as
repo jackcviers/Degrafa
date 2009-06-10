@@ -144,7 +144,7 @@ package com.degrafa.geometry.splines
       for( var i:int=0; i<q.length-1; ++i )
       {
         var qb:QuadData = q[i];
-        if( val1 >= qb.x0 )
+        if( val1 <= qb.x1 )
         {
           i1 = i;
           break;
