@@ -287,7 +287,7 @@ package com.degrafa.geometry{
 		 * @return
 		 */
 		private function updateCommandStack(cStack:CommandStack=null, item:CommandStackItem=null, graphics:Graphics=null,currentIndex:int=0):CommandStackItem {
-			
+				
 				//use local vars instead of the main getters
 				var x:Number;
 				var y:Number;
@@ -532,26 +532,32 @@ package com.degrafa.geometry{
 
 		}
 		
-		private var startPoint:CommandStackItem;
-		private var topLine:CommandStackItem;
+		/** Exposed as protected (from private)
+		 *  so subclasses can have access to these as reference points
+		 *  regardless of what order they get added to the 
+		 *  command stack.   6/10/2009   twgonzalez
+		 */
 		
-		private var topRightCorner1:CommandStackItem;
-		private var topRightCorner2:CommandStackItem;
+		protected var startPoint:CommandStackItem;
+		protected var topLine:CommandStackItem;   
 		
-		private var rightLine:CommandStackItem;
+		protected var topRightCorner1:CommandStackItem;
+		protected var topRightCorner2:CommandStackItem;
 		
-		private var bottomRightCorner1:CommandStackItem;
-		private var bottomRightCorner2:CommandStackItem;
+		protected var rightLine:CommandStackItem;
 		
-		private var bottomLine:CommandStackItem;
+		protected var bottomRightCorner1:CommandStackItem;
+		protected var bottomRightCorner2:CommandStackItem;
 		
-		private var bottomLeftCorner1:CommandStackItem
-		private var bottomLeftCorner2:CommandStackItem
+		protected var bottomLine:CommandStackItem;
+		
+		protected var bottomLeftCorner1:CommandStackItem
+		protected var bottomLeftCorner2:CommandStackItem
 			
-		private var leftLine:CommandStackItem;
+		protected var leftLine:CommandStackItem;
 		
-		private var topLeftCorner1:CommandStackItem;
-		private var topLeftCorner2:CommandStackItem;
+		protected var topLeftCorner1:CommandStackItem;
+		protected var topLeftCorner2:CommandStackItem;
 		
 		/**
 		* @inheritDoc 
@@ -639,6 +645,7 @@ package com.degrafa.geometry{
 				}
 			}
 		}
+	
 				
 		/**
 		* Begins the draw phase for geometry objects. All geometry objects 
