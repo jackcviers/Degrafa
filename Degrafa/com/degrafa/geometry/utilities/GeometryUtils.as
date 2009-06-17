@@ -417,7 +417,6 @@ package com.degrafa.geometry.utilities{
 			
 			if ((dx1 < 0? -dx1:dx1) < 1e-5) dx1 = 0;
 			if ((dx2 < 0? -dx2:dx2) < 1e-5) dx2 = 0;
-
 			
 			if (p1y == p2y && c1y == p1y && c2y == p2y)
 			{
@@ -430,24 +429,34 @@ package com.degrafa.geometry.utilities{
 			{
 				var hDiff:Number = p1x - p2x;
 				if (hDiff < 0) hDiff = -hDiff;
-				if (!hDiff || hDiff<1e-5){
-				//vertical line: store it as a lineTo in commandStack
-				//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
-				returnResult.push(commandStack.addLineTo(p2x, p2y));
-				return returnResult;
+				if (!hDiff || hDiff < 1e-5) {
+					//vertical line: store it as a lineTo in commandStack
+					//todo: consider the possible case where the control points extend beyond the anchor points... (not yet accounted for - need to check SVG standard)
+					returnResult.push(commandStack.addLineTo(p2x, p2y));
+					return returnResult;
 				} else {
 					dy = p1y - c1y;
 					if (dy < 0) dy = -dy;
 					if (!dy || dy < 1e-5) {
 						dy = p2y - c2y;
-						if (!dy || dy < 1e-5) {
+						if (dy < 0) dy = -dy;
+						if (!dy || dy < 1e-5) { 
 							returnResult.push(commandStack.addLineTo(p2x, p2y));
 							return returnResult;
+						} else {
+							sx = c2x;
+							sy = c2y;
 						}
-					}
+					}else {
+							sx = c1x;
+							sy = c1y;
+						}
+						dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
+						dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
 				}
 			}
-			else if (!dx1){
+			else if (!dx1) {
+		
 				sx=p1x;
 				sy = ((c2y - p2y) / dx2) * (p1x - p2x) + p2y;
 				dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
@@ -487,7 +496,6 @@ package com.degrafa.geometry.utilities{
 					dx = k;
 					dy = k;
 				}
-				
 			} else {
 				//normal handling
 				sx = (-m2 * p2x + p2y + m1 * p1x - p1y) / (m1 - m2);
@@ -496,7 +504,7 @@ package com.degrafa.geometry.utilities{
 				dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
 				}
 			}
-
+			
 			// split curve if the quadratic isn't close enough
 			if (dx * dx + dy * dy > k)
 			{
@@ -504,15 +512,15 @@ package com.degrafa.geometry.utilities{
 				var p01x:Number = (p1x + c1x) * .5;
 				var p01y:Number = (p1y + c1y) * .5;
 				var p12x:Number= (c1x + c2x) * .5;
-				var p12y:Number = (c1y + c2y) * .5;				
+				var p12y:Number = (c1y + c2y) * .5;
 				var p23x:Number = (c2x + p2x) * .5;
-				var p23y:Number = (c2y + p2y) * .5;					
+				var p23y:Number = (c2y + p2y) * .5;
 				var p02x:Number = (p01x + p12x) * .5;
 				var p02y:Number= (p01y + p12y) * .5;
 				var p13x:Number= (p12x + p23x ) * .5;
-				var p13y:Number = (p12y + p23y ) * .5;					
-				var p03x:Number= (p02x + p13x) * .5;
-				var p03y:Number = (p02y + p13y) * .5;	
+				var p13y:Number = (p12y + p23y ) * .5;
+				var p03x:Number = (p02x + p13x) * .5;
+				var p03y:Number = (p02y + p13y) * .5;
 				// recursive call to subdivide curve
 				cubicToQuadratic (p1x,p1y,p01x,p01y,p02x,p02y, p03x,p03y,k, commandStack);
 				cubicToQuadratic (p03x,p03y,p13x,p13y,p23x,p23y, p2x,p2y,k, commandStack);	
@@ -521,12 +529,8 @@ package com.degrafa.geometry.utilities{
 				// end recursion by saving points
 				returnResult.push(commandStack.addCurveTo(sx,sy,p2x,p2y));
 			}
-		
 			return returnResult;
-		
 		}
-		
-		
-	
+
 	}
 }
