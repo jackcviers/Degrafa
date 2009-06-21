@@ -84,7 +84,7 @@ package com.degrafa.decorators.standard{
 			if (value == _dashArray ) return;
 			//check for errors
 			for (var i:uint = 0; i < value.length;i++) {
-				if (isNaN(value[i] = parseFloat(value[i])) || value[i]<0) return; //error
+				if (isNaN(value[i] = Number(value[i])) || value[i]<0) return; //error
 			}
 			//if its an odd length, make it even by doubling it
 			if (value.length % 2) {
@@ -104,6 +104,15 @@ package com.degrafa.decorators.standard{
 		 */
 		public function get dashArray():Array {
 			return _dashArray?_dashArray:DEFAULT_DASH_PATTERN.concat();
+		}
+		
+		/**
+		 * Gets the total length of the dash sequence for dash on/dash-off combinations
+		 * @return length of the total dash sequence
+		 */
+		public function get totalLength():Number {
+			if (isNaN(_totalLength)) return 0;
+			return _totalLength;
 		}
 		
 	
