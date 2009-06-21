@@ -438,21 +438,43 @@ package com.degrafa.geometry.utilities{
 					dy = p1y - c1y;
 					if (dy < 0) dy = -dy;
 					if (!dy || dy < 1e-5) {
+						//c1 == p1
 						dy = p2y - c2y;
 						if (dy < 0) dy = -dy;
 						if (!dy || dy < 1e-5) { 
+							//c2==p2,c1==p1
 							returnResult.push(commandStack.addLineTo(p2x, p2y));
 							return returnResult;
 						} else {
+							//c1==p1, c2!=p2
 							sx = c2x;
 							sy = c2y;
 						}
 					}else {
-							sx = c1x;
-							sy = c1y;
+							//c1x==p1x , c2x==p2x
+							dy = p2y - c2y;
+							if (dy < 0) dy = -dy;
+							if (!dy || dy < 1e-5) { 
+								//c2==p2, c1!=p1
+								sx = c1x;
+								sy = c1y;
+							} else {
+								if ((c1y < p1y && c2y < p2y) || (c1y > p1y && c2y > p2y)) {
+									sx = 	(c1x + c2x)	/ 2;
+									sy =  	(c1y + c2y) / 2;
+								} else {
+									//the bezier arms are parallel and on opposite sides of the line between the anchors
+									//let's just force a split as the bezier curve crosses through between the anchors
+									dx = k;
+									dy = k;
+								}
+							}
 						}
-						dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
-						dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
+						if (!dx) {
+							dx = (p1x + p2x + sx * 4 - (c1x + c2x) * 3) * .125;
+							dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
+						}
+						
 				}
 			}
 			else if (!dx1) {
@@ -492,7 +514,7 @@ package com.degrafa.geometry.utilities{
 				dy = (p1y + p2y + sy * 4 - (c1y + c2y) * 3) * .125;
 				} else {
 				//the bezier arms are parallel and on opposite sides of the line between the anchors
-				//let's just force a split as the bezier curve crosses through the centre of the anchors
+				//let's just force a split as the bezier curve crosses through between the anchors
 					dx = k;
 					dy = k;
 				}
