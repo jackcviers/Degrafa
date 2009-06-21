@@ -339,10 +339,13 @@ package com.degrafa.geometry{
 			}
 			else{
 				//could have been added runtime
-				if(graphicsTarget.length){
-					if(graphicsTarget[0].stage){
-						_stage = graphicsTarget[0].stage;
-						_stage.addEventListener(Event.ENTER_FRAME, processMethodQueue,false,0,true);
+				if (graphicsTarget.length) {
+					for each(var dispObj:DisplayObject in graphicsTarget){
+						if(dispObj.stage){
+							_stage = dispObj.stage;
+							_stage.addEventListener(Event.ENTER_FRAME, processMethodQueue, false, 0, true);
+							break;
+						}
 					}
 				}
 			}
@@ -672,7 +675,6 @@ package com.degrafa.geometry{
 		* geometry object or it's child objects.
 		**/
 		protected function propertyChangeHandler(event:PropertyChangeEvent):void{
-			
 			if (!parent){
 				dispatchEvent(event);
 				drawToTargets();	
@@ -1042,17 +1044,11 @@ package com.degrafa.geometry{
 			initDecoratorsCollection();
 			return _decorators.items;
 		}
-		public function set decorators(value:Array):void{			
+		public function set decorators(value:Array):void {
 			initDecoratorsCollection();
+			hasDecorators = (value && value.length);
 			_decorators.items = value;
-			
-			if(value && value.length!=0){
-				hasDecorators = true;
-			}
-			else{
-				hasDecorators = false;
-			}
-			
+					
 		}
 		
 		/**
@@ -1072,7 +1068,7 @@ package com.degrafa.geometry{
 				
 				//add a listener to the collection
 				if(enableEvents){
-					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
+					_decorators.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
 				}
 			}
 		}
@@ -1734,15 +1730,19 @@ package com.degrafa.geometry{
 		
 		/**
 		* The mode used when this object is being masked by the geometry assigned to the mask property. 
-		* The value can either be "clip" or "mask". Clip mode is shape based clipping, alpha mode is alpha based masking.
-		* "svgClip" is a mode that mimics svg's clip-path setting with a non-zero clip-rule and userSpaceOnUse clipping units
+		* The values can either be "clip" or "alpha" to represent regular flash player mask modes. 
+		* clip mode is shape based clipping, alpha mode is alpha based masking.
+		* "svgClip" is a mode that mimics svg's clip-path setting with an even-odd clip-rule and userSpaceOnUse clipping units
+		* svg clipping differs from regular flash clipping in that the perimeter of the mask geometry is used for clipping, not simply the filled areas.
+		* "svgMask" is a mode that mimics svgs mask, with combined luminance and alpha values contributing to masking rather than simply alpha as is the case for flash player.
+		* Masking operations in Degrafa use BitmapData internally, so require that the mask and maskee are less than the bitmapData size limits of the player version.
 		*/
-		[Inspectable(category="General", enumeration="alpha,clip,svgClip")]
+		[Inspectable(category="General", enumeration="alpha,clip,svgClip,svgMask,unMask")]
 		public function get maskMode():String { 
 			return _maskMode?_maskMode:"clip"; 
 		}
 		public function set maskMode(value:String):void {
-			if (value == "alpha" || value=="clip" || value=="svgClip") {
+			if (value == "alpha" || value=="clip" || value=="svgClip"|| value=="svgMask"|| value=="unMask") {
 				//only fire propertyChange event if there is a mask assigned.
 				if (_mask) initChange("maskMode", maskMode, _maskMode = value, this);
 				else _maskMode = value

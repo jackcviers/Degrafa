@@ -24,6 +24,7 @@ package com.degrafa.geometry.segment{
 	import com.degrafa.core.IDegrafaObject;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
+	import flash.geom.Point;
 	
 	/**
  	* Base interface for all Degrafa segment objects.
@@ -43,6 +44,8 @@ package com.degrafa.geometry.segment{
 		
 		function get commandStackItem():CommandStackItem		
 		function set commandStackItem(value:CommandStackItem):void	
+		
+		function computeSegment(firstPoint:Point,lastPoint:Point,lastControlPoint:Point,commandStack:CommandStack):void
 		
 	}
 }

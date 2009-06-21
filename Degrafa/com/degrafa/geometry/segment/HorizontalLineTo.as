@@ -57,13 +57,10 @@ package com.degrafa.geometry.segment{
 	 	* @param coordinateType A string indicating the coordinate type to be used for this segment.
 	 	**/
 		public function HorizontalLineTo(x:Number=0,data:String=null,coordinateType:String="absolute"){
-			
-			this.x =x;
-			
-			this.data =data;
-			this.coordinateType=coordinateType;
-			this.isShortSequence = false;	
-
+			_x = x;
+			if (data) this.data = data;
+			if (coordinateType != "absolute") _absCoordType = false;
+			invalidated = true;
 		}
 		
 		/**

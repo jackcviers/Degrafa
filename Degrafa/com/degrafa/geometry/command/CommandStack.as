@@ -35,6 +35,8 @@ package com.degrafa.geometry.command{
 	import com.degrafa.geometry.utilities.GeometryUtils;
 	import com.degrafa.GeometryComposition;
 	import com.degrafa.transform.TransformBase;
+//	import flash.display.Bitmap;
+	import flash.filters.ColorMatrixFilter;
 	
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -69,8 +71,8 @@ package com.degrafa.geometry.command{
 		static private var transCP:Point = new Point();
 		
 		//paint related stacks
-		static private var ignorePaint:Array;
-		static private var alphaStack:Array=[];
+		static private var svgClipMode:Array;
+		static private var alphaStack:Array = [];
 			
 		//TODO this has to be made private eventually otherwise we can lose 
 		//previous and next references
@@ -84,7 +86,9 @@ package com.degrafa.geometry.command{
 		private var _maskRender:Shape;
 		private var _container:Sprite;
 		private var _original:Sprite;
-		
+		private var _mask:Sprite;
+		static private const _maskFilt:Array = [new ColorMatrixFilter([ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2125,0.7154,0.0721,0,0])]; 
+
 		/**
 		 * The current contextual alpha value that represents nested alpha values during render. This is used during requests from
 		 * paint objects.
@@ -146,8 +150,22 @@ package com.degrafa.geometry.command{
 				 CommandStack[item]=values[item];
 			}
 		}
-		
-		
+		 /**
+		 * Helper function to reset a the rendering context to its default state
+		 * dev: this and related methods may change in the future.
+		 * @param	values
+		 */
+		static public function removeContextualSettings():void {
+			for each(var item:String in _cacheable) {
+				var iObj:Object = CommandStack[item];
+				if (iObj is Array) {
+						(iObj as Array).length=0;
+				}
+				if (iObj is Matrix) {
+					(iObj as Matrix).identity();
+				}
+			}
+		}
 		
 		public function CommandStack(geometry:Geometry = null){
 			super();
@@ -227,6 +245,7 @@ package com.degrafa.geometry.command{
 		
 		
 		private function initDecorators():void {
+			hasRenderDecoration = false;
 			for each (var item:IDecorator in owner.decorators){
 				item.initialize(this);
 				if(item is IRenderDecorator){
@@ -236,6 +255,7 @@ package com.degrafa.geometry.command{
 		}
 		
 		private function endDecorators():void {
+			hasRenderDecoration = false;
 			for each (var item:IDecorator in owner.decorators){
 				item.end(this);
 				if(item is IRenderDecorator){
@@ -299,9 +319,9 @@ package com.degrafa.geometry.command{
 			
 				//	maybe there are paint settings on some owners at this point:
 				//setup the stroke
-				if (!ignorePaint) owner.initStroke(graphics, rc);
+				if (!svgClipMode) owner.initStroke(graphics, rc);
 				//setup the fill
-				if (!ignorePaint) owner.initFill(graphics, rc);
+				if (!svgClipMode) owner.initFill(graphics, rc);
 				//if (owner.hasDecorators) initDecorators();
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics, !IDisplayObjectProxy(owner).transformBeforeRender, rc);	
 				return false;
@@ -331,47 +351,93 @@ package com.degrafa.geometry.command{
 					if (hasmask) {
 						//dev note: need to change this so mask is only redrawn when necessary
 						if (!_maskRender) {
+							_mask = new Sprite();
 							_maskRender = new Shape();
-							_container.addChild(_maskRender);
+							_mask.addChild(_maskRender);
+							_container.addChild(_mask);
 						}
 						_maskRender.graphics.clear();
+						_mask.graphics.clear();
 						//set the maskSpace implementation:
-						if (owner.maskSpace == "local" && transMatrix) _maskRender.transform.matrix = transMatrix;
-						else _maskRender.transform.matrix =new Matrix();
+						if (owner.maskSpace == "local" && transMatrix) _mask.transform.matrix = transMatrix;
+						else _mask.transform.matrix =new Matrix();
 
 						//cache the current settings as rendering the mask will alter them
-						var cacheLayout:Matrix = currentLayoutMatrix? currentLayoutMatrix.clone():null;
-						var cacheTransform:Matrix = currentTransformMatrix? currentTransformMatrix.clone():null;
-						var cacheCombo:Matrix = transMatrix? transMatrix.clone():null;
-						
-						//svg clipping for non-zero clip-rule is achieved this way: 
-						if (owner.maskMode == "svgClip") {
-							//match svg clipping behaviour - ensure there is a fill, linestyle is irrelevant:
-							_maskRender.graphics.lineStyle();
-							_maskRender.graphics.beginFill(0, 1);
-							//dev note:	have set ignorePaint up as a simple static stack implementation instead of simple boolean to deal with possibility of subsequent nested clipping activity unsetting it too early
+					//	var cacheLayout:Matrix = currentLayoutMatrix? currentLayoutMatrix.clone():null;
+					//	var cacheTransform:Matrix = currentTransformMatrix? currentTransformMatrix.clone():null;
+					//	var cacheCombo:Matrix = transMatrix? transMatrix.clone():null;
+						var temp:Object = getSettingsCache();
+						//svg clipping for evenodd clip-rule is achieved this way: 
+						if (owner.maskMode == "svgClip" || owner.maskMode == "clip") {
+							if (owner.maskMode == "svgClip" ) {
+								//match svg clipping behaviour - ensure there is a fill, linestyle is irrelevant:
+								_maskRender.graphics.lineStyle();
+								_maskRender.graphics.beginFill(0, 1);
+							}
+							_original.cacheAsBitmap = _mask.cacheAsBitmap = false;
+							if (_maskRender.filters.length) {
+								_maskRender.filters = [];
+								_maskRender.blendMode = "normal";
+							}
 							//dev note: check whether clipping in svg ignores filters, that probably should be done as it will create rectangular clipping regions instead of the original shape
-							ignorePaint = ignorePaint? ignorePaint.concat(true):[true];
+							
+							removeContextualSettings();
+							svgClipMode = svgClipMode? svgClipMode.concat(true):((owner.maskMode=="svgClip")?[true]:null);
 							owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
-							ignorePaint.length--;
-							if (!ignorePaint.length) ignorePaint = null;
-						} else owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+							if (svgClipMode) {
+								svgClipMode.length--;
+								if (!svgClipMode.length) svgClipMode = null;
+							}
+							resetCacheValues(temp);
+						} else {
 
-						_original.cacheAsBitmap = _maskRender.cacheAsBitmap = (owner.maskMode == 'alpha');
+							removeContextualSettings();
+							owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
+							
+							if (owner.maskMode == "svgMask") {
+								//implementation of a maskMode that is compatible with SVG masking
+								//omitted:	owner.mask.draw(_mask.graphics, owner.mask.bounds);
+								//faster version:
+								//dev note: fp10 version use graphicsCopy with this same approach or a dedicated PB filter
+								var rect:Rectangle = _maskRender.getBounds(_maskRender);
+								var bmd:BitmapData = new BitmapData(rect.width, rect.height, true, 0);
+								var bmdmat:Matrix = new Matrix(1, 0, 0, 1, -rect.x, -rect.y);
+								if (_maskRender.filters.length) _maskRender.filters = [];
+								bmd.draw(_maskRender, bmdmat, null, null, null, true);
+								bmdmat.invert();
+								_mask.graphics.beginBitmapFill(bmd, bmdmat, false, true);
+								_mask.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+								_mask.graphics.endFill();
+								_maskRender.filters = _maskFilt;
+								_maskRender.blendMode = "alpha";
+								
+							} else {
+								//_maskRender.blendMode = "normal";
+								
+								if (_maskRender.filters.length) {
+									_maskRender.filters = [];
+									_maskRender.blendMode = "normal";
+								
+								}
+							}
+							_original.cacheAsBitmap = _mask.cacheAsBitmap = true;
+						}
+						resetCacheValues(temp);
 
 						//restore cached transform settings
-						currentLayoutMatrix = cacheLayout;
-						currentTransformMatrix = cacheTransform;
-						transMatrix = cacheCombo;
+					//	currentLayoutMatrix = cacheLayout;
+					//	currentTransformMatrix = cacheTransform;
+					//	transMatrix = cacheCombo;
 						
 						if (hasfilters) {
 							hasfilters = false;
 							_fxShape.filters = owner.filters;
 						} else if (_fxShape.filters.length) _fxShape.filters = [];
-						_original.mask = _maskRender;
+						if (owner.maskMode != "unMask") _original.mask = _mask;
+						else _original.mask = null;
 					} else {
 						if (_maskRender) {
-							_maskRender.cacheAsBitmap = false;
+							_mask.cacheAsBitmap = false;
 							_maskRender.graphics.clear();
 						}
 						_original.cacheAsBitmap = false;
@@ -380,24 +446,24 @@ package com.degrafa.geometry.command{
 					}
 										
 					//setup the stroke
-					if (!ignorePaint) owner.initStroke(_fxShape.graphics, rc);
+					if (!svgClipMode) owner.initStroke(_fxShape.graphics, rc);
 					//setup the fill
-					if (!ignorePaint) owner.initFill(_fxShape.graphics, rc);
+					if (!svgClipMode) owner.initFill(_fxShape.graphics, rc);
+					else _fxShape.graphics.beginFill(0, 1);
 
 					//init the decorations if required
 					
-					if (owner.hasDecorators) initDecorators();
-						lineTo = _fxShape.graphics.lineTo;
-						curveTo = _fxShape.graphics.curveTo;
-						moveTo = _fxShape.graphics.moveTo;
-					 if (!isComp)	renderCommandStack(_fxShape.graphics, rc, _cursor);
-					 else {
+					if (owner.hasDecorators) initDecorators() else hasRenderDecoration = false;
+					lineTo = _fxShape.graphics.lineTo;
+					curveTo = _fxShape.graphics.curveTo;
+					moveTo = _fxShape.graphics.moveTo;
+					if (!isComp)	renderCommandStack(_fxShape.graphics, rc, _cursor);
+					else {
 						//for a GeometryComposition, draw the children
 						owner.endDraw(_fxShape.graphics);
-					 }
+					}
 						
 					if (owner.hasDecorators) endDecorators();
-
 					renderBitmapDatatoContext(_container, graphics);
 					return isComp;
 				
@@ -405,12 +471,13 @@ package com.degrafa.geometry.command{
 				else {
 
 					//setup the stroke
-					if (!ignorePaint) owner.initStroke(graphics, rc);
+					if (!svgClipMode) owner.initStroke(graphics, rc);
 					//setup the fill
-					if (!ignorePaint) owner.initFill(graphics, rc);
+					if (!svgClipMode) owner.initFill(graphics, rc);
+					else graphics.beginFill(0,1)
 
 					//init the decorations if required
-					if (owner.hasDecorators) initDecorators();
+					if (owner.hasDecorators) initDecorators()else hasRenderDecoration = false;
 					lineTo = graphics.lineTo;
 					curveTo = graphics.curveTo;
 					moveTo = graphics.moveTo;
@@ -469,8 +536,8 @@ package com.degrafa.geometry.command{
 			var mat:Matrix
 			if (owner is IDisplayObjectProxy){
 				//padding with transparent pixel border
-		bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
-			mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
+				bitmapData = new BitmapData(filteredRect.width+4 , filteredRect.height+4,true,0);
+				mat = new Matrix(1, 0, 0, 1, 2 - filteredRect.x, 2 - filteredRect.y)
 		//			bitmapData = new BitmapData(filteredRect.width , filteredRect.height,true,0);
 		//		mat = new Matrix(1, 0, 0, 1, - filteredRect.x,  - filteredRect.y)
 				
@@ -521,7 +588,12 @@ package com.degrafa.geometry.command{
 		private function updateToFilterRectangle(filterRect:Rectangle,source:DisplayObject):Rectangle{
 			
 			//iterate the filters to calculte the desired rect
+			try{
 			var bitmapData:BitmapData = new BitmapData(filterRect.width, filterRect.height, true, 0);
+			} catch (e:Error) {
+				trace(e + ":" + filterRect)
+				return filterRect;
+			}
 			
 			//compute the combined filter rectangle
 			for each (var filter:BitmapFilter in owner.filters){
@@ -1099,8 +1171,7 @@ package com.degrafa.geometry.command{
 					//recurse todo
 					return source[i].commandStack.lastSegmentWithLength;
 				}
-				
-				i--
+				i--;
 			}
 			
 			return source[length-1];
@@ -1197,7 +1268,6 @@ package com.degrafa.geometry.command{
 			return 0;
 		}
 
-		
 		private function cleant(t:Number, base:Number=NaN):Number {
 			if (isNaN(t)) t = base;
 			else if (t < 0 || t > 1){
@@ -1207,7 +1277,6 @@ package com.degrafa.geometry.command{
 			}
 			return t;
 		}
-
-
 	}
+	
 }

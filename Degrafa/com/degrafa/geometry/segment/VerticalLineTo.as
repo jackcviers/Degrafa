@@ -58,12 +58,10 @@ package com.degrafa.geometry.segment{
 	 	**/
 		public function VerticalLineTo(y:Number=0,data:String=null,coordinateType:String="absolute"){
 			
-			this.y =y;
-			
-			this.data =data;
-			this.coordinateType=coordinateType;
-			this.isShortSequence = false;
-			
+			_y = y;
+			if (data) this.data = data;
+			_absCoordType= (coordinateType == "absolute");
+			invalidated = true;
 				
 		}
 		

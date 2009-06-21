@@ -63,18 +63,17 @@ package com.degrafa.geometry.segment{
 		public function CubicBezierTo(cx:Number=0,cy:Number=0,cx1:Number=0,cy1:Number=0,x:Number=0,y:Number=0,
 		data:String=null,coordinateType:String="absolute",isShortSequence:Boolean=false){
 			
-			this.cx =cx;
-			this.cy =cy;
-			this.cx1 =cx1;
-			this.cy1 =cy1;
-			this.x =x;
-			this.y =y;
-			
-			this.data =data;
-			this.coordinateType=coordinateType;
-			this.isShortSequence =isShortSequence
-			
-					
+			_cx = cx; 
+			_cy = cy; 
+			_cx1 = cx1; 
+			_cy1 = cy1;
+			_x = x; 
+			_y = y;
+			if (data) this.data = data;
+			_absCoordType= (coordinateType == "absolute");
+			if (isShortSequence) _isShortSequence = true;
+			invalidated = true;
+				
 		}
 		
 		/**
@@ -269,7 +268,7 @@ package com.degrafa.geometry.segment{
 				
 				//clear the array in this case as it's a complex item
 				_commandStackItem.commandStack.length=0;
-							
+
 				 if(_isShortSequence){
                         _commandStackItem.commandStack.addCubicBezierTo(lastPoint.x,lastPoint.y,
 						lastPoint.x+(lastPoint.x-lastControlPoint.x),lastPoint.y+(lastPoint.y-lastControlPoint.y),
@@ -280,7 +279,6 @@ package com.degrafa.geometry.segment{
 						_absCoordType? _cx:lastPoint.x+_cx,_absCoordType ? _cy : lastPoint.y+_cy,
 						nlcpx,nlcpy,nlpx,nlpy,1);
 				}
-
 				//not sure about this but it seems the best way temporarily
 				_commandStackItem.end.x = nlpx;
 				_commandStackItem.end.y = nlpy;
@@ -304,7 +302,8 @@ package com.degrafa.geometry.segment{
 			lastControlPoint.y = nlcpy;
 						
 			//pre calculate the bounds for this segment
-			preDraw();
+			//preDraw();
+			invalidated = false;
 			
 		}
 			

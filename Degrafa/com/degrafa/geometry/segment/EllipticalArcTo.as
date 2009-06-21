@@ -65,23 +65,19 @@ package com.degrafa.geometry.segment{
 	 	* @param coordinateType A string indicating the coordinate type to be used for this segment.
 	 	**/
 		public function EllipticalArcTo(rx:Number=0,ry:Number=0,xAxisRotation:Number=0,
-		largeArcFlag:Number=0,sweepFlag:Number=0,x:Number=0,y:Number=0,data:String=null,
+		largeArcFlag:uint=0,sweepFlag:uint=0,x:Number=0,y:Number=0,data:String=null,
 		coordinateType:String="absolute"){
 			
-			this.rx =rx;
-			this.ry =ry;
-			this.xAxisRotation =xAxisRotation;
-			this.largeArcFlag =largeArcFlag;
-			this.sweepFlag =sweepFlag;
-			this.x =x;
-			this.y =y;
-					
-			
-			this.data =data;
-			this.coordinateType=coordinateType;
-			this.isShortSequence = false;
-			
-				
+			_rx = rx; 
+			_ry = ry; 
+			_xAxisRotation = xAxisRotation; 
+			_largeArcFlag = Boolean(largeArcFlag);
+			_sweepFlag = Boolean(sweepFlag);
+			_x = x;
+			_y = y;
+			if (data) this.data = data;
+			_absCoordType = (coordinateType == "absolute");
+			invalidated = true;				
 		}
 		
 		/**
@@ -181,37 +177,37 @@ package com.degrafa.geometry.segment{
 		
 		
 		
-		private var _largeArcFlag:int=-1;
+		private var _largeArcFlag:Boolean=true;
 		/**
 		* A value indicating if the arc is to use a large arc. 
 		* A value of 0 = true and a value of 1 = false
 		*
 		* see@ http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands  
 		**/
-		public function get largeArcFlag():Number{
-			return _largeArcFlag;
+		public function get largeArcFlag():uint{
+			return uint(_largeArcFlag);
 		}
-		public function set largeArcFlag(value:Number):void{
-			if(_largeArcFlag != value){
-				_largeArcFlag = value;
+		public function set largeArcFlag(value:uint):void {
+			if(_largeArcFlag != Boolean(value)){
+				_largeArcFlag = Boolean(value);
 				invalidated = true;
 			}
 		}
 		
 		
-		private var _sweepFlag:int=-1;
+		private var _sweepFlag:Boolean=true;
 		/**
 		* A value indicating if the arc is to use a sweep. 
 		* A value of 0 = true and a value of 1 = false
 		*
 		* see@ http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands  
 		**/
-		public function get sweepFlag():Number{
-			return _sweepFlag;
+		public function get sweepFlag():uint{
+			return uint(_sweepFlag);
 		}
-		public function set sweepFlag(value:Number):void{
-			if(_sweepFlag != value){
-				_sweepFlag = value;
+		public function set sweepFlag(value:uint):void {
+			if(_sweepFlag != Boolean(value)){
+				_sweepFlag = Boolean(value);
 				invalidated = true;
 			}
 		}

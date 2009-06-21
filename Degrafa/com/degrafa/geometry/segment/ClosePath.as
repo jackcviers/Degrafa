@@ -50,7 +50,7 @@ package com.degrafa.geometry.segment{
 		public function ClosePath(){
 			
 			super();
-					
+			invalidated = true;	
 		}
 		
 		/**

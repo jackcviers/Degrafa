@@ -62,15 +62,14 @@ package com.degrafa.geometry.segment{
 	 	**/
 		public function QuadraticBezierTo(cx:Number=0,cy:Number=0,x:Number=0,y:Number=0,data:String=null,coordinateType:String="absolute",isShortSequence:Boolean=false){
 			
-			this.cx =cx;
-			this.cy =cy;
-			this.x =x;
-			this.y =y;
-			
-			this.data =data;
-			this.coordinateType=coordinateType;
-			this.isShortSequence =isShortSequence
-			
+			_cx = cx; 
+			_cy = cy; 
+			_x = x; 
+			_y = y;
+			if (data) this.data = data;
+			_absCoordType= (coordinateType == "absolute");
+			if (isShortSequence) _isShortSequence = true;
+			invalidated = true;
 					
 		}
 		
