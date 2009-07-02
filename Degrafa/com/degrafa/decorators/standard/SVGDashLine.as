@@ -24,9 +24,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.decorators.standard{
 	
+	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.decorators.RenderDecoratorBase;
 	import com.degrafa.geometry.command.CommandStack;
 	import flash.geom.Rectangle;
+	import mx.events.PropertyChangeEvent;
 	
 	import flash.display.Graphics;
 	
@@ -46,6 +49,7 @@ package com.degrafa.decorators.standard{
 		private var _dashIndex:uint = 0; //where are we in the _dashArray currently
 		private var _dashVal:Number = 0; //offset from beginning of current dash
 		private var _dashoffset:Number = 0; //dash offset
+		private var _alternateStroke:IGraphicsStroke; //an optional alternate stroke to use instead of unstroked gaps
 		private static var DEFAULT_DASH_PATTERN:Array = [10, 10];
 		
 		
@@ -67,7 +71,8 @@ package com.degrafa.decorators.standard{
 			dashArray = temp;
 		}
 		//is this Decorator valid
-		private var _isValid:Boolean;
+		//with a default dash pattern this decorator is now initialized as valid:
+		private var _isValid:Boolean=true;
 		override public function get isValid():Boolean {
 			return _isValid;
 		}
@@ -103,7 +108,14 @@ package com.degrafa.decorators.standard{
 		 * respectively in that order
 		 */
 		public function get dashArray():Array {
-			return _dashArray?_dashArray:DEFAULT_DASH_PATTERN.concat();
+			if (_dashArray) return _dashArray;
+			var defaultArr:Array = DEFAULT_DASH_PATTERN.concat();
+			if (isNaN(_totalLength)) {
+				_totalLength = 0;
+				for each(var v:Number in defaultArr) _totalLength += v;
+				_isValid = (_totalLength > 0);
+			}
+			return defaultArr;
 		}
 		
 		/**
@@ -111,13 +123,18 @@ package com.degrafa.decorators.standard{
 		 * @return length of the total dash sequence
 		 */
 		public function get totalLength():Number {
-			if (isNaN(_totalLength)) return 0;
+			if (isNaN(_totalLength)) {
+				var defaultArr:Array = DEFAULT_DASH_PATTERN.concat();
+				_totalLength = 0;
+				for each(var v:Number in defaultArr) _totalLength += v;
+				_isValid = (_totalLength > 0);
+			}
 			return _totalLength;
 		}
 		
 	
 		/**
-		* Specifies the distance into the dash pattern to start the dash
+		* Specifies the distance into the stroke to start the dash pattern
 		* similar to the stroke-dashoffset setting in SVG. Negative values are permitted.
 		* @see http://www.w3.org/TR/SVG/painting.html#StrokeProperties
 		**/	
@@ -131,9 +148,74 @@ package com.degrafa.decorators.standard{
 		}
 		
 		
+		/**
+		* alternateStroke permits an alternate stroke to be used instead of unstroked gaps (this is a degrafa extension, not part of SVG 1.1)
+		*  
+		**/	
+		public function get alternateStroke():IGraphicsStroke{
+			return _alternateStroke;
+		}
+		public function set alternateStroke(value:IGraphicsStroke):void {
+			if (value != _alternateStroke) {
+				if (_alternateStroke) _alternateStroke.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+				var oldVal:IGraphicsStroke = _alternateStroke;
+				_alternateStroke = value;
+				_alternateStroke.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler,false,0,true);
+				initChange("alternateStroke", oldVal, _alternateStroke, this);
+			}
+		}
+		
+		
+		private var _matchCommonStrokeSettings:Boolean = true;
+		/**
+		* when an alternateStroke is in use, this setting, if true (the default), matches weight, pixelHinting, caps, joints, scaleMode and miterLimit
+		* with those of the primary stroke on the original geometry being decorated, otherwise the alternateStroke's own settings for these properties will be used
+		**/	
+		public function get matchCommonStrokeSettings():Boolean{
+			return _matchCommonStrokeSettings;
+		}
+		public function set matchCommonStrokeSettings(value:Boolean):void {
+			if (value != _matchCommonStrokeSettings) {
+				_matchCommonStrokeSettings = value;
+				initChange("matchCommonStrokeSettings", !_matchCommonStrokeSettings, _matchCommonStrokeSettings, this);
+			}
+		}
+		
+		private var _disableAlternateStroke:Boolean;
+		/**
+		* when an alternateStroke is in use, this setting, if true (it defaults to false), will disable the alternate stroke, rendering the dash pattern
+		* with unstroked gaps as per SVG's standard dash strokes.
+		**/	
+		public function get disableAlternateStroke():Boolean{
+			return _disableAlternateStroke;
+		}
+		public function set disableAlternateStroke(value:Boolean):void {
+			if (value != _disableAlternateStroke) {
+				_disableAlternateStroke = value;
+				initChange("disableAlternateStroke", !_disableAlternateStroke, _disableAlternateStroke, this);
+			}
+		}
+		
+		
+		
+		/**
+		* @private local handler for referenced external objects
+		**/
+		protected function propertyChangeHandler(event:PropertyChangeEvent):void {
+			//ignore changes from the alternate stroke if it's disabled
+			if (_disableAlternateStroke && _alternateStroke && event.source == _alternateStroke ) return;
+			//for now:
+			dispatchEvent(event);
+			//so far just alternateStroke:
+			//initChange("alternateStroke." + event.property, event.oldValue, event.newValue, this);
+		}
+		
+		
+		
 		private var _totalLength:Number;
 		private var _currentStrokeArgs:Array;
 		private var _currentRectangle:Rectangle;
+		private var _altStrokeArgs:Array;
 		
 		/**
 		 * initialize override, to set up local reStroking support and adjust for dashoffset, nothing else is required at this point.
@@ -148,9 +230,28 @@ package com.degrafa.decorators.standard{
 				_currentStrokeArgs = CommandStack.currentStroke.lastArgs;
 				var restroke:Function = CommandStack.currentStroke.reApplyFunction;
 				_reStroke = function(graphics:Graphics):void {
+				//	trace(_currentStrokeArgs)
 					restroke(graphics,_currentStrokeArgs);
 					_reStrokeActive = true;
 				}
+				if (_alternateStroke && !_disableAlternateStroke) {
+					_alternateStroke.apply(null, _currentRectangle);
+					_altStrokeArgs = _alternateStroke.lastArgs.concat();
+					//trace(_altStrokeArgs.join(":::"))
+					if (_matchCommonStrokeSettings) {
+						var targ:Array = (_altStrokeArgs[0] is Array)?_altStrokeArgs[0]:_altStrokeArgs;
+						targ[0] = _currentStrokeArgs[0];//weight
+						targ[3] = _currentStrokeArgs[3];//pixelhinting
+						targ[4] = _currentStrokeArgs[4];//scaling
+						targ[5] = _currentStrokeArgs[5];//caps
+						targ[6] = _currentStrokeArgs[6];//joints
+						targ[7] = _currentStrokeArgs[7];//miterlimit
+					}
+					var destroke:Function = _alternateStroke.reApplyFunction;
+					_deStroke = function(graphics:Graphics):void {
+						destroke(graphics,_altStrokeArgs);
+					} 
+				} else if (_deStroke!=null) _deStroke = null;
 			}
 			isLine = true;
 			overflow = 0;
@@ -315,7 +416,7 @@ package com.degrafa.decorators.standard{
 						c = curveSliceUpTo(sx, sy, cx, cy, x, y, t);
 						d = curveSliceFrom(sx, sy, cx, cy, x, y, t);
 
-						if (isLine) 	doCurveTo(c[2], c[3], c[4], c[5], graphics);
+						if (isLine) doCurveTo(c[2], c[3], c[4], c[5], graphics);
 						else doAltCurveTo(c[2], c[3], c[4], c[5], graphics);
 					   _dashVal = 0;
 					   //reduce the length of this segment
@@ -331,7 +432,6 @@ package com.degrafa.decorators.standard{
 						if (isLine) doCurveTo(cx, cy, x, y, graphics);
 						else doAltCurveTo(cx, cy, x, y, graphics);
 						if (segLength == remaining) {
-		
 							overflow = 0;
 							_dashVal = 0;
 							segLength-=remaining;
@@ -361,9 +461,13 @@ package com.degrafa.decorators.standard{
 		private var _reStrokeActive:Boolean;
 		private var _restrokeArgs:Array;
 		private var _reStroke:Function; 
+		private var _deStroke:Function; 
+		private var _destrokeArgs:Array;
 		
-		private var deStroke:Function =function (graphics:Graphics):void {
-			graphics.lineStyle();
+		private var deStroke:Function = function (graphics:Graphics):void {
+			//use the alternate stroke if one is specified
+			if (_deStroke!=null) _deStroke(graphics)
+			else graphics.lineStyle();
 			_reStrokeActive = false;
 		}
 		
