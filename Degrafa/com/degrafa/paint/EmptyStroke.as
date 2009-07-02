@@ -80,14 +80,9 @@ package com.degrafa.paint{
 		public function get reApplyFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-			if (!_lastContext) return function(alternate:Graphics = null,altArgs:Array=null):void { 
-
-				}
-			else {
 			return function(alternate:Graphics = null, altArgs:Array = null):void {
-					//if (alternate) alternate.lineStyle.apply(alternate, null);
-					//else last.lineStyle.apply(last, null);
-				}
+					if (alternate) alternate.lineStyle.apply(alternate, null);
+					else if (last) last.lineStyle.apply(last, null);
 			}
 		}
 		/**
@@ -100,7 +95,7 @@ package com.degrafa.paint{
 			
 			_lastContext = graphics;
 			_lastRect = rc;
-			//graphics.lineStyle.apply(graphics,null);
+			if (graphics) graphics.lineStyle.apply(graphics,null);
 
 							
 		}

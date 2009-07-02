@@ -995,17 +995,10 @@ package com.degrafa.paint{
 		public function get restartFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-		if (!_lastContext) {
-			return function(alternate:Graphics = null):void { 
-				//if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
-			}
-			}
-		else {
 			return function(alternate:Graphics = null):void {
 					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
-					else last.beginBitmapFill.apply(last,copy);
+					else if (last) last.beginBitmapFill.apply(last,copy);
 				}
-			}
 		}
 		
 		
@@ -1224,7 +1217,7 @@ package com.degrafa.paint{
 				_requester = null;
 			}
 
-			graphics.beginBitmapFill(template, matrix, repeat, _smooth );
+			if (graphics) graphics.beginBitmapFill(template, matrix, repeat, _smooth );
 			_lastArgs.length = 0;
 			_lastArgs[0] = template;
 			_lastArgs[1] = matrix;

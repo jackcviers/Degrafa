@@ -607,17 +607,10 @@ package com.degrafa.paint{
 		public function get restartFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-		if (!_lastContext) {
-			return function(alternate:Graphics = null):void { 
-				//if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
-			}
-			}
-		else {
 			return function(alternate:Graphics = null):void {
 					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
-					else last.beginBitmapFill.apply(last,copy);
+					else if (last) last.beginBitmapFill.apply(last,copy);
 				}
-			}
 		}
 		
 		/**
@@ -738,7 +731,7 @@ package com.degrafa.paint{
 				//remove the requester reference
 				_requester = null;
 			}
-		//	CommandStack.currentFill = this;
+
 			_lastArgs.length = 0;
 			_lastArgs[0] = template;
 			_lastArgs[1] = matrix;
@@ -746,8 +739,7 @@ package com.degrafa.paint{
 			_lastArgs[3] = smooth;
 			_lastContext = graphics;
 			_lastRect = rc;
-			//	CommandStack.currentFill = ["beginBitmapFill",[template, matrix, repeat, smooth]];
-			graphics.beginBitmapFill(template, matrix, repeat, smooth);
+			if (graphics) graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}
 		
 		/**

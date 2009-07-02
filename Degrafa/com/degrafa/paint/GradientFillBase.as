@@ -267,17 +267,9 @@ package com.degrafa.paint{
 		public function get restartFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-		if (!_lastContext) {
-			
-			return function(alternate:Graphics = null):void { 
-				//if (alternate) alternate.beginGradientFill(alternate, copy);
-			}
-			}
-		else {
 			return function(alternate:Graphics = null):void {
 					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
-					else last.beginGradientFill.apply(last,copy);
-				}
+					else if (last) last.beginGradientFill.apply(last,copy);
 			}
 		}
 		/**
@@ -349,7 +341,7 @@ package com.degrafa.paint{
 			_lastArgs[7] = focalPointRatio;
 			_lastContext = graphics;
 			_lastRect = rc;
-			graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+			if (graphics) graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 					
 		}
 		

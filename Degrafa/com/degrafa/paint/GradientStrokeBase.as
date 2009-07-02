@@ -227,28 +227,23 @@ package com.degrafa.paint {
 		}
 		
 		/**
-		 * Provides access to a cached function for restarting the last used fill either in the same context, or , if context is provided as an argument,
-		 * then to an alternate context. If no
+		 * Provides access to a cached function for reapplying the last used stroke either in the same context, or , if context is provided as an argument,
+		 * to an alternate context. 
 		 */
 		public function get reApplyFunction():Function {
-			var copy:Array = _lastArgs.concat();
+			var copy:Array = [_lastArgs[0].concat(),_lastArgs[1].concat()];
 			var last:Graphics = _lastContext;
-			if (!_lastContext) return function(alternate:Graphics = null,altArgs:Array=null):void { 
-				//	if (alternate) alternate.lineStyle(copy[0], copy[1]);
-				}
-			else {
 			return function(alternate:Graphics = null,altArgs:Array=null):void {
 					var local:Array = altArgs?altArgs:copy;
 					if (alternate) {
 						alternate.lineStyle.apply(alternate, local[0]);
 						alternate.lineGradientStyle.apply(alternate, local[1]);
 					}
-					else {
+					else if (last) {
 						last.lineStyle.apply(last, local[0]);
 						last.lineGradientStyle.apply(last, local[1]);
 					}
 				}
-			}
 		}
 		
 
@@ -340,18 +335,18 @@ package com.degrafa.paint {
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
-				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode);
+				if (graphics) graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode);
 				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode];
 				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
 			}
 			else{
-				graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit);
+				if (graphics) graphics.lineStyle(weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit);
 				_lastArgs[0] = [weight, 0, 1, pixelHinting, scaleMode, caps, joints, miterLimit];
 				_lastArgs[1] = [gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio];
 			}
 			_lastContext = graphics;
 			_lastRect = rc;
-			graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
+			if (graphics) graphics.lineGradientStyle(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod,focalPointRatio);
 			
 		}
 	

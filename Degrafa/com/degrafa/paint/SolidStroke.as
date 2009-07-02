@@ -356,23 +356,19 @@ package com.degrafa.paint{
 		}
 		
 		/**
-		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
-		 * then to an alternate context. If no
+		 * Provides access to a cached function for reapplying the last used stroke either in the same context, or , if context is provided as an argument,
+		 * to an alternate context.
 		 */
 		public function get reApplyFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-			if (!_lastContext) return function(alternate:Graphics = null,altArgs:Array=null):void { 
-				//	if (alternate) alternate.lineStyle(copy[0], copy[1]);
-				}
-			else {
 			return function(alternate:Graphics = null, altArgs:Array = null):void {
 					var local:Array = altArgs?altArgs:copy;
 					if (alternate) alternate.lineStyle.apply(alternate, local);
-					else last.lineStyle.apply(last, local);
+					else if (last) last.lineStyle.apply(last, local);
 				}
-			}
 		}
+		
 		/**
  		* Applies the properties to the specified Graphics object.
  		* 
@@ -421,7 +417,7 @@ package com.degrafa.paint{
 			//performance gain by not setting the last 3 arguments if 
 			//they are already the default flash values
 			if(caps=="round" && joints=="round" && miterLimit==3){
-				graphics.lineStyle(weight, color as uint, alpha, pixelHinting, scaleMode);
+				if (graphics) graphics.lineStyle(weight, uint(color), alpha, pixelHinting, scaleMode);
 				_lastArgs.length = 0;
 				_lastArgs[0] = weight;
 				_lastArgs[1] = color as uint;
@@ -432,7 +428,7 @@ package com.degrafa.paint{
 				_lastRect = rc;
 			}
 			else{
-				graphics.lineStyle(weight,color as uint,alpha,pixelHinting,
+				if (graphics) graphics.lineStyle(weight,uint(color),alpha,pixelHinting,
 					scaleMode, caps, joints, miterLimit);
 				_lastArgs.length = 0;
 				_lastArgs[0] = weight;

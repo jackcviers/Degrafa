@@ -206,15 +206,10 @@ package com.degrafa.paint{
 		public function get restartFunction():Function {
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-		if (!_lastContext) return function(alternate:Graphics = null):void { 
-				if (alternate) alternate.beginFill(copy[0], copy[1]);
-			}
-		else {
 			return function(alternate:Graphics = null):void {
 					if (alternate) alternate.beginFill(copy[0], copy[1]);
-					else last.beginFill(copy[0], copy[1]);
+					else if (last) last.beginFill(copy[0], copy[1]);
 				}
-			}
 		}
 		/**
 		* Begins the fill for the graphics context.

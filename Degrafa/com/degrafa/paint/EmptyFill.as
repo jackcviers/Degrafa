@@ -84,18 +84,14 @@ package com.degrafa.paint{
 		
 		/**
 		 * Provides access to a cached function for restarting the last used fill either it the same context, or , if context is provided as an argument,
-		 * then to an alternate context. If no
+		 * then to an alternate context.
 		 */
 		public function get restartFunction():Function {
-			var copy:Array = _lastArgs.concat();
+			//var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
-		if (!_lastContext) return function(alternate:Graphics = null):void { 
-	
-			}
-		else {
 			return function(alternate:Graphics = null):void {
-				
-				}
+				if (alternate) alternate.beginFill(0xffffffff);
+				else if (last) last.beginFill(0xffffffff);
 			}
 		}
 		/**
@@ -106,9 +102,10 @@ package com.degrafa.paint{
 		**/
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			
-			//basically do nothing
+			//basically do nothing: force the fill to be empty
 			_lastContext = graphics;
 			_lastRect = rc;
+			if (graphics) graphics.beginFill(0xffffffff);
 								
 		}
 		
