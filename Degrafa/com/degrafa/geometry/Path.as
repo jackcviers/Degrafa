@@ -593,6 +593,7 @@ package com.degrafa.geometry{
 			if (!_segments && value.segments.length != 0) {
 				segments = value.segments;
 				commandStack.source = value.commandStack.source;
+				invalidated = false;
 			};
 		}
 	}
