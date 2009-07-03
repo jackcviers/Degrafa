@@ -120,7 +120,8 @@
 	
 	<!--skins-->
 	<component id="CSSSkin" class="com.degrafa.skins.CSSSkin"/>
-	<component id="GraphicBorderSkin" class="com.degrafa.skins.GraphicBorderSkin"/>
+    <component id="GraphicPanelSkin" class="com.degrafa.skins.GraphicPanelSkin"/>
+    <component id="GraphicBorderSkin" class="com.degrafa.skins.GraphicBorderSkin"/>
 	<component id="GraphicProgrammaticSkin" class="com.degrafa.skins.GraphicProgrammaticSkin"/>
 	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
 	
