@@ -11,6 +11,9 @@ package com.degrafa.geometry.splines
     // return the knot collection as a simple collection of Objects with 'X' and 'Y' properties representing the point coordinates
     function get knots():Array;
     
+    // add a set of control or interpolation points to the spline
+    function addControlPoint(_x:Number, _y:Number):void;
+    
     // evaluate a cartesian spline at the specified x-coordinate
     function eval(_x:Number):Number;
     
