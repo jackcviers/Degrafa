@@ -61,6 +61,7 @@ package com.degrafa.utilities.math
     // core
     protected var __x:Array;                // x-coordinates
     protected var __y:Array;                // y-coordinates
+    protected var __theKnots:Array;         // holder for original user-specified control points
     protected var __tangent:String;         // endpoint (implicit tangent) specification
     protected var __coef:Array;             // coefficients for each segment
     protected var __t:Number;               // current t-value
@@ -73,7 +74,6 @@ package com.degrafa.utilities.math
     protected var __prevIndex:Number;       // previous index reference
     protected var __isClosed:Boolean;       // true is spline is automatically closed
     
-    protected var __count:uint;             // count number of points added
     protected var __invalidate:Boolean;     // true if current coefficients are invalid
 
 /**
@@ -86,9 +86,10 @@ package com.degrafa.utilities.math
 */
     public function CatmullRom()
     {
-      __x    = new Array();
-      __y    = new Array();
-      __coef = new Array();
+      __x        = new Array();
+      __y        = new Array();
+      __theKnots = new Array();
+      __coef     = new Array();
 
       __x.push(0);
       __y.push(0);
@@ -137,15 +138,10 @@ package com.degrafa.utilities.math
     
     public function get knots():Array
     {
-      var knots:Array = new Array();
-      for( var i:uint=0; i<__x.length; ++i )
-      {
-        knots[i] = {X:__x[i], Y:__y[i]};
-      }
-      
-      return knots;
+      return __theKnots;
     }
     
+    // return initial or terminal control point, outside user-specified knots
     public function getControlPoint(_i:uint):Object
     {
       if( _i == 0 )
@@ -177,10 +173,14 @@ package com.degrafa.utilities.math
 */
     public function addControlPoint( _xCoord:Number, _yCoord:Number ):void
     {
-      __x.push(_xCoord);
-      __y.push(_yCoord);
-
       __knots++;
+      __x[__knots] = _xCoord;
+      __y[__knots] = _yCoord;
+
+      __theKnots[__knots-1] = {X:_xCoord, Y:_yCoord};
+
+      
+      __invalidate = true;
     }
 
 /**
@@ -448,8 +448,8 @@ package com.degrafa.utilities.math
     {
       if( __isClosed )
       {
-      	addControlPoint(__x[1], __y[1]);
-      	__closedSplineEndpoints();
+      	 addControlPoint(__x[1], __y[1]);
+      	 __closedSplineEndpoints();
       }
       else
       {

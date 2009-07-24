@@ -123,7 +123,7 @@ package com.degrafa.utilities.math
     
     public function getDeriv(_t:Number):Number
     {
-      // use chain rule
+      // use chain rule - tbd compensate for numerical issues
       var dy:Number = getYPrime(_t);
       var dx:Number = getXPrime(_t);
       return dy/dx;

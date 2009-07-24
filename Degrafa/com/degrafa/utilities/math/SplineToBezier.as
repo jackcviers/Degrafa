@@ -2,7 +2,7 @@
 // SplineToBezier.as - This utility approximates a spline curve with a sequence of quadratic Beziers that can be inserted into the
 // Degrafa command stack.  Instead of trying to minimize the total number of quads, the code produces an integral number of quads
 // between knots.  This provides some utility for charting applications, allowing the construction of vertical 'strips' of a chart
-// with a minimal number of lines/curves.
+// with a modest number of lines/curves.
 //
 // This code is derived from source bearing the following copyright notice
 //
@@ -19,7 +19,7 @@
 // Ported to Degrafa with full consent of author
 //
 /**
- * @version 1.0
+ * @version 1.1
  */
  
 package com.degrafa.utilities.math
@@ -89,7 +89,7 @@ package com.degrafa.utilities.math
       }
       else
       {
-        return []; // much more work to be done for parameteric splines
+        return __parametricToBezier(_spline, _tol);
       }
     }
     
@@ -140,10 +140,59 @@ package com.degrafa.utilities.math
       return [q, indx];
     }
     
+    private function __parametricToBezier(_spline:IPlottableSpline, _tol:Number):Array
+    {
+      if( _spline == null )
+      {
+        return [];
+      }
+      
+      // may merge paths for the special cases in the future
+      __mySpline         = _spline;
+      var tol:Number     = Math.max(0.001,Math.abs(_tol));
+      var quads:Array    = new Array();
+      var segments:Array = new Array();
+      __count            = __knots.length;
+      
+      if( __count == 1 )
+      {
+        var o:Object = __knots[0];
+        return [ [new QuadData(o.X,o.Y,o.X,o.Y,o.X,o.Y)], [0] ] ;
+      }
+      
+      if( __count == 2 )
+      {
+        o             = __knots[0];
+        var x1:Number = o.X;
+        var y1:Number = o.Y;
+        
+        o             = __knots[1];
+        var x2:Number = o.X;
+        var y2:Number = o.Y;
+        
+        return [ [new QuadData(x1, y1, 0.5*(x1+x2), 0.5*(y1+y2), x2, y2)], [0] ];
+      }
+      
+      var q:Array    = new Array();
+      var indx:Array = [0];
+      
+      // process each segment, producing an integral number of quads between each knot.
+      for( var i:uint=0; i<__count-1; ++i )
+      {
+        var qSegment:Array = __subdivideParametric(_spline, i, tol);
+        indx[i+1]          = indx[i] + qSegment.length;
+        
+        q                  = q.concat(qSegment);
+      }
+      
+      return [q, indx];
+    }
+    
     private function __subdivideCartesian(_spline:IPlottableSpline, _segment:uint, _tol:Number):Array
     {
       // first pass, check for an inflection point to subdivide - as we're dealing predominantly with cubic polynomials in between knots, there
-      // will be at most two.  Return the one farthest from an endpoint as the parameter to subdivide the curve. 
+      // will be at most two.  Return the one farthest from an endpoint as the parameter to subdivide the curve.  May modify to include stationary 
+      // points in the future, if easy to compute. 
       var x1:Number = __inflect(_spline, _segment);
       if ( x1 == -1 )
       {
@@ -242,6 +291,129 @@ package com.degrafa.utilities.math
       }
       
       return q;
+    }
+    
+    private function __subdivideParametric(_spline:IPlottableSpline, _segment:uint, _tol:Number):Array
+    {
+      // in the future, this will test for inflection or stationary points, provided they are easy to compute.  For first version, use straight
+      // midpoint subdivision.  Base spline is always uniform parameterized, which is used to compute t-at-knot.
+      var n:Number  = __knots.length-1;
+      var t0:Number = _segment/n;
+      var t2:Number = (_segment+1)/n;
+      var t1:Number = 0.5*(t0+t2);
+      
+      var t:Array = [t0, t1, t2];
+      
+      var q:Array          = new Array();
+      var complete:Array   = new Array();
+      var limit:uint       = 16;  // allow no more than 16 quads per segment, otherwise the tolerance is probably way too tight.
+      var finished:Boolean = false;
+      
+      // always begin with one subdivision - two quads; this often provides a tight enough fit without any further recursion
+      var o:Object  = __knots[_segment];
+      var x0:Number = o.X;
+      var y0:Number = o.Y;
+      var x1:Number = _spline.getX(t1);
+      var y1:Number = _spline.getY(t1); 
+      
+      // slope at each endpoint
+      var m1:Number = __getParametricDerivative(_spline, t0);
+      var m2:Number = __getParametricDerivative(_spline, t1);
+      o             = __intersect(x0, y0, m1, x1, y1, m2);
+       
+      var quad:QuadData = new QuadData(x0, y0, o.px, o.py, x1, y1);
+      q[0]              = quad;
+      complete[0]       = false;
+      
+      o             = __knots[_segment+1];
+      var x2:Number = o.X;
+      var y2:Number = o.Y;
+      m1            = m2;
+      m2            = __getParametricDerivative(_spline, t2);
+      o             = __intersect(x1, y1, m1, x2, y2, m2);
+      
+      quad = new QuadData(x1, y1, o.px, o.py, x2, y2);
+      q[1]        = quad;
+      complete[1] = false;
+      
+      // this approach could be implemented recursively, but I think it's more difficult to understand and recursive calls are usually computationally inefficient
+      while( !finished )
+      {
+        // check each quad segment vs. closeness metric unless it's already completed
+        for( var i:uint=0; i<q.length; ++i )
+        {
+          if( !complete[i] )
+          {
+            quad          = q[i];
+            var d:Number  = __compare(quad, _spline);
+            
+            if( Math.abs(d) > _tol )
+            {
+              // subdivide
+              t0              = t[i];
+              t2              = t[i+1];
+              t1              = 0.5*(t0 + t2);
+              var newX:Number = _spline.getX(t1);
+              var newY:Number = _spline.getY(t1);
+              
+              // slope at each new endpoint
+              m1 = __getParametricDerivative(_spline, t0);
+              m2 = __getParametricDerivative(_spline, t1);
+              o  = __intersect(quad.x0, quad.y0, m1, newX, newY, m2);
+       
+              var q1:QuadData = new QuadData(x0, y0, o.px, o.py, newX, newY);
+              
+              // replace existing quad
+              q[i]        = q1;
+              complete[i] = false;
+              
+              t.splice(i+1, 0, t1);
+      
+              m1 = m2;
+              m2 = __getParametricDerivative(_spline, t2);
+              o  = __intersect(newX, newY, m1, quad.x1, quad.y1, m2);
+       
+              var q2:QuadData = new QuadData(newX, newY, o.px, o.py, quad.x1, quad.y1);
+              
+              // add to the collective
+              q.splice(i+1, 0, q2);
+              complete.splice(i+1, 0, false);
+            }
+            else
+            {
+              complete[i] = true; // finished with this one
+            }   
+          }
+        }
+        
+        // are we finished - this is the simple and straightforward way to do it
+        finished = true;
+        for( var j:uint=0; j<complete.length; ++j )
+        {
+          finished = finished && complete[j];
+        }
+        
+        // check subdivision limit
+        if( !finished )
+        {
+          finished = q.length <= limit;
+        }
+      }
+      
+      return q;
+    }
+    
+    private function __getParametricDerivative(_spline:IPlottableSpline, _t:Number):Number
+    {
+      // chain rule to the rescue :)
+      var dy:Number = _spline.getYPrime(_t);
+      var dx:Number = _spline.getXPrime(_t);
+      if( Math.abs(dx) < ZERO_TOL )
+      {
+        return LARGE;
+      }
+      
+      return dy/dx;
     }
     
     // compare the quad. Bezier approximation to the spline over an interval
@@ -344,7 +516,7 @@ package com.degrafa.utilities.math
           px            = (b2-b1)/(_m1-_m2);
           py            = _m1*px + b1;
           
-          if( px >= _p2X || px <= _p0X )
+          if( __mySpline.type == SplineTypeEnum.CARTESIAN && (px >= _p2X || px <= _p0X) )
           {
             px = 0.5*(_p0X+_p2X);
             py = 0.5*(_p0Y+_p2Y);
@@ -359,7 +531,17 @@ package com.degrafa.utilities.math
     private function __cartesianIntegrand(_x:Number):Number
     {
       var d:Number = __mySpline.derivative(_x);
+      
       return Math.sqrt( 1 + d*d );
+    }
+    
+    // arc-length integrand for spline in parametric  form
+    private function __parametricIntegrand(_t:Number):Number
+    {
+      var dX:Number = __mySpline.getXPrime(_t);
+      var dY:Number = __mySpline.getYPrime(_t);
+      
+      return Math.sqrt(dX*dX + dY*dY);
     }
   }
 }
