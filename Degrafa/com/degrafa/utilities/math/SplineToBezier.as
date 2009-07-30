@@ -201,7 +201,7 @@ package com.degrafa.utilities.math
       
       var q:Array          = new Array();
       var complete:Array   = new Array();
-      var limit:uint       = 16;  // allow no more than 16 quads per segment, otherwise the tolerance is probably way too tight.
+      var limit:uint       = 4;
       var finished:Boolean = false;
       
       // always begin with one subdivision - two quads; this often provides a tight enough fit without any further recursion
@@ -268,6 +268,11 @@ package com.degrafa.utilities.math
               // add to the collective
               q.splice(i+1, 0, q2);
               complete.splice(i+1, 0, false);
+              
+              if( q.length >= limit )
+              {
+                return q;
+              }
             }
             else
             {
@@ -282,19 +287,13 @@ package com.degrafa.utilities.math
         {
           finished = finished && complete[j];
         }
-        
-        // check subdivision limit
-        if( !finished )
-        {
-          finished = q.length <= limit;
-        }
       }
       
       return q;
     }
     
     private function __subdivideParametric(_spline:IPlottableSpline, _segment:uint, _tol:Number):Array
-    {
+    { 
       // in the future, this will test for inflection or stationary points, provided they are easy to compute.  For first version, use straight
       // midpoint subdivision.  Base spline is always uniform parameterized, which is used to compute t-at-knot.
       var n:Number  = __knots.length-1;
@@ -306,7 +305,7 @@ package com.degrafa.utilities.math
       
       var q:Array          = new Array();
       var complete:Array   = new Array();
-      var limit:uint       = 16;  // allow no more than 16 quads per segment, otherwise the tolerance is probably way too tight.
+      var limit:uint       = 4;
       var finished:Boolean = false;
       
       // always begin with one subdivision - two quads; this often provides a tight enough fit without any further recursion
@@ -345,7 +344,7 @@ package com.degrafa.utilities.math
           if( !complete[i] )
           {
             quad          = q[i];
-            var d:Number  = __compare(quad, _spline);
+            var d:Number  = __compare(quad, _spline, t[i], t[i+1]);
             
             if( Math.abs(d) > _tol )
             {
@@ -353,6 +352,7 @@ package com.degrafa.utilities.math
               t0              = t[i];
               t2              = t[i+1];
               t1              = 0.5*(t0 + t2);
+              
               var newX:Number = _spline.getX(t1);
               var newY:Number = _spline.getY(t1);
               
@@ -378,6 +378,11 @@ package com.degrafa.utilities.math
               // add to the collective
               q.splice(i+1, 0, q2);
               complete.splice(i+1, 0, false);
+              
+              if( q.length >= limit )
+              {
+                return q;
+              }
             }
             else
             {
@@ -391,12 +396,6 @@ package com.degrafa.utilities.math
         for( var j:uint=0; j<complete.length; ++j )
         {
           finished = finished && complete[j];
-        }
-        
-        // check subdivision limit
-        if( !finished )
-        {
-          finished = q.length <= limit;
         }
       }
       
@@ -417,41 +416,95 @@ package com.degrafa.utilities.math
     }
     
     // compare the quad. Bezier approximation to the spline over an interval
-    private function __compare(_quad:QuadData, _spline:IPlottableSpline):Number
+    private function __compare(_quad:QuadData, _spline:IPlottableSpline, _t1:Number=0, _t2:Number=0):Number
     {
       // choosing two points on completely different types of curves that are 'comparable' in a meaningful way is difficult.  Given that two
       // of the three degrees of freedom in the quad. Bezier are taken by preserving slope at interpolation points, use total arc length of
-      // the two curves as a measure of closeness
+      // the two curves as a measure of closeness.
       
-      // Bezier arc length
-      var ax:Number = _quad.x0 - 2*_quad.cx + _quad.x1;
-      var ay:Number = _quad.y0 - 2*_quad.cy + _quad.y1;
-      var bx:Number = 2*_quad.cx - 2*_quad.x0;
-      var by:Number = 2*_quad.cy - 2*_quad.y0;
-       
-      var a:Number = 4*(ax*ax + ay*ay);
-      var b:Number = 4*(ax*bx + ay*by);
-      var c:Number = bx*bx + by*by;
-       
-      var abc:Number = 2*Math.sqrt(a+b+c);
-      var a2:Number  = Math.sqrt(a);
-      var a32:Number = 2*a*a2;
-      var c2:Number  = 2*Math.sqrt(c);
-      var ba:Number  = b/a2;
-
-      var quadLength:Number = (a32*abc + a2*b*(abc-c2) + (4*c*a-b*b)*Math.log((2*a2+ba+abc)/(ba+c2)))/(4*a32);
-
-      // approximate arc length of spline over over [x0,x1] or [t0, t1]
       if( _spline.type == SplineTypeEnum.CARTESIAN )
       {
+        // note that this method requires three unique points for the quad. Bezier. (i.e. no degenerate case where two control points coincide).
+        // threre are also some numerical issues with this estimate that may occasionally cause it to incorrectly compute arc length.  So, in some
+        // (pretty rare) cases, a couple extra quads may be produced.
+      
+        // Bezier arc length
+        var ax:Number = _quad.x0 - 2*_quad.cx + _quad.x1;
+        var ay:Number = _quad.y0 - 2*_quad.cy + _quad.y1;
+        var bx:Number = 2*_quad.cx - 2*_quad.x0;
+        var by:Number = 2*_quad.cy - 2*_quad.y0;
+       
+        var a:Number = 4*(ax*ax + ay*ay);
+        var b:Number = 4*(ax*bx + ay*by);
+        var c:Number = bx*bx + by*by;
+       
+        var abc:Number = 2*Math.sqrt(a+b+c);
+        var a2:Number  = Math.sqrt(a);
+        var a32:Number = 2*a*a2;
+        var c2:Number  = 2*Math.sqrt(c);
+        var ba:Number  = b/a2;
+
+        var quadLength:Number = (a32*abc + a2*b*(abc-c2) + (4*c*a-b*b)*Math.log((2*a2+ba+abc)/(ba+c2)))/(4*a32);
         var sLength:Number = __integral.eval(__cartesianIntegrand, _quad.x0, _quad.x1, 5);
-        
         return Math.abs(sLength-quadLength)/sLength;
       }
       else
       {
-        // tbd
-        return 0;
+        // It's tempting to think that we could look at the difference between the quad. Bezier at t=0.5 and the parametric curve value at (t1+t2)/2, but 
+        // there is no theory that guarantees these values are comparable, except if both curves were arc-length parameterized.  Some parametric curves
+        // (especially complex shapes with lots of knots) bring out numerical issues with the closed-form solution of the elliptical integral for arc
+        // length of the quad. Bezier, so we're going to kick it old school for a while until I have time to integrate a better approach.
+        var s1:Number  = 0;
+        var s2:Number  = 0;
+        var x0:Number  = _quad.x0;
+        var y0:Number  = _quad.y0;
+        var c1X:Number = 2.0*(_quad.cx-_quad.x0);
+        var c1Y:Number = 2.0*(_quad.cy-_quad.y0);
+        var c2X:Number = x0-2.0*_quad.cx+_quad.x1;
+        var c2Y:Number = y0-2.0*_quad.cy+_quad.y1;
+        
+        var bX:Number     = x0;
+        var bY:Number     = y0;
+        var myX:Number    = x0;
+        var myY:Number    = y0;
+        var deltaT:Number = (_t2-_t1)*0.02;
+        var myT:Number    = _t1;
+        
+        for( var t:Number=0.05; t<1; t+=0.02 )
+        {
+          var t2:Number = t*t;
+          var bX1:Number  = x0 + t*(c1X + t*c2X);
+          var bY1:Number  = y0 + t*(c1Y + t*c2Y);
+          var dX:Number   = bX1 - bX;
+          var dY:Number   = bY1 - bY;
+          
+          s1 += Math.sqrt(dX*dX + dY*dY);
+          bX  = bX1;
+          bY  = bY1;
+          
+          myT            += deltaT;
+          var newX:Number = _spline.getX(myT);
+          var newY:Number = _spline.getY(myT);
+          dX              = newX - myX;
+          dY              = newY - myY;
+          s2             += Math.sqrt(dX*dX + dY*dY);
+          
+          myX = newX;
+          myY = newY;
+        }
+        
+        dX = _quad.x1 - bX;
+        dY = _quad.y1 - bY;
+        dX = bX1 - bX;
+        dY = bY1 - bY;
+          
+        s1 += Math.sqrt(dX*dX + dY*dY);
+        
+        dX  = _quad.x1 - myX;
+        dY  = _quad.y1 - myY;
+        s2 += Math.sqrt(dX*dX + dY*dY);
+        
+        return( Math.abs(s1-s2)/s1 );
       }
     }
     
@@ -503,9 +556,10 @@ package com.degrafa.utilities.math
       }
       else
       { 
-        if( Math.abs(_m1-_m2) <= ZERO_TOL )
+        if( Math.abs(_m1-_m2) <= 0.05 )
         {
-          // lines nearly parallel, meaning no intersection
+          // lines nearly parallel, meaning no intersection or the difference in slope is sufficiently small that the intersection will be well outside
+          // where we would like a control point to be positioned.  This is subject to some future tweaking :)
           px = 0.5*(_p0X+_p2X);
           py = 0.5*(_p0Y+_p2Y);
         }
@@ -521,6 +575,14 @@ package com.degrafa.utilities.math
             px = 0.5*(_p0X+_p2X);
             py = 0.5*(_p0Y+_p2Y);
           }
+          
+          // quad must have unique control points
+          if( (Math.abs(px-_p0X) < 0.0000001 && Math.abs(py-_p0Y) < 0.0000001) || 
+              (Math.abs(px-_p2X) < 0.0000001 && Math.abs(py-_p2Y) < 0.0000001) )
+          {
+            px += 1;
+            py += 1;
+          }
         }
       }
       
@@ -535,13 +597,6 @@ package com.degrafa.utilities.math
       return Math.sqrt( 1 + d*d );
     }
     
-    // arc-length integrand for spline in parametric  form
-    private function __parametricIntegrand(_t:Number):Number
-    {
-      var dX:Number = __mySpline.getXPrime(_t);
-      var dY:Number = __mySpline.getYPrime(_t);
-      
-      return Math.sqrt(dX*dX + dY*dY);
-    }
+   
   }
 }
