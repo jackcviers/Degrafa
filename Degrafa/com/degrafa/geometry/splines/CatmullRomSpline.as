@@ -54,7 +54,7 @@ package com.degrafa.geometry.splines
 	   private var _isClosed:Boolean;
     
 		/**
-		* @description 	Method: CatmullRomSpline() - Construct a new CatmullRomSpline instance
+		* CatmullRomSpline Construct a new CatmullRomSpline instance
 		*
 		* @return Nothing
 		*
@@ -72,20 +72,24 @@ package com.degrafa.geometry.splines
 	   }
 	   
 /**
-		* @description 	Method: CatmullRomSpline() - Construct a new CatmullRomSpline instance
+		* [set] closed Create a closed-loop spline from the current knot set 
 		*
-		* @return Nothing
+		* @return Nothing  Knots should already be defined in a manner that tends towards a naturally closed loop.  There is no need to duplicate the first knot in
+	 * sequence.  If the knot sequence does not tends towards a closed shape, results are unpredicatable.  <b>DO NOT</b> attempt to add knots to a closed spline.
+	 * Setting closure to <code>true</code> after false currently has no effect, but allowing unclosure is reserved for possible inclusion in a future version. 
+	 * This setter is intended for use via MXML.
 		*
 		* @since 1.0
 		*
 		*/
 		  public function set closed(_closed:Boolean):void
 		  {
-		    if( _closed != _isClosed )
+		    if( !_isClosed && _closed )
 		    {
-		      _isClosed = _closed;
+		      _mySpline.closed = true;
 		      
-		      // remainder tbd - current utilty supports closure but not 'unclosing' the spline
+		      super.invalidated = true;
+		      super.drawToTargets();
 		    }
 		  }
 	   

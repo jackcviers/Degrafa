@@ -158,7 +158,12 @@ package com.degrafa.utilities.math
       __invalidate = true;
     }
     
-    public function set closed(_b:Boolean):void { __isClosed = _b; }
+    public function set closed(_b:Boolean):void 
+    { 
+      __isClosed = _b; 
+      addControlPoint(__x[1], __y[1]);
+      __closedSplineEndpoints();
+    }
     
 /**
 * addControlPoint - Add a control point
@@ -358,7 +363,7 @@ package com.degrafa.utilities.math
 
     // compute polynomical coefficients
     protected function __computeCoef():void
-    {    
+    { 
       // fill out endpoints based on user selection
       if( __tangent == AUTO )
         __computeEndpoints();
@@ -446,12 +451,7 @@ package com.degrafa.utilities.math
     // compute endpoints at extremes of knot sequence - simple reflection about endpoints (compensating for closed spline)
     protected function __computeEndpoints():void
     {
-      if( __isClosed )
-      {
-      	 addControlPoint(__x[1], __y[1]);
-      	 __closedSplineEndpoints();
-      }
-      else
+      if( !__isClosed )
       {
         // simple reflection
         __x[0] = 2.0*__x[1] - __x[2];
