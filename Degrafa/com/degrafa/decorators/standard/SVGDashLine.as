@@ -252,6 +252,9 @@ package com.degrafa.decorators.standard{
 						destroke(graphics,_altStrokeArgs);
 					} 
 				} else if (_deStroke!=null) _deStroke = null;
+			} else {
+				_isValid = false;
+				return;
 			}
 			isLine = true;
 			overflow = 0;
