@@ -120,7 +120,7 @@ package com.degrafa.core.collections{
 			if(value !=_items){
 				
 				//clear any event listeners
-				if( _items.length && enableEvents && hasEventManager){
+				if(_items && _items.length && enableEvents && hasEventManager){
 					removeListeners();
 				}
 				
