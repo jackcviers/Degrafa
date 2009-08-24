@@ -317,8 +317,7 @@ package com.degrafa.paint{
 			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
 				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
 				else matrix.concat((_requester as Geometry).transformContext);
-				//remove the requester reference
-				_requester = null;
+		
 			}
 			
 			//handle alpha modification
@@ -341,8 +340,49 @@ package com.degrafa.paint{
 			_lastArgs[7] = focalPointRatio;
 			_lastContext = graphics;
 			_lastRect = rc;
-			if (graphics) graphics.beginGradientFill(gradientType,_colors,_alphas,_ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
-					
+			if (graphics) {
+			if (_colors.length > 16 && _requester) {
+				//handle larger stop collections
+			   var len:uint = _colors.length;
+               var loops:uint = (len -15)/ 12 +1;
+			   //first:
+			   var __colors:Array = _colors.slice(0, 15);
+			   var __alphas:Array = _alphas.slice(0, 15);
+			   var __ratios:Array = _ratios.slice(0, 15);
+			   __colors.push(0);
+			   __ratios.push(_ratios[14]);
+			   __alphas.push(0);
+			    graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+				Geometry(_requester).commandStack.simpleRender(graphics, rc);
+				graphics.endFill()
+				var start:uint = 15;
+				while (loops--) {
+					__colors = _colors.slice(start-1, start + 13);
+					__alphas = _alphas.slice(start-1, start + 13);
+					__ratios = _ratios.slice(start-1, start + 13);
+					__colors.unshift(0);
+					__alphas.unshift(0);
+					__ratios.unshift(__ratios[0]);
+
+					if (loops) {
+						__colors.push(0);
+						__alphas.push(0);
+						__ratios.push(__ratios[15])
+						graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+						Geometry(_requester).commandStack.simpleRender(graphics, rc);
+						graphics.endFill();
+					}
+					start += 13;
+				}
+				//back to regular draw cycle, with the final arguments
+				graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+				
+			} else {
+				graphics.beginGradientFill(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio);
+				}
+			}
+			//remove the requester reference
+			_requester = null;
 		}
 		
 		/**
