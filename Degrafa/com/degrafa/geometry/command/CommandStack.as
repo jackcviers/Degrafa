@@ -318,10 +318,11 @@ package com.degrafa.geometry.command{
 				}
 			
 				//	maybe there are paint settings on some owners at this point:
-				//setup the stroke
-				if (!svgClipMode) owner.initStroke(graphics, rc);
 				//setup the fill
 				if (!svgClipMode) owner.initFill(graphics, rc);
+				//setup the stroke
+				if (!svgClipMode) owner.initStroke(graphics, rc);
+
 				//if (owner.hasDecorators) initDecorators();
 				renderBitmapDatatoContext(IDisplayObjectProxy(owner).displayObject, graphics, !IDisplayObjectProxy(owner).transformBeforeRender, rc);	
 				return false;
@@ -431,7 +432,8 @@ package com.degrafa.geometry.command{
 						
 						if (hasfilters) {
 							hasfilters = false;
-							_fxShape.filters = owner.filters;
+							if (!svgClipMode) _fxShape.filters = owner.filters;
+							else _fxShape.filters = [];
 						} else if (_fxShape.filters.length) _fxShape.filters = [];
 						if (owner.maskMode != "unMask") _original.mask = _mask;
 						else _original.mask = null;
@@ -444,12 +446,12 @@ package com.degrafa.geometry.command{
 						if (_fxShape.mask) _fxShape.mask = null;
 						if (_fxShape.filters.length)_fxShape.filters = [];
 					}
-										
-					//setup the stroke
-					if (!svgClipMode) owner.initStroke(_fxShape.graphics, rc);
+					
 					//setup the fill
 					if (!svgClipMode) owner.initFill(_fxShape.graphics, rc);
-					else _fxShape.graphics.beginFill(0, 1);
+					else _fxShape.graphics.beginFill(0, 1);					
+					//setup the stroke
+					if (!svgClipMode) owner.initStroke(_fxShape.graphics, rc);
 
 					//init the decorations if required
 					
@@ -972,8 +974,8 @@ package com.degrafa.geometry.command{
 		* Accepts a cubic bezier and adds the CURVE_TO type items requiered to render it.
 		* And returns the array of added CURVE_TO objects.
 		**/	
-		public function addCubicBezierTo(x0:Number,y0:Number,cx:Number,cy:Number,cx1:Number,cy1:Number,x1:Number,y1:Number,tolerance:int=1):Array{
-			return GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1,x1,y1,1,this);
+		public function addCubicBezierTo(x0:Number,y0:Number,cx:Number,cy:Number,cx1:Number,cy1:Number,x1:Number,y1:Number,tolerance:int=1):void{
+			 GeometryUtils.cubicToQuadratic(x0,y0,cx,cy,cx1,cy1,x1,y1,1,this);
 		}
 		
 		/**
