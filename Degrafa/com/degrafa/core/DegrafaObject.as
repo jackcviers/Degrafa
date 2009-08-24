@@ -29,6 +29,7 @@ package com.degrafa.core{
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
 	import mx.utils.NameUtil;
+	import com.degrafa.core.degrafa_internal;
 	
 	[Event(name="initialize", type="mx.events.FlexEvent")]
 	[Event(name="propertyChange", type="mx.events.PropertyChangeEvent")]
@@ -239,16 +240,16 @@ package com.degrafa.core{
 	    	return _isInitialized;
 	    }	    
 	    
-	    private var _parent:IDegrafaObject;
+	    degrafa_internal var _parent:IDegrafaObject;
 	    /**
 		* The current degrafa object parent. 
 		* At this time only used for geometry.
 		**/
 	    public function get parent():IDegrafaObject{
-	    	return _parent;
+	    	return degrafa_internal::_parent;
 	    }
 	    public function set parent(value:IDegrafaObject):void{
-	    	_parent=value;
+	    	degrafa_internal::_parent=value;
 	    }
 	    	    
 	    //an array of current bindings for this object
