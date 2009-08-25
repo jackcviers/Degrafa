@@ -20,6 +20,8 @@
 // THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint.palette{
+	import flash.utils.Dictionary;
+	
 	import mx.events.PropertyChangeEvent;
 	
 	[Bindable]
@@ -68,6 +70,9 @@ package com.degrafa.paint.palette{
 		public function set requestedSize(value:int):void{			
 			if(_requestedSize != value){
 				_requestedSize = value;
+			// Jason, I put this line in below because it appears the paletteEntries does not get cleared out, and subsequent changes to requestedSize were simply appending entries.
+			// Tom G. 8/24/09
+		    	paletteEntries=new Dictionary();
 			}
 		}
 				
