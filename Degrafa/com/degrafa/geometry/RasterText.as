@@ -1023,8 +1023,13 @@ package com.degrafa.geometry{
 			return textField.htmlText;
 		} 
     	public function set htmlText(value:String):void {
-			if (value!=textField.htmlText)
-			initChange("htmlText", textField.htmlText, textField.htmlText = value, this);
+    		
+    		if (value != textField.htmlText) {
+				if (value == null) 
+					value="";
+				invalidated = true;
+				initChange("htmlText",textField.htmlText, textField.htmlText=value, this);
+			} 
     	}
         /**
 		* length property for the textField. 
@@ -1094,10 +1099,8 @@ package com.degrafa.geometry{
    		public function set text(value:String):void {
 			if (value != textField.text) {
 				if (value == null) value="";
-				var oldVal:String = textField.text;
-				textField.text = value;	
 				invalidated = true;
-				initChange("text",oldVal, textField.text, this);
+				initChange("text",textField.text, textField.text=value, this);
 			}
    		} 
 
