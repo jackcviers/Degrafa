@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ListEvent;
+			
+			
+			private function onChange(event:ListEvent):void{
+				
+				mysuperShape.data = presets.selectedItem.data;
+				
+			}
+			
+		]]>
+	</mx:Script>
+		
+	<SuperShape2D id="mysuperShape" graphicsTarget="{[target1]}" width="300" height="300" 
+		verticalCenter="0"
+		 horizontalCenter="0" m="{mval.value}" n1="{n1val.value}"
+		 n2="{n2val.value}" n3="{n3val.value}" detail="{detailval.value}"
+		 range="{rangeval.value}">
+		<stroke>
+			<SolidStroke color="#666666"/>
+		</stroke>
+		<fill>
+			<LinearGradientFill angle="90">
+				<GradientStop color="#CCCCCC"/>
+				<GradientStop color="#666666"/>
+				<GradientStop color="#CCCCCC"/>
+			</LinearGradientFill>
+		</fill>
+						
+	</SuperShape2D>
+	
+	<mx:Label text="Presets : " x="658" y="254"/>	
+	<mx:ComboBox id="presets" x="658" y="280" change="onChange(event)">
+		<mx:ArrayCollection>
+			<mx:Object label="Preset 1" data="4 1 1 1 4 2"/>
+			<mx:Object label="Preset 2" data="5 1 1 1 50 2"/>
+			<mx:Object label="Preset 4" data="8 1 1 1 8 2"/>
+			
+			
+		</mx:ArrayCollection>
+	</mx:ComboBox>
+	
+	<mx:Canvas id="target1" width="600" height="600" x="50" y="20" borderStyle="solid"
+	 borderColor="#CCCCCC"/>
+	 	
+	<mx:VSlider id="mval" minimum="0" maximum="500" value="4" liveDragging="true"
+	 snapInterval=".5" x="658" y="47"/>
+	 
+	<mx:VSlider id="n1val" minimum="-10" maximum="10" value="1" liveDragging="true"
+	 snapInterval="0.1" x="678" y="47"/>
+	 
+	<mx:VSlider id="n2val" minimum="-50" maximum="50" value="1" liveDragging="true"
+	 snapInterval="0.1" x="698" y="47"/>
+	 
+	<mx:VSlider id="n3val" minimum="-50" maximum="50" value="1" liveDragging="true"
+	 snapInterval="0.1" x="718" y="47"/>
+	 
+	<mx:VSlider id="detailval" minimum="1" maximum="1000" value="500" liveDragging="true"
+	 snapInterval="1" x="767" y="47"/>    
+	 
+	<mx:VSlider id="rangeval" minimum="1" maximum="100" value="2" liveDragging="true"
+	 snapInterval="1" x="817" y="47"/>  
+	 
+	<mx:Label x="658" y="21" text="m"/>
+	<mx:Label x="678" y="21" text="n1"/>
+	<mx:Label x="698" y="21" text="n2"/>
+	<mx:Label x="718" y="21" text="n3"/>
+	<mx:Label x="758" y="21" text="detail"/>
+	<mx:Label x="808" y="21" text="range"/>
+	
+</mx:Application>
+

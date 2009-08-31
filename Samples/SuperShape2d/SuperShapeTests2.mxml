@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	xmlns="http://www.degrafa.com/2007">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ListEvent;
+			
+			
+			private function onChange(event:ListEvent):void{
+				
+				mysuperShape.data = presets.selectedItem.data;
+				
+			}
+			
+		]]>
+	</mx:Script>
+		
+	<SuperShape2D id="mysuperShape" graphicsTarget="{[target1]}" width="300" height="300" 
+		verticalCenter="0"
+		 horizontalCenter="0" n1="4"
+		 n2="1" n3="1" m="1" detail="4"
+		 range="2">
+		<stroke>
+			<SolidStroke color="#666666"/>
+		</stroke>
+		<fill>
+			<LinearGradientFill angle="90">
+				<GradientStop color="#CCCCCC"/>
+				<GradientStop color="#666666"/>
+				<GradientStop color="#CCCCCC"/>
+			</LinearGradientFill>
+		</fill>
+						
+	</SuperShape2D>
+	
+	<mx:Label text="Presets : " x="658" y="254"/>	
+	<mx:ComboBox id="presets" x="658" y="280" change="onChange(event)">
+		<mx:ArrayCollection>
+			<mx:Object label="Preset 1" data="4 1 1 1 4 2"/>
+			<mx:Object label="Preset 2" data="5 1 1 1 50 2"/>
+			<mx:Object label="Preset 4" data="8 1 1 1 8 2"/>
+		</mx:ArrayCollection>
+	</mx:ComboBox>
+	
+	<mx:Canvas id="target1" width="600" height="600" x="50" y="20" borderStyle="solid"
+	 borderColor="#CCCCCC"/>
+	 	
+</mx:Application>
+
