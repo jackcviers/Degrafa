@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<componentPackage>
+    
+    <!--root-->
+    <component id="GeometryGroup" class="com.degrafa.GeometryGroup"/>
+	<component id="Surface" class="com.degrafa.Surface"/>
+	<component id="GraphicImage" class="com.degrafa.GraphicImage"/>
+	<component id="GraphicPoint" class="com.degrafa.GraphicPoint"/>
+	<component id="GraphicPointEX" class="com.degrafa.GraphicPointEX"/>
+	<component id="GraphicText" class="com.degrafa.GraphicText"/>
+	<component id="GraphicTextPlus" class="com.degrafa.GraphicTextPlus"/>
+
+	<!--Transforms-->
+	<component id="Transform" class="com.degrafa.transform.Transform"/>
+	<component id="MatrixTransform" class="com.degrafa.transform.MatrixTransform"/>
+	<component id="RotateTransform" class="com.degrafa.transform.RotateTransform"/>
+	<component id="ScaleTransform" class="com.degrafa.transform.ScaleTransform"/>
+	<component id="SkewTransform" class="com.degrafa.transform.SkewTransform"/>
+	<component id="TransformGroup" class="com.degrafa.transform.TransformGroup"/>
+	<component id="TranslateTransform" class="com.degrafa.transform.TranslateTransform"/>
+	
+	<!--Layout-->
+	<component id="LayoutConstraint" class="com.degrafa.geometry.layout.LayoutConstraint"/>
+	
+	<!--core-->
+	<component id="DegrafaSkinManipulator" class="com.degrafa.core.manipulators.DegrafaSkinManipulator"/>
+	
+	<!--paint-->
+	<component id="VectorFill" class="com.degrafa.paint.VectorFill"/>
+	<component id="BitmapFill" class="com.degrafa.paint.BitmapFill"/>
+	<component id="BlendFill" class="com.degrafa.paint.BlendFill"/>
+	<component id="ComplexFill" class="com.degrafa.paint.ComplexFill"/>
+	<component id="GradientStop" class="com.degrafa.paint.GradientStop"/>
+	<component id="LinearGradientFill" class="com.degrafa.paint.LinearGradientFill"/>
+	<component id="LinearGradientStroke" class="com.degrafa.paint.LinearGradientStroke"/>
+	<component id="RadialGradientFill" class="com.degrafa.paint.RadialGradientFill"/>
+	<component id="RadialGradientStroke" class="com.degrafa.paint.RadialGradientStroke"/>
+	<component id="SolidFill" class="com.degrafa.paint.SolidFill"/>
+	<component id="SolidStroke" class="com.degrafa.paint.SolidStroke"/>
+	
+	<!--standard decorators-->
+	<component id="SVGDashLine" class="com.degrafa.decorators.standard.SVGDashLine"/>
+	<component id="SloppyLineDecorator" class="com.degrafa.decorators.standard.SloppyLineDecorator"/>
+			
+	<!--geometry-->
+	<component id="AdvancedRectangle" class="com.degrafa.geometry.AdvancedRectangle"/>
+	<component id="Circle" class="com.degrafa.geometry.Circle"/>
+	<component id="CubicBezier" class="com.degrafa.geometry.CubicBezier"/>
+	<component id="AdvancedCubicBezier" class="com.degrafa.geometry.AdvancedCubicBezier"/>
+	<component id="Ellipse" class="com.degrafa.geometry.Ellipse"/>
+	<component id="EllipticalArc" class="com.degrafa.geometry.EllipticalArc"/>
+	<component id="HorizontalLine" class="com.degrafa.geometry.HorizontalLine"/>
+	<component id="Line" class="com.degrafa.geometry.Line"/>
+	<component id="Move" class="com.degrafa.geometry.Move"/>
+	<component id="Path" class="com.degrafa.geometry.Path"/>
+	<component id="Polygon" class="com.degrafa.geometry.Polygon"/>
+	<component id="Polyline" class="com.degrafa.geometry.Polyline"/>
+	<component id="QuadraticBezier" class="com.degrafa.geometry.QuadraticBezier"/>
+	<component id="AdvancedQuadraticBezier" class="com.degrafa.geometry.AdvancedQuadraticBezier"/>
+	<component id="RegularRectangle" class="com.degrafa.geometry.RegularRectangle"/>
+	<component id="RoundedRectangle" class="com.degrafa.geometry.RoundedRectangle"/>
+	<component id="RoundedRectangleComplex" class="com.degrafa.geometry.RoundedRectangleComplex"/>
+	<component id="VerticalLine" class="com.degrafa.geometry.VerticalLine"/>
+	<component id="RasterText" class="com.degrafa.geometry.RasterText"/>
+	<component id="RasterTextPlus" class="com.degrafa.geometry.RasterTextPlus"/>
+	<component id="RasterImage" class="com.degrafa.geometry.RasterImage"/>
+	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
+	<component id="QuadraticSpline" class="com.degrafa.geometry.splines.QuadraticSpline"/>
+	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
+	<component id="NaturalCubicSpline" class="com.degrafa.geometry.splines.NaturalCubicSpline" />
+	<component id="CatmullRomSpline" class="com.degrafa.geometry.splines.CatmullRomSpline" />
+	
+	<!--AutoShapes-->
+	<component id="DonutAutoShape" class="com.degrafa.geometry.autoshapes.DonutAutoShape"/>
+	<component id="RegularPolygonAutoShape" class="com.degrafa.geometry.autoshapes.RegularPolygonAutoShape"/>
+	<component id="StarAutoShape" class="com.degrafa.geometry.autoshapes.StarAutoShape"/>
+	<component id="BurstAutoShape" class="com.degrafa.geometry.autoshapes.BurstAutoShape"/>
+	<component id="GearAutoShape" class="com.degrafa.geometry.autoshapes.GearAutoShape"/>
+	<component id="ObtuseTriangleAutoShape" class="com.degrafa.geometry.autoshapes.ObtuseTriangleAutoShape"/>
+	<component id="HexagonAutoShape" class="com.degrafa.geometry.autoshapes.HexagonAutoShape"/>
+	<component id="IsocelesTriangleAutoShape" class="com.degrafa.geometry.autoshapes.IsocelesTriangleAutoShape"/>	
+	<component id="TrapezoidAutoShape" class="com.degrafa.geometry.autoshapes.TrapezoidAutoShape"/>	
+	<component id="BoxArrowBasicAutoShape" class="com.degrafa.geometry.autoshapes.BoxArrowBasicAutoShape"/>
+	<component id="CrossAutoShape" class="com.degrafa.geometry.autoshapes.CrossAutoShape"/>
+	<component id="FlowArrowAutoShape" class="com.degrafa.geometry.autoshapes.FlowArrowAutoShape"/>
+	<component id="ParallelogramAutoShape" class="com.degrafa.geometry.autoshapes.ParallelogramAutoShape"/>
+	<component id="ArrowAutoShape" class="com.degrafa.geometry.autoshapes.ArrowAutoShape"/>
+		
+	<!--Text-->
+	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
+		
+	<!--repeaters-->
+	<component id="CircleRepeater" class="com.degrafa.geometry.repeaters.CircleRepeater"/>
+	<component id="CubicBezierRepeater" class="com.degrafa.geometry.repeaters.CubicBezierRepeater"/>
+	<component id="EllipseRepeater" class="com.degrafa.geometry.repeaters.EllipseRepeater"/>
+	<component id="EllipticalArcRepeater" class="com.degrafa.geometry.repeaters.EllipticalArcRepeater"/>
+	<component id="HorizontalLineRepeater" class="com.degrafa.geometry.repeaters.HorizontalLineRepeater"/>
+	<component id="LineRepeater" class="com.degrafa.geometry.repeaters.LineRepeater"/>
+	<component id="PolygonRepeater" class="com.degrafa.geometry.repeaters.PolygonRepeater"/>
+	<component id="PolyLineRepeater" class="com.degrafa.geometry.repeaters.PolyLineRepeater"/>
+	<component id="QuadraticBezierRepeater" class="com.degrafa.geometry.repeaters.QuadraticBezierRepeater"/>
+	<component id="RegularRectangleRepeater" class="com.degrafa.geometry.repeaters.RegularRectangleRepeater"/>
+	<component id="RoundedRectangleRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleRepeater"/>
+	<component id="RoundedRectangleComplexRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleComplexRepeater"/>
+	<component id="VerticalLineRepeater" class="com.degrafa.geometry.repeaters.VerticalLineRepeater"/>
+	
+	<!--Repeaters-->
+	<component id="GeometryRepeater" class="com.degrafa.repeaters.GeometryRepeater"/>
+	<component id="PropertyModifier" class="com.degrafa.repeaters.PropertyModifier"/>
+	
+	
+	<!--segments-->
+	<component id="ClosePath" class="com.degrafa.geometry.segment.ClosePath"/>
+	<component id="CubicBezierTo" class="com.degrafa.geometry.segment.CubicBezierTo"/>
+	<component id="EllipticalArcTo" class="com.degrafa.geometry.segment.EllipticalArcTo"/>
+	<component id="HorizontalLineTo" class="com.degrafa.geometry.segment.HorizontalLineTo"/>
+	<component id="LineTo" class="com.degrafa.geometry.segment.LineTo"/>
+	<component id="MoveTo" class="com.degrafa.geometry.segment.MoveTo"/>
+	<component id="QuadraticBezierTo" class="com.degrafa.geometry.segment.QuadraticBezierTo"/>
+	<component id="VerticalLineTo" class="com.degrafa.geometry.segment.VerticalLineTo"/>
+	
+	<!--skins-->
+	<component id="CSSSkin" class="com.degrafa.skins.CSSSkin"/>
+    <component id="GraphicPanelSkin" class="com.degrafa.skins.GraphicPanelSkin"/>
+    <component id="GraphicBorderSkin" class="com.degrafa.skins.GraphicBorderSkin"/>
+	<component id="GraphicProgrammaticSkin" class="com.degrafa.skins.GraphicProgrammaticSkin"/>
+	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
+	
+	<!--runtime bitmaps-->
+	<component id="LoadingLocation" class="com.degrafa.utilities.external.LoadingLocation" />
+
+	<!--states-->
+	<component id="State" class="com.degrafa.states.State"/>
+	<component id="SetProperty" class="com.degrafa.states.SetProperty"/>
+	<component id="SetProperties" class="com.degrafa.states.SetProperties"/>
+	<component id="AddChild" class="com.degrafa.states.AddChild"/>
+	<component id="RemoveChild" class="com.degrafa.states.RemoveChild"/>
+	<component id="RemoveChildren" class="com.degrafa.states.RemoveChildren"/>
+			
+	<!--triggers-->
+	<component id="EventTrigger" class="com.degrafa.triggers.EventTrigger"/>
+	<component id="PropertyTrigger" class="com.degrafa.triggers.PropertyTrigger"/>
+	
+	<!--Palette-->
+	<component id="Palette" class="com.degrafa.paint.palette.Palette"/>
+	<component id="PaletteEntry" class="com.degrafa.paint.palette.PaletteEntry"/>
+	<component id="PresetColorPalette" class="com.degrafa.paint.palette.PresetColorPalette"/>
+	<component id="InterpolatedColorPalette" class="com.degrafa.paint.palette.InterpolatedColorPalette"/>
+		
+</componentPackage>    
