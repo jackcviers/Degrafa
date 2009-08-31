@@ -69,6 +69,7 @@
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
 	<component id="NaturalCubicSpline" class="com.degrafa.geometry.splines.NaturalCubicSpline" />
 	<component id="CatmullRomSpline" class="com.degrafa.geometry.splines.CatmullRomSpline" />
+	<component id="SuperShape2D" class="com.degrafa.geometry.SuperShape2D" />
 	
 	<!--AutoShapes-->
 	<component id="DonutAutoShape" class="com.degrafa.geometry.autoshapes.DonutAutoShape"/>
