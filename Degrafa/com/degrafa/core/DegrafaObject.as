@@ -91,8 +91,8 @@ package com.degrafa.core{
 		*
 		* @see EventDispatcher
 		**/ 		
-		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void{
-	        eventDispatcher.addEventListener(type, listener, useCapture, priority);
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = true):void{
+	        eventDispatcher.addEventListener(type, listener, useCapture, priority,useWeakReference);
 	    }
 	    
 	    /**
@@ -150,7 +150,7 @@ package com.degrafa.core{
 		* Helper function for dispatching property changes
 		**/
 		public function initChange(property:String,oldValue:Object,newValue:Object,source:Object):void{
-			if(hasEventManager){
+			if(hasEventManager && !suppressEventProcessing){
 				dispatchPropertyChange(false,property,oldValue,newValue,source);
 			}
 		}

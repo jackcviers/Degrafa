@@ -1158,7 +1158,7 @@ package com.degrafa.geometry{
 				_layoutConstraint = value;
 				
 				if(enableEvents){	
-					_layoutConstraint.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler,false,0,true);
+					_layoutConstraint.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE,propertyChangeHandler);
 				}
 												
 				//call local helper to dispatch event
