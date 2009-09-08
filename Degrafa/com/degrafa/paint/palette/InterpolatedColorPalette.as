@@ -89,7 +89,7 @@ package com.degrafa.paint.palette{
 			
 			if(_colors.length!=0){
 				currentLength=0;
-				var itemSizeCount:int = requestedSize/(_colors.length-1)
+				var itemSizeCount:int = Math.ceil(requestedSize/(_colors.length-1));
 				for (var i:int=0;i<_colors.length-1;i++){
 					appendItems(PaletteUtils.getInterpolatedPalette(itemSizeCount,
 					ColorUtil.resolveColor(_colors[i]) as uint,
