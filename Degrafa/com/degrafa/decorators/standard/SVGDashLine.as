@@ -24,14 +24,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.decorators.standard{
 	
-	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.decorators.RenderDecoratorBase;
 	import com.degrafa.geometry.command.CommandStack;
-	import flash.geom.Rectangle;
-	import mx.events.PropertyChangeEvent;
 	
 	import flash.display.Graphics;
+	import flash.geom.Rectangle;
+	
+	import mx.events.PropertyChangeEvent;
 	
 	public class SVGDashLine extends RenderDecoratorBase{
 		/**
@@ -68,7 +68,11 @@ package com.degrafa.decorators.standard{
 		}
 		public function set data(value:String):void{
 			var temp:Array = value.split(",");
-			dashArray = temp;
+			if (temp[temp.length-1]=="") temp.pop();
+			//avoid unnecesary updates:
+			if ((temp.join(",")+(temp.length&1?","+temp.join(","):""))!=dashArray.join(",")){
+				dashArray = temp;
+			} 
 		}
 		//is this Decorator valid
 		//with a default dash pattern this decorator is now initialized as valid:
@@ -92,7 +96,7 @@ package com.degrafa.decorators.standard{
 				if (isNaN(value[i] = Number(value[i])) || value[i]<0) return; //error
 			}
 			//if its an odd length, make it even by doubling it
-			if (value.length % 2) {
+			if (value.length &1) {
 				value = value.concat(value);
 			} 
 			_totalLength = 0;
@@ -160,7 +164,7 @@ package com.degrafa.decorators.standard{
 				if (_alternateStroke) _alternateStroke.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
 				var oldVal:IGraphicsStroke = _alternateStroke;
 				_alternateStroke = value;
-				_alternateStroke.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler,false,0,true);
+				if (_alternateStroke) _alternateStroke.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler,false,0,true);
 				initChange("alternateStroke", oldVal, _alternateStroke, this);
 			}
 		}
@@ -230,26 +234,26 @@ package com.degrafa.decorators.standard{
 				_currentStrokeArgs = CommandStack.currentStroke.lastArgs;
 				var restroke:Function = CommandStack.currentStroke.reApplyFunction;
 				_reStroke = function(graphics:Graphics):void {
-				//	trace(_currentStrokeArgs)
 					restroke(graphics,_currentStrokeArgs);
 					_reStrokeActive = true;
 				}
 				if (_alternateStroke && !_disableAlternateStroke) {
 					_alternateStroke.apply(null, _currentRectangle);
 					_altStrokeArgs = _alternateStroke.lastArgs.concat();
-					//trace(_altStrokeArgs.join(":::"))
 					if (_matchCommonStrokeSettings) {
 						var targ:Array = (_altStrokeArgs[0] is Array)?_altStrokeArgs[0]:_altStrokeArgs;
-						targ[0] = _currentStrokeArgs[0];//weight
-						targ[3] = _currentStrokeArgs[3];//pixelhinting
-						targ[4] = _currentStrokeArgs[4];//scaling
-						targ[5] = _currentStrokeArgs[5];//caps
-						targ[6] = _currentStrokeArgs[6];//joints
-						targ[7] = _currentStrokeArgs[7];//miterlimit
+						var copyFrom:Array= (_currentStrokeArgs[0] is Array)? _currentStrokeArgs[0]:_currentStrokeArgs;
+						targ[0] = copyFrom[0];//weight
+						targ[3] = copyFrom[3];//pixelhinting
+						targ[4] = copyFrom[4];//scaling
+						targ[5] = copyFrom[5];//caps
+						targ[6] = copyFrom[6];//joints
+						targ[7] = copyFrom[7];//miterlimit
 					}
 					var destroke:Function = _alternateStroke.reApplyFunction;
 					_deStroke = function(graphics:Graphics):void {
 						destroke(graphics,_altStrokeArgs);
+				
 					} 
 				} else if (_deStroke!=null) _deStroke = null;
 			} else {
