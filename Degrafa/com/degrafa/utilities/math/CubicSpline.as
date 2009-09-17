@@ -61,7 +61,7 @@ package com.degrafa.utilities.math
 * @return nothing. Note:  Although some attempt has been made to optimize operation count and complexity, this code is written more for clarity than Actionscript performance.
 * <p>Important notes:<br><br> 1) Intervals must be non-overlapping.  Insertion preserves this constraint.<br>2) Knot insertion/deletion causes a complete regeneration of 
 * coefficients. A future (faster) version will do this adaptively.<br><br>
-* Reference:  http://www.algorithmist.net/spline.html</p>
+* Reference:  http://www.algorithmist.net/spline.html.
 *
 * @since 1.0
 *
@@ -99,8 +99,8 @@ package com.degrafa.utilities.math
 * <code>addControlPoint</code> Add/Insert a knot in a manner that maintains non-overlapping intervals.  This method rearranges knot order, if necessary, to 
 * maintain non-overlapping intervals.
 *
-* @param _t:Number - x-coordinate of knot to add
-* @param _y:Number - y-coordinate of knot to add
+* @param _xKNot:Number - x-coordinate of knot to add
+* @param _yKnot:Number - y-coordinate of knot to add
 *
 * @return Nothing
 *
@@ -109,7 +109,6 @@ package com.degrafa.utilities.math
 */
     public function addControlPoint(_xKnot:Number, _yKnot:Number):void
     {
-
       if( !isNaN(_xKnot) && !isNaN(_yKnot) )
       {
         __invalidate = true;

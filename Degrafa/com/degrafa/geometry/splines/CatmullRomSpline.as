@@ -74,6 +74,8 @@ package com.degrafa.geometry.splines
 /**
 		* [set] closed Create a closed-loop spline from the current knot set 
 		*
+	 * @param _closed:Boolean true if the spline is to be automatically closed
+	 * 
 		* @return Nothing  Knots should already be defined in a manner that tends towards a naturally closed loop.  There is no need to duplicate the first knot in
 	 * sequence.  If the knot sequence does not tends towards a closed shape, results are unpredicatable.  <b>DO NOT</b> attempt to add knots to a closed spline.
 	 * Setting closure to <code>true</code> after false currently has no effect, but allowing unclosure is reserved for possible inclusion in a future version. 
