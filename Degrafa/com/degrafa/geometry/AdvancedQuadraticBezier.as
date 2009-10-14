@@ -307,24 +307,24 @@ package com.degrafa.geometry
     }
     
 /**
-* yAtX
-*
-* <p>Return the set of y-coordinates corresponding to the input x-coordinate.</p>
-*
-* @param _x:Number x-coordinate at which the desired y-coordinates are desired
-*
-* @return Array set of (t,y)-coordinates at the input x-coordinate provided that the x-coordinate is inside the range
-* covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that Bx(t) = _x.  If the input
-* x-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
-* array contains either one or two y-coordinates.  There are issues with curves that are exactly or nearly (for
-* numerical purposes) vertical in which there could theoretically be an infinite number of y-coordinates for a single
-* x-coordinate.  This method does not work in such cases, although compensation might be added in the future.
-*
-* <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
-* <code>Object</code> 'y' property is the corresponding y-value.  The returned (t,y) coordinates may be used by the caller
-* to determine which of two returned y-coordinates might be preferred over the other.</p>
-*
-*/
+ * yAtX
+ *
+ * <p>Return the set of y-coordinates corresponding to the input x-coordinate.</p>
+ *
+ * @param _x:Number x-coordinate at which the desired y-coordinates are desired
+ *
+ * @return Array set of (t,y)-coordinates at the input x-coordinate provided that the x-coordinate is inside the range
+ * covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that Bx(t) = _x.  If the input
+ * x-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
+ * array contains either one or two y-coordinates.  There are issues with curves that are exactly or nearly (for
+ * numerical purposes) vertical in which there could theoretically be an infinite number of y-coordinates for a single
+ * x-coordinate.  This method does not work in such cases, although compensation might be added in the future.
+ *
+ * <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
+ * <code>Object</code> 'y' property is the corresponding y-value.  The returned (t,y) coordinates may be used by the caller
+ * to determine which of two returned y-coordinates might be preferred over the other.</p>
+ *
+ */
     public function yAtX(_x:Number):Array
     {
       if( isNaN(_x) )
@@ -371,6 +371,73 @@ package com.degrafa.geometry
         
       return result;
     }
+    
+/**
+ * xAtY
+ *
+ * <p>Return the set of x-coordinates corresponding to the input y-coordinate.</p>
+ *
+ * @param _y:Number y-coordinate at which the desired x-coordinates are desired
+ *
+ * @return Array set of (t,x)-coordinates at the input y-coordinate provided that the y-coordinate is inside the range
+ * covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that By(t) = _y.  If the input
+ * y-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
+ * array contains either one or two x-coordinates.  There are issues with curves that are exactly or nearly (for
+ * numerical purposes) horizontal in which there could theoretically be an infinite number of x-coordinates for a single
+ * y-coordinate.  This method does not work in such cases, although compensation might be added in the future.
+ *
+ * <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
+ * <code>Object</code> 'x' property is the corresponding x-coordinate.  The returned (t,x) coordinates may be used by the caller
+ * to determine which of two returned x-coordinates might be preferred over the other.</p>
+ *
+ */
+    public function xAtY(_y:Number):Array
+    {
+      if( isNaN(_y) )
+      {
+        return [];
+      }
+      
+      // check bounds
+      var yMax:Number = pointAt(tAtMaxY()).y;
+      var yMin:Number = pointAt(tAtMinY()).y;
+      
+      if( _y < yMin || _y > yMax )
+      {
+        return [];
+      }
+      
+      // the necessary x-coordinates are the intersection of the curve with the horizontal line y = _y.  The curve is generated in the
+      // form c0 + c1*t + c2*t^2, so the intersection satisfies the equation By(t) = _y or By(t) - _y = 0, or c0y-_y + c1y*t + c2y*t^2 = 0,
+      // which is quadratic in t.  I wonder what formula can be used to solve that ????
+      getBezierCoef();
+        
+      // this is written out in individual steps for clarity
+      var c:Number = _c0Y - _y;
+      var b:Number = _c1Y;
+      var a:Number = _c2Y;
+      
+      var d:Number = b*b - 4*a*c;
+      if( d < 0 )
+      {
+        return [];
+      }
+      
+      d             = Math.sqrt(d);
+      a             = 1/(a + a);
+      var t0:Number = (d-b)*a;
+      var t1:Number = (-b-d)*a;
+      
+      var result:Array = new Array();
+      if( t0 <= 1 )
+        result.push( {t:t0, x:pointAt(t0).x} );
+        
+      if( t1 >= 0 && t1 <=1 )
+        result.push( {t:t1, x:pointAt(t1).x} );
+        
+      return result;
+    }
+
 
 /**
 * join

@@ -71,6 +71,7 @@
 	<component id="CatmullRomSpline" class="com.degrafa.geometry.splines.CatmullRomSpline" />
 	<component id="SuperShape2D" class="com.degrafa.geometry.SuperShape2D" />
 	<component id="QuadraticHermiteSpline" class="com.degrafa.geometry.splines.QuadraticHermiteSpline" />
+	<component id="CardinalSpline" class="com.degrafa.geometry.splines.CardinalSpline" />
 	
 	<!--AutoShapes-->
 	<component id="DonutAutoShape" class="com.degrafa.geometry.autoshapes.DonutAutoShape"/>

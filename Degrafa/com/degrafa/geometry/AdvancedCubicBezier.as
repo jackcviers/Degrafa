@@ -441,24 +441,24 @@ package com.degrafa.geometry
     }
     
 /**
-* yAtX
-*
-* <p>Return the set of y-coordinates corresponding to the input x-coordinate.</p>
-*
-* @param _x:Number x-coordinate at which the desired y-coordinates are desired
-*
-* @return Array set of (t,y)-coordinates at the input x-coordinate provided that the x-coordinate is inside the range
-* covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that Bx(t) = _x.  If the input
-* x-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
-* array contains either one or two y-coordinates.  There are issues with curves that are exactly or nearly (for
-* numerical purposes) vertical in which there could theoretically be an infinite number of y-coordinates for a single
-* x-coordinate.  This method does not work in such cases, although compensation might be added in the future.
-*
-* <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
-* <code>Object</code> 'y' property is the corresponding y-value.  The returned (t,y) coordinates may be used by the caller
-* to determine which of the (up to three) returned y-coordinates might be preferred over the other.</p>
-*
-*/
+ * yAtX
+ *
+ * <p>Return the set of y-coordinates corresponding to the input x-coordinate.</p>
+ *
+ * @param _x:Number x-coordinate at which the desired y-coordinates are desired
+ *
+ * @return Array set of (t,y)-coordinates at the input x-coordinate provided that the x-coordinate is inside the range
+ * covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that Bx(t) = _x.  If the input
+ * x-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
+ * array contains either one, two, or three y-coordinates.  There are issues with curves that are exactly or nearly (for
+ * numerical purposes) vertical in which there could theoretically be an infinite number of y-coordinates for a single
+ * x-coordinate.  This method does not work in such cases, although compensation might be added in the future.
+ *
+ * <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
+ * <code>Object</code> 'y' property is the corresponding y-value.  The returned (t,y) coordinates may be used by the caller
+ * to determine which of the (up to three) returned y-coordinates might be preferred over the others.</p>
+ *
+ */
     public function yAtX(_x:Number):Array
     {
       if( isNaN(_x) )
@@ -529,6 +529,94 @@ package com.degrafa.geometry
       return result;
     }
 
+/**
+ * xAtY
+ *
+ * <p>Return the set of x-coordinates corresponding to the input y-coordinate.</p>
+ *
+ * @param _y:Number y-coordinate at which the desired x-coordinates are desired
+ *
+ * @return Array set of (t,x)-coordinates at the input y-coordinate provided that the y-coordinate is inside the range
+ * covered by the quadratic Bezier in [0,1]; that is there must exist t in [0,1] such that By(t) = _y.  If the input
+ * y-coordinate is not inside the range covered by the Bezier curve, the returned array is empty.  Otherwise, the
+ * array contains either one, two, or three x-coordinates.  There are issues with curves that are exactly or nearly (for
+ * numerical purposes) horizontal in which there could theoretically be an infinite number of x-coordinates for a single
+ * y-coordinate.  This method does not work in such cases, although compensation might be added in the future.
+ *
+ * <p>Each array element is a reference to an <code>Object</code> whose 't' parameter represents the Bezier t parameter.  The
+ * <code>Object</code> 'x' property is the corresponding x-coordinate.  The returned (t,x) coordinates may be used by the caller
+ * to determine which of the (up to three) returned x-coordinates might be preferred over the others.</p>
+ *
+ */
+    public function xAtY(_y:Number):Array
+    {
+      if( isNaN(_y) )
+      {
+        return [];
+      }
+      
+      // check bounds
+      var yMax:Number = pointAt(tAtMaxY()).y;
+      var yMin:Number = pointAt(tAtMinY()).y;
+      
+      if( _y < yMin || _y > yMax )
+      {
+        return [];
+      }
+      
+      // the necessary y-coordinates are the intersection of the curve with the line y = _y.  The curve is generated in the
+      // form c0 + c1*t + c2*t^2 + c3*t^3, so the intersection satisfies the equation 
+      // By(t) = _y or By(t) - _y = 0, or c0y-_y + c1y*t + c2y*t^2 + c3y*t^3 = 0.
+
+      getBezierCoef();
+      
+      // Find one root - any root - then factor out (t-r) to get a quadratic poly. for the remaining roots
+      var f:Function = function(_t:Number):Number { return _t*(_c1Y + _t*(_c2Y + _t*(_c3Y))) + _c0Y-_y; }
+         
+      if( _twbrf == null )
+        _twbrf = new SimpleRoot();
+      
+      // some curves that loop around on themselves may require bisection
+      _left        = 0;
+      _right       = 1;
+      __bisect(f, 0, 1);
+        
+      // experiment with tolerance - but not too tight :)  
+      var t0:Number   = _twbrf.findRoot(_left, _right, f, 50, 0.000001);
+      var eval:Number = Math.abs(f(t0));
+      if( eval > 0.00001 )
+        return [];   // compensate in case method quits due to error (no event listener here)
+      
+      var result:Array = new Array();
+      if( t0 <= 1 )
+        result.push({t:t0, x:pointAt(t0).x});  
+      
+      // Factor theorem: t-r is a factor of the cubic polynomial if r is a root.  Use this to reduce to a quadratic poly. using synthetic division
+      var a:Number = _c3Y;
+      var b:Number = t0*a+_c2Y;
+      var c:Number = t0*b+_c1Y;
+      
+      // process the quadratic for the remaining two possible roots
+      var d:Number = b*b - 4*a*c;
+      if( d < 0 )
+      {
+        return result;
+      }
+      
+      d             = Math.sqrt(d);
+      a             = 1/(a + a);
+      var t1:Number = (d-b)*a;
+      var t2:Number = (-b-d)*a;
+      
+      if( t1 >= 0 && t1 <=1 )
+        result.push( {t:t1, x:pointAt(t1).x} );
+        
+      if( t2 >= 0 && t2 <=1 )
+        result.push( {t:t2, x:pointAt(t2).x} );
+        
+      return result;
+    }
+    
     // recompute polynomial coefficients
     private function getBezierCoef():void
     { 
