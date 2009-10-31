@@ -22,11 +22,7 @@
 package com.degrafa.geometry.autoshapes{
 	
 	import com.degrafa.geometry.command.CommandStack;
-			
-	//only need one offset here so need to exclude
-	//[Exclude(name="offset3", kind="property")]
-	//[Exclude(name="offset3Percent", kind="property")]
-	
+				
 	[Exclude(name="offset4", kind="property")]
 	[Exclude(name="offset4Percent", kind="property")]
 		
@@ -43,6 +39,7 @@ package com.degrafa.geometry.autoshapes{
 	 	* 
 	 	* @param offset1 A number indicating the offset1.
 	 	* @param offset2 A number indicating the offset2.
+	 	* @param offset3 A number indicating the offset3.
 	 	*/	
 		public function LeftRightArrowAutoShape(offset1:Number=NaN,offset2:Number=NaN,offset3:Number=NaN){
 			super();
@@ -179,6 +176,11 @@ package com.degrafa.geometry.autoshapes{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
 			if (!_offset1){_offset1 = value.offset1}
+			if (!_offset2){_offset2 = value.offset2}
+			if (!_offset3){_offset3 = value.offset3}
+			if (!_offset1Percent){_offset1Percent = value.offset1Percent}
+			if (!_offset2Percent){_offset2Percent = value.offset2Percent}
+			if (!_offset3Percent){_offset3Percent = value.offset3Percent}
 		}
 	}
 }

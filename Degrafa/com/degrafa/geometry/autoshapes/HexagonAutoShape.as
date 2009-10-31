@@ -122,6 +122,7 @@ package com.degrafa.geometry.autoshapes{
 			if (!fill){fill=value.fill;}
 			if (!stroke){stroke = value.stroke}
 			if (!_offset1){_offset1 = value.offset1}
+			if (!_offset1Percent){_offset1Percent = value.offset1Percent}
 		}
 	}
 }

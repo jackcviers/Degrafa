@@ -149,6 +149,9 @@ package com.degrafa.geometry.autoshapes{
 			if (!stroke){stroke = value.stroke}
 			if (!_offset1){_offset1 = value.offset1}
 			if (!_offset2){_offset2 = value.offset2}
+			if (!_offset1Percent){_offset1Percent = value.offset1Percent}
+			if (!_offset2Percent){_offset2Percent = value.offset2Percent}
+			
 		}
 	}
 }
