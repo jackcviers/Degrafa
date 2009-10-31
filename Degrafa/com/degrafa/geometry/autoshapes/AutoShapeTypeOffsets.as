@@ -24,6 +24,8 @@ package com.degrafa.geometry.autoshapes{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	[Bindable]
+	
 	/**
 	* Provides a base class that has common logic for offset type AutoShapes.
 	* 4 Offset values are provided and AutoShapes that extend this base class

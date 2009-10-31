@@ -24,6 +24,8 @@ package com.degrafa.geometry.autoshapes{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	[Bindable]
+	
 	/**
  	* The StarAutoShape element draws a star 
  	* based on the number of points at the specified angle with a specified innerRadius. 

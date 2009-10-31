@@ -27,6 +27,8 @@ package com.degrafa.geometry.autoshapes{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	[Bindable]
+	
 	/**
  	* The DonutAutoShape element draws a donut using the specified centre point 
  	* and radius with a cut out hole defined by the innerRadius.

@@ -24,6 +24,8 @@ package com.degrafa.geometry.autoshapes{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	[Bindable]
+	
 	/**
  	* The RegularPolygonAutoShape element draws a regular polygon 
  	* based on the number of points at the specified angle. If not 

@@ -24,6 +24,8 @@ package com.degrafa.geometry.autoshapes{
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
 	
+	[Bindable]
+	
 	/**
  	* The GearAutoShape element draws a gear 
  	* based on the number of points at the specified angle with a specified innerRadius. 
