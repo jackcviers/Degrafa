@@ -82,8 +82,8 @@ package com.degrafa.geometry.autoshapes{
 			
 			//calc desired final offset 1
 			if (isNaN(_Offset1) && hasLayout && isNaN(_offset1Percent)){
-				if(layoutConstraint.width){
-						_Offset1 = width/3;		
+				if(_layoutRectangle.width){
+						_Offset1 = _layoutRectangle.width/3;		
 				}
 				else{
 					_Offset1 = 0;
@@ -91,10 +91,10 @@ package com.degrafa.geometry.autoshapes{
 			}
 			else if (!isNaN(_offset1Percent) && hasLayout){
 				if(_offset1Percent >= 1){
-					_Offset1 = (_offset1Percent/100)*width;
+					_Offset1 = (_offset1Percent/100)*_layoutRectangle.width;
 				}
 				else{
-					_Offset1 = _offset1Percent*width;
+					_Offset1 = _offset1Percent*_layoutRectangle.width;
 				}		
 			}
 			else{
@@ -105,9 +105,9 @@ package com.degrafa.geometry.autoshapes{
 			
 			
 			commandStack.addMoveTo(_Offset1,0);
-			commandStack.addLineTo(width - _Offset1, 0);
-			commandStack.addLineTo(width,height);
-			commandStack.addLineTo(0,height);
+			commandStack.addLineTo(_layoutRectangle.width - _Offset1, 0);
+			commandStack.addLineTo(_layoutRectangle.width,_layoutRectangle.height);
+			commandStack.addLineTo(0,_layoutRectangle.height);
 			commandStack.addLineTo(_Offset1,0);
 			
 		}
