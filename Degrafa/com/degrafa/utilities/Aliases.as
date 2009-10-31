@@ -11,7 +11,6 @@ package com.degrafa.utilities{
 	import com.degrafa.geometry.*
 	import com.degrafa.geometry.segment.*
 	import com.degrafa.geometry.command.*
-	import com.degrafa.geometry.repeaters.*
 	import com.degrafa.core.*
 	import com.degrafa.core.collections.*
 	import com.degrafa.paint.*
@@ -98,22 +97,8 @@ package com.degrafa.utilities{
 							CommandStack:CommandStack,
 							CommandStackItem:CommandStackItem,
 							CommandCollection:CommandCollection
-						},
-						repeaters: {
-							CircleRepeater:CircleRepeater,
-							CubicBezierRepeater:CubicBezierRepeater,
-							EllipseRepeater:EllipseRepeater,
-							EllipticalArcRepeater:EllipticalArcRepeater,
-							HorizontalLineRepeater:HorizontalLineRepeater,
-							LineRepeater:LineRepeater,
-							PolygonRepeater:PolygonRepeater,
-							PolyLineRepeater:PolyLineRepeater,
-							QuadraticBezierRepeater:QuadraticBezierRepeater,
-							RegularRectangleRepeater:RegularRectangleRepeater,
-							RoundedRectangleComplexRepeater:RoundedRectangleComplexRepeater,
-							RoundedRectangleRepeater:RoundedRectangleRepeater,
-							VerticalLineRepeater:VerticalLineRepeater
 						}
+						
 					},
 					paint: {
 						BitmapFill:BitmapFill,

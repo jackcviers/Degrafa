@@ -91,21 +91,6 @@
 		
 	<!--Text-->
 	<component id="DegrafaTextFormat" class="com.degrafa.geometry.text.DegrafaTextFormat"/>
-		
-	<!--repeaters-->
-	<component id="CircleRepeater" class="com.degrafa.geometry.repeaters.CircleRepeater"/>
-	<component id="CubicBezierRepeater" class="com.degrafa.geometry.repeaters.CubicBezierRepeater"/>
-	<component id="EllipseRepeater" class="com.degrafa.geometry.repeaters.EllipseRepeater"/>
-	<component id="EllipticalArcRepeater" class="com.degrafa.geometry.repeaters.EllipticalArcRepeater"/>
-	<component id="HorizontalLineRepeater" class="com.degrafa.geometry.repeaters.HorizontalLineRepeater"/>
-	<component id="LineRepeater" class="com.degrafa.geometry.repeaters.LineRepeater"/>
-	<component id="PolygonRepeater" class="com.degrafa.geometry.repeaters.PolygonRepeater"/>
-	<component id="PolyLineRepeater" class="com.degrafa.geometry.repeaters.PolyLineRepeater"/>
-	<component id="QuadraticBezierRepeater" class="com.degrafa.geometry.repeaters.QuadraticBezierRepeater"/>
-	<component id="RegularRectangleRepeater" class="com.degrafa.geometry.repeaters.RegularRectangleRepeater"/>
-	<component id="RoundedRectangleRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleRepeater"/>
-	<component id="RoundedRectangleComplexRepeater" class="com.degrafa.geometry.repeaters.RoundedRectangleComplexRepeater"/>
-	<component id="VerticalLineRepeater" class="com.degrafa.geometry.repeaters.VerticalLineRepeater"/>
 	
 	<!--Repeaters-->
 	<component id="GeometryRepeater" class="com.degrafa.repeaters.GeometryRepeater"/>
