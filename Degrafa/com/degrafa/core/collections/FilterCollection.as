@@ -21,7 +21,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.core.collections{
 	
+	import com.degrafa.filters.DegrafaFilter;
+	
 	import flash.filters.BitmapFilter;
+	
+	import mx.events.PropertyChangeEvent;
 	 
 	
 	
@@ -43,6 +47,60 @@ package com.degrafa.core.collections{
 		public function FilterCollection(array:Array=null,suppressEvents:Boolean=false){
 			super(BitmapFilter,array,suppressEvents);
 			
+		}
+
+		//Internal list of watched degrafa filter proxies
+		private var degrafaFilters:Array=[];
+
+		override public function set items(value:Array):void
+		{
+			if (!value)
+				value=[];
+
+			removeAllWatchers();
+
+			degrafaFilters=[];
+			var actualFilters:Array=[];
+
+			var i:uint;
+
+			for (i=0; i < value.length; i++)
+			{
+				var item:*=value[i];
+				var df:DegrafaFilter=item as DegrafaFilter;
+
+				if (df)
+				{
+					actualFilters.push(df.bitmapFilter);
+					degrafaFilters.push(df);
+					addWatcher(df);
+				}
+				else
+				{
+					actualFilters.push(item);
+				}
+			}
+
+			super.items=actualFilters;
+		}
+
+		private function removeAllWatchers():void
+		{
+			for each (var df:DegrafaFilter in degrafaFilters)
+			{
+				df.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, filterPropertyChangeHandler);
+			}
+		}
+
+		private function addWatcher(df:DegrafaFilter):void
+		{
+			df.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, filterPropertyChangeHandler, false, 0, true);
+		}
+
+		private function filterPropertyChangeHandler(event:PropertyChangeEvent):void
+		{
+			var actualFilter:BitmapFilter=DegrafaFilter(event.target).bitmapFilter;
+			dispatchPropertyChange(false, event.property, event.oldValue, event.newValue, actualFilter);
 		}
 		
 		/**

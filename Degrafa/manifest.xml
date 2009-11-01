@@ -135,5 +135,16 @@
 	<component id="PaletteEntry" class="com.degrafa.paint.palette.PaletteEntry"/>
 	<component id="PresetColorPalette" class="com.degrafa.paint.palette.PresetColorPalette"/>
 	<component id="InterpolatedColorPalette" class="com.degrafa.paint.palette.InterpolatedColorPalette"/>
+
+    <!--filters-->
+    <component id="BevelFilter" class="com.degrafa.filters.DegrafaBevelFilter"/>
+    <component id="BlurFilter" class="com.degrafa.filters.DegrafaBlurFilter"/>
+    <component id="ColorMatrixFilter" class="com.degrafa.filters.DegrafaColorMatrixFilter"/>
+    <component id="ConvolutionFilter" class="com.degrafa.filters.DegrafaConvolutionFilter"/>
+    <component id="DisplacementMapFilter" class="com.degrafa.filters.DegrafaDisplacementMapFilter"/>
+    <component id="DropShadowFilter" class="com.degrafa.filters.DegrafaDropShadowFilter"/>
+    <component id="GlowFilter" class="com.degrafa.filters.DegrafaGlowFilter"/>
+    <component id="GradientBevelFilter" class="com.degrafa.filters.DegrafaGradientBevelFilter"/>
+    <component id="GradientGlowFilter" class="com.degrafa.filters.DegrafaGradientGlowFilter"/>
 		
 </componentPackage>    

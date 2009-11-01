@@ -1606,8 +1606,7 @@ package com.degrafa.geometry{
 		* A collection of filters to apply to the geometry.
 		*/
 		private var _filters:FilterCollection;
-		[Inspectable(category="General", arrayType="flash.filters.BitmapFilter")]
-		[ArrayElementType("flash.filters.BitmapFilter")]
+		[Inspectable(category="General")]
 		/**
 		* An array of BitmapFilter objects applied to this Geometry.
 		**/
