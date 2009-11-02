@@ -70,7 +70,7 @@
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
 	<component id="QuadraticSpline" class="com.degrafa.geometry.splines.QuadraticSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
-	<component id="GeometryClone" class="com.degrafa.geometry.GeometryClone"/>
+	<!--<component id="GeometryClone" class="com.degrafa.geometry.GeometryClone"/>-->
 	<component id="NaturalCubicSpline" class="com.degrafa.geometry.splines.NaturalCubicSpline" />
 	<component id="CatmullRomSpline" class="com.degrafa.geometry.splines.CatmullRomSpline" />
 	<component id="SuperShape2D" class="com.degrafa.geometry.SuperShape2D" />
