@@ -27,6 +27,7 @@
 	
 	<!--paint-->
 	<component id="VectorFill" class="com.degrafa.paint.VectorFill"/>
+	<component id="VideoFill" class="com.degrafa.paint.VideoFill"/>
 	<component id="BitmapFill" class="com.degrafa.paint.BitmapFill"/>
 	<component id="BlendFill" class="com.degrafa.paint.BlendFill"/>
 	<component id="ComplexFill" class="com.degrafa.paint.ComplexFill"/>
@@ -37,6 +38,8 @@
 	<component id="RadialGradientStroke" class="com.degrafa.paint.RadialGradientStroke"/>
 	<component id="SolidFill" class="com.degrafa.paint.SolidFill"/>
 	<component id="SolidStroke" class="com.degrafa.paint.SolidStroke"/>
+	<component id="EmptyFill" class="com.degrafa.paint.EmptyFill"/>
+	<component id="EmptyStroke" class="com.degrafa.paint.EmptyStroke"/>
 	
 	<!--standard decorators-->
 	<component id="SVGDashLine" class="com.degrafa.decorators.standard.SVGDashLine"/>
@@ -67,6 +70,7 @@
 	<component id="BezierSpline" class="com.degrafa.geometry.splines.BezierSpline"/>
 	<component id="QuadraticSpline" class="com.degrafa.geometry.splines.QuadraticSpline"/>
 	<component id="GeometryComposition" class="com.degrafa.GeometryComposition"/>
+	<component id="GeometryClone" class="com.degrafa.geometry.GeometryClone"/>
 	<component id="NaturalCubicSpline" class="com.degrafa.geometry.splines.NaturalCubicSpline" />
 	<component id="CatmullRomSpline" class="com.degrafa.geometry.splines.CatmullRomSpline" />
 	<component id="SuperShape2D" class="com.degrafa.geometry.SuperShape2D" />
@@ -115,8 +119,9 @@
 	<component id="GraphicProgrammaticSkin" class="com.degrafa.skins.GraphicProgrammaticSkin"/>
 	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
 	
-	<!--runtime bitmaps-->
+	<!--runtime loading-->
 	<component id="LoadingLocation" class="com.degrafa.utilities.external.LoadingLocation" />
+	<component id="VideoStream" class="com.degrafa.utilities.external.VideoStream" />
 
 	<!--states-->
 	<component id="State" class="com.degrafa.states.State"/>
