@@ -42,7 +42,6 @@ package com.degrafa.repeaters
 	[Event(name="iterationChanged", type="flash.events.Event")]
 	public class GeometryRepeater extends Geometry implements IGeometry {
 		
-		private var _sourceGeometry:Geometry;
 		private var _bounds:Rectangle;  
 		private var _isDrawing:Boolean=false;
 	
