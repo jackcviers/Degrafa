@@ -113,7 +113,8 @@ package com.degrafa.core.collections{
 			return _items;
 		}
 		public function set items(value:Array):void{
-						
+			//support null assignments
+			if (value==null) value=[];		
 			//type check items
 			checkValidTypes(value);
 			//compare and update
@@ -128,8 +129,8 @@ package com.degrafa.core.collections{
 				_items=value;
 				
 				if(enableEvents && hasEventManager){
-					//call local helper to dispatch event	
-					initChange("items",oldValue,_items,this);
+					//call local helper to dispatch event (but only if either the old or new array had at least one element)
+					if (value.length||oldValue.length) initChange("items",oldValue,_items,this);
 				}
 			}
 			
