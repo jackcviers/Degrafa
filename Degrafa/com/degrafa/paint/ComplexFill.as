@@ -167,7 +167,7 @@ package com.degrafa.paint{
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
 			return function(alternate:Graphics = null):void {
-					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
+					if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
 					else if (last) last.beginBitmapFill.apply(last,copy);
 				}
 		}

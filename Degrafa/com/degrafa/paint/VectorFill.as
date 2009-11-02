@@ -258,7 +258,6 @@ package com.degrafa.paint{
 		 */
 
 		[Inspectable(category="General", enumeration="none,repeat,space,stretch")]
-		
 		public function get repeatX():String{ 
 			return _repeatX;
 		}
@@ -503,7 +502,7 @@ package com.degrafa.paint{
 			else {
 				// create a default a default instance on first request, but do not trigger a redraw until it has been manipulated
 				_solidFillBackground = new SolidFill();
-				_solidFillBackground.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , BGListener);
+				_solidFillBackground.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , BGListener,false,0,true);
 				return _solidFillBackground;
 			}
 		}
@@ -513,7 +512,7 @@ package com.degrafa.paint{
 				var oldVal:SolidFill = _solidFillBackground;
 				if (oldVal) oldVal.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE ,BGListener)
 				_solidFillBackground = value;
-				_solidFillBackground.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , BGListener);
+				_solidFillBackground.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , BGListener,false,0,true);
 				//mark for recreation of the fill bitmapdata in begin method requests
 				if (_enableBackground){
 				_requiresPreRender = true;
@@ -588,7 +587,7 @@ package com.degrafa.paint{
 			if (!_clipSourceRect) {
 				//default to an new RegularRectangle - might be useful from actionscript for easy clipSource settings
 				_clipSource = new RegularRectangle();
-				_clipSource.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , clipSourceChange);
+				_clipSource.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , clipSourceChange,false, 0, true);
 			}
 			return _clipSource;
 		}
@@ -614,7 +613,7 @@ package com.degrafa.paint{
 					oldVal  = _clipSource;
 				} else {
 					//dev note: this is preliminary... an option to use a full GeometryGroup as the clipSource. Untested at this point.
-					value.geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , clipSourceChange);
+					value.geometry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE , clipSourceChange,false, 0,true);
 					_clipSourceRect = value.getBounds(value);
 					oldVal = _clipSource;
 				}
@@ -955,7 +954,7 @@ package com.degrafa.paint{
 			}
 			_source = value;
 			//add new listener
-			(_source as DegrafaObject).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, geomListener);
+			(_source as DegrafaObject).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, geomListener,false,0,true);
 			_requiresRedraw = true;
 			_requiresPreRender = true;
 			initChange("source", oldValue, bitmapData, this);
@@ -996,7 +995,7 @@ package com.degrafa.paint{
 			var copy:Array = _lastArgs.concat();
 			var last:Graphics = _lastContext;
 			return function(alternate:Graphics = null):void {
-					if (alternate) alternate.beginGradientFill.apply(alternate, copy);
+					if (alternate) alternate.beginBitmapFill.apply(alternate, copy);
 					else if (last) last.beginBitmapFill.apply(last,copy);
 				}
 		}
