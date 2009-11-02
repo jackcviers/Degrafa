@@ -135,14 +135,11 @@ package com.degrafa.geometry{
 		//**************************************************************************
 		// Drawing Functions
 		//**************************************************************************
-		//private var fill:IFill; // temp
-		//private var weight:Number = 3; // temp
 
 		private function drawLeftBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(leftFill != null) {
 				var rc:Rectangle = new Rectangle(0, topLeftRadiusY, leftWidth, rectangle.height - topLeftRadiusY - bottomLeftRadiusY);
 				graphics.lineStyle(0, 0, 0);
-				//fill = new SolidColor(leftFill);
 				leftFill.begin(graphics, rc);
 				graphics.moveTo(0, topLeftRadiusY); // top outside
 				graphics.lineTo(leftWidth, Math.max(topLeftRadiusY, topWidth)); // top inside
@@ -157,7 +154,6 @@ package com.degrafa.geometry{
 			if(topFill != null) {
 				var rc:Rectangle = new Rectangle(topLeftRadiusX, 0, rectangle.width - topLeftRadiusX - topRightRadiusX, topWidth);
 				graphics.lineStyle(0, 0, 0);
-				//fill = new SolidColor(0xFF0000);
 				topFill.begin(graphics, rc);
 				graphics.moveTo(topLeftRadiusX, 0);
 				graphics.lineTo(rectangle.width  - topRightRadiusX, 0);
@@ -172,7 +168,6 @@ package com.degrafa.geometry{
 			if(rightFill != null) {
 				var rc:Rectangle = new Rectangle(0, topRightRadiusY, rightWidth, rectangle.height - topRightRadiusY - bottomRightRadiusY);
 				graphics.lineStyle(0, 0, 0);
-				//fill = new SolidColor(0x00FF00);
 				rightFill.begin(graphics, rc);
 				graphics.moveTo(rectangle.width, Math.max(topRightRadiusY, topWidth)); // top outside
 				graphics.lineTo(rectangle.width, rectangle.height - bottomRightRadiusY); // bottom outside
@@ -187,7 +182,6 @@ package com.degrafa.geometry{
 			if(bottomFill != null) {
 				var rc:Rectangle = new Rectangle(bottomLeftRadiusX, 0, rectangle.width - bottomLeftRadiusX - bottomRightRadiusX, bottomWidth);
 				graphics.lineStyle(0, 0, 0);
-				//fill = new SolidColor(0x0000FF);
 				bottomFill.begin(graphics, rc);
 				graphics.moveTo(Math.max(bottomLeftRadiusX, leftWidth), rectangle.height - bottomWidth); // left inside
 				graphics.lineTo(rectangle.width - Math.max(bottomRightRadiusX, rightWidth), rectangle.height - bottomWidth); // right inside
@@ -202,9 +196,6 @@ package com.degrafa.geometry{
 		private function drawTopLeftRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw top left curve
 			if(topLeftRadiusX > 0){
-				//matrix = new Matrix();
-				//matrix.createGradientBox(border.topLeft.x, border.topLeft.y, (-45/180)*Math.PI, 0, 0);
-				//graphics.beginGradientFill("linear", [borderLeftColor, borderTopColor], [1, 1], [0, 0xFF], matrix);
 				topLeftFill.begin(graphics, rc);
 				graphics.moveTo(0, topLeftRadiusY);
 				graphics.curveTo(0, 0, topLeftRadiusX, 0);
@@ -212,34 +203,27 @@ package com.degrafa.geometry{
 				graphics.curveTo(leftWidth, topWidth, leftWidth, Math.max(topLeftRadiusY, topWidth));
 				graphics.lineTo(0, topLeftRadiusY);
 				topLeftFill.end(graphics);
-				//graphics.endFill();
+
 			}
 		}
 
-		private function drawTopRightRadius(graphics:Graphics, rectangle:Rectangle):void {
+		private function drawTopRightRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw top right curve
 			if(topRightRadiusX > 0){
-				//matrix = new Matrix();
-				//matrix.createGradientBox(border.topRight.x, border.topRight.y, (45/180)*Math.PI, unscaledWidth - border.topRight.x, 0);
-				//graphics.beginGradientFill("linear", [borderTopColor, borderRightColor], [1, 1], [0, 0xFF], matrix);
-				var trc:Rectangle = new Rectangle(rectangle.width - Math.max(rightWidth, topRightRadiusX), 0, Math.max(topRightRadiusX, rightWidth), Math.max(topRightRadiusY, topWidth));
+				var trc:Rectangle = new Rectangle(rc.width - Math.max(rightWidth, topRightRadiusX), 0, Math.max(topRightRadiusX, rightWidth), Math.max(topRightRadiusY, topWidth));
 				topRightFill.begin(graphics, trc);
-				graphics.moveTo(rectangle.width - topRightRadiusX, 0);
-				graphics.curveTo(rectangle.width, 0, rectangle.width, Math.max(topRightRadiusY, topWidth));
-				graphics.lineTo(rectangle.width - rightWidth, Math.max(topRightRadiusY, topWidth));
-				graphics.curveTo(rectangle.width - rightWidth, topWidth, rectangle.width - Math.max(topRightRadiusX, rightWidth), topWidth);
-				graphics.lineTo(rectangle.width - Math.max(topRightRadiusX, rightWidth), 0);
+				graphics.moveTo(rc.width - topRightRadiusX, 0);
+				graphics.curveTo(rc.width, 0, rc.width, topRightRadiusY);
+				graphics.lineTo(rc.width - rightWidth, Math.max(topRightRadiusY, topWidth));
+				graphics.curveTo(rc.width - rightWidth, topWidth, rc.width - Math.max(topRightRadiusX, rightWidth), topWidth);
+				graphics.lineTo(rc.width - topRightRadiusX, 0);
 				topRightFill.end(graphics);
-				//graphics.endFill();
 			}
 		}
 
 		private function drawBottomLeftRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw bottom left curve
 			if(bottomLeftRadiusX > 0){
-				//matrix = new Matrix();
-				//matrix.createGradientBox(border.bottomLeft.x, border.bottomLeft.y, (45/180)*Math.PI, 0, unscaledHeight - border.bottomLeft.y);
-				//graphics.beginGradientFill("linear", [borderLeftColor, borderBottomColor], [1, 1], [0, 0xFF], matrix);
 				var brc:Rectangle = new Rectangle(0, rc.height - Math.max(bottomWidth, bottomLeftRadiusY), Math.max(leftWidth, bottomLeftRadiusX), Math.max(bottomWidth, bottomLeftRadiusY));
 				bottomLeftFill.begin(graphics, brc);
 				graphics.moveTo(bottomLeftRadiusX, rc.height);
@@ -248,25 +232,19 @@ package com.degrafa.geometry{
 				graphics.curveTo(leftWidth, rc.height - bottomWidth, Math.max(bottomLeftRadiusX, leftWidth), rc.height - bottomWidth);
 				graphics.lineTo(bottomLeftRadiusX, rc.height);
 				bottomLeftFill.end(graphics);
-				//graphics.endFill();
 			}
 		}
 
 		private function drawBottomRightRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw bottom right curve
 			if(bottomRightRadiusX > 0){
-				//matrix = new Matrix();
-				//matrix.createGradientBox(border.bottomRight.x, border.bottomRight.y, (-45/180)*Math.PI, unscaledWidth - border.bottomRight.x, unscaledHeight - border.bottomRight.y);
-				//graphics.beginGradientFill("linear", [borderBottomColor, borderRightColor], [1, 1], [0, 0xFF], matrix);
-
 				bottomRightFill.begin(graphics, rc);
-				graphics.moveTo(rc.width, rc.height - bottomRightRadiusY);
-				graphics.curveTo(rc.width, rc.height, rc.width - bottomRightRadiusX, rc.height);
-				graphics.lineTo(Math.min(rc.width - bottomRightRadiusX, rc.width), rc.height - bottomWidth);
-				graphics.curveTo(rc.width - rightWidth, rc.height - bottomWidth, rc.width - rightWidth, Math.min(rc.height - bottomRightRadiusY, rc.height));
-				graphics.lineTo(rc.width, rc.height - bottomRightRadiusY);
+				graphics.moveTo(rc.width - bottomRightRadiusX , rc.height);
+				graphics.curveTo(rc.width, rc.height, rc.width, rc.height - bottomRightRadiusY);
+				graphics.lineTo(rc.width - rightWidth, Math.min(rc.height - bottomRightRadiusY, rc.height - bottomWidth));
+				graphics.curveTo(rc.width - rightWidth, rc.height - bottomWidth, Math.min(rc.width - bottomRightRadiusX, rc.width - rightWidth), rc.height - bottomWidth);
+				graphics.moveTo(rc.width - bottomRightRadiusX , rc.height);
 				bottomRightFill.end(graphics);
-				//graphics.endFill();
 			}
 		}
 
