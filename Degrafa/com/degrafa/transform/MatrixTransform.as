@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package com.degrafa.transform{
-	import com.degrafa.IGeometryComposition;
+
 	import com.degrafa.transform.TransformBase;
 	import flash.geom.Matrix;
 	
