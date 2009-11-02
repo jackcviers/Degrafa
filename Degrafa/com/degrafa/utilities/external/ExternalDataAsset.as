@@ -88,7 +88,7 @@ package com.degrafa.utilities.external {
 
 		//store a dictionary of references to instances by class, based on urls. This is ignored by the constructor
 		//and is only for use by the static getUniqueInstance class function, to faciliatate url assignments to source properties for Degrafa mxml
-		private static var _uniqueInstances:Dictionary=new Dictionary();
+		private static var _uniqueInstances:Dictionary=new Dictionary(true);
 		
 		/**
 		 * static method to prevent multiple instances referring to the same external asset

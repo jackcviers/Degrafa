@@ -1,18 +1,23 @@
 ﻿package com.degrafa.utilities.external
 {
-	import mx.core.Application;
+
+	import flash.system.ApplicationDomain;
 	import flash.system.Security;
+	
 	import mx.utils.NameUtil;
+	
 
 	/**
 	* A representation of a loading location specified in terms of a base path and 
 	* crossdomain policy file to be accessed. To be associated with externally loaded content.
 	* */
-	public class  LoadingLocation  
+	public class LoadingLocation  
 	{
+		private static var requestedPolicyFiles:Object={};
 		private var _basepath:String=null;
 		private var _policyFile:String=null;
 		private var _requestedPolicyFile:Boolean = false;
+		private static var _flexApplication:Class = (ApplicationDomain.currentDomain.hasDefinition("mx.core.Application")? Class(ApplicationDomain.currentDomain.getDefinition("mx.core.Application")):null);// try { return getDefinitionByName("mx.core.Application") } catch (e:Error) { return null } } ());
 
 		
 		/**
@@ -22,10 +27,15 @@
 		 */
 		public static function extractLocation(url:String=null):Object
 		{
+	//		trace(url)
 		//TODO: consider converting this to regex. (but beware lack of accented characters not matching in \w)
-
 		//if the url argument is not passed or the url appears to be a relative url then use the location of the flex application
-		if (url == null || url.indexOf("//")==-1) url = Application.application.url;
+			if (url == null || url.indexOf("//") == -1) {
+			if (_flexApplication != null) url = _flexApplication.application.url;
+			else throw new Error("unable to detect a default url with a domain to extract full Location details from");
+			//consider using ExternalInterface as a backup and detecting the settings on the browser's location object and on the embedding tag for the swf - but this will only fault if the person has js switched off
+			//and is dependent on sandboxType
+			}
 			var retObj:Object = { };
 			var arr:Array;
 			
@@ -33,17 +43,31 @@
 				arr=url.split("///");
 				arr[1]="/"+arr[1];
 			} else 	arr = url.split("//");
-			
-			retObj.protocol = arr.shift() + "//";
+			retObj.rawProtocol = String(arr.shift()).toLowerCase().substr(0, -1);
+			retObj.protocol = (retObj.rawProtocol + "://");
 		
 			arr=arr[0].split('/')
 			
 			retObj.domain = arr.shift();
-			if (arr[arr.length-1]!="") arr[arr.length-1]=""
+			retObj.hasPortSpecified = (retObj.domain.indexOf(":") != -1);
+			
+			if (arr[arr.length - 1] != "") arr[arr.length - 1] = ""
+			
 			
 			retObj.basepath = "/"+arr.join("/")
 			return retObj;
 		}
+		
+		/**
+		 * a simple test to see if the url string is absolute or relative
+		 * @return boolean value indicating whether this url is absolute or not
+		 */
+		public static function isAbsoluteURL(val:String):Boolean
+		{
+			return (val.indexOf("//") != -1);
+		}
+		
+		
 		/**
 		 * a test to see if the local application requires loading of policy files to permit access to external data
 		 * @return boolean value indicating whether this application type requires loading of policy files prior to accessing data
@@ -75,6 +99,7 @@
 			if (basepath != null) {
 				_basepath = basepath;
 				_policyFile = policyFile;
+				_requestedPolicyFile=requestedPolicyFiles[_policyFile];
 			}
 		}
 		
@@ -90,16 +115,22 @@
 				if (_policyFile == null)
 				{
 						tmpLoc = LoadingLocation.extractLocation(_basepath);
-					_policyFile = tmpLoc.protocol + tmpLoc.domain + "/crossdomain.xml";
+					_policyFile = tmpLoc.protocol+ tmpLoc.domain + "/crossdomain.xml";
 				}
 				//may need to consider excluding the file:// protocol here, where a policy file would not be required although its not unsually specified.
-				Security.loadPolicyFile(_policyFile);
+				
+				if (!requestedPolicyFiles[_policyFile]) Security.loadPolicyFile(_policyFile);
+				requestedPolicyFiles[_policyFile]=true;
 				_requestedPolicyFile = true;
 			
 		} else {
-			//basepath is not defined...so assume its the flex Application location - no policyfile needed
-			tmpLoc = LoadingLocation.extractLocation(Application.application.url);
-			_basepath = tmpLoc.protocol + tmpLoc.domain + tmpLoc.basepath;
+			//basepath is not defined...so try getting a default location - no policyfile needed
+			try{
+				tmpLoc = LoadingLocation.extractLocation();
+				_basepath = tmpLoc.protocol + tmpLoc.domain + tmpLoc.basepath;
+			} catch (e:Error) {
+				_basepath = "";
+			}
 			//assume we don't need a policyfile for this location, just flag as requested
 			_requestedPolicyFile = true;
 	
