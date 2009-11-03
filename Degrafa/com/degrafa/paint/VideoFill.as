@@ -126,7 +126,7 @@ package com.degrafa.paint{
 		
 		private var _x:Number;
 		/**
-		 * The x-axis coordinate of the upper left point of the gradient rectangle. If not specified 
+		 * The x-axis coordinate of the upper left point of the video content rectangle. If not specified 
 		 * a default value of 0 is used.
 		 **/
 		public function get x():Number{
@@ -149,7 +149,7 @@ package com.degrafa.paint{
 		
 		private var _y:Number;
 		/**
-		 * The y-axis coordinate of the upper left point of the gradient rectangle. If not specified 
+		 * The y-axis coordinate of the upper left point of the video content rectangle. If not specified 
 		 * a default value of 0 is used.
 		 **/
 		public function get y():Number{
@@ -172,7 +172,7 @@ package com.degrafa.paint{
 		
 		private var _width:Number;
 		/**
-		 * The width to be used for scaling the video content rectangle (excluding pixelMargin).
+		 * The width to be used for scaling the video content rectangle (excluding any pixelMargin setting on the VideoStream source).
 		 **/
 		public function get width():Number{
 			if(_width*0!=0){
@@ -198,7 +198,7 @@ package com.degrafa.paint{
 		
 		private var _height:Number;
 		/**
-		 * The height to be used for scaling the video content rectangle (excluding pixelMargin).
+		 * The height to be used for scaling the video content rectangle (excluding any pixelMargin setting on the VideoStream source).
 		 **/
 		public function get height():Number{
 			if(_height*0!=0){
@@ -368,16 +368,15 @@ package com.degrafa.paint{
 		
 		
 		protected var _coordType:String = "relative";
-		[Inspectable(category="General", enumeration="absolute,relative,ratio", defaultValue="absolute")]
+		[Inspectable(category="General", enumeration="absolute,relative,ratio", defaultValue="relative")]
 		/**
-		 * The <code>coordinateType</code> property specifies the coordinates to be used for fill bounds, either absolute, or relative to target bounds, or as a ratio to target bounds.
-		 * For VideoFill this defaults to relative.
-		 * For <code>targetSetting</code> set to a setting other than VideoFill.NONE, this setting does not apply as they ignore it.
-		 * @seet targetSetting
+		 * The <code>coordinateType</code> property specifies the type of coordinates to be used for fill bounds, either absolute, or relative to top,left of target bounds, or as a ratio to target bounds.
+		 * For VideoFill this property defaults to 'relative'.<br/>
 		 **/
 
 		public function set coordinateType(value:String):void
 		{
+			if (("absolute,relative,ratio,").indexOf(value+",")==-1) value="relative";
 			if (value!=_coordType) 
 			{
 				//call local helper to dispatch event	
@@ -753,7 +752,8 @@ package com.degrafa.paint{
 				var theight:Number;
 			if (_targetSetting) 
 			{
-				repeat=false;
+				//allow repeating in both directions only.
+				repeat = (_repeatX == VideoFill.REPEAT && _repeatY == VideoFill.REPEAT);
 				switch(_targetSetting)
 				{
 					case 1:
@@ -783,7 +783,7 @@ package com.degrafa.paint{
 						matrix.scale(sx,sy);
 
 						matrix.translate(rc.x+tx, rc.y+ty);
-
+						
 						break;
 					case 3 :
 						//center target
@@ -791,9 +791,7 @@ package com.degrafa.paint{
 						 //no scaling, just positioning:
 						//deLetterBoxing has no effect here as it is assumed that a letterbox is centered (this may not be true all the time perhaps)				 
 						 matrix.translate(rc.x+(rc.width-bitmapData.width)/2,rc.y+(rc.height-bitmapData.height)/2)
-						//allow repeating in both directions on this setting otherwise ignore.
-						if (_repeatX == VideoFill.REPEAT && _repeatY == VideoFill.REPEAT) repeat = true;
-						
+						 
 						break;
 					default:
 
