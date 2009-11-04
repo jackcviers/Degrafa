@@ -408,9 +408,17 @@ package com.degrafa.skins
 			bl.entries = [new GradientEntry((box.leftFill as SolidColor).color, 0, (box.leftFill as SolidColor).alpha), new GradientEntry((box.bottomFill as SolidColor).color, 1, (box.bottomFill as SolidColor).alpha)];
 			bl.angle = 45;
 			*/
+			
+			/*
 			box.topLeftFill = createTransition(box.leftFill, box.topFill, -45)
 			box.topRightFill = createTransition(box.topFill, box.rightFill, 45); // box.rightFill;
 			box.bottomLeftFill = createTransition(box.leftFill, box.bottomFill, 45); // box.leftFill;
+			box.bottomRightFill = createTransition(box.bottomFill, box.rightFill, -45);
+			*/
+			// Corner fill colours matched to the correct border colours. Noticable when diffent border colours are used (Patrick Groves).
+			box.topLeftFill = createTransition(box.topFill, box.leftFill, -45);
+			box.topRightFill = createTransition(box.topFill, box.rightFill, 45);
+			box.bottomLeftFill = createTransition(box.bottomFill, box.leftFill, 45);
 			box.bottomRightFill = createTransition(box.bottomFill, box.rightFill, -45);
 			
 			box.topLeftRadiusX = (borderTopLeftRadius.x as Measure).relativeTo(unscaledWidth);
