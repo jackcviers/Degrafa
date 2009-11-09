@@ -114,8 +114,8 @@ package com.degrafa.geometry{
 				var segmentStack:Array=[];
 				
 				var length:int = pathDataArray.length;
-				var i:uint = 0;
-				var seg:uint=0;
+				var i:int = 0;
+				var seg:int=-1;
 				
 				for (;i<length;i++)
 				{
@@ -465,7 +465,7 @@ package com.degrafa.geometry{
 		**/
 		override protected function propertyChangeHandler(event:PropertyChangeEvent):void{
 			//invalidated = true;
-			if (_segments && event.source==_segments ) invalidated = true;
+			if (event.source==_segments || event.source is ISegment) invalidated = true;
 			super.propertyChangeHandler(event);
 		}
 		
@@ -518,7 +518,7 @@ package com.degrafa.geometry{
 			//rebuild an array of flash commands and 
 			//recalculate the bounds if required	
 			if(invalidated){
-				commandStack.length=0;
+//				commandStack.length=0;  removed as this was causing segment binding to fail
 				buildFlashCommandStack();
 				invalidated = false;
 			}
