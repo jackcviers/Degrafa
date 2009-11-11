@@ -44,6 +44,7 @@
 	<!--standard decorators-->
 	<component id="SVGDashLine" class="com.degrafa.decorators.standard.SVGDashLine"/>
 	<component id="SloppyLineDecorator" class="com.degrafa.decorators.standard.SloppyLineDecorator"/>
+	<component id="ShapeStrokeDecorator" class="com.degrafa.decorators.standard.ShapeStrokeDecorator"/>
 			
 	<!--geometry-->
 	<component id="AdvancedRectangle" class="com.degrafa.geometry.AdvancedRectangle"/>
