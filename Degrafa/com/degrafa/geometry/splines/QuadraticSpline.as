@@ -19,14 +19,11 @@ package com.degrafa.geometry.splines
 	 import com.degrafa.IGeometry;
 	 import com.degrafa.IGraphicPoint;
 	 import com.degrafa.core.collections.GraphicPointCollection;
-	 import com.degrafa.geometry.CubicBezier;
 	 import com.degrafa.geometry.Geometry;
-  import com.degrafa.geometry.AdvancedQuadraticBezier;
-	
+	 
 	 import flash.display.Graphics;
-	 import flash.geom.Point;
 	 import flash.geom.Rectangle;
-	
+	 
 	 import mx.events.PropertyChangeEvent;
  	
   [DefaultProperty("points")]	
