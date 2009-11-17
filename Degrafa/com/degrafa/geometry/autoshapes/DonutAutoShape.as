@@ -199,7 +199,7 @@ package com.degrafa.geometry.autoshapes{
 			else{
 				if(_innerRadiusPercent){
 					itemRadius = (innerRadiusPercent/100)*radius;
-				}
+				} else itemRadius = innerRadius;
 			}
 			
 			
