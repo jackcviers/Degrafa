@@ -21,18 +21,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.DegrafaObject;
-	import com.degrafa.core.collections.GradientStopsCollection;
-	import com.degrafa.core.ITransformablePaint;
-	import com.degrafa.geometry.command.CommandStack;
-	import com.degrafa.geometry.Geometry;
 	import com.degrafa.IGeometryComposition;
+	import com.degrafa.core.DegrafaObject;
+	import com.degrafa.core.ITransformablePaint;
+	import com.degrafa.core.collections.GradientStopsCollection;
+	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
 	
 	import flash.display.Graphics;
 	import flash.geom.Matrix;
-	import flash.geom.Rectangle;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
+	
 	import mx.events.PropertyChangeEvent;
 	
 	[DefaultProperty("gradientStops")]
@@ -54,6 +55,25 @@ package com.degrafa.paint{
 		//**************************************
 		// Public Properties
 		//**************************************
+		
+		
+		protected var _baseOrientation:String="horizontal";
+		[Inspectable(category="General", enumeration="vertical,horizontal", defaultValue="horizontal")]
+		/**
+		 * A setting for the baseOrientation of the gradient. Can be either horizontal or vertical.
+		 * @default horizontal
+		 **/
+		public function get baseOrientation():String{
+			return _baseOrientation
+		}
+		public function set baseOrientation(value:String):void{
+			if (("vertical,horizontal,").indexOf(value+",")!=-1 && value!=_baseOrientation){
+				var oldval:String=_baseOrientation;
+				_baseOrientation=value;
+				initChange("baseOrientation",oldval,_baseOrientation,this)
+			}
+		}		
+		
 		
 		protected var _gradientStops:GradientStopsCollection;
 	    [Inspectable(category="General", arrayType="com.degrafa.paint.GradientStop")]
@@ -282,20 +302,33 @@ package com.degrafa.paint{
 			var matrix:Matrix;
 
 			//ensure that all defaults are in fact set these are temp until fully tested
-			if(!_angle){_angle=0;}
+			if(!this._angle){this._angle=0;}
+		
 			if(!_focalPointRatio){_focalPointRatio=0;}
 			if(!_spreadMethod){_spreadMethod="pad";}
 			if(!_interpolationMethod){_interpolationMethod="rgb";}
-			matrix=new Matrix();			
+			matrix=new Matrix();	
+			var tempRect:Rectangle;
+			var _angle:Number = this._angle;
+		
+			if (_baseOrientation == "vertical" && rc) {
+				var midPtx:Number = rc.x + rc.width / 2;
+				var midPty:Number = rc.y + rc.height / 2;
+				tempRect =new Rectangle(midPtx-rc.height/2,midPty-rc.width/2,rc.height,rc.width);
+				_angle+=90;
+			} else tempRect=rc;
 			if (rc)
-			{				
-				
-				matrix.createGradientBox(rc.width, rc.height,
-				(_angle/180)*Math.PI, rc.x, rc.y);
-				var xp:Number = (angle % 90)/90;
+			{					
+				matrix.createGradientBox(tempRect.width, tempRect.height,
+				(_angle / 180) * Math.PI, tempRect.x, tempRect.y);
+				if (_baseOrientation == "vertical") {
+					matrix.translate( -midPtx, -midPty);
+					matrix.scale(rc.width / tempRect.width, rc.height / tempRect.height);
+					matrix.translate( midPtx, midPty);
+				}
+				var xp:Number = (_angle % 90)/90;
 				var yp:Number = 1 - xp;
-				processEntries(rc.width * xp + rc.height * yp);
-				
+				processEntries(tempRect.width * xp + tempRect.height * yp);
 			}
 			//handle layout transforms 
 			if (_requester && (_requester as Geometry).hasLayout) {

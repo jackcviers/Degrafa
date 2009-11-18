@@ -256,22 +256,34 @@ package com.degrafa.paint {
 		* @param rc A Rectangle object used for stroke bounds. 
  		**/
 		public function apply(graphics:Graphics,rc:Rectangle):void{
-			
+			var matrix:Matrix;
 			//ensure that all defaults are in fact set these are temp until fully tested
 			if(!_caps){_caps="round";}
 			if(!_joints){_joints="round";}
 			if(!_miterLimit){_miterLimit=3;}
 			if(!_scaleMode){_scaleMode="normal";}
 			if(!_weight){_weight=1;}
-			
-			var matrix:Matrix;
-			if (rc) {
-				matrix=new Matrix();
-				matrix.createGradientBox(rc.width, rc.height,
-				(angle/180)*Math.PI, rc.x, rc.y);
-				var xp:Number = (angle % 90)/90;
+			if (!this._angle) this._angle=0;
+			matrix=new Matrix();	
+			var tempRect:Rectangle;
+			var _angle:Number = this._angle;
+			if (_baseOrientation == "vertical" && rc) {
+				var midPtx:Number = rc.x + rc.width / 2;
+				var midPty:Number = rc.y + rc.height / 2;
+				tempRect =new Rectangle(midPtx-rc.height/2,midPty-rc.width/2,rc.height,rc.width);
+				_angle+=90;
+			} else tempRect=rc;
+			if (rc)
+			{					
+				matrix.createGradientBox(tempRect.width, tempRect.height,(_angle / 180) * Math.PI, tempRect.x, tempRect.y);
+				if (_baseOrientation == "vertical") {
+					matrix.translate( -midPtx, -midPty);
+					matrix.scale(rc.width / tempRect.width, rc.height / tempRect.height);
+					matrix.translate( midPtx, midPty);
+				}
+				var xp:Number = (_angle % 90)/90;
 				var yp:Number = 1 - xp;
-				processEntries((rc.width)*xp + (rc.height)*yp);
+				processEntries(tempRect.width * xp + tempRect.height * yp);
 			} else {
 				matrix = null;
 			}
