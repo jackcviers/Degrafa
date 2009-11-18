@@ -384,6 +384,7 @@ package com.degrafa.geometry.command{
 							
 							removeContextualSettings();
 							svgClipMode = svgClipMode? svgClipMode.concat(true):((owner.maskMode=="svgClip")?[true]:null);
+							if (Geometry(owner.mask).invalidated) owner.mask.preDraw();
 							owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
 							if (svgClipMode) {
 								svgClipMode.length--;
@@ -393,6 +394,8 @@ package com.degrafa.geometry.command{
 						} else {
 
 							removeContextualSettings();
+
+							if (Geometry(owner.mask).invalidated) owner.mask.preDraw();
 							owner.mask.draw(_maskRender.graphics, owner.mask.bounds);
 							
 							if (owner.maskMode == "svgMask") {
