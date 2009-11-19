@@ -407,22 +407,22 @@
             _enableEvents=value;
         }
         
-        private var _surpressEventProcessing:Boolean=false;
+        private var _suppressEventProcessing:Boolean=false;
         /**
         * Temporarily suppress event processing for this object.
         **/
         [Inspectable(category="General", enumeration="true,false")]
-        public function get surpressEventProcessing():Boolean{
-            return _surpressEventProcessing;
+        public function get suppressEventProcessing():Boolean{
+            return _suppressEventProcessing;
         }
-        public function set surpressEventProcessing(value:Boolean):void{
+        public function set suppressEventProcessing(value:Boolean):void{
             
-            if(_surpressEventProcessing==true && value==false){
-                _surpressEventProcessing=value;
-                initChange("surpressEventProcessing",false,true,this);
+            if(_suppressEventProcessing==true && value==false){
+                _suppressEventProcessing=value;
+                initChange("suppressEventProcessing",false,true,this);
             }
             else{
-                _surpressEventProcessing=value; 
+                _suppressEventProcessing=value; 
             }
         }
         
@@ -432,7 +432,7 @@
         * @see EventDispatcher
         **/
         override public function dispatchEvent(event:Event):Boolean{
-            if(_surpressEventProcessing){return false;}
+            if(_suppressEventProcessing){return false;}
             
             return(super.dispatchEvent(event));
             
