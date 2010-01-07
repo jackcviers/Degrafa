@@ -60,9 +60,20 @@ package com.degrafa.geometry{
 	import mx.events.PropertyChangeEvent;
 	import mx.styles.ISimpleStyleClient;
 	
+	
+	
+	/**
+	 *  Dispatched when a Geometry object's drawing api commands have been processed internally by Degrafa.
+	 *
+	 *  @eventType com.degrafa.events.DegrafaEvent.RENDER
+	 */
+	[Event(name="render", type="com.degrafa.events.DegrafaEvent")]
+	
+
+	
+	
 	[DefaultProperty("geometry")]
 	[Bindable(event="propertyChange")]
-		
 	/**
  	*  A geometry object is a type of Degrafa object that enables 
  	*  rendering to a graphics context. Degrafa provides a number of 
@@ -128,8 +139,8 @@ package com.degrafa.geometry{
 				
 				var oldValue:Boolean=_visible;
 				_visible=value;
-				
-				invalidated = true;
+		//GD:this flag was messing up visibility on Path with states etc, removed it:		
+		//		invalidated = true;
 				
 				//call local helper to dispatch event
 				initChange("visible",oldValue,_visible,this);
