@@ -27,6 +27,10 @@
 package com.degrafa.states{
 	
 	
+	import com.degrafa.core.IDegrafaObject;
+	import com.degrafa.core.IGraphicSkin;
+	import com.degrafa.core.collections.GeometryCollection;
+	
 	import mx.events.FlexEvent;
 	import mx.events.StateChangeEvent;
 	
@@ -216,24 +220,105 @@ package com.degrafa.states{
 	
 	        if (stateName == lastState)
 	            return;
-	            
+			var firstCall:Boolean;     
 	        // Remove existing state overrides.
 	        // This must be done in reverse order
 	        if (state)
 	        {
+				
+				if (!isSuppressing) {
+					isSuppressing=firstCall=true;
+				}
+				
 	            // Dispatch the "exitState" event
 	            state.dispatchExitState();
 	
 	            var overrides:Array = state.overrides;
-	
+				getSuppressions(overrides);
 	            for (var i:int = overrides.length; i; i--)
 	                overrides[i-1].remove(stateClient);
 	
 	            // Remove any basedOn deltas last
 	            if (state.basedOn != lastState)
 	                removeState(state.basedOn, lastState);
+				
+				
+				if (firstCall) {
+					removeSuppressions();
+					suppressions.length=0;
+					isSuppressing=false;
+		//			trace('suppressions removed')
+				}
 	        }
 	    }
+		
+		private function getParentObject(from:IDegrafaObject):IDegrafaObject{
+			var obj:IDegrafaObject=from;
+			while (obj.parent){
+				obj=obj.parent;
+			}
+			
+			return obj;
+			
+			
+		}
+		
+		
+		private function getSuppressions(overrides:Array):Array{
+			
+			//var suppressions:Array=[];
+		//	var overrides:Array = state.overrides;
+//			trace('getting Suppressions')
+		
+			if (stateClient is IGraphicSkin && suppressions.indexOf(stateClient)==-1) {
+				suppressions.push(stateClient);
+				Object(stateClient).suppressEventProcessing=true;	
+				var geomCollection:GeometryCollection = GeometryCollection(Object(stateClient).geometryCollection);
+				suppressions.push(geomCollection);
+				geomCollection.suppressEventProcessing=true;	
+	//			trace('suppressed '+stateClient)
+			}
+				
+				for (var i:int = 0; i < overrides.length; i++){
+					var check:Object=IOverride(overrides[i]).targetRef(stateClient);
+					if (check is Array) for each(var item:Object in check) {
+						var upperItem:IDegrafaObject
+						if (item is IDegrafaObject)
+						{	 
+						upperItem = getParentObject(IDegrafaObject(item))
+						if (suppressions.indexOf(upperItem)==-1){
+								suppressions.push(upperItem);
+								IDegrafaObject(upperItem).suppressEventProcessing=true;
+							}
+						}
+					} else if (check is IDegrafaObject && suppressions.indexOf(check)==-1){
+						suppressions.push(check);
+						IDegrafaObject(check).suppressEventProcessing=true;
+	//					trace('suppressed '+check.id)
+					}
+					
+			
+				
+			}
+	//		trace('suppressed '+suppressions)
+			return suppressions;
+		}
+		
+		private function removeSuppressions():void{
+			
+			
+		//	if (!value) return;
+			var l:int=suppressions.length;
+			
+			while(l) {
+				l--;
+				Object(suppressions[l]).suppressEventProcessing=false;
+	//			trace('unsuppressed '+suppressions[l])
+			}
+		}
+		
+		private  var suppressions:Array=[];
+		private  var isSuppressing:Boolean;
 		
 		/**
 		* Applys the passed state. Making it the current state.
@@ -243,20 +328,35 @@ package com.degrafa.states{
 	
 	        if (stateName == lastState)
 	            return;
-	            
+	          var firstCall:Boolean;
 	        if (state)
 	        {
+				
+				if (!isSuppressing) {
+					isSuppressing=firstCall=true;
+				}
 	            // Apply "basedOn" overrides first
-	            if (state.basedOn != lastState)
-	                applyState(state.basedOn, lastState);
+	            if (state.basedOn != lastState) 		
+					 applyState(state.basedOn, lastState);
+
+	               
 	
 	            // Apply new state overrides
 	            var overrides:Array = state.overrides;
-	
+	           getSuppressions(overrides);
 	            for (var i:int = 0; i < overrides.length; i++)
 	                overrides[i].apply(stateClient);
+				
+				if (firstCall) {
+					removeSuppressions();
+					suppressions.length=0;
+					isSuppressing=false;
+	//				trace('suppressions removed')
+				}
 	
 	        }
+			
+			
 	    }
 
     	/**

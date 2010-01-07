@@ -38,6 +38,7 @@ package com.degrafa.states{
 		function initialize():void
 		function apply(parent:IDegrafaStateClient):void;
 		function remove(parent:IDegrafaStateClient):void;
+		function targetRef(parent:IDegrafaStateClient):Object;
 	}
 	
 }

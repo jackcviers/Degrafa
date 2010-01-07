@@ -76,6 +76,14 @@ package com.degrafa.states{
 		* Initializes the override.
 		**/
 		public function initialize():void {}
+
+		
+		/**
+		 * Resolves the target Reference
+		 **/
+		public function targetRef(parent:IDegrafaStateClient):Object{
+			return relativeTo ? relativeTo : parent;
+		}
 		
 		/**
 		* Applies the override.

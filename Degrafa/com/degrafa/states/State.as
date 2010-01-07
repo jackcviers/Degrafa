@@ -82,8 +82,9 @@ package com.degrafa.states{
 		* The overrides for this view state, as an Array of objects that 
 		* implement the IOverride interface.
 		**/
+
+		[Inspectable(arrayType="com.degrafa.states.State")]		
 		[ArrayElementType("com.degrafa.states.IOverride")]
-		[Inspectable(category="General")]
 		public var overrides:Array = [];
 	
 	    /**

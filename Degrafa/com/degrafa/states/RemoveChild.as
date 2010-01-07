@@ -67,18 +67,25 @@ package com.degrafa.states{
 		public function initialize():void {}
 		
 		/**
-		* Applies the override.
-		**/
-		public function apply(parent:IDegrafaStateClient):void{
-			removed = false;
-			
+		 * Resolves the target Reference
+		 **/
+		public function targetRef(parent:IDegrafaStateClient):Object{
+			oldParent=null;
 			if(Geometry(target).parent){
 				oldParent = IDegrafaStateClient(Geometry(target).parent); 
 			}
 			else{//else it's root
 				oldParent = parent;
 			}
+			return oldParent;
+		}
+		/**
+		* Applies the override.
+		**/
+		public function apply(parent:IDegrafaStateClient):void{
+			removed = false;
 			
+			oldParent = targetRef(parent) as IDegrafaStateClient;
 			if(!oldParent){return;}
 			
 			oldIndex = oldParent.geometryCollection.getItemIndex(target as IGeometry);
@@ -91,8 +98,10 @@ package com.degrafa.states{
 		* Removes the override.
 		**/
 		public function remove(parent:IDegrafaStateClient):void{
+			oldParent = (targetRef(parent) as IDegrafaStateClient);
+			
 			oldParent.geometryCollection.addItemAt(target as IGeometry, oldIndex);
-
+			if(!oldParent){return;}
 			//required so we are sure the parent is reset as required.	
 			var tempGeometry:Array=[] 
 	        tempGeometry = tempGeometry.concat(parent.geometryCollection.items);

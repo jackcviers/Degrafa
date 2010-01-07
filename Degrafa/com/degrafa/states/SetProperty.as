@@ -26,7 +26,7 @@
 //modified for degrafa
 package com.degrafa.states{
 
-	import com.degrafa.geometry.Geometry;
+	
 	
 	//--------------------------------------
 	//  Other metadata
@@ -73,11 +73,25 @@ package com.degrafa.states{
 		**/
 	    public function initialize():void{}
 	    
+		
+		/**
+		 * Resolves the target Reference
+		 **/
+		public function targetRef(parent:IDegrafaStateClient):Object{
+			var obj:Object;
+			//variant over the flex3 approach (a string is assumed to be a property of the parent)
+			if (target is String ) obj=parent[target];
+			else obj = target ? target : parent;
+			return obj;
+		}
+		
 	    /**
 	    * Applies the override.
 	    **/
 	    public function apply(parent:IDegrafaStateClient):void{
-	        var obj:Object = target ? target : parent;
+			var obj:Object;
+
+			obj = targetRef(parent);
 	        
 	        var propName:String = name;
 	        var newValue:* = value;
@@ -106,7 +120,8 @@ package com.degrafa.states{
 			
 	        	// Remember the current value so it can be restored
 	        	oldValue = obj[propName];
-	        
+		//		if (oldValue=="true" || oldValue=="false") oldValue=oldValue=="true";
+		
 	        	// Set new value
 	        	setPropertyValue(obj, propName, newValue, oldValue);
 	        	
@@ -119,7 +134,9 @@ package com.degrafa.states{
 		* Removes the override.
 		**/
 	    public function remove(parent:IDegrafaStateClient):void{
-	        var obj:Object = target ? target : parent;
+			 var obj:Object;
+
+			 obj = targetRef(parent);
 	        
 	        var propName:String = name;
 	        

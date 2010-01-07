@@ -75,6 +75,19 @@ package com.degrafa.states{
 		**/
 	    public function initialize():void{}
 	    
+		/**
+		* Resolves the target Reference
+		**/
+		public function targetRef(parent:IDegrafaStateClient):Object{
+			var obj:Object;
+			//variant over the flex3 approach (a string is assumed to be a property of the parent)
+			//consistent with outcome of code in flex4
+			if (target is String ) obj=parent[target];
+			else obj = target ? target : parent;
+			return obj;
+		}
+		
+		
 	    /**
 	    * Applies the override.
 	    **/
@@ -82,7 +95,9 @@ package com.degrafa.states{
 	        
 	        //get the object being modified if no target is passed then
 	        //assume states container (i.e. the passed parent)
-	        var obj:Object = target ? target : parent;
+			var obj:Object;
+
+			 obj = targetRef(parent);
 	        
 	        var newValue:*;
 	        var propName:String;
@@ -132,7 +147,9 @@ package com.degrafa.states{
 		* Removes the override.
 		**/
 	    public function remove(parent:IDegrafaStateClient):void{
-	        var obj:Object = target ? target : parent;
+
+			var obj:Object;
+			obj = targetRef(parent);
 	        
 	        // Restore the old values
 	        for each (var item:Object in oldValues){

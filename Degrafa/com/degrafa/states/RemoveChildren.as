@@ -50,7 +50,7 @@ package com.degrafa.states{
 		**/
 		public var targets:Array;
 		
-		//stores the parent,index and refference to the removed items so we can revert
+		//stores the parent,index and reference to the removed items so we can revert
 		//on remove.
 		private var oldItemValues:Dictionary = new Dictionary(true);
 		
@@ -70,6 +70,35 @@ package com.degrafa.states{
 		* Initializes the override.
 		**/
 		public function initialize():void {}
+
+		/**
+		 * Resolves the target Reference
+		 **/
+		public function targetRef(parent:IDegrafaStateClient):Object{
+			//in this case return an array of oldParents
+			var ret:Array=[];
+			var i:int=0;
+			var l:int=targets.length;
+			//convert ids to Geometry references
+			for (;i<l;i++){
+				if (targets[i] is String) targets[i]=parent[targets[i]];
+			}
+			
+			for each (var item:Geometry in targets){
+				var oldParent:Geometry=null;
+				
+				if(item.parent){
+					oldParent = item.parent as Geometry; 
+				}
+				else{//else it's root
+					oldParent = parent as Geometry;
+				}
+				if (oldParent) ret.push(oldParent);
+			}
+			
+			return ret;
+		}		
+		
 		
 		/**
 		* Applies the override.
