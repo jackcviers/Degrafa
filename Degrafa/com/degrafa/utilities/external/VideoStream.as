@@ -457,6 +457,7 @@ package com.degrafa.utilities.external
 		
 		protected function resetInternalState():void{
 
+			_vid.clear();
 			_wasBitmapAccessible=false;
 			_bitmapAccessible=false;
 			_bitmapAccessTested=false;
