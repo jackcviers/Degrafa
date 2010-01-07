@@ -119,6 +119,8 @@
     <component id="GraphicBorderSkin" class="com.degrafa.skins.GraphicBorderSkin"/>
 	<component id="GraphicProgrammaticSkin" class="com.degrafa.skins.GraphicProgrammaticSkin"/>
 	<component id="GraphicRectangularBorderSkin" class="com.degrafa.skins.GraphicRectangularBorderSkin"/>
+	<component id="StateClientSkin" class="com.degrafa.skins.StateClientSkin"/>
+	<component id="StateClientBorder" class="com.degrafa.skins.StateClientBorder"/>
 	
 	<!--runtime loading-->
 	<component id="LoadingLocation" class="com.degrafa.utilities.external.LoadingLocation" />
