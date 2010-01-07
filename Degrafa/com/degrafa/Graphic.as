@@ -334,7 +334,7 @@ package com.degrafa{
 	        }
 			else
 			{
-				this.graphics.lineStyle(0, 0xFFFFFF, 0);
+				this.graphics.lineStyle();
 			}
 			
 			 
