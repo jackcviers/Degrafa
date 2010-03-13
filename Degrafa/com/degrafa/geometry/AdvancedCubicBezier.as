@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// Programmed by: Jim Armstrong
+// Programmed by: Jim Armstrong 
 //
 // This software is derived from source containing the following copyright notice
 //
