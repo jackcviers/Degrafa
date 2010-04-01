@@ -21,9 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.geometry{
 	
+	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.command.CommandStackItem;
-	import com.degrafa.IGeometry;
 	
 	import flash.display.Graphics;
 	import flash.geom.Rectangle;
@@ -274,7 +274,79 @@ package com.degrafa.geometry{
 				invalidated = true;
 			}
 		}
+		
+		
+		private static const  _sides:Array=["none","top","right","bottom","left"];
+		private var _unclosedSide:int=-1;
+		[Inspectable(category="General", enumeration="top,left,right,bottom,none")]
+		/**
+		 * A utility setting to prevent a stroke rendering on one side of this RoundedRectangleComplex, if set to one of top,left,right,bottom.
+		 * The default value is none which means the RoundedRectangleComplex will draw with a complete stroke on all sides - the usual case.
+		 * This option can be useful for skinning 'appendages' such as tab navigator tabs etc, where the side adjacent to a larger rectangular region should not have a delimiting stroke
+		 */
+		public function get unclosedSide():String {
+			if (_unclosedSide<0) return _sides[0];
+			return _sides[_unclosedSide];
+		}
+		
+		public function set unclosedSide(value:String):void {
+			if (value!=_sides[_unclosedSide]){
+				var idx:int=_sides.indexOf(value);
+				var oldval:int;
+				if (idx!=-1){
+					oldval=_unclosedSide;
+					_unclosedSide = idx;
+					processUnclosedSide(_unclosedSide,oldval);
+					initChange("unclosedSide",_sides[oldval],_sides[_unclosedSide],this)
+				}
+			} 
+		}
+		
+		
+		/**
+		 * @private
+		 * */
+		private function processUnclosedSide(newSide:int,oldSide:int=0):void{
+			var sideName:String
+			var item:CommandStackItem;
+			var newSequence:Array
+			if (oldSide>0 ) {
+				sideName=_sides[oldSide];
+				item=this[sideName+'Line'] as CommandStackItem;
+				if (item) item.type=CommandStackItem.LINE_TO;
+				if (newSide<1){
+					newSequence=sequence.concat();
+					newSequence.unshift(startPoint);
+					item=CommandStackItem(newSequence[newSequence.length-1]);
+					while(item.skip) item=item.previous;
+					startPoint.x= (item.type==2)? item.x1:item.x;
+					startPoint.y= (item.type==1)? item.y1:item.y;
+					commandStack.source=newSequence;
+				}
+			}
 
+			if (newSide>0) {
+				
+				sideName=_sides[newSide];
+				item=this[sideName+'Line'] as CommandStackItem;
+
+				if (item){
+					newSequence=sequence.concat();
+					 item.type=CommandStackItem.MOVE_TO;
+					 newSide--;
+					 while(newSide){
+					 	newSide--;
+					 	newSequence.push(newSequence.shift());newSequence.push(newSequence.shift());newSequence.push(newSequence.shift());
+					 }
+					 newSequence.unshift(startPoint);
+					 var from:CommandStackItem=CommandStackItem(newSequence[newSequence.length-1]);
+					 while (from.skip) from=from.previous;
+					 startPoint.x= (from.type==2)? from.x1:from.x;
+					 startPoint.y= (from.type==1)? from.y1:from.y;
+					 commandStack.source=newSequence;
+				} 	
+			} 
+		}
 
 		/**
 		 * private internal function to update the values in the commandStack for rendering. 
@@ -526,17 +598,13 @@ package com.degrafa.geometry{
 									topLeftCorner2.cy = c2y;
 									topLeftCorner2.x1 = innerLeftTop;
 									topLeftCorner2.y1 = y;
+									
 							}
 						
 					return commandStack.source[0];
 
 		}
 		
-		/** Exposed as protected (from private)
-		 *  so subclasses can have access to these as reference points
-		 *  regardless of what order they get added to the 
-		 *  command stack.   6/10/2009   twgonzalez
-		 */
 		
 		protected var startPoint:CommandStackItem;
 		protected var topLine:CommandStackItem;   
@@ -559,6 +627,8 @@ package com.degrafa.geometry{
 		protected var topLeftCorner1:CommandStackItem;
 		protected var topLeftCorner2:CommandStackItem;
 		
+
+		protected var sequence:Array
 		/**
 		* @inheritDoc 
 		**/
@@ -574,29 +644,34 @@ package com.degrafa.geometry{
 										
 					//set up quick references to manipulate items directly
 					startPoint=commandStack.addItem(new CommandStackItem(CommandStackItem.MOVE_TO));
-					topLine = commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					topLine = new CommandStackItem(CommandStackItem.LINE_TO);
 					
-					topRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
-					topRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topRightCorner1=new CommandStackItem(CommandStackItem.CURVE_TO);
+					topRightCorner2=new CommandStackItem(CommandStackItem.CURVE_TO);
 					
-					rightLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					rightLine=new CommandStackItem(CommandStackItem.LINE_TO);
 					
-					bottomRightCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
-					bottomRightCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomRightCorner1=new CommandStackItem(CommandStackItem.CURVE_TO);
+					bottomRightCorner2=new CommandStackItem(CommandStackItem.CURVE_TO);
 					
-					bottomLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					bottomLine=new CommandStackItem(CommandStackItem.LINE_TO);
 					
-					bottomLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
-					bottomLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					bottomLeftCorner1=new CommandStackItem(CommandStackItem.CURVE_TO);
+					bottomLeftCorner2=new CommandStackItem(CommandStackItem.CURVE_TO);
 					
-					leftLine=commandStack.addItem(new CommandStackItem(CommandStackItem.LINE_TO));
+					leftLine=new CommandStackItem(CommandStackItem.LINE_TO);
 					
-					topLeftCorner1=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
-					topLeftCorner2=commandStack.addItem(new CommandStackItem(CommandStackItem.CURVE_TO));
+					topLeftCorner1=new CommandStackItem(CommandStackItem.CURVE_TO);
+					topLeftCorner2=new CommandStackItem(CommandStackItem.CURVE_TO);
+					
+					sequence=[topLine,topRightCorner1,topRightCorner2,rightLine,bottomRightCorner1,bottomRightCorner2,bottomLine,bottomLeftCorner1,bottomLeftCorner2,leftLine,topLeftCorner1,topLeftCorner2]
+					for each(var item:CommandStackItem in sequence) commandStack.addItem(CommandStackItem(item))
+					
+					
 					
 				}
 				updateCommandStack();
-		
+				if (_unclosedSide>0) processUnclosedSide(_unclosedSide);
 				invalidated = false;
 			}
 			
