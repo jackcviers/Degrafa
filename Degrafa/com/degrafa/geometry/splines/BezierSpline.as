@@ -295,6 +295,10 @@ package com.degrafa.geometry.splines{
 		* Adds a new point to the bezier curve.
 		**/
 	    public function addControlPoint(x:Number,y:Number):void{
+            if( !_points ) {
+              points = [];
+            }
+            
 	    	if( !isNaN(x) && !isNaN(y) ){
 	        	_points.addItem(new GraphicPoint(x,y));
 	        		        	
