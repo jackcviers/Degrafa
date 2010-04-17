@@ -239,7 +239,11 @@ package com.degrafa.geometry{
 		}
 		public function set graphicsTarget(value:Array):void{
 			
-			if(!value){return;}
+			if(!value){//clear the items to process as we now have no targets
+				_graphicsTarget.items=[];
+				methodQueue.length = 0;
+				return;
+			}
 			
 			var item:Object;
 			for each (item in value){
