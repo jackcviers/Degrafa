@@ -25,7 +25,6 @@ package com.degrafa{
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.IGraphicsStroke;
 	import com.degrafa.core.collections.FillCollection;
-	
 	import com.degrafa.core.collections.StrokeCollection;
 	
 	import flash.display.DisplayObject;
@@ -33,15 +32,14 @@ package com.degrafa{
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
-	import mx.events.FlexEvent;
-	import mx.utils.NameUtil;
-
-
 	import mx.core.IMXMLObject;
+	import mx.events.FlexEvent;
 	import mx.events.PropertyChangeEvent;
 	import mx.events.PropertyChangeEventKind;
+	import mx.utils.NameUtil;
 	
 	[Event(name="initialize", type="mx.events.FlexEvent")]
 	[Event(name="propertyChange", type="mx.events.PropertyChangeEvent")]
@@ -54,7 +52,14 @@ package com.degrafa{
 	* @see flash.display.Sprite
 	**/
 	public class Graphic extends Sprite implements IMXMLObject{	
-			
+		
+		
+		
+		
+		
+		TARGET::FLEX4  protected static const zeroOrigin:Point=new Point();		
+		
+		
 		/**
 		* Number that specifies the vertical position, in pixels, within the target.
 		**/
@@ -342,10 +347,12 @@ package com.degrafa{
 	        	
 	        	if(!rc){
 	        		var rect:Rectangle = new Rectangle(0,0,width,height);
-	        		fill.begin(this.graphics, rect);
+			TARGET::FLEX3  {fill.begin(graphics, rect);}
+			TARGET::FLEX4  {fill.begin(graphics, rect,zeroOrigin);	}
 	        	}
 	        	else{
-	        		fill.begin(this.graphics, rc);
+			TARGET::FLEX3  {fill.begin(graphics, rc);}
+			TARGET::FLEX4  {fill.begin(graphics, rc,zeroOrigin);	}
 	        	}
 	        	
 	        }

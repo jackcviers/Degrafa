@@ -21,30 +21,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.collections.FilterCollection;
-	import com.degrafa.core.ITransformablePaint;
-	import com.degrafa.events.DegrafaEvent;
-	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.GeometryComposition;
 	import com.degrafa.GeometryGroup;
-	import com.degrafa.transform.TransformBase;
-
-	import com.degrafa.geometry.RegularRectangle;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
+	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.core.Measure;
+	import com.degrafa.core.collections.FilterCollection;
+	import com.degrafa.events.DegrafaEvent;
 	import com.degrafa.geometry.Geometry;
+	import com.degrafa.geometry.RegularRectangle;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
-	import flash.display.BlendMode;
-	import flash.display.Sprite;
-	import flash.filters.BitmapFilter;
+	import com.degrafa.transform.TransformBase;
 	
 	import flash.display.BitmapData;
+	import flash.display.BlendMode;
 	import flash.display.Graphics;
 	import flash.display.Shape;
+	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.filters.BitmapFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -1013,6 +1012,7 @@ package com.degrafa.paint{
 		/**
 		 * begins the VectorFill
 		 */
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 
 			if (rc && (rc.isEmpty() || rc.width*rc.height<1)) return; //no fill
@@ -1228,7 +1228,226 @@ package com.degrafa.paint{
 			//reset the forcePrerender flag
 			_requiresPreRender  = false;
 		}
-
+}
+	
+TARGET::FLEX4  {
+	public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {
+		
+		if (rc && (rc.isEmpty() || rc.width*rc.height<1)) return; //no fill
+		if (_enableSourceClipping && !_clipSourceRect) return ; // empty fill....as clipSource has not yet been assigned.
+		
+		if (_requiresRedraw) redraw();
+		
+		var template:BitmapData = bitmapData;
+		var repeat:Boolean;
+		var positionX:Number = 0; 
+		var positionY:Number = 0;
+		var regPoint:Point;
+		matrix.identity();
+		matrix.translate(rc.x, rc.y);
+		
+		
+		if (_insetFromStroke && _requester && (_requester as Geometry).stroke){
+			var strokeoffset:uint;
+			strokeoffset = Math.ceil((_requester as Geometry).stroke.weight / 2);
+			// for a zero weight stroke, give it a 1 pixel offset
+			if (!strokeoffset) strokeoffset = 1;
+			rc = rc.clone(); 
+			rc.inflate( -strokeoffset, -strokeoffset); //inset by strokeoffset - used for scaling if needed
+			matrix.translate(strokeoffset, strokeoffset); //ditto for rendering
+			_requiresPreRender = true;
+		}
+		if (rc && !_rectBuffer.equals(rc)) {
+			//we have a different target to draw to. This may force a preRender if we need to.
+			//todo: review targetSetting related conditions and add here if needed
+			
+			if (!(_repeatX==VectorFill.NONE || _repeatX==VectorFill.REPEAT) || !(_repeatY==VectorFill.NONE || _repeatY==VectorFill.REPEAT) ) _requiresPreRender = true;
+			_rectBuffer.topLeft = rc.topLeft;
+			_rectBuffer.bottomRight = rc.bottomRight;
+			
+		}
+		
+		repeat = false;
+		if (_targetSetting) 
+		{
+			if (_requiresPreRender)
+				if (_targetSetting!=3){
+					
+					
+					{
+						
+						//first let's get some integer constraints on the fill target bounds.
+						var targRect:Rectangle = rc.clone();
+						targRect.width=Math.ceil(targRect.width+(targRect.x- (targRect.x=Math.floor(targRect.x))));
+						targRect.height=Math.ceil(targRect.height+(targRect.y-(targRect.y=Math.floor(targRect.y))));
+						
+						preRender(2, 2, false, targRect, _enableSourceClipping? _clipSourceRect:null);
+						//if the bitmapdata was scaled to zero, then exit the fill
+						if (bitmapData==null) return;
+						template = bitmapData;
+						
+						
+					}
+					
+				} 
+				else 
+				{ //centre to target
+					
+					if (_enableSourceClipping) preRender(2, 2, _requiresRedraw,null,_clipSourceRect);
+					else preRender(2, 2, _requiresRedraw, null);
+					//if the bitmapdata was scaled to zero in prendering, then exit the fill
+					if (!bitmapData) return;
+					template = bitmapData;
+					
+					
+				}
+			switch(_targetSetting)
+			{
+				case 2:
+					//if match targetboundsmaintainaspectratio, then centre it to the target bounds
+					
+					matrix.translate(rc.width/2-bitmapData.width/2,rc.height/2-bitmapData.height/2)
+					
+					break;
+				case 3 :
+					matrix.translate(-2,-2)
+					if (enableSourceClipping) 	matrix.translate(rc.width/2-_clipSourceRect.width/2, rc.height/2-_clipSourceRect.height/2);
+					else matrix.translate(rc.width/2-sourceBounds.width/2, rc.height/2-sourceBounds.height/2);
+					//allow repeating in both directions on this setting otherwise ignore.
+					if (_repeatX == VectorFill.REPEAT && _repeatY == VectorFill.REPEAT) repeat = true;
+					
+					break;
+				default:
+					matrix.translate(-2,-2)
+					
+					break;
+				
+				
+			}
+			
+		}
+			
+		else {  //there is no 'smart' setting for the target... use the regular BitmapFill approach
+			
+			
+			var targetRect:Rectangle=  _enableSourceClipping ? _clipSourceRect.clone(): sourceBounds.clone();
+			
+			var padX:uint = 2;
+			var padY:uint = 2;
+			var repX:uint = 1;
+			var repY:uint = 1;
+			var renderingPadX:uint = 0;
+			var renderingPadY:uint = 0;
+			switch (_repeatX)
+			{
+				case VectorFill.STRETCH:
+					targetRect.width = rc.width;
+					break;
+				case VectorFill.SPACE:
+					renderingPadX = Math.round(Math.round((rc.width % targetRect.width) / int(rc.width/targetRect.width))  / 2);
+					padX = 0;
+					repX = int(rc.width / targetRect.width);
+					repX = repX == 0?1:repX;
+					break;
+				case VectorFill.REPEAT :
+					padX = 0;
+					repX = int(rc.width / targetRect.width) + 1;
+					break;
+				case VectorFill.NONE:
+					
+					break;
+			}
+			switch (_repeatY)
+			{
+				case VectorFill.STRETCH:
+					targetRect.height = rc.height;
+					break;
+				case VectorFill.SPACE:
+					renderingPadY = Math.round(Math.round((rc.height % targetRect.height) / int(rc.height/targetRect.height))  / 2);
+					padY = 0;
+					repY = int(rc.height / targetRect.height);
+					repY = repY == 0?1:repY;
+					
+					break;
+				case VectorFill.REPEAT :
+					padY = 0;
+					repY = int(rc.height / targetRect.height) + 1
+					break;
+				case VectorFill.NONE:
+					if (_repeatX==VectorFill.NONE) repeat = false;
+					break;
+			}
+			
+			if ((repX > 1 && repY > 1)  ) {
+				//we have both x and y repeats, so just use the flash native bitmapfill's x&y repeat
+				repX = 1;
+				repY = 1;
+				padX = 0;
+				padY = 0;
+				repeat = true;
+			} 
+			
+			if (_requiresPreRender){
+				preRender(padX+renderingPadX,padY+renderingPadY,_requiresRedraw,targetRect,_enableSourceClipping?_clipSourceRect:null,repX,repY)
+				if (bitmapData==null) return;
+				template = bitmapData;
+				
+			}
+			repeat = (repeat || !(repeatX == VectorFill.NONE || repeatY == VectorFill.NONE));
+			
+			if(repeatX == VectorFill.NONE || repeatX == VectorFill.REPEAT) {
+				positionX = _offsetX.relativeTo(rc.width-template.width)
+			}
+			
+			if(repeatY == VectorFill.NONE || repeatY == VectorFill.REPEAT) {
+				positionY = _offsetY.relativeTo(rc.height-template.height)
+			}
+			
+			matrix.translate(-padX, -padY);
+			
+		}
+		matrix.translate( -_originX, -_originY);
+		
+		matrix.scale(_scaleX, _scaleY);
+		matrix.rotate(_rotation*(Math.PI/180));
+		matrix.translate(positionX, positionY);
+		var transformRequest:ITransform;
+		var tempmat:Matrix;
+		//handle layout transforms 
+		if (_requester && (_requester as Geometry).hasLayout) {
+			var geom:Geometry = _requester as Geometry;
+			if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+		}
+		if (_transform && ! _transform.isIdentity) {
+			tempmat= new Matrix();
+			regPoint = _transform.getRegPointForRectangle(rc);
+			tempmat.translate(-regPoint.x,-regPoint.y);
+			tempmat.concat(_transform.transformMatrix);
+			tempmat.translate( regPoint.x,regPoint.y);
+			matrix.concat(tempmat);
+		} 
+		if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+			
+			if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+			else matrix.concat((_requester as Geometry).transformContext);
+			//remove the requester reference
+			_requester = null;
+		}
+		
+		if (graphics) graphics.beginBitmapFill(template, matrix, repeat, _smooth );
+		_lastArgs.length = 0;
+		_lastArgs[0] = template;
+		_lastArgs[1] = matrix;
+		_lastArgs[2] = repeat;
+		_lastArgs[3] = smooth;
+		_lastContext = graphics;
+		_lastRect = rc;
+		
+		//reset the forcePrerender flag
+		_requiresPreRender  = false;
+	}
+	
+}
 		/**
 		* Ends the Vectorfill for the graphics context.
 		**/

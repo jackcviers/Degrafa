@@ -251,7 +251,8 @@ package com.degrafa.geometry{
 		override public function initFill(graphics:Graphics, rc:Rectangle):void {
 			if (background && _backgroundFill ) {
 				internalbackground.graphics.clear();
-				_backgroundFill.begin(internalbackground.graphics, rc);
+	TARGET::FLEX3  {_backgroundFill.begin(internalbackground.graphics, rc);}
+	TARGET::FLEX4  {_backgroundFill.begin(internalbackground.graphics,rc,zeroOrigin);}
 				internalbackground.graphics.drawRect(rc.x, rc.y, rc.width, rc.height);
 			}
 			if (!(_fill is SolidFill)) {

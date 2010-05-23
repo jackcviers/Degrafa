@@ -25,8 +25,9 @@ package com.degrafa.paint{
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
-
+	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 
@@ -100,6 +101,8 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
+		
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			
 			//basically do nothing: force the fill to be empty
@@ -108,7 +111,15 @@ package com.degrafa.paint{
 			if (graphics) graphics.beginFill(0xffffffff);
 								
 		}
-		
+}
+TARGET::FLEX4  {
+		public function begin(graphics:Graphics, rc:Rectangle ,p:Point):void{
+			//basically do nothing: force the fill to be empty
+			_lastContext = graphics;
+			_lastRect = rc;
+			if (graphics) graphics.beginFill(0xffffffff);
+		}
+}		
 		/**
 		* Ends the fill for the graphics context.
 		* 

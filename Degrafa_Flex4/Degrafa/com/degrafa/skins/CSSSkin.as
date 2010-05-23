@@ -829,7 +829,8 @@ package com.degrafa.skins
 			if(fill1 is SolidColor && fill2 is SolidColor) {
 				var fill:LinearGradient = new LinearGradient();
 				fill.entries = [new GradientEntry((fill1 as SolidColor).color, 0, (fill1 as SolidColor).alpha), new GradientEntry((fill2 as SolidColor).color, 1, (fill2 as SolidColor).alpha)];
-				fill.angle = angle;
+		TARGET::FLEX3 {	fill.angle = angle;}
+		TARGET::FLEX4 {	fill.rotation=angle;}
 				return fill;
 			} else {
 				return fill1;

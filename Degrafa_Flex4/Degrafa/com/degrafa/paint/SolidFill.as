@@ -21,14 +21,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.utils.ColorUtil;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.paint.palette.PaletteEntry;
 	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	import mx.events.PropertyChangeEvent;
@@ -217,6 +218,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			
 			//ensure that all defaults are in fact set these are temp until fully tested
@@ -235,7 +237,28 @@ package com.degrafa.paint{
 			_lastRect = rc;
 			graphics.beginFill(color as uint,alpha);						
 		}
+}
 		
+TARGET::FLEX4  {
+	public function begin(graphics:Graphics, rc:Rectangle,p:Point):void{
+		
+		//ensure that all defaults are in fact set these are temp until fully tested
+		if (isNaN(_alpha)) { _alpha = 1; }
+		
+		//handle alpha modification
+		var csAlpha:Number = CommandStack.currentAlpha;
+		var alpha:Number = this.alpha;
+		if (csAlpha != 1) { alpha *= csAlpha;	}
+		
+		
+		_lastArgs.length = 0;
+		_lastArgs[0] = color as uint;
+		_lastArgs[1] = alpha;
+		_lastContext = graphics;
+		_lastRect = rc;
+		graphics.beginFill(color as uint,alpha);						
+	}
+}	
 		/**
 		* Ends the fill for the graphics context.
 		* 

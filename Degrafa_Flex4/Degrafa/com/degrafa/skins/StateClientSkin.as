@@ -30,9 +30,9 @@ package com.degrafa.skins
 		import com.degrafa.core.collections.GeometryCollection;
 		import com.degrafa.core.collections.StrokeCollection;
 		import com.degrafa.geometry.Geometry;
+		import com.degrafa.states.IDegrafaStateClient;
 		import com.degrafa.states.State;
 		import com.degrafa.states.StateManager;
-		import com.degrafa.states.IDegrafaStateClient;
 		import com.degrafa.triggers.ITrigger;
 		
 		import flash.display.DisplayObject;
@@ -40,6 +40,7 @@ package com.degrafa.skins
 		import flash.display.Graphics;
 		import flash.display.Sprite;
 		import flash.events.Event;
+		import flash.geom.Point;
 		import flash.geom.Rectangle;
 		
 		import mx.core.IFlexDisplayObject;
@@ -83,6 +84,10 @@ package com.degrafa.skins
 				super();
 				addEventListener(Event.ADDED_TO_STAGE,onAddedToStage);
 			}
+			
+			
+			
+	TARGET::FLEX4  protected static const zeroOrigin:Point=new Point();	
 			
 			//--------------------------------------------------------------------------
 			//
@@ -734,12 +739,7 @@ package com.degrafa.skins
 			
 			if (stroke)
 			{
-			//	if(!rc){
-			//		stroke.apply(this.graphics,null);
-				//}
-			//	else{
 					stroke.apply(this.graphics,rect);	
-				//}
 				
 			}
 			else
@@ -750,13 +750,8 @@ package com.degrafa.skins
 			
 			if (fill){   
 				
-			//	if(!rc){
-					fill.begin(this.graphics, rect);
-			//	}
-			//	else{
-			//		fill.begin(this.graphics, rc);
-				//}
-				
+		TARGET::FLEX3  {fill.begin(this.graphics, rect);}
+		TARGET::FLEX4  {fill.begin(this.graphics, rect,zeroOrigin);}				
 			}
 			
 			

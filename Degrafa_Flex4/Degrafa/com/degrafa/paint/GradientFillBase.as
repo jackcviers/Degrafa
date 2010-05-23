@@ -298,6 +298,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void{
 			var matrix:Matrix;
 
@@ -417,7 +418,130 @@ package com.degrafa.paint{
 			//remove the requester reference
 			_requester = null;
 		}
+}
 		
+TARGET::FLEX4  {
+		//Flex 4 implementation of IFill
+		public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {	
+			var matrix:Matrix;
+			
+			//ensure that all defaults are in fact set these are temp until fully tested
+			if(!this._angle){this._angle=0;}
+			
+			if(!_focalPointRatio){_focalPointRatio=0;}
+			if(!_spreadMethod){_spreadMethod="pad";}
+			if(!_interpolationMethod){_interpolationMethod="rgb";}
+			matrix=new Matrix();	
+			var tempRect:Rectangle;
+			var _angle:Number = this._angle;
+			
+			if (_baseOrientation == "vertical" && rc) {
+				var midPtx:Number = rc.x + rc.width / 2;
+				var midPty:Number = rc.y + rc.height / 2;
+				tempRect =new Rectangle(midPtx-rc.height/2,midPty-rc.width/2,rc.height,rc.width);
+				_angle+=90;
+			} else tempRect=rc;
+			if (rc)
+			{					
+				matrix.createGradientBox(tempRect.width, tempRect.height,
+					(_angle / 180) * Math.PI, tempRect.x, tempRect.y);
+				if (_baseOrientation == "vertical") {
+					matrix.translate( -midPtx, -midPty);
+					matrix.scale(rc.width / tempRect.width, rc.height / tempRect.height);
+					matrix.translate( midPtx, midPty);
+				}
+				var xp:Number = (_angle % 90)/90;
+				var yp:Number = 1 - xp;
+				processEntries(tempRect.width * xp + tempRect.height * yp);
+			}
+			//handle layout transforms 
+			if (_requester && (_requester as Geometry).hasLayout) {
+				var geom:Geometry = _requester as Geometry;
+				if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+			}
+			
+			if (_transform && ! _transform.isIdentity) {
+				var regPoint:Point;
+				var tempmat:Matrix = new Matrix();
+				regPoint = _transform.getRegPointForRectangle(rc);
+				tempmat.translate(-regPoint.x,-regPoint.y);
+				tempmat.concat(_transform.transformMatrix);
+				tempmat.translate( regPoint.x,regPoint.y);
+				matrix.concat(tempmat);
+			}
+			
+			var transformRequest:ITransform;
+			if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+				if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+				else matrix.concat((_requester as Geometry).transformContext);
+				
+			}
+			
+			//handle alpha modification
+			var csAlpha:Number = CommandStack.currentAlpha;
+			var _alphas:Array = this._alphas;
+			if (csAlpha != 1) {
+				_alphas = _alphas.concat();
+				//modify the alphas for the gradient stops:
+				_alphas.forEach(function(el:*, index:uint, arr:Array):void { arr[index] *= csAlpha }, null);
+			}
+			
+			_lastArgs.length = 0;
+			_lastArgs[0] = gradientType;
+			_lastArgs[1] = _colors;
+			_lastArgs[2] = _alphas;
+			_lastArgs[3] = _ratios;
+			_lastArgs[4] = matrix;
+			_lastArgs[5] = spreadMethod;
+			_lastArgs[6] = interpolationMethod;
+			_lastArgs[7] = focalPointRatio;
+			_lastContext = graphics;
+			_lastRect = rc;
+			if (graphics) {
+				if (_colors.length > 16 && _requester) {
+					//handle larger stop collections
+					var len:uint = _colors.length;
+					var loops:uint = (len -15)/ 12 +1;
+					//first:
+					var __colors:Array = _colors.slice(0, 15);
+					var __alphas:Array = _alphas.slice(0, 15);
+					var __ratios:Array = _ratios.slice(0, 15);
+					__colors.push(0);
+					__ratios.push(_ratios[14]);
+					__alphas.push(0);
+					graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+					Geometry(_requester).commandStack.simpleRender(graphics, rc);
+					graphics.endFill()
+					var start:uint = 15;
+					while (loops--) {
+						__colors = _colors.slice(start-1, start + 13);
+						__alphas = _alphas.slice(start-1, start + 13);
+						__ratios = _ratios.slice(start-1, start + 13);
+						__colors.unshift(0);
+						__alphas.unshift(0);
+						__ratios.unshift(__ratios[0]);
+						
+						if (loops) {
+							__colors.push(0);
+							__alphas.push(0);
+							__ratios.push(__ratios[15])
+							graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+							Geometry(_requester).commandStack.simpleRender(graphics, rc);
+							graphics.endFill();
+						}
+						start += 13;
+					}
+					//back to regular draw cycle, with the final arguments
+					graphics.beginGradientFill(gradientType,__colors,__alphas,__ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
+					
+				} else {
+					graphics.beginGradientFill(gradientType, _colors, _alphas, _ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio);
+				}
+			}
+			//remove the requester reference
+			_requester = null;
+		}
+}
 		/**
 		* Ends the fill for the graphics context.
 		* 

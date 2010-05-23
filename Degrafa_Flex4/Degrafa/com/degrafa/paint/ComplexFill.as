@@ -21,22 +21,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
+	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.ITransformablePaint;
-	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.IGeometryComposition;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
-	import flash.geom.Point;
 	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Shape;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
 	
 	import mx.events.PropertyChangeEvent;
 	import mx.graphics.IFill;
@@ -179,12 +178,14 @@ package com.degrafa.paint{
 		/**
 		* Begins the complex fill.
 		**/
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 			// todo: optimize with more cacheing
 			if(rc.width > 0 && rc.height > 0 && _fills != null && _fills.length > 0) {
 				if (_fills.length == 1) { // short cut
 					if (_fills[0] is ITransformablePaint) (_fills[0] as ITransformablePaint).requester = _requester;
 					(_fills[0] as IFill ).begin(graphics, rc);
+								
 				} else {
 					var matrix:Matrix = new Matrix(1, 0, 0, 1, rc.x*-1, rc.y*-1);
 					if(fillsChanged || bitmapData == null || Math.ceil(rc.width) != bitmapData.width || Math.ceil(rc.height) != bitmapData.height) { // cacheing
@@ -249,7 +250,81 @@ package com.degrafa.paint{
 				}
 			}
 		}
-		
+	}		
+TARGET::FLEX4  {
+	public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {
+		// todo: optimize with more cacheing
+		if(rc.width > 0 && rc.height > 0 && _fills != null && _fills.length > 0) {
+			if (_fills.length == 1) { // short cut
+				if (_fills[0] is ITransformablePaint) (_fills[0] as ITransformablePaint).requester = _requester;
+				(_fills[0] as IFill ).begin(graphics, rc,p);
+				
+			} else {
+				var matrix:Matrix = new Matrix(1, 0, 0, 1, rc.x*-1, rc.y*-1);
+				if(fillsChanged || bitmapData == null || Math.ceil(rc.width) != bitmapData.width || Math.ceil(rc.height) != bitmapData.height) { // cacheing
+					bitmapData = new BitmapData(Math.ceil(rc.width), Math.ceil(rc.height), true, 0);
+					var g:Graphics = shape.graphics;
+					g.clear();
+					var lastType:String;
+					for each(var fill:IFill in _fills) {
+						if(fill is IBlend) {
+							if(lastType == "fill") {
+								bitmapData.draw(shape, matrix,null,null,null,true);
+							}
+							g.clear();
+							fill.begin(g, rc,p);
+							g.drawRect(rc.x, rc.y, rc.width, rc.height);
+							fill.end(g);
+							bitmapData.draw(shape, matrix, null, (fill as IBlend).blendMode,null,true);
+							lastType = "blend";
+						} else {
+							fill.begin(g, rc,p);
+							g.drawRect(rc.x, rc.y, rc.width, rc.height);
+							fill.end(g);
+							lastType = "fill";
+						}
+					}
+					
+					if(lastType == "fill") {
+						bitmapData.draw(shape, matrix);
+					}
+					fillsChanged = false;
+				}
+				matrix.invert();
+				//handle layout transforms - only renderLayouts so far
+				if (_requester && (_requester as Geometry).hasLayout) {
+					var geom:Geometry = _requester as Geometry;
+					if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+				}
+				
+				if (_transform && ! _transform.isIdentity) {
+					var regPoint:Point ;
+					var tempmat:Matrix = new Matrix();
+					regPoint = _transform.getRegPointForRectangle(rc);
+					tempmat.translate(-regPoint.x,-regPoint.y);
+					tempmat.concat(_transform.transformMatrix);
+					tempmat.translate( regPoint.x,regPoint.y);
+					matrix.concat(tempmat);
+				}
+				
+				var transformRequest:ITransform;
+				if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+					if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+					else matrix.concat((_requester as Geometry).transformContext);
+					//remove the requester reference
+					_requester = null;
+				}
+				
+				_lastArgs.length = 0;
+				_lastArgs[0] = bitmapData;
+				_lastArgs[1] = matrix;
+				_lastRect = rc;
+				if (graphics) graphics.beginBitmapFill(bitmapData, matrix);
+			}
+		}
+	}
+	
+}		
 		/**
 		* Ends the complex fill.
 		**/

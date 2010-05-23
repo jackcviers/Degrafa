@@ -21,17 +21,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
+	import com.degrafa.IGeometryComposition;
 	import com.degrafa.core.DegrafaObject;
 	import com.degrafa.core.IBlend;
 	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.core.ITransformablePaint;
 	import com.degrafa.core.Measure;
-	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.geometry.Geometry;
-	import com.degrafa.IGeometryComposition;
+	import com.degrafa.geometry.command.CommandStack;
 	import com.degrafa.transform.ITransform;
-	
-	import mx.events.PropertyChangeEventKind;
+	import com.degrafa.utilities.external.ExternalBitmapData;
+	import com.degrafa.utilities.external.ExternalDataAsset;
+	import com.degrafa.utilities.external.ExternalDataPropertyChangeEvent;
+	import com.degrafa.utilities.external.LoadingLocation;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -43,14 +45,11 @@ package com.degrafa.paint{
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	
 	import flash.utils.getDefinitionByName;
-	import mx.events.PropertyChangeEvent;
-	import com.degrafa.utilities.external.ExternalBitmapData;
-	import com.degrafa.utilities.external.ExternalDataAsset;
-	import com.degrafa.utilities.external.LoadingLocation;
-	import com.degrafa.utilities.external.ExternalDataPropertyChangeEvent;
 	import flash.utils.setTimeout;
+	
+	import mx.events.PropertyChangeEvent;
+	import mx.events.PropertyChangeEventKind;
 	
 	[DefaultProperty("source")]
 	
@@ -616,8 +615,138 @@ package com.degrafa.paint{
 		/**
 		* Begins the bitmap fill.
 		**/
-		public function begin(graphics:Graphics, rc:Rectangle):void {
+	
+TARGET::FLEX3 {
+	//Flex 3 implementation of IFill
+	public function begin(graphics:Graphics, rc:Rectangle):void {
+		if(!bitmapData) {
+			return;
+		}
+		// todo: optimize all this with cacheing
+		var template:BitmapData = bitmapData;
+		
+		var repeat:Boolean = true;
+		var positionX:Number = 0; 
+		var positionY:Number = 0;
+		
+		var matrix:Matrix = new Matrix();
+		
+		
+		matrix.translate(rc.x, rc.y);
+		// deal with stretching
+		if(repeatX == BitmapFill.STRETCH || repeatY == BitmapFill.STRETCH) {
+			var stretchX:Number = repeatX == STRETCH ? rc.width : template.width;
+			var stretchY:Number = repeatY == STRETCH ? rc.height : template.height;
+			if(target) {
+				target.width = stretchX;
+				target.height = stretchY;
+				template = new BitmapData(stretchX, stretchY, true, 0);
+				// use sprite to render 9-slice Bitmap
+				if(sprite) { 
+					template.draw(sprite);
+				} else {
+					template.draw(target);
+				}
+			} else {
+				matrix.scale(stretchX/template.width, stretchY/template.height);
+			}
+		}
+		
+		// deal with spacing
+		if(repeatX == BitmapFill.SPACE || repeatY == BitmapFill.SPACE) {
+			// todo: account for rounding issues here
+			var spaceX:Number = repeatX == BitmapFill.SPACE ? Math.round((rc.width % template.width) / int(rc.width/template.width)) : 0;
+			var spaceY:Number = repeatY == BitmapFill.SPACE ? Math.round((rc.height % template.height) / int(rc.height/template.height)) : 0;
+			var pattern:BitmapData = new BitmapData(Math.round(spaceX+template.width), Math.round(spaceY+template.height), true, 0);
+			pattern.copyPixels(template, template.rect, new Point(Math.round(spaceX/2), Math.round(spaceY/2)));
+			template = pattern;
+		} 
+		
+		if(repeatX == BitmapFill.NONE || repeatX == BitmapFill.REPEAT) {
+			positionX = _offsetX.relativeTo(rc.width-template.width)
+		}
+		
+		if(repeatY == BitmapFill.NONE || repeatY == BitmapFill.REPEAT) {
+			positionY = _offsetY.relativeTo(rc.height-template.height)
+		}
+		
+		// deal with repeating (or no-repeating rather)
+		if(repeatX == BitmapFill.NONE || repeatY == BitmapFill.NONE) {
+			var area:Rectangle = new Rectangle(1, 1, rc.width, rc.height);
+			var areaMatrix:Matrix = new Matrix();
 			
+			if(repeatX == BitmapFill.NONE) {
+				area.width = template.width
+			} else {
+				areaMatrix.translate(positionX, 0)
+				positionX = 0;
+			}
+			
+			if(repeatY == BitmapFill.NONE) {
+				area.height = template.height
+			} else {
+				areaMatrix.translate(0, positionY);
+				positionY = 0;
+			}
+			
+			// repeat onto a shape as needed
+			var shape:Shape = new Shape(); // todo: cache for performance
+			shape.graphics.beginBitmapFill(template, areaMatrix);
+			shape.graphics.drawRect(0, 0, area.width, area.height);
+			shape.graphics.endFill();
+			
+			// use the shape to create a new template (with transparent edges)
+			template = new BitmapData(area.width+2, area.height+2, true, 0);
+			template.draw(shape, new Matrix(1, 0, 0, 1, 1, 1), null, null, area);
+			
+			repeat = false;
+		}
+		
+		matrix.translate( -_originX, -_originY);
+		
+		matrix.scale(_scaleX, _scaleY);
+		matrix.rotate(_rotation*(Math.PI/180));
+		matrix.translate(positionX, positionY);
+		
+		var regPoint:Point;
+		var transformRequest:ITransform;
+		var tempmat:Matrix;
+		//handle layout transforms - only renderLayouts so far
+		if (_requester && (_requester as Geometry).hasLayout) {
+			var geom:Geometry = _requester as Geometry;
+			if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+		}
+		if (_transform && ! _transform.isIdentity) {
+			
+			tempmat= new Matrix();
+			regPoint = _transform.getRegPointForRectangle(rc);
+			tempmat.translate(-regPoint.x,-regPoint.y);
+			tempmat.concat(_transform.transformMatrix);
+			tempmat.translate( regPoint.x,regPoint.y);
+			matrix.concat(tempmat);
+		} 
+		if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+			
+			if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+			else matrix.concat((_requester as Geometry).transformContext);
+			//remove the requester reference
+			_requester = null;
+		}
+		
+		_lastArgs.length = 0;
+		_lastArgs[0] = template;
+		_lastArgs[1] = matrix;
+		_lastArgs[2] = repeat;
+		_lastArgs[3] = smooth;
+		_lastContext = graphics;
+		_lastRect = rc;
+		if (graphics) graphics.beginBitmapFill(template, matrix, repeat, smooth);
+	}
+	
+}  
+TARGET::FLEX4  {
+	//Flex 4 implementation of IFill
+public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {			
 			if(!bitmapData) {
 				return;
 			}
@@ -741,7 +870,7 @@ package com.degrafa.paint{
 			_lastRect = rc;
 			if (graphics) graphics.beginBitmapFill(template, matrix, repeat, smooth);
 		}
-		
+}	
 		/**
 		* Ends the bitmap fill.
 		**/

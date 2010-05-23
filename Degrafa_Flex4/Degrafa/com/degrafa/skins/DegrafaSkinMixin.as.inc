@@ -14,7 +14,7 @@ import flash.display.Graphics;
 import flash.geom.Rectangle;
 
 import mx.events.PropertyChangeEventKind;
-
+import mx.events.PropertyChangeEvent;
 
 private var _data:Object;
 

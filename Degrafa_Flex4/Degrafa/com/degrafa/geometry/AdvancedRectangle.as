@@ -23,10 +23,11 @@ package com.degrafa.geometry{
 
 	import com.degrafa.IGeometry;
 	import com.degrafa.geometry.layout.LayoutConstraint;
-
+	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
-
+	
 	import mx.graphics.IFill;
 	import mx.graphics.IStroke;
 	import mx.graphics.SolidColor;
@@ -68,6 +69,9 @@ package com.degrafa.geometry{
 		public var topRightFill:IFill;
 		public var bottomLeftFill:IFill;
 		public var bottomRightFill:IFill;
+		
+
+		
 
 		public function AdvancedRectangle(){
 			super();
@@ -109,8 +113,17 @@ package com.degrafa.geometry{
 
 			if(isRect || isRoundRect || isRoundRectComplex) {
 				var stroke:IStroke = convertSolidColorToStroke(topFill as SolidColor, topWidth);
+				
+			TARGET::FLEX3	{
 				stroke.apply(graphics);
 				backgroundFill.begin(graphics, rc);
+			}
+			
+			TARGET::FLEX4   { 
+				stroke.apply(graphics,rc,zeroOrigin);
+				backgroundFill.begin(graphics, rc,zeroOrigin);
+			}
+			
 				if(isRect) {
 					graphics.drawRect(rc.x, rc.y, rc.width, rc.height);
 				} else if(isRoundRect) {
@@ -140,7 +153,10 @@ package com.degrafa.geometry{
 			if(leftFill != null) {
 				var rc:Rectangle = new Rectangle(0, topLeftRadiusY, leftWidth, rectangle.height - topLeftRadiusY - bottomLeftRadiusY);
 				graphics.lineStyle(0, 0, 0);
-				leftFill.begin(graphics, rc);
+				
+			TARGET::FLEX3  {leftFill.begin(graphics, rc);}
+			TARGET::FLEX4  {leftFill.begin(graphics, rc,zeroOrigin);	}
+				
 				graphics.moveTo(0, topLeftRadiusY); // top outside
 				graphics.lineTo(leftWidth, Math.max(topLeftRadiusY, topWidth)); // top inside
 				graphics.lineTo(leftWidth, rectangle.height - Math.max(bottomLeftRadiusY, bottomWidth)); // bottom inside
@@ -153,8 +169,9 @@ package com.degrafa.geometry{
 		private function drawTopBorder(graphics:Graphics, rectangle:Rectangle):void {
 			if(topFill != null) {
 				var rc:Rectangle = new Rectangle(topLeftRadiusX, 0, rectangle.width - topLeftRadiusX - topRightRadiusX, topWidth);
-				graphics.lineStyle(0, 0, 0);
-				topFill.begin(graphics, rc);
+				graphics.lineStyle();
+			TARGET::FLEX3  {topFill.begin(graphics, rc);}
+			TARGET::FLEX4  {topFill.begin(graphics, rc,zeroOrigin);	}
 				graphics.moveTo(topLeftRadiusX, 0);
 				graphics.lineTo(rectangle.width  - topRightRadiusX, 0);
 				graphics.lineTo(rectangle.width - Math.max(topRightRadiusX, rightWidth), topWidth);
@@ -168,7 +185,8 @@ package com.degrafa.geometry{
 			if(rightFill != null) {
 				var rc:Rectangle = new Rectangle(0, topRightRadiusY, rightWidth, rectangle.height - topRightRadiusY - bottomRightRadiusY);
 				graphics.lineStyle(0, 0, 0);
-				rightFill.begin(graphics, rc);
+		TARGET::FLEX3  {rightFill.begin(graphics, rc);}
+		TARGET::FLEX4  {rightFill.begin(graphics, rc,zeroOrigin);	}
 				graphics.moveTo(rectangle.width, Math.max(topRightRadiusY, topWidth)); // top outside
 				graphics.lineTo(rectangle.width, rectangle.height - bottomRightRadiusY); // bottom outside
 				graphics.lineTo(rectangle.width - rightWidth, rectangle.height - Math.max(bottomRightRadiusY, bottomWidth));
@@ -182,7 +200,8 @@ package com.degrafa.geometry{
 			if(bottomFill != null) {
 				var rc:Rectangle = new Rectangle(bottomLeftRadiusX, 0, rectangle.width - bottomLeftRadiusX - bottomRightRadiusX, bottomWidth);
 				graphics.lineStyle(0, 0, 0);
-				bottomFill.begin(graphics, rc);
+	TARGET::FLEX3  {bottomFill.begin(graphics, rc);}
+	TARGET::FLEX4  {bottomFill.begin(graphics, rc,zeroOrigin);	}
 				graphics.moveTo(Math.max(bottomLeftRadiusX, leftWidth), rectangle.height - bottomWidth); // left inside
 				graphics.lineTo(rectangle.width - Math.max(bottomRightRadiusX, rightWidth), rectangle.height - bottomWidth); // right inside
 				graphics.lineTo(rectangle.width - bottomRightRadiusX, rectangle.height); // right outside
@@ -196,7 +215,8 @@ package com.degrafa.geometry{
 		private function drawTopLeftRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw top left curve
 			if(topLeftRadiusX > 0){
-				topLeftFill.begin(graphics, rc);
+	TARGET::FLEX3  {topLeftFill.begin(graphics, rc);}
+	TARGET::FLEX4  {topLeftFill.begin(graphics, rc,zeroOrigin);	}
 				graphics.moveTo(0, topLeftRadiusY);
 				graphics.curveTo(0, 0, topLeftRadiusX, 0);
 				graphics.lineTo(Math.max(topLeftRadiusX, leftWidth), topWidth);
@@ -211,7 +231,8 @@ package com.degrafa.geometry{
 			// draw top right curve
 			if(topRightRadiusX > 0){
 				var trc:Rectangle = new Rectangle(rc.width - Math.max(rightWidth, topRightRadiusX), 0, Math.max(topRightRadiusX, rightWidth), Math.max(topRightRadiusY, topWidth));
-				topRightFill.begin(graphics, trc);
+	TARGET::FLEX3  {topRightFill.begin(graphics, trc);}
+	TARGET::FLEX4  {topRightFill.begin(graphics, trc,zeroOrigin);	}
 				graphics.moveTo(rc.width - topRightRadiusX, 0);
 				graphics.curveTo(rc.width, 0, rc.width, topRightRadiusY);
 				graphics.lineTo(rc.width - rightWidth, Math.max(topRightRadiusY, topWidth));
@@ -225,7 +246,8 @@ package com.degrafa.geometry{
 			// draw bottom left curve
 			if(bottomLeftRadiusX > 0){
 				var brc:Rectangle = new Rectangle(0, rc.height - Math.max(bottomWidth, bottomLeftRadiusY), Math.max(leftWidth, bottomLeftRadiusX), Math.max(bottomWidth, bottomLeftRadiusY));
-				bottomLeftFill.begin(graphics, brc);
+	TARGET::FLEX3  {bottomLeftFill.begin(graphics, brc);}
+	TARGET::FLEX4  {bottomLeftFill.begin(graphics, brc,zeroOrigin);	}
 				graphics.moveTo(bottomLeftRadiusX, rc.height);
 				graphics.curveTo(0, rc.height, 0, rc.height - bottomLeftRadiusY);
 				graphics.lineTo(leftWidth, Math.min(rc.height - bottomLeftRadiusY, rc.height - bottomWidth));
@@ -238,7 +260,8 @@ package com.degrafa.geometry{
 		private function drawBottomRightRadius(graphics:Graphics, rc:Rectangle):void {
 			// draw bottom right curve
 			if(bottomRightRadiusX > 0){
-				bottomRightFill.begin(graphics, rc);
+	TARGET::FLEX3  {bottomRightFill.begin(graphics, rc);}
+	TARGET::FLEX4  {bottomRightFill.begin(graphics, rc,zeroOrigin);	}
 				graphics.moveTo(rc.width - bottomRightRadiusX , rc.height);
 				graphics.curveTo(rc.width, rc.height, rc.width, rc.height - bottomRightRadiusY);
 				graphics.lineTo(rc.width - rightWidth, Math.min(rc.height - bottomRightRadiusY, rc.height - bottomWidth));
@@ -256,7 +279,8 @@ package com.degrafa.geometry{
                                                 rc.height - (topWidth + bottomWidth));
 
             // draw background
-            backgroundFill.begin(graphics, brc);
+	TARGET::FLEX3  {backgroundFill.begin(graphics, rc);}
+	TARGET::FLEX4  {backgroundFill.begin(graphics, rc,zeroOrigin);	}
             // todo: lots more optimizing =D
 
             //Calculate inner radii

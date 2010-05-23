@@ -714,6 +714,7 @@ package com.degrafa.paint{
 		/**
 		* Begins the Videofill.
 		**/
+TARGET::FLEX3  {
 		public function begin(graphics:Graphics, rc:Rectangle):void {
 			
 			if(!bitmapData) {
@@ -886,7 +887,182 @@ package com.degrafa.paint{
 			if (graphics) graphics.beginBitmapFill(template, matrix, repeat, smooth); 
 			_requester = null;
 		}
+}
+
+TARGET::FLEX4  {
+	public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {
 		
+		if(!bitmapData) {
+			return;
+		}
+		if (_coordType == "absolute") rc= new Rectangle(x,  y, width, height);
+		else if (_coordType == "ratio") rc= new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height);
+		var template:BitmapData = bitmapData;
+		var repeat:Boolean = true;
+		var positionX:Number = 0; 
+		var positionY:Number = 0;
+		var deLetterBoxing:Boolean;
+		
+		var matrix:Matrix = _correctionMatrix? _correctionMatrix.clone():new Matrix();
+		
+		if (_vidStream && _vidStream.detectLetterBox && _vidStream.isLetterBoxed){
+			matrix.translate(-_vidStream.letterBoxContent.x,-_vidStream.letterBoxContent.y);
+			deLetterBoxing=true;
+		}
+		
+		if (_insetFromStroke && _requester && (_requester as Geometry).stroke){
+			var strokeoffset:uint;
+			strokeoffset = int((_requester as Geometry).stroke.weight *0.5);
+			
+			// for a zero weight stroke, give it a 1 pixel offset
+			if (!strokeoffset) strokeoffset = 1;
+			rc = rc.clone(); 
+			rc.inflate( -strokeoffset, -strokeoffset); //inset by strokeoffset - used for scaling if needed
+			
+		}
+		var sx:Number;
+		var sy:Number;
+		var tx:Number;
+		var ty:Number;
+		var twidth:Number;
+		var theight:Number;
+		if (_targetSetting) 
+		{
+			//allow repeating in both directions only.
+			repeat = (_repeatX == VideoFill.REPEAT && _repeatY == VideoFill.REPEAT);
+			switch(_targetSetting)
+			{
+				case 1:
+					//targetbounds
+					twidth= deLetterBoxing? _vidStream.letterBoxContent.width   :(template.width+matrix.tx*2);
+					theight= deLetterBoxing? _vidStream.letterBoxContent.height   :(template.height+matrix.ty*2);
+					sx = (rc.width)/twidth;
+					sy = (rc.height)/theight;
+					
+					matrix.scale(sx,sy);
+					
+					matrix.translate(rc.x, rc.y);
+					break;
+				case 2:
+					//if match targetboundsmaintainaspectratio, then centre it to the target bounds
+					twidth= deLetterBoxing? _vidStream.letterBoxContent.width   :(template.width+matrix.tx*2);
+					theight= deLetterBoxing? _vidStream.letterBoxContent.height   :(template.height+matrix.ty*2);
+					
+					sx = (rc.width)/twidth;
+					sy = (rc.height)/theight;
+					tx=(sx>sy)? (sx-sy)*twidth/2 :0;
+					ty=(sy>sx)? (sy-sx)*theight/2 :0;
+					
+					if (sx>sy) sx=sy;
+					if (sy>sx) sy=sx;
+					
+					matrix.scale(sx,sy);
+					
+					matrix.translate(rc.x+tx, rc.y+ty);
+					
+					break;
+				case 3 :
+					//center target
+					matrix.identity(); //don't need to compensate for the offset here
+					//no scaling, just positioning:
+					//deLetterBoxing has no effect here as it is assumed that a letterbox is centered (this may not be true all the time perhaps)				 
+					matrix.translate(rc.x+(rc.width-bitmapData.width)/2,rc.y+(rc.height-bitmapData.height)/2)
+					
+					break;
+				default:
+					
+					
+					break;
+			}
+			
+		}
+			
+		else {
+			repeat = (((repeatX == VideoFill.REPEAT) && (repeatY == VideoFill.REPEAT)) || ((repeatX == VideoFill.STRETCH) && (repeatY == VideoFill.REPEAT)) || ((repeatX == VideoFill.REPEAT) && (repeatY == VideoFill.STRETCH)));
+			// deal with stretching
+			if(repeatX == VideoFill.STRETCH || repeatY == VideoFill.STRETCH) {
+				twidth= deLetterBoxing? _vidStream.letterBoxContent.width   :(template.width+matrix.tx*2);
+				theight= deLetterBoxing? _vidStream.letterBoxContent.height   :(template.height+matrix.ty*2);
+				sx =  repeatX == STRETCH ?(rc.width)/twidth : 1;
+				sy =  repeatY == STRETCH ? (rc.height)/theight :1;		
+				if (sx!=1 || sy!=1)	matrix.scale(sx, sy);
+			}
+			matrix.translate(rc.x, rc.y);
+			
+		}
+		
+		
+		if (_scaleX!=1 || _scaleY!=1) matrix.scale(_scaleX, _scaleY);
+		if (_rotation) matrix.rotate(_rotation*(Math.PI/180));
+		
+		
+		var regPoint:Point;
+		var transformRequest:ITransform;
+		var tempmat:Matrix;
+		//handle layout transforms - only renderLayouts so far
+		if (_requester && (_requester as Geometry).hasLayout) {
+			var geom:Geometry = _requester as Geometry;
+			if (geom._layoutMatrix) matrix.concat( geom._layoutMatrix);
+		}
+		if (_transform && ! _transform.isIdentity) {
+			tempmat= new Matrix();
+			regPoint = _transform.getRegPointForRectangle(rc);
+			tempmat.translate(-regPoint.x,-regPoint.y);
+			tempmat.concat(_transform.transformMatrix);
+			tempmat.translate( regPoint.x,regPoint.y);
+			matrix.concat(tempmat);
+		}
+		if (_requester && ((transformRequest  = (_requester as Geometry).transform) || (_requester as Geometry).transformContext)) {
+			if (transformRequest) matrix.concat(transformRequest.getTransformFor(_requester));
+			else matrix.concat((_requester as Geometry).transformContext);
+			//remove the requester reference
+		}
+		
+		var csAlpha:Number = CommandStack.currentAlpha;
+		var alpha:Number = this.alpha;
+		if (csAlpha != 1) { alpha *= csAlpha;	}
+		
+		//TODO: consider an approach keyed by alpha key as well so that if an alpha key version exists and it has another requester it is reused rather than reinstanced per requester
+		if (alpha<0.997 && _requester){
+			var key:int = alpha*255;
+			var _alphaBitmapData:BitmapData;
+			if (!_alphaRequests)_alphaRequests=new Dictionary(true);
+			
+			//this will not work as expected with repeaters that use alpha modifiers....but such use should be avoided in any case for videofill for performance reasons
+			if (!_alphaRequests[_requester]){
+				//make a quick copy:
+				_alphaBitmapData = new BitmapData(template.width,template.height,true,key<<24);
+				_alphaBitmapData.copyPixels(template,template.rect,new Point(0,0),_alphaBitmapData,new Point(0,0));
+				//set up the recurring alpha request for the VideoStream
+				_alphaRequests[_requester]=new AlphaRequest(_alphaBitmapData,new ColorTransform(1,1,1,key/255));
+				_vidStream.registerCopyTarget(_alphaBitmapData,AlphaRequest(_alphaRequests[_requester]).colorTransform);
+			} else {
+				//update the colortransform on the existing alpharequest
+				AlphaRequest(_alphaRequests[_requester]).colorTransform.alphaMultiplier=key/255;
+				_alphaBitmapData=AlphaRequest(_alphaRequests[_requester]).alphaBitmap;
+			}
+			if (_vidStream.isPaused) _vidStream.requestPausedBitmapdataUpdate();
+			template=_alphaBitmapData;
+			
+		} else if (_alphaRequests && _alphaRequests[_requester]) {
+			//deregister and delete, because we're not using it
+			_vidStream.deregisterCopyTarget(AlphaRequest(_alphaRequests[_requester]).alphaBitmap,true);
+			_alphaRequests[_requester]=null;
+			delete _alphaRequests[_requester];
+		}
+		
+		_lastArgs.length = 0;
+		_lastArgs[0] = template;
+		_lastArgs[1] = matrix;
+		_lastArgs[2] = repeat;
+		_lastArgs[3] = smooth;
+		_lastContext = graphics;
+		_lastRect = rc;
+		
+		if (graphics) graphics.beginBitmapFill(template, matrix, repeat, smooth); 
+		_requester = null;
+	}	
+}
 		/**
 		* Ends the Video fill.
 		**/

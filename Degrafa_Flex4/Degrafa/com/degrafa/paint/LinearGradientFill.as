@@ -21,11 +21,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.IGeometryComposition;
-	import flash.geom.Matrix;
+	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.Graphics;
+	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	
@@ -167,6 +168,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
+TARGET::FLEX3  {
 		override public function begin(graphics:Graphics, rc:Rectangle):void {
 			if (_x && _y && _width && _height) {
 				if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x + x, rc.y + y, width, height));
@@ -182,7 +184,26 @@ package com.degrafa.paint{
 				super.begin(graphics,rc);
 			}
 		}
-		
+}
+
+TARGET::FLEX4  {
+	//Flex 4 implementation of IFill
+	override public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {		
+		if (_x && _y && _width && _height) {
+			if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x + x, rc.y + y, width, height),p);
+			else if (_coordType == "ratio") super.begin(graphics, new Rectangle(rc.x + x * rc.width, rc.y + y * rc.height, width * rc.width, height * rc.height),p);
+			else super.begin(graphics, new Rectangle(x, y, width, height),p);
+		}
+		else if (_width && _height) {
+			if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x , rc.y , width, height),p);
+			else if (_coordType == "ratio") super.begin(graphics, new Rectangle(rc.x, rc.y , width * rc.width, height * rc.height),p);
+			else super.begin(graphics, new Rectangle(0, 0, width, height),p);
+		}
+		else{
+			super.begin(graphics,rc,p);
+		}
+	}
+}
 		/**
 		* An object to derive this objects properties from. When specified this 
 		* object will derive it's unspecified properties from the passed object.

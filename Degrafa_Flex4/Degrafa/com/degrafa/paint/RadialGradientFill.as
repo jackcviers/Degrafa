@@ -21,10 +21,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 package com.degrafa.paint{
 	
-	import com.degrafa.core.IGraphicsFill;
 	import com.degrafa.IGeometryComposition;
+	import com.degrafa.core.IGraphicsFill;
 	
 	import flash.display.Graphics;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	
@@ -168,6 +169,7 @@ package com.degrafa.paint{
 		* @param graphics The current context to draw to.
 		* @param rc A Rectangle object used for fill bounds.  
 		**/
+TARGET::FLEX3  {
 		override public function begin(graphics:Graphics, rc:Rectangle):void{
 			var forceCircle:Number;
 			if (_cx && _cy && _radius) {
@@ -190,7 +192,32 @@ package com.degrafa.paint{
 				super.begin(graphics,rc);
 			}
 		}
-		
+}
+TARGET::FLEX4  {
+	//Flex 4 implementation of IFill
+	override public function begin(graphics:Graphics, rc:Rectangle,p:Point):void {	
+		var forceCircle:Number;
+		if (_cx && _cy && _radius) {
+			if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x + cx-radiusX, rc.y + cy-radiusY, radiusX*2, radiusY*2),p);
+			else if (_coordType == "ratio") {
+				forceCircle = _ellipse? NaN:Math.sqrt(rc.width * rc.width + rc.height * rc.height) / Math.SQRT2;
+				super.begin(graphics, new Rectangle(rc.x + (cx * rc.width)-radiusX*(_ellipse?rc.width:forceCircle), rc.y + (cy * rc.height)-radiusY*(_ellipse?rc.height:forceCircle), radiusX *2* ((_ellipse? rc.width:forceCircle)), radiusY*2 * (_ellipse? rc.height:(_ellipse? rc.width:forceCircle))),p);
+			}
+			else super.begin(graphics,new Rectangle(cx-radiusX,cy-radiusY,radiusX*2,radiusY*2),p);
+		}
+		else if (_radius) {
+			if (_coordType == "relative") super.begin(graphics, new Rectangle(rc.x -radiusX, rc.y -radiusY, radiusX*2, radiusY*2),p);
+			else if (_coordType == "ratio") {
+				forceCircle = _ellipse? NaN:Math.sqrt(rc.width * rc.width + rc.height * rc.height) / Math.SQRT2;
+				super.begin(graphics, new Rectangle(rc.x -radiusX * (_ellipse? rc.width:forceCircle), rc.y -radiusY * (_ellipse? rc.height:forceCircle), radiusX * 2 * (_ellipse? rc.width:forceCircle), radiusY*2 * (_ellipse? rc.height:forceCircle )),p); 
+			}
+			else super.begin(graphics,new Rectangle(0,0,radiusX*2,radiusY*2),p);
+		}
+		else {
+			super.begin(graphics,rc,p);
+		}
+	}	
+}
 		/**
 		* An object to derive this objects properties from. When specified this 
 		* object will derive it's unspecified properties from the passed object.

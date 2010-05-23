@@ -83,6 +83,9 @@ package com.degrafa.geometry{
  	**/	
 	public class Geometry extends DegrafaObject implements IDegrafaObject, 
 	IGeometryComposition, IDegrafaStateClient, ISimpleStyleClient {
+	
+	
+	TARGET::FLEX4  protected static const zeroOrigin:Point=new Point();
 		
 		private var _invalidated:Boolean;
 		/**
@@ -239,7 +242,11 @@ package com.degrafa.geometry{
 		}
 		public function set graphicsTarget(value:Array):void{
 			
-			if(!value){return;}
+			if(!value){//clear the items to process as we now have no targets
+				_graphicsTarget.items=[];
+				methodQueue.length = 0;
+				return;
+			}
 			
 			var item:Object;
 			for each (item in value){
@@ -774,7 +781,8 @@ package com.degrafa.geometry{
 	        {   
 				//we can't pass a reference to the requesting Geometry in the method signature with IFill - its required for transform inheritance by some fills
 				if (_fill is ITransformablePaint) (_fill as ITransformablePaint).requester = this;
-	        	_fill.begin(graphics, (rc) ? rc:null);	
+	TARGET::FLEX3  {_fill.begin(graphics, rc);}
+	TARGET::FLEX4  {_fill.begin(graphics, rc,zeroOrigin);	}
 				CommandStack.currentFill = _fill;
 	        } else CommandStack.currentFill = null;
 	        
