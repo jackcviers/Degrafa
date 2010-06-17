@@ -133,7 +133,7 @@ package com.degrafa{
 				var oldValue:Number=_x;
 			
 				_x = value;
-				_point.y=_x;
+				_point.x=_x;
 				
 				//call local helper to dispatch event	
 				if(enableEvents){	
