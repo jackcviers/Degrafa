@@ -164,6 +164,33 @@ package com.degrafa.geometry
       return t;
     }
     
+    
+    /**
+     * subdivide performs a subdivision of the current AdvancedQuadraticBezier, returning an Object with two points so that a new quadratic may
+     * be drawn from (x0,y0) to (x(t), y(t)).
+     *
+     * @param _t:Number t-parameter in (0,1) for the subdivision - should be in the open interval for reliable results.
+     *
+     * @return Object initial point of the new quad is always (x0,y0).  The cx, cy, and x1, y1 properties of the Object are the x- and y-coordinates
+     * of the anchor point and final control point, ( x(t), y(t) ).
+     *
+     */
+    public function subdivide(_t:Number):Object
+    {
+      var t1:Number = 1.0 - _t;
+      
+      var __cX:Number = _t*cx + t1*x0;
+      var __cY:Number = _t*cy + t1*y0;
+      
+      var p21X:Number = _t*x1 + t1*cx;
+      var p21Y:Number = _t*y1 + t1*cy;
+      
+      var pX:Number = _t*p21X + t1*__cX;
+      var pY:Number = _t*p21Y + t1*__cY;
+      
+      return {cx:__cX, cy:__cY, x1:pX, y1:pY};
+    }
+    
 /**
 * tAtMinX
 * 

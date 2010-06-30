@@ -40,6 +40,7 @@
 package com.degrafa.geometry.utilities
 {
   import com.degrafa.geometry.QuadraticBezier;
+  import com.degrafa.geometry.AdvancedQuadraticBezier;
   import com.degrafa.geometry.CubicBezier;
   import com.degrafa.geometry.Geometry;
   
@@ -70,6 +71,69 @@ package com.degrafa.geometry.utilities
 *
 */   
     public function get minDistance():Number { return __dMinimum; } 
+    
+ /**
+   * quadArc auto-interpolates a quadratic arc through three points with a quadratic Bezier given only two endpoints and a multiplier of the distance between those points.
+   * 
+   * @param _po:Point First endpoint (first interpolation point)
+   * @param _p2:Point Second endpoint (third interpolation point)
+   * @param _alpha:Number Multiplier onto the distance between P0 and P2 to determine the middle interpolation point
+   * @default 0.5
+   * @param _ccw:Boolean true if the rotation direction from first to last endpoint is ccw; tends to direct the curve upwards if both points are roughly level
+   * @default true
+   * 
+   * @return AdvancedQuadraticBezier refernce to AdvancedQuadraticBezier that interpolates the generated curve.
+   *
+   * @since 1.1
+   *
+   */  
+    public static function quadArc(_p0:Point, _p2:Point, _alpha:Number=0.5, _isUpward:Boolean=true):AdvancedQuadraticBezier
+    {
+      var alpha:Number                   = Math.abs(_alpha);
+      var bezier:AdvancedQuadraticBezier = new AdvancedQuadraticBezier();
+      
+      if( _p0 && _p2 )
+      {
+        var firstx:Number = _p0.x;
+        var firsty:Number = _p0.y;
+        var lastx:Number  = _p2.x;
+        var lasty:Number  = _p2.y;
+        var deltax:Number = lastx - firstx;
+        var deltay:Number = lasty - firsty;
+        var dist:Number   = Math.sqrt(deltax*deltax + deltay*deltay);
+        
+        var midpointx:Number = 0.5*(firstx + lastx);
+        var midpointy:Number = 0.5*(firsty + lasty);
+        
+        var dx:Number = lastx - midpointx; 
+        var dy:Number = lasty - midpointy;
+        
+        // R is the rotated vector
+        if( _isUpward )
+        {
+          var rx:Number = midpointx + dy;
+          var ry:Number = midpointy - dx;
+        }
+        else
+        {
+          rx = midpointx - dy;
+          ry = midpointy + dx;
+        }
+        
+        deltax        = rx - midpointx;
+        deltay        = ry - midpointy;
+        var d:Number  = Math.sqrt(deltax*deltax + deltay*deltay);
+        var ux:Number = deltax / d;
+        var uy:Number = deltay / d;
+        
+        var p1x:Number = midpointx + _alpha*dist*ux;
+        var p1y:Number = midpointy + _alpha*dist*uy;
+        
+        bezier.interpolate( [_p0, new Point(p1x,p1y), _p2] );
+      }
+      
+      return bezier;
+    }
     
 /**
  * Given control and anchor points for a quad Bezier and an x-coordinate between the initial and terminal control points, return the t-parameter(s) at the input x-coordinate
