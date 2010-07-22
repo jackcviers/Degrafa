@@ -128,8 +128,13 @@ package com.degrafa.geometry{
 			if(autoSizeField){
 				textField.width = textField.textWidth +4;
 				textField.height = textField.textHeight +4;
-				_width = textField.width;
+				invalidated = invalidated || (_width!=textField.width || _height!=textField.height);
+				_width = textField.width ;
 				_height = textField.height;
+				if (hasLayout) {
+					_layoutConstraint.width = _width;
+					_layoutConstraint.height = _height;
+				}
 			}
 		}
 		
@@ -346,7 +351,9 @@ package com.degrafa.geometry{
 			if(_layoutConstraint){
 				if (_layoutConstraint.invalidated) {
 					var tempLayoutRect:Rectangle = new Rectangle(0,0,1,1);
-				
+					if (_autoSizeField ) {
+						updateTextField()
+					}				
 					if(_width){
 			 			tempLayoutRect.width = _width;
 			 		}
@@ -1118,14 +1125,24 @@ package com.degrafa.geometry{
 				else fill = new SolidFill(value, 1);
 			}
     	} 
-    	/**
-		* textHeight property for the textField. 
+		/**
+		* textWidth property for the textField. 
 		* 
 		* @see flash.text.TextField
 		**/ 	
 		public function get textWidth():Number{
 			return textField.textWidth;
 		} 
+		
+		/**
+		 * textHeight property for the textField. 
+		 * 
+		 * @see flash.text.TextField
+		 **/ 	
+		public function get textHeight():Number{
+			return textField.textHeight;
+		} 
+		
     	/**
 		* thickness property for the textField. 
 		* 
@@ -1151,6 +1168,8 @@ package com.degrafa.geometry{
 			if (value!=textField.wordWrap)
 			initChange("wordWrap", textField.wordWrap, textField.wordWrap = value, this);
     	} 
+		
+		
     		
 	}
 }
