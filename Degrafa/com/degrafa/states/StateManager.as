@@ -353,7 +353,7 @@ package com.degrafa.states{
 					isSuppressing=false;
 	//				trace('suppressions removed')
 				}
-	
+				state.dispatchEnterState();
 	        }
 			
 			
