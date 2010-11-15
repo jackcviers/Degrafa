@@ -58,13 +58,13 @@ package com.degrafa.geometry
  	**/	
 	 public class AdvancedQuadraticBezier extends QuadraticBezier
 	 {
-		  // bezier polynomial coefficients
-    private var _c0X:Number;
-    private var _c0Y:Number;
-    private var _c1X:Number;
-    private var _c1Y:Number;
-    private var _c2X:Number;
-    private var _c2Y:Number;
+	    // bezier polynomial coefficients
+        private var _c0X:Number;
+        private var _c0Y:Number;
+        private var _c1X:Number;
+        private var _c1Y:Number;
+        private var _c2X:Number;
+        private var _c2Y:Number;
   
 		/**
 	 	* Constructor.
@@ -507,12 +507,20 @@ package com.degrafa.geometry
       
       return new AdvancedQuadraticBezier(x1,y1,pX,pY,_x,_y);
     }
+    
+    override public function pointAt(_t:Number):Point
+    {
+      var t:Number = _t < 0 ? 0 : _t;
+      t            = t > 1 ? 1 : t;
+      
+      return new Point( _c0X + t*(_c1X + t*(_c2X)), _c0Y + t*(_c1Y + t*(_c2Y)) );
+    }
 
     // recompute polynomial coefficients
     private function getBezierCoef():void
     { 
-				  _c0X = x0;
-	     _c0Y = y0;
+	  _c0X = x0;
+	  _c0Y = y0;
 
       _c1X = 2.0*(cx-x0);
       _c1Y = 2.0*(cy-y0);

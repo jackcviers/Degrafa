@@ -28,6 +28,8 @@
 //
 // copyright (c) 2006-2007, Jim Armstrong.  All Rights Reserved.
 //
+// version 1.2 added quad. bezier refinement as experimental method
+//
 // This software program is supplied 'as is' without any warranty, express, implied, 
 // or otherwise, including without limitation all warranties of merchantability or fitness
 // for a particular purpose.  Jim Armstrong shall not be liable for any special incidental, or 
@@ -571,6 +573,88 @@ package com.degrafa.geometry.utilities
       	 index     = getLinearIndex(n, degree-j, j);
         _right[j] = p[index];
       }
+    }
+    
+/**
+ * quadRefine refines a quadratic Bezier curve in the interval [t1,t2], where t1 and t2 are in (0,1), t2 > t1
+ * 
+ * @param _q:AdvancedQuadraticBezier reference to quadratic Bezier curve to be refined
+ * @param _t1:Number left point in refinement interval
+ * @param _t2:Number right point in refinement interval
+ * 
+ * @return Object x0, y0, cx, cy, x1, and y1 properties are control points of quadratic bezier curve representing the segment of the original curve in [t1,t2]
+ * returns a copy of the input quadratic bezier if input interval is invalid
+ *
+ * @since 1.2
+ *
+ */  
+    public static function quadRefine(_q:AdvancedQuadraticBezier, _t1:Number, _t2:Number):Object
+    {
+      if( _t1 < 0 || _t2 > 1 || _t2 <= _t1 )
+        return { x0:_q.x0, y0:_q.y0, cx:_q.cx, cy:_q.cy, x1:_q.x1, y1:_q.y1 };
+      
+      // four points defining two lines
+      var p:Point = _q.pointAt(_t1);
+      var x1:Number = p.x;
+      var y1:Number = p.y;
+      var x2:Number = (1-_t1)*_q.cx + _t1*_q.x1;
+      var y2:Number = (1-_t1)*_q.cy + _t1*_q.y1;
+      var x3:Number = (1-_t2)*_q.x0 + _t2*_q.cx;
+      var y3:Number = (1-_t2)*_q.y0 + _t2*_q.cy;
+      var x4:Number = (1-_t2)*_q.cx + _t2*_q.x1;
+      var y4:Number = (1-_t2)*_q.cy + _t2*_q.y1;
+      
+      var o:Object = intersect(x1, y1, x2, y2, x3, y3, x4, y4);
+      p            = _q.pointAt(_t2);
+      
+      return { x0:x1, y0:y1, cx:o.cx, cy:o.cy, x1:p.x, y1:p.y };
+    }
+    
+    private static function intersect(x1:Number, y1:Number, x2:Number, y2:Number, x3:Number, y3:Number, x4:Number, y4:Number):Object
+    {
+      // tbd - haven't tested every path through this code yet - please feel free to do it for me so I can get back to the mundane
+      // task of making a living while you score some bucks off my free code :)
+      var deltaX1:Number = x2-x1;
+      var deltaX2:Number = x4-x3;
+      var d1Abs:Number   = Math.abs(deltaX1);
+      var d2Abs:Number   = Math.abs(deltaX2);
+      var m1:Number      = 0;
+      var m2:Number      = 0;
+      var pX:Number      = 0;
+      var pY:Number      = 0;
+      
+      if( d1Abs <= 0.000001 )
+      {
+        pX = x1;
+        m2   = (y3 - y4)/deltaX2;
+        pY = (d2Abs <= 0.000001) ? (x1 + 3*(y1-x1)) : (m2*(x1-x4)+y4);
+      }
+      else if( d2Abs <= 0.000001 )
+      {
+        pX = x4;
+        m1   = (y2 - y1)/deltaX1;
+        pY = (d1Abs <= 0.000001) ? (x3 + 3*(x3-x4)) : (m1*(x4-x1)+y1);
+      }
+      else
+      {
+        m1 = (y2 - y1)/deltaX1;
+        m2 = (y4 - y3)/deltaX2;
+        
+        if( Math.abs(m1) <= 0.000001 && Math.abs(m2) <= 0.000001 )
+        {
+          pX = 0.5*(x1 + x4);
+          pY = 0.5*(y1 + y4);
+        }
+        else
+        {
+          var b1:Number = y1 - m1*x1;
+          var b2:Number = y4 - m2*x4;
+          pX            = (b2-b1)/(m1-m2);
+          pY            = m1*pX + b1;
+        }
+      }
+      
+      return {cx:pX, cy:pY};
     }
   }
 }
