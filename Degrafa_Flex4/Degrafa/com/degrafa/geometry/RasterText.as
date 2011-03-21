@@ -124,7 +124,10 @@ package com.degrafa.geometry{
 			if (fill is SolidFill) textField.textColor = uint(SolidFill(fill).color);
 			else {textField.textColor = 0;}
 			//simple for now: re-apply any formatting changes to the whole text content
-			textField.text = textField.text;
+			if (textField.htmlText) 
+				textField.htmlText=textField.htmlText;
+			else
+				textField.text = textField.text;
 			if(autoSizeField){
 				textField.width = textField.textWidth +4;
 				textField.height = textField.textHeight +4;
@@ -429,7 +432,9 @@ package com.degrafa.geometry{
 		**/
 		override public function preDraw():void {
 				if(invalidated){
-				updateTextField();
+					
+			//	FIX THIS HERE !!!
+					
 				commandStack.length=0;
 				//frame it in a rectangle to permit transforms via 
 				//commandStack (whether this is used or not will 
